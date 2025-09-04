@@ -21,7 +21,7 @@ from syntropy.gaussian.decompositions import (
     generalized_information_decomposition as gid,
 )
 from syntropy.gaussian.temporal import (
-    entropy_rate,
+    differential_entropy_rate,
     mutual_information_rate,
     total_correlation_rate,
 )
@@ -175,11 +175,11 @@ def test_gaussian_rate():
 
     noise = np.random.randn(2, T)
 
-    _, mir = mutual_information_rate((0,), (1,), noise, nperseg=2**13, overlap=2**12)
+    _, mir = mutual_information_rate((0,), (1,), noise, nperseg=2**13)
 
-    _, h1 = entropy_rate((0,), noise, nperseg=2**13, overlap=2**12)
-    _, h2 = entropy_rate((1,), noise, nperseg=2**13, overlap=2**12)
-    _, h12 = entropy_rate((0, 1), noise, nperseg=2**13, overlap=2**12)
+    _, h1 = differential_entropy_rate((0,), noise, nperseg=2**13)
+    _, h2 = differential_entropy_rate((1,), noise, nperseg=2**13)
+    _, h12 = differential_entropy_rate((0, 1), noise, nperseg=2**13)
 
     assert mir == pytest.approx(h1 + h2 - h12, abs=pytest_abs)
 
@@ -203,7 +203,7 @@ def test_gaussian_rate():
     for t in range(1, T):
         X[0, t] = X[0, t - 1] * a + noise[t - 1]
 
-    _, hX = entropy_rate((0,), X, nperseg=2**14, overlap=2**13)
+    _, hX = differential_entropy_rate((0,), X, nperseg=2**14)
 
     analytic = 0.5 * (np.log(2 * np.pi * np.e * (eps**2))) - (0.5 * np.log(1 - (a**2)))
 

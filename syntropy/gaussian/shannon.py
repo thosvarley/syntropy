@@ -66,7 +66,7 @@ def local_differential_entropy(
         cov = 1 * cov
 
     if N == 1:
-        return stats.norm.logpdf(x=data, loc=data.mean(), scale=data.std())
+        return -stats.norm.logpdf(x=data, loc=data.mean(), scale=data.std())
     else:
         return -(
             stats.multivariate_normal.logpdf(x=data.T, mean=data.mean(axis=-1), cov=cov)
