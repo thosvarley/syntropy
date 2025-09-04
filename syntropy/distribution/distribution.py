@@ -75,238 +75,91 @@ class Distribution:
             ), "The data must have standard deviation of 1"
 
             self.cov: np.ndaray = np.cov(data, ddof=0.0)
-
             self.estimator: str = "gaussian"
             self.unit: str = "nat"
             self.N: int = self.cov.shape[0]
 
         elif type(data) == dict:
-            self.estimator: str = ("discrete",)
+            self.estimator: str = "discrete"
             self.unit: str = "bit"
             self.N: int = len(list(data.keys())[0])
 
         self.data = data
+
         self.entropy: float = np.nan
+        self.local_entropy: dict[tuple, float] | np.ndarray = None
+
         self.total_correlation: float = np.nan
+        self.local_total_correlation: dict[tuple, float] = None
+
         self.dual_total_correlation: float = np.nan
+        self.local_dual_total_correlation: dict[tuple, float] = None
+
         self.o_information: float = np.nan
+        self.local_o_information: dict[tuple, float] = None
+
         self.s_information: float = np.nan
+        self.local_s_information: dict[tuple, float] = None
+
         self.description_complexity = np.nan
+        self.local_description_complexity: dict[tuple, float] = None
+
         self.tse_complexity = np.nan
 
         self.mutual_information_matrix: np.ndarray = np.array([-1])
 
-    def estimate_entropy(
-        self, inputs: tuple = (-1,), return_locals: bool = False
-    ) -> float:
+    def estimate_entropy(self, inputs: tuple = (-1,), return_locals: bool = False):
 
-        if self.estimator == "gaussian":
-            h = differential_entropy(self.cov, inputs=inputs)
-            if return_locals == True:
-                if inputs == (-1,):
-                    h_ptw = local_differential_entropy(self.data, self.cov)
-                else:
-                    h_ptw = local_differential_entropy(
+        if self.estimator == "discrete":
+            ptw, avg = shannon_entropy(self.data)
+            self.entropy = avg
+            self.local_entropy = ptw
+            if return_locals is True:
+                return ptw, avg
+            else:
+                return avg
+
+        elif self.estimator == "gaussian":
+            if inputs[0] == -1:
+                avg = differential_entropy(self.cov)
+                self.entropy = avg
+                if return_locals is True:
+                    ptw = local_differential_entropy(self.data, self.cov)
+                    self.local_entropy = ptw
+                    return ptw, avg
+                return avg
+            else:
+                avg = differential_entropy(self.cov[inputs, :][:, inputs])
+                if return_locals is True:
+                    ptw = local_differential_entropy(
                         self.data[inputs, :], self.cov[inputs, :][:, inputs]
                     )
+                    return ptw, avg
+                return avg
+    
+    def estimate_total_correlation(self, inputs: tuple = (-1,), return_locals: bool = False):
 
-        elif self.estimator == "discrete":
-            h_ptw, h = shannon_entropy(self.data)
+        if self.estimator == "discrete":
+            ptw, avg = discrete_total_correlation(self.data)
+            self.total_correlation = avg
+            self.local_total_correlation = ptw
+            if return_locals is True:
+                return ptw, avg
+            else:
+                return avg
 
-        if inputs == (-1,):
-            self.entropy = h
-
-        if return_locals == True:
-            return h, h_ptw
-        else:
-            return h
-
-    def estimate_conditional_entropy(
-        self, inputs_x: tuple, inputs_y: tuple, return_locals=False
-    ):
-
-        if self.estimator == "gaussian":
-            h = differential_conditional_entropy(inputs_x, inputs_y, self.cov)
-            if return_locals == True:
-                h_ptw = local_differential_conditional_entropy(
-                    inputs_x, inputs_y, self.data, self.cov
-                )
-        elif self.estimator == "discrete":
-            h_ptw, h = discrete_conditional_entropy(inputs_x, inputs_y, self.data)
-
-        if return_locals == True:
-            return h, h_ptw
-        else:
-            return h
-
-    def estimate_mutual_information(
-        self, inputs: tuple, target: tuple, return_locals: bool = False
-    ) -> float:
-
-        if self.estimator == "gaussian":
-            mi = differential_mutual_information(inputs, target, self.cov)
-            if return_locals == True:
-                mi_ptw = local_differential_mutual_information(
-                    inputs, target, self.data
-                )
-        elif self.estimator == "discrete":
-            mi_ptw, mi = discrete_mutual_information(inputs, target, self.data)
-
-        if return_locals == True:
-            return mi, mi_ptw
-        else:
-            return mi
-
-    def estimate_mutual_information_matrix(self):
-
-        if self.mutual_information_matrix[0] == -1:
-            if self.estimator == "gaussian":
-                self.mutual_information_matrix = 1 * self.cov
-                np.fill_diagonal(self.mutual_information_matrix, np.nan)
-
-                self.mutual_information_matrix = (
-                    -np.log(1 - (self.mutual_information_matrix**2)) / 2.0
-                )
-                np.fill_diagonal(self.mutual_information_matrix, H_SINGLE)
-
-            elif self.estimator == "discrete":
-                self.mutual_information_matrix = np.zeros((self.N, self.N))
-                for i in range(self.N):
-                    for j in range(i + 1):
-                        self.mutual_information_matrix[i, j] = (
-                            discrete_mutual_information((i,), (j,), self.data)[1]
-                        )
-
-                diag = 1 * np.diag(self.mutual_information_matrix)
-                self.mutual_information_matrix += self.mutual_information_matrix.T
-                np.fill_diagonal(self.mutual_information_matrix, diag)
-
-        return self.mutual_information_matrix
-
-    def estimate_conditional_mutual_information(
-        self, inputs_x: tuple, inputs_y: tuple, inputs_z: tuple, return_locals=True
-    ):
-
-        if self.estimator == "gaussian":
-            mi = differential_conditional_mutual_information(
-                inputs_x, inputs_y, inputs_z, self.cov
-            )
-            if return_locals == True:
-                mi_ptw = local_differential_conditional_mutual_information(
-                    inputs_x, inputs_y, inputs_z, self.data, self.cov
-                )
-        elif self.estimator == "discrete":
-            mi_ptw, mi = discrete_conditional_mutual_information(
-                inputs_x, inputs_y, inputs_z, self.data
-            )
-
-        if return_locals == True:
-            return mi, mi_ptw
-        else:
-            return mi
-
-    def estimate_total_correlation(self, inputs: tuple = (-1,), return_locals=False):
-
-        if self.estimator == "gaussian":
-            tc = differential_total_correlation(self.cov, inputs=inputs)
-            if return_locals == True:
-                tc_ptw = local_differential_total_correlation(
-                    self.data, self.cov, inputs
-                )
-        elif self.estimator == "discrete":
-            tc_ptw, tc = discrete_total_correlation(self.data)
-
-        if inputs == (-1,):
-            self.total_correlation = tc
-
-        if return_locals == True:
-            return tc, tc_ptw
-        else:
-            return tc
-
-    def estimate_dual_total_correlation(
-        self, inputs: tuple = (-1,), return_locals=False
-    ):
-
-        if self.estimator == "gaussian":
-            dtc = differential_dual_total_correlation(self.cov, inputs=inputs)
-            if return_locals == True:
-                dtc_ptw = local_differential_dual_total_correlation(
-                    self.data, self.cov, inputs
-                )
-        elif self.estimator == "discrete":
-            dtc_ptw, dtc = discrete_dual_total_correlation(self.data)
-
-        if inputs == (-1,):
-            self.dual_total_correlation = dtc
-
-        if return_locals == True:
-            return dtc, dtc_ptw
-        else:
-            return dtc
-
-    def estimate_o_information(self, inputs: tuple = (-1,), return_locals=False):
-
-        if self.estimator == "gaussian":
-            o = differential_o_information(self.cov, inputs=inputs)
-            if return_locals == True:
-                o_ptw = local_differential_o_information(self.data, self.cov, inputs)
-        elif self.estimator == "discrete":
-            o_ptw, o = discrete_o_information(self.data)
-
-        if inputs == (-1,):
-            self.o_information = o
-
-        if return_locals == True:
-            return o, o_ptw
-        else:
-            return o
-
-    def estimate_s_information(self, inputs: tuple = (-1,), return_locals=False):
-
-        if self.estimator == "gaussian":
-            s = differential_s_information(self.cov, inputs=inputs)
-            if return_locals == True:
-                s_ptw = local_differential_s_information(self.data, self.cov, inputs)
-        elif self.estimator == "discrete":
-            s_ptw, s = discrete_s_information(self.data)
-
-        if inputs == (-1,):
-            self.s_information = s
-
-        if return_locals == True:
-            return s, s_ptw
-        else:
-            return s
-
-    def estimate_description_complexity(
-        self, inputs: tuple = (-1,), return_locals=False
-    ):
-
-        if self.estimator == "gaussian":
-            c = differential_description_complexity(self.cov, inputs=inputs)
-            if return_locals == True:
-                c_ptw = local_differential_description_complexity(
-                    self.data, self.cov, inputs
-                )
-        elif self.estimator == "discrete":
-            c_ptw, c = discrete_description_complexity(self.data)
-
-        if inputs == (-1,):
-            self.description_complexity = c
-
-        if return_locals == True:
-            return c, c_ptw
-        else:
-            return c
-
-    def estimate_tse_complexity(self, num_samples: int):
-
-        if self.estimator == "gaussian":
-            tse = differential_tse_complexity(self.cov, num_samples)
-        elif self.estimator == "discrete":
-            tse = discrete_tse_complexity(self.data, num_samples)
-
-        self.tse_complexity = tse
-
-        return tse
+        elif self.estimator == "gaussian":
+            if inputs[0] == -1:
+                avg = differential_total_correlation(self.cov)
+                self.total_correlation = avg
+                if return_locals is True:
+                    ptw = local_differential_total_correlation(self.data, self.cov)
+                    self.local_total_correlation = ptw
+                    return ptw, avg
+                return avg
+            else:
+                avg = differential_total_correlation(self.cov, inputs=inputs)
+                if return_locals is True:
+                    ptw = local_differential_total_correlation(self.data, inputs=inputs)
+                    return ptw, avg
+                return avg

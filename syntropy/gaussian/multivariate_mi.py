@@ -4,7 +4,7 @@ from syntropy.gaussian.shannon import local_differential_entropy
 
 
 def local_total_correlation(
-    data: np.ndarray, cov: np.ndarray = COV_NULL, inputs: tuple = (-1,)
+    data: np.ndarray, cov: np.ndarray, inputs: tuple = (-1,)
 ) -> np.ndarray:
     """
     The local total correlation.
@@ -21,36 +21,29 @@ def local_total_correlation(
     ----------
     data : np.ndarray
         The data in channels x samples format.
-    cov : np.ndarray, optional
-        The covariance matrix that defines the distribution.
-        If unspecified it is computed directly from the data.
-
+    inptuts: tuple
+        The indices of the channels to include.
     Returns
     -------
     np.ndarray
         The local total correaltion for each frame.
 
     """
+    assert (
+        cov.shape[0] == data.shape[0]
+    ), "The data and covariance matrix must have the same dimensionality"
 
     if inputs[0] == -1:
-        _data = data
+        _inputs = tuple(i for i in range(data.shape[0]))
     else:
-        _data = data[inputs, :]
+        _inputs = inputs
+    N = len(_inputs)
 
-    if cov[0, 0] == -1:
-        _cov = np.cov(_data, ddof=0.0)
-    else:
-        _cov = cov[:, inputs][inputs, :]
-        assert (
-            _cov.shape[0] == data.shape[0]
-        ), "The covariance matrix and the data must have the same dimensionality!"
+    whole = local_differential_entropy(data[_inputs, :], cov[_inputs, :][:, _inputs])
 
-    whole: np.ndarray = local_differential_entropy(_data, _cov)
-    sum_parts: np.ndarray = np.zeros_like(whole)
-
-    N: int = _data.shape[0]
+    sum_parts = np.zeros_like(whole)
     for i in range(N):
-        sum_parts += local_differential_entropy(_data[i])
+        sum_parts += local_differential_entropy(data[_inputs[i], :])
 
     return sum_parts - whole
 
@@ -88,8 +81,6 @@ def total_correlation(cov: np.ndarray, inputs: tuple = (-1,)) -> float:
     else:
         _inputs = inputs
 
-    print(inputs)
-
     _cov: np.ndarray = cov[_inputs, :][:, _inputs]
 
     # Converting to a correlation/coherence matrix.
@@ -102,7 +93,7 @@ def total_correlation(cov: np.ndarray, inputs: tuple = (-1,)) -> float:
 
 
 def local_k_wms(
-    k: int, data: np.ndarray, cov: np.ndarray = COV_NULL, inputs: tuple = (-1,)
+    k: int, data: np.ndarray, cov: np.ndarray, inputs: tuple = (-1,)
 ) -> np.ndarray:
     """
 
@@ -126,29 +117,21 @@ def local_k_wms(
         The series of local k_{wms}.
 
     """
-
     if inputs[0] == -1:
-        _data = data
+        _inputs: tuple = tuple(i for i in range(data.shape[0]))
     else:
-        _data = data[inputs, :]
+        _inputs = inputs
 
-    if cov[0, 0] == -1:
-        _cov = np.cov(_data, ddof=0.0)
-    else:
-        _cov = cov[:, inputs][inputs, :]
+    N: int = len(_inputs)
+    whole = (N - k) * local_total_correlation(
+        data[_inputs, :], cov[_inputs, :][:, _inputs]
+    )
 
-    N0, N1 = _data.shape
+    sum_parts = np.zeros_like(whole)
 
-    whole: np.ndarray = (N0 - k) * local_total_correlation(_data, _cov)
-
-    sum_parts: np.ndarray = np.zeros(N1)
-
-    for i in range(N0):
-
-        idxs: tuple = tuple(j for j in range(N0) if j != i)
-        ltc: np.ndarray = local_total_correlation(_data, _cov, inputs=idxs)
-
-        sum_parts = np.add(sum_parts, ltc)
+    for i in range(N):
+        idxs = tuple(_inputs[j] for j in range(N) if j != i)
+        sum_parts += local_total_correlation(data[idxs, :], cov[idxs, :][:, idxs])
 
     return whole - sum_parts
 
@@ -158,7 +141,7 @@ def k_wms(k: int, cov: np.ndarray, inputs: tuple = (-1,)) -> float:
     A utility function that computes the generalized form
     of the O-information, S-information, and DTC.
 
-    $K_{WMS}(X) = (N-k)TC(X) - \sum TC(X^-i)$
+    :math:`K_{WMS}(X) = (N-k)TC(X) - \\sum_{i=1}^{N} TC(X^{-i})`
 
     Parameters
     ----------
@@ -178,22 +161,19 @@ def k_wms(k: int, cov: np.ndarray, inputs: tuple = (-1,)) -> float:
     """
 
     if inputs[0] == -1:
-        cov_i = 1 * cov
+        _inputs: tuple = tuple(i for i in range(cov.shape[0]))
     else:
-        cov_i = cov[inputs, :][:, inputs]
+        _inputs = inputs
 
-    N0: int
-    N0 = cov_i.shape[0]
+    N: int = len(_inputs)
 
-    whole: float = (N0 - k) * total_correlation(cov_i)
+    whole: float = (N - k) * total_correlation(cov[_inputs, :][:, _inputs])
     sum_parts: float = 0.0
 
-    for i in range(N0):
+    for i in range(N):
 
-        idxs: tuple = tuple(j for j in range(N0) if j != i)
-        tc: float = total_correlation(cov_i[idxs, :][:, idxs])
-
-        sum_parts += tc
+        idxs: tuple = tuple(_inputs[j] for j in range(N) if j != i)
+        sum_parts += total_correlation(cov[idxs, :][:, idxs])
 
     return whole - sum_parts
 
@@ -251,7 +231,7 @@ def s_information(cov: np.ndarray, inputs: tuple = (-1,)) -> float:
         The specific subset of variables to compute the total correlation of.
         Defaults to computing the TC of the entire covariance matrix.
 
-    Returns
+    Return:
     -------
     float
         The expected S-information.
@@ -331,16 +311,16 @@ def local_o_information(
     data: np.ndarray, cov: np.ndarray = COV_NULL, inputs: tuple = (-1,)
 ) -> np.ndarray:
     """
-    o(x) = (2-N)tc(x) + \sum tc(x^-i)
-         = (N-2)tc(x) - \sum Tc(x^-i)
-
+    
     See:
         Scagliarini, T., Marinazzo, D., Guo, Y., Stramaglia, S., & Rosas, F. E. (2022).
-        Quantifying high-order interdependencies on individual patterns via the local O-information:
-            Theory and applications to music analysis.
+        Quantifying high-order interdependencies on individual patterns via the local O-information: Theory and applications to music analysis.
         Physical Review Research, 4(1), 013184.
         https://doi.org/10.1103/PhysRevResearch.4.013184
 
+        Pope, M., Varley, T. F., Grazia Puxeddu, M., Faskowitz, J., & Sporns, O. (2025). 
+        Time-varying synergy/redundancy dominance in the human cerebral cortex. Journal of Physics: Complexity, 6(1), 015015. 
+        https://doi.org/10.1088/2632-072X/adbaa9
 
     Parameters
     ----------
@@ -364,9 +344,6 @@ def local_o_information(
 
 def o_information(cov: np.ndarray, inputs: tuple = (-1,)) -> float:
     """
-    O(X) = (2-N)TC(X) + \sum TC(X^-i)
-         = (N-2)TC(X) - \sum TC(X^-i)
-
     See:
         Rosas, F., Mediano, P. A. M., Gastpar, M., & Jensen, H. J. (2019).
         Quantifying High-order Interdependencies via Multivariate
