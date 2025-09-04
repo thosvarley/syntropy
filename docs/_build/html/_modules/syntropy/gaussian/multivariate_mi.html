@@ -1,0 +1,840 @@
+<!doctype html>
+<html class="no-js" lang="en" data-content_root="../../../">
+  <head><meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../genindex.html" /><link rel="search" title="Search" href="../../../search.html" />
+
+    <!-- Generated with Sphinx 8.2.3 and Furo 2025.07.19 -->
+        <title>syntropy.gaussian.multivariate_mi - Syntropy 1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=d111a655" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=25af2a20" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo-extensions.css?v=8dab3a3b" />
+    
+    
+
+
+<style>
+  body {
+    --color-code-background: #f2f2f2;
+  --color-code-foreground: #1e1e1e;
+  
+  }
+  @media not print {
+    body[data-theme="dark"] {
+      --color-code-background: #2b2b2b;
+  --color-code-foreground: #f8f8f2;
+  
+    }
+    @media (prefers-color-scheme: dark) {
+      body:not([data-theme="light"]) {
+        --color-code-background: #2b2b2b;
+  --color-code-foreground: #f8f8f2;
+  
+      }
+    }
+  }
+</style></head>
+  <body>
+    
+    <script>
+      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+    </script>
+    
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024">
+      <path d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM115.4 518.9L271.7 642c5.8 4.6 14.4.5 14.4-6.9V388.9c0-7.4-8.5-11.5-14.4-6.9L115.4 505.1a8.74 8.74 0 0 0 0 13.8z"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-with-moon" viewBox="0 0 24 24">
+    <title>Auto light/dark, in light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path style="opacity: 50%" d="M 5.411 14.504 C 5.471 14.504 5.532 14.504 5.591 14.504 C 3.639 16.319 4.383 19.569 6.931 20.352 C 7.693 20.586 8.512 20.551 9.25 20.252 C 8.023 23.207 4.056 23.725 2.11 21.184 C 0.166 18.642 1.702 14.949 4.874 14.536 C 5.051 14.512 5.231 14.5 5.411 14.5 L 5.411 14.504 Z"/>
+      <line x1="14.5" y1="3.25" x2="14.5" y2="1.25"/>
+      <line x1="14.5" y1="15.85" x2="14.5" y2="17.85"/>
+      <line x1="10.044" y1="5.094" x2="8.63" y2="3.68"/>
+      <line x1="19" y1="14.05" x2="20.414" y2="15.464"/>
+      <line x1="8.2" y1="9.55" x2="6.2" y2="9.55"/>
+      <line x1="20.8" y1="9.55" x2="22.8" y2="9.55"/>
+      <line x1="10.044" y1="14.006" x2="8.63" y2="15.42"/>
+      <line x1="19" y1="5.05" x2="20.414" y2="3.636"/>
+      <circle cx="14.5" cy="9.55" r="3.6"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon-with-sun" viewBox="0 0 24 24">
+    <title>Auto light/dark, in dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path d="M 8.282 7.007 C 8.385 7.007 8.494 7.007 8.595 7.007 C 5.18 10.184 6.481 15.869 10.942 17.24 C 12.275 17.648 13.706 17.589 15 17.066 C 12.851 22.236 5.91 23.143 2.505 18.696 C -0.897 14.249 1.791 7.786 7.342 7.063 C 7.652 7.021 7.965 7 8.282 7 L 8.282 7.007 Z"/>
+      <line style="opacity: 50%" x1="18" y1="3.705" x2="18" y2="2.5"/>
+      <line style="opacity: 50%" x1="18" y1="11.295" x2="18" y2="12.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="4.816" x2="14.464" y2="3.964"/>
+      <line style="opacity: 50%" x1="20.711" y1="10.212" x2="21.563" y2="11.063"/>
+      <line style="opacity: 50%" x1="14.205" y1="7.5" x2="13.001" y2="7.5"/>
+      <line style="opacity: 50%" x1="21.795" y1="7.5" x2="23" y2="7.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="10.184" x2="14.464" y2="11.036"/>
+      <line style="opacity: 50%" x1="20.711" y1="4.789" x2="21.563" y2="3.937"/>
+      <circle style="opacity: 50%" cx="18" cy="7.5" r="2.169"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-pencil" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-pencil-code">
+      <path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4" />
+      <path d="M13.5 6.5l4 4" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+  <symbol id="svg-eye" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-eye-code">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
+      <path
+        d="M11.11 17.958c-3.209 -.307 -5.91 -2.293 -8.11 -5.958c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6c-.21 .352 -.427 .688 -.647 1.008" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc">
+<label class="overlay sidebar-overlay" for="__navigation">
+  <div class="visually-hidden">Hide navigation sidebar</div>
+</label>
+<label class="overlay toc-overlay" for="__toc">
+  <div class="visually-hidden">Hide table of contents sidebar</div>
+</label>
+
+<a class="skip-to-content muted-link" href="#furo-main-content">Skip to content</a>
+
+
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <div class="visually-hidden">Toggle site navigation sidebar</div>
+        <i class="icon"><svg><use href="#svg-menu"></use></svg></i>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="../../../index.html"><div class="brand">Syntropy 1.0 documentation</div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle">
+          <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+          <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+          <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon no-toc" for="__toc">
+        <div class="visually-hidden">Toggle table of contents sidebar</div>
+        <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="../../../index.html">
+  
+  <span class="sidebar-brand-text">Syntropy 1.0 documentation</span>
+  
+</a><form class="sidebar-search-container" method="get" action="../../../search.html" role="search">
+  <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  <p class="caption" role="heading"><span class="caption-text">Discrete:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../discrete/shannon.html">Shannon Module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../discrete/multivariate_mi.html">Multivariate MI Module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../discrete/decompositions.html">Decompositions Module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../discrete/temporal.html">Temporal Module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../discrete/alpha_synergy.html">Alpha Synergy Module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../discrete/optimization.html">Optimization Module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../discrete/distributions.html">Distributions Module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../discrete/utils.html">Utils Module</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Gaussian</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../gaussian/shannon.html">Shannon Module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../gaussian/multivariate_mi.html">Multivariate MI Module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../gaussian/decompositions.html">Decomposition Module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../gaussian/temporal.html">Temporal Module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../gaussian/optimization.html">Optimization Module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../gaussian/utils.html">Utils Module</a></li>
+</ul>
+
+</div>
+</div>
+
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main">
+    <div class="content">
+      <div class="article-container">
+        <a href="#" class="back-to-top muted-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+          </svg>
+          <span>Back to top</span>
+        </a>
+        <div class="content-icon-container">
+          <div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle">
+              <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+              <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+              <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon no-toc" for="__toc">
+            <div class="visually-hidden">Toggle table of contents sidebar</div>
+            <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+          </label>
+        </div>
+        <article role="main" id="furo-main-content">
+          <h1>Source code for syntropy.gaussian.multivariate_mi</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">syntropy.gaussian.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">COV_NULL</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">syntropy.gaussian.shannon</span><span class="w"> </span><span class="kn">import</span> <span class="n">local_differential_entropy</span>
+
+
+<div class="viewcode-block" id="local_total_correlation">
+<a class="viewcode-back" href="../../../gaussian/multivariate_mi.html#syntropy.gaussian.multivariate_mi.local_total_correlation">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">local_total_correlation</span><span class="p">(</span>
+    <span class="n">data</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">cov</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="n">COV_NULL</span><span class="p">,</span> <span class="n">inputs</span><span class="p">:</span> <span class="nb">tuple</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,)</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    The local total correlation.</span>
+
+<span class="sd">    See:</span>
+<span class="sd">        Scagliarini, T., Marinazzo, D., Guo, Y., Stramaglia, S., &amp; Rosas, F. E. (2022).</span>
+<span class="sd">        Quantifying high-order interdependencies on individual patterns via the local O-information:</span>
+<span class="sd">            Theory and applications to music analysis.</span>
+<span class="sd">        Physical Review Research, 4(1), 013184.</span>
+<span class="sd">        https://doi.org/10.1103/PhysRevResearch.4.013184</span>
+
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    data : np.ndarray</span>
+<span class="sd">        The data in channels x samples format.</span>
+<span class="sd">    cov : np.ndarray, optional</span>
+<span class="sd">        The covariance matrix that defines the distribution.</span>
+<span class="sd">        If unspecified it is computed directly from the data.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    np.ndarray</span>
+<span class="sd">        The local total correaltion for each frame.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">inputs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+        <span class="n">_data</span> <span class="o">=</span> <span class="n">data</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">_data</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">inputs</span><span class="p">,</span> <span class="p">:]</span>
+
+    <span class="k">if</span> <span class="n">cov</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+        <span class="n">_cov</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cov</span><span class="p">(</span><span class="n">_data</span><span class="p">,</span> <span class="n">ddof</span><span class="o">=</span><span class="mf">0.0</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">_cov</span> <span class="o">=</span> <span class="n">cov</span><span class="p">[:,</span> <span class="n">inputs</span><span class="p">][</span><span class="n">inputs</span><span class="p">,</span> <span class="p">:]</span>
+        <span class="k">assert</span> <span class="p">(</span>
+            <span class="n">_cov</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="p">),</span> <span class="s2">&quot;The covariance matrix and the data must have the same dimensionality!&quot;</span>
+
+    <span class="n">whole</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="n">local_differential_entropy</span><span class="p">(</span><span class="n">_data</span><span class="p">,</span> <span class="n">_cov</span><span class="p">)</span>
+    <span class="n">sum_parts</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">whole</span><span class="p">)</span>
+
+    <span class="n">N</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">_data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">):</span>
+        <span class="n">sum_parts</span> <span class="o">+=</span> <span class="n">local_differential_entropy</span><span class="p">(</span><span class="n">_data</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+
+    <span class="k">return</span> <span class="n">sum_parts</span> <span class="o">-</span> <span class="n">whole</span></div>
+
+
+
+<div class="viewcode-block" id="total_correlation">
+<a class="viewcode-back" href="../../../gaussian/multivariate_mi.html#syntropy.gaussian.multivariate_mi.total_correlation">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">total_correlation</span><span class="p">(</span><span class="n">cov</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">inputs</span><span class="p">:</span> <span class="nb">tuple</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,))</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    The expected total correlation.</span>
+
+<span class="sd">    See:</span>
+<span class="sd">        Watanabe, S. (1960). Information Theoretical Analysis of Multivariate Correlation.</span>
+<span class="sd">        IBM Journal of Research and Development, 4(1), Article 1.</span>
+<span class="sd">        https://doi.org/10.1147/rd.41.0066</span>
+
+<span class="sd">        Pascual-Marqui, R. D., Kochi, K., &amp; Kinoshita, T. (2025).</span>
+<span class="sd">        Total/dual correlation/coherence, redundancy/synergy, complexity, and O-information for real and complex valued multivariate data</span>
+<span class="sd">        (No. arXiv:2507.08773). arXiv.</span>
+<span class="sd">        https://doi.org/10.48550/arXiv.2507.08773</span>
+
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    cov : np.ndarray</span>
+<span class="sd">        The covariance matrix.</span>
+<span class="sd">    inputs : tuple, optional</span>
+<span class="sd">        The specific subset of variables to compute the total correlation of.</span>
+<span class="sd">        Defaults to computing the TC of the entire covariance matrix.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    float</span>
+<span class="sd">        The expected total correlation.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">inputs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+        <span class="n">_inputs</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">cov</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">_inputs</span> <span class="o">=</span> <span class="n">inputs</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="n">inputs</span><span class="p">)</span>
+
+    <span class="n">_cov</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="n">cov</span><span class="p">[</span><span class="n">_inputs</span><span class="p">,</span> <span class="p">:][:,</span> <span class="n">_inputs</span><span class="p">]</span>
+
+    <span class="c1"># Converting to a correlation/coherence matrix.</span>
+    <span class="n">diag</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="n">_cov</span><span class="p">))</span>
+    <span class="n">d_inv</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="mf">1.0</span> <span class="o">/</span> <span class="n">diag</span><span class="p">)</span>
+
+    <span class="n">corr</span> <span class="o">=</span> <span class="n">d_inv</span> <span class="o">@</span> <span class="n">_cov</span> <span class="o">@</span> <span class="n">d_inv</span>
+
+    <span class="k">return</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">slogdet</span><span class="p">(</span><span class="n">corr</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="mi">2</span></div>
+
+
+
+<div class="viewcode-block" id="local_k_wms">
+<a class="viewcode-back" href="../../../gaussian/multivariate_mi.html#syntropy.gaussian.multivariate_mi.local_k_wms">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">local_k_wms</span><span class="p">(</span>
+    <span class="n">k</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">cov</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="n">COV_NULL</span><span class="p">,</span> <span class="n">inputs</span><span class="p">:</span> <span class="nb">tuple</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,)</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    k : int</span>
+<span class="sd">        The integer value that defines whether one is computing</span>
+<span class="sd">        S-info, DTC, or negative O-information.</span>
+<span class="sd">    data : np.ndarray</span>
+<span class="sd">        The data in channels x samples format.</span>
+<span class="sd">    cov : np.ndarray, optional</span>
+<span class="sd">        The covariance matrix that defines the distribution.</span>
+<span class="sd">        If unspecified it is computed directly from the data.</span>
+<span class="sd">    inputs : tuple, optional</span>
+<span class="sd">        The specific subset of variables to compute the total correlation of.</span>
+<span class="sd">        Defaults to computing the TC of the entire covariance matrix.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    np.ndarray.</span>
+<span class="sd">        The series of local k_{wms}.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">inputs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+        <span class="n">_data</span> <span class="o">=</span> <span class="n">data</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">_data</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">inputs</span><span class="p">,</span> <span class="p">:]</span>
+
+    <span class="k">if</span> <span class="n">cov</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+        <span class="n">_cov</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cov</span><span class="p">(</span><span class="n">_data</span><span class="p">,</span> <span class="n">ddof</span><span class="o">=</span><span class="mf">0.0</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">_cov</span> <span class="o">=</span> <span class="n">cov</span><span class="p">[:,</span> <span class="n">inputs</span><span class="p">][</span><span class="n">inputs</span><span class="p">,</span> <span class="p">:]</span>
+
+    <span class="n">N0</span><span class="p">,</span> <span class="n">N1</span> <span class="o">=</span> <span class="n">_data</span><span class="o">.</span><span class="n">shape</span>
+
+    <span class="n">whole</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="p">(</span><span class="n">N0</span> <span class="o">-</span> <span class="n">k</span><span class="p">)</span> <span class="o">*</span> <span class="n">local_total_correlation</span><span class="p">(</span><span class="n">_data</span><span class="p">,</span> <span class="n">_cov</span><span class="p">)</span>
+
+    <span class="n">sum_parts</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">N1</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N0</span><span class="p">):</span>
+
+        <span class="n">idxs</span><span class="p">:</span> <span class="nb">tuple</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">j</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N0</span><span class="p">)</span> <span class="k">if</span> <span class="n">j</span> <span class="o">!=</span> <span class="n">i</span><span class="p">)</span>
+        <span class="n">ltc</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="n">local_total_correlation</span><span class="p">(</span><span class="n">_data</span><span class="p">,</span> <span class="n">_cov</span><span class="p">,</span> <span class="n">inputs</span><span class="o">=</span><span class="n">idxs</span><span class="p">)</span>
+
+        <span class="n">sum_parts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">sum_parts</span><span class="p">,</span> <span class="n">ltc</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">whole</span> <span class="o">-</span> <span class="n">sum_parts</span></div>
+
+
+
+<div class="viewcode-block" id="k_wms">
+<a class="viewcode-back" href="../../../gaussian/multivariate_mi.html#syntropy.gaussian.multivariate_mi.k_wms">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">k_wms</span><span class="p">(</span><span class="n">k</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">cov</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">inputs</span><span class="p">:</span> <span class="nb">tuple</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,))</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A utility function that computes the generalized form</span>
+<span class="sd">    of the O-information, S-information, and DTC.</span>
+
+<span class="sd">    $K_{WMS}(X) = (N-k)TC(X) - \sum TC(X^-i)$</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    k : int</span>
+<span class="sd">        The integer value that defines whether one is computing</span>
+<span class="sd">        S-info, DTC, or negative O-information.</span>
+<span class="sd">    cov : np.ndarray</span>
+<span class="sd">        The covariance matrix that defines the distribution.</span>
+<span class="sd">    inputs : tuple, optional</span>
+<span class="sd">        The specific subset of variables to compute the total correlation of.</span>
+<span class="sd">        Defaults to computing the TC of the entire covariance matrix.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    float</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">inputs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+        <span class="n">cov_i</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">*</span> <span class="n">cov</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">cov_i</span> <span class="o">=</span> <span class="n">cov</span><span class="p">[</span><span class="n">inputs</span><span class="p">,</span> <span class="p">:][:,</span> <span class="n">inputs</span><span class="p">]</span>
+
+    <span class="n">N0</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">N0</span> <span class="o">=</span> <span class="n">cov_i</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="n">whole</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="p">(</span><span class="n">N0</span> <span class="o">-</span> <span class="n">k</span><span class="p">)</span> <span class="o">*</span> <span class="n">total_correlation</span><span class="p">(</span><span class="n">cov_i</span><span class="p">)</span>
+    <span class="n">sum_parts</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span>
+
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N0</span><span class="p">):</span>
+
+        <span class="n">idxs</span><span class="p">:</span> <span class="nb">tuple</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">j</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N0</span><span class="p">)</span> <span class="k">if</span> <span class="n">j</span> <span class="o">!=</span> <span class="n">i</span><span class="p">)</span>
+        <span class="n">tc</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">total_correlation</span><span class="p">(</span><span class="n">cov_i</span><span class="p">[</span><span class="n">idxs</span><span class="p">,</span> <span class="p">:][:,</span> <span class="n">idxs</span><span class="p">])</span>
+
+        <span class="n">sum_parts</span> <span class="o">+=</span> <span class="n">tc</span>
+
+    <span class="k">return</span> <span class="n">whole</span> <span class="o">-</span> <span class="n">sum_parts</span></div>
+
+
+
+<div class="viewcode-block" id="local_s_information">
+<a class="viewcode-back" href="../../../gaussian/multivariate_mi.html#syntropy.gaussian.multivariate_mi.local_s_information">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">local_s_information</span><span class="p">(</span>
+    <span class="n">data</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">cov</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="n">COV_NULL</span><span class="p">,</span> <span class="n">inputs</span><span class="p">:</span> <span class="nb">tuple</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,)</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    s(x) = N*tc(x) - \sum tc(x^-i)</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    data : np.ndarray</span>
+<span class="sd">        The data in channels x samples format.</span>
+<span class="sd">    cov : np.ndarray, optional</span>
+<span class="sd">        The covariance matrix that defines the distribution.</span>
+<span class="sd">        If unspecified it is computed directly from the data.</span>
+<span class="sd">    inputs : tuple, optional</span>
+<span class="sd">        The specific subset of variables to compute the total correlation of.</span>
+<span class="sd">        Defaults to computing the TC of the entire covariance matrix.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    np.ndarray.</span>
+<span class="sd">        The series of local S-information.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">cov</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+        <span class="n">cov</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cov</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">ddof</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">local_k_wms</span><span class="p">(</span><span class="n">k</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">cov</span><span class="o">=</span><span class="n">cov</span><span class="p">,</span> <span class="n">inputs</span><span class="o">=</span><span class="n">inputs</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="s_information">
+<a class="viewcode-back" href="../../../gaussian/multivariate_mi.html#syntropy.gaussian.multivariate_mi.s_information">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">s_information</span><span class="p">(</span><span class="n">cov</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">inputs</span><span class="p">:</span> <span class="nb">tuple</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,))</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    See:</span>
+<span class="sd">        Rosas, F., Mediano, P. A. M., Gastpar, M., &amp; Jensen, H. J. (2019).</span>
+<span class="sd">        Quantifying High-order Interdependencies via Multivariate</span>
+<span class="sd">            Extensions of the Mutual Information.</span>
+<span class="sd">        Physical Review E, 100(3), Article 3.</span>
+<span class="sd">        https://doi.org/10.1103/PhysRevE.100.032305</span>
+
+<span class="sd">        Varley, T. F., Pope, M., Faskowitz, J., &amp; Sporns, O. (2023).</span>
+<span class="sd">        Multivariate information theory uncovers synergistic subsystems of the human cerebral cortex.</span>
+<span class="sd">        Communications Biology, 6(1), Article 1.</span>
+<span class="sd">        https://doi.org/10.1038/s42003-023-04843-w</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    data : np.ndarray</span>
+<span class="sd">        The data in channels x samples format.</span>
+<span class="sd">    cov : np.ndarray</span>
+<span class="sd">        The covariance matrix that defines the distribution.</span>
+<span class="sd">    inputs : tuple, optional</span>
+<span class="sd">        The specific subset of variables to compute the total correlation of.</span>
+<span class="sd">        Defaults to computing the TC of the entire covariance matrix.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    float</span>
+<span class="sd">        The expected S-information.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">return</span> <span class="n">k_wms</span><span class="p">(</span><span class="n">k</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">cov</span><span class="o">=</span><span class="n">cov</span><span class="p">,</span> <span class="n">inputs</span><span class="o">=</span><span class="n">inputs</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="local_dual_total_correlation">
+<a class="viewcode-back" href="../../../gaussian/multivariate_mi.html#syntropy.gaussian.multivariate_mi.local_dual_total_correlation">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">local_dual_total_correlation</span><span class="p">(</span>
+    <span class="n">data</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">cov</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="n">COV_NULL</span><span class="p">,</span> <span class="n">inputs</span><span class="p">:</span> <span class="nb">tuple</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    dtc(x) = (N-1)tc(x) + \sum tc(x^-i)</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    data : np.ndarray</span>
+<span class="sd">        The data in channels x samples format.</span>
+<span class="sd">    cov : np.ndarray, optional</span>
+<span class="sd">        The covariance matrix that defines the distribution.</span>
+<span class="sd">        If unspecified it is computed directly from the data.</span>
+<span class="sd">    inputs : tuple, optional</span>
+<span class="sd">        The specific subset of variables to compute the total correlation of.</span>
+<span class="sd">        Defaults to computing the TC of the entire covariance matrix.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    np.ndarray.</span>
+<span class="sd">        The series of local dual total correlations.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">cov</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+        <span class="n">cov</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cov</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">ddof</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">local_k_wms</span><span class="p">(</span><span class="n">k</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">cov</span><span class="o">=</span><span class="n">cov</span><span class="p">,</span> <span class="n">inputs</span><span class="o">=</span><span class="n">inputs</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="dual_total_correlation">
+<a class="viewcode-back" href="../../../gaussian/multivariate_mi.html#syntropy.gaussian.multivariate_mi.dual_total_correlation">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">dual_total_correlation</span><span class="p">(</span><span class="n">cov</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">inputs</span><span class="p">:</span> <span class="nb">tuple</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,))</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    DTC(X) = (N-1)TC(X) + \sum TC(X^-i)</span>
+
+<span class="sd">    See:</span>
+<span class="sd">        Abdallah, S. A., &amp; Plumbley, M. D. (2012).</span>
+<span class="sd">        A measure of statistical complexity based on predictive</span>
+<span class="sd">            information with application to finite spin systems.</span>
+<span class="sd">        Physics Letters A, 376(4), 275–281.</span>
+<span class="sd">        https://doi.org/10.1016/j.physleta.2011.10.066</span>
+
+<span class="sd">        Rosas, F., Mediano, P. A. M., Gastpar, M., &amp; Jensen, H. J. (2019).</span>
+<span class="sd">        Quantifying High-order Interdependencies via Multivariate</span>
+<span class="sd">            Extensions of the Mutual Information.</span>
+<span class="sd">        Physical Review E, 100(3), Article 3.</span>
+<span class="sd">        https://doi.org/10.1103/PhysRevE.100.032305</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    data : np.ndarray</span>
+<span class="sd">        The data in channels x samples format.</span>
+<span class="sd">    cov : np.ndarray</span>
+<span class="sd">        The covariance matrix that defines the distribution. .</span>
+<span class="sd">    inputs : tuple, optional</span>
+<span class="sd">        The specific subset of variables to compute the total correlation of.</span>
+<span class="sd">        Defaults to computing the TC of the entire covariance matrix.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    float</span>
+<span class="sd">        The expected dual total correlation.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">return</span> <span class="n">k_wms</span><span class="p">(</span><span class="n">k</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">cov</span><span class="o">=</span><span class="n">cov</span><span class="p">,</span> <span class="n">inputs</span><span class="o">=</span><span class="n">inputs</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="local_o_information">
+<a class="viewcode-back" href="../../../gaussian/multivariate_mi.html#syntropy.gaussian.multivariate_mi.local_o_information">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">local_o_information</span><span class="p">(</span>
+    <span class="n">data</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">cov</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="n">COV_NULL</span><span class="p">,</span> <span class="n">inputs</span><span class="p">:</span> <span class="nb">tuple</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,)</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    o(x) = (2-N)tc(x) + \sum tc(x^-i)</span>
+<span class="sd">         = (N-2)tc(x) - \sum Tc(x^-i)</span>
+
+<span class="sd">    See:</span>
+<span class="sd">        Scagliarini, T., Marinazzo, D., Guo, Y., Stramaglia, S., &amp; Rosas, F. E. (2022).</span>
+<span class="sd">        Quantifying high-order interdependencies on individual patterns via the local O-information:</span>
+<span class="sd">            Theory and applications to music analysis.</span>
+<span class="sd">        Physical Review Research, 4(1), 013184.</span>
+<span class="sd">        https://doi.org/10.1103/PhysRevResearch.4.013184</span>
+
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    data : np.ndarray</span>
+<span class="sd">        The data in channels x samples format.</span>
+<span class="sd">    cov : np.ndarray, optional</span>
+<span class="sd">        The covariance matrix that defines the distribution.</span>
+<span class="sd">        If unspecified it is computed directly from the data.</span>
+<span class="sd">    inputs : tuple, optional</span>
+<span class="sd">        The specific subset of variables to compute the total correlation of.</span>
+<span class="sd">        Defaults to computing the TC of the entire covariance matrix.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    np.ndarray.</span>
+<span class="sd">        The series of local O-informations.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">return</span> <span class="o">-</span><span class="n">local_k_wms</span><span class="p">(</span><span class="n">k</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">cov</span><span class="o">=</span><span class="n">cov</span><span class="p">,</span> <span class="n">inputs</span><span class="o">=</span><span class="n">inputs</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="o_information">
+<a class="viewcode-back" href="../../../gaussian/multivariate_mi.html#syntropy.gaussian.multivariate_mi.o_information">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">o_information</span><span class="p">(</span><span class="n">cov</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">inputs</span><span class="p">:</span> <span class="nb">tuple</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,))</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    O(X) = (2-N)TC(X) + \sum TC(X^-i)</span>
+<span class="sd">         = (N-2)TC(X) - \sum TC(X^-i)</span>
+
+<span class="sd">    See:</span>
+<span class="sd">        Rosas, F., Mediano, P. A. M., Gastpar, M., &amp; Jensen, H. J. (2019).</span>
+<span class="sd">        Quantifying High-order Interdependencies via Multivariate</span>
+<span class="sd">        Extensions of the Mutual Information.</span>
+<span class="sd">        Physical Review E, 100(3), Article 3.</span>
+<span class="sd">        https://doi.org/10.1103/PhysRevE.100.032305</span>
+
+<span class="sd">        Varley, T. F., Pope, M., Faskowitz, J., &amp; Sporns, O. (2023).</span>
+<span class="sd">        Multivariate information theory uncovers synergistic subsystems of the human cerebral cortex.</span>
+<span class="sd">        Communications Biology, 6(1), Article 1.</span>
+<span class="sd">        https://doi.org/10.1038/s42003-023-04843-w</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    cov : np.ndarray, optional</span>
+<span class="sd">        The covariance matrix that defines the distribution.</span>
+<span class="sd">        If unspecified it is computed directly from the data.</span>
+<span class="sd">    inputs : tuple, optional</span>
+<span class="sd">        The specific subset of variables to compute the total correlation of.</span>
+<span class="sd">        Defaults to computing the TC of the entire covariance matrix.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    float</span>
+<span class="sd">        The expected O-information.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">return</span> <span class="o">-</span><span class="n">k_wms</span><span class="p">(</span><span class="n">k</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">cov</span><span class="o">=</span><span class="n">cov</span><span class="p">,</span> <span class="n">inputs</span><span class="o">=</span><span class="n">inputs</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="tse_complexity">
+<a class="viewcode-back" href="../../../gaussian/multivariate_mi.html#syntropy.gaussian.multivariate_mi.tse_complexity">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">tse_complexity</span><span class="p">(</span><span class="n">num_samples</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">cov</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Computes the Tononi-Sporns-Edelman complexity using Gaussian</span>
+<span class="sd">    estimators.</span>
+
+<span class="sd">    See:</span>
+<span class="sd">        Tononi, G., Sporns, O., &amp; Edelman, G. M. (1994).</span>
+<span class="sd">        A measure for brain complexity: Relating functional segregation and</span>
+<span class="sd">            integration in the nervous system.</span>
+<span class="sd">        Proceedings of the National Academy of Sciences, 91(11), Article 11.</span>
+<span class="sd">        https://doi.org/10.1073/pnas.91.11.5033</span>
+
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    num_samples : int</span>
+<span class="sd">        The number of sample subsets to compute.</span>
+<span class="sd">    cov : np.ndarray</span>
+<span class="sd">        The covariance matrix that defines the distribution.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    float</span>
+<span class="sd">        The TSE complexity.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">N</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">cov</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>  <span class="c1"># Number of channels</span>
+
+    <span class="n">tc_whole</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">total_correlation</span><span class="p">(</span><span class="n">cov</span><span class="p">)</span>  <span class="c1"># Global total correlation</span>
+
+    <span class="n">null_tcs</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+        <span class="p">[(</span><span class="nb">float</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="o">/</span> <span class="nb">float</span><span class="p">(</span><span class="n">N</span><span class="p">))</span> <span class="o">*</span> <span class="n">tc_whole</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">N</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)]</span>
+    <span class="p">)</span>
+    <span class="n">exp_tcs</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">null_tcs</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="n">exp_tcs</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">tc_whole</span>
+
+    <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">N</span><span class="p">):</span>
+
+        <span class="c1"># All of the samples of subsets at scale i</span>
+        <span class="n">samples</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+            <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">N</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">k</span><span class="p">,</span> <span class="n">replace</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_samples</span><span class="p">)]</span>
+        <span class="p">)</span>
+        <span class="n">samples</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="c1"># No need to run the same subset multiple times.</span>
+        <span class="n">samples</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">samples</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+        <span class="n">exp_tcs</span><span class="p">[</span><span class="n">k</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span>
+            <span class="p">[</span><span class="n">total_correlation</span><span class="p">(</span><span class="n">cov</span><span class="p">,</span> <span class="n">inputs</span><span class="o">=</span><span class="nb">tuple</span><span class="p">(</span><span class="n">sample</span><span class="p">))</span> <span class="k">for</span> <span class="n">sample</span> <span class="ow">in</span> <span class="n">samples</span><span class="p">]</span>
+        <span class="p">)</span>
+
+    <span class="k">return</span> <span class="p">(</span><span class="n">null_tcs</span> <span class="o">-</span> <span class="n">exp_tcs</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span></div>
+
+
+
+<div class="viewcode-block" id="description_complexity">
+<a class="viewcode-back" href="../../../gaussian/multivariate_mi.html#syntropy.gaussian.multivariate_mi.description_complexity">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">description_complexity</span><span class="p">(</span><span class="n">cov</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">inputs</span><span class="p">:</span> <span class="nb">tuple</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,))</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    C(X) = DTC(X) / N</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    cov : np.ndarray</span>
+<span class="sd">        The covariance matrix that defines the distribution.</span>
+<span class="sd">    inputs : tuple, optional</span>
+<span class="sd">        The specific subset of variables to compute the total correlation of.</span>
+<span class="sd">        Defaults to computing the TC of the entire covariance matrix.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    float</span>
+<span class="sd">        The expected description complexity.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">inputs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+        <span class="n">N</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">cov</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">N</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">inputs</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="n">dual_total_correlation</span><span class="p">(</span><span class="n">cov</span><span class="o">=</span><span class="n">cov</span><span class="p">,</span> <span class="n">inputs</span><span class="o">=</span><span class="n">inputs</span><span class="p">)</span> <span class="o">/</span> <span class="n">N</span></div>
+
+
+
+<div class="viewcode-block" id="local_description_complexity">
+<a class="viewcode-back" href="../../../gaussian/multivariate_mi.html#syntropy.gaussian.multivariate_mi.local_description_complexity">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">local_description_complexity</span><span class="p">(</span>
+    <span class="n">data</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">cov</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="n">COV_NULL</span><span class="p">,</span> <span class="n">inputs</span><span class="p">:</span> <span class="nb">tuple</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,)</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    c(x) = dtc(x) / N</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    data : np.ndarray</span>
+<span class="sd">        The data in channels x time format.</span>
+<span class="sd">    cov : np.ndarray, optional</span>
+<span class="sd">        The covariance matrix that defines the distribution.</span>
+<span class="sd">        If unspecified it is computed directly from the data.</span>
+<span class="sd">    inputs : tuple, optional</span>
+<span class="sd">        The specific subset of variables to compute the total correlation of.</span>
+<span class="sd">        Defaults to computing the TC of the entire covariance matrix.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    np.ndarray.</span>
+<span class="sd">        The series of local description complexities.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">inputs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+        <span class="n">N</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">N</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">inputs</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="n">local_k_wms</span><span class="p">(</span><span class="n">k</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">cov</span><span class="o">=</span><span class="n">cov</span><span class="p">,</span> <span class="n">inputs</span><span class="o">=</span><span class="n">inputs</span><span class="p">)</span> <span class="o">/</span> <span class="n">N</span></div>
+
+</pre></div>
+        </article>
+      </div>
+      <footer>
+        
+        <div class="related-pages">
+          
+          
+        </div>
+        <div class="bottom-of-page">
+          <div class="left-details">
+            <div class="copyright">
+                Copyright &#169; 2025, Thomas F. Varley, PhD
+            </div>
+            Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+            
+            <a href="https://github.com/pradyunsg/furo">Furo</a>
+            
+          </div>
+          <div class="right-details">
+            
+          </div>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer no-toc">
+      
+      
+      
+    </aside>
+  </div>
+</div><script src="../../../_static/documentation_options.js?v=f2a433a1"></script>
+    <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/scripts/furo.js?v=46bd48cc"></script>
+    </body>
+</html>

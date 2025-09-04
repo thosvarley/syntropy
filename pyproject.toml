@@ -1,0 +1,31 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "syntropy"
+version = "0.0.1"
+authors = [
+  { name="Thomas F. Varley", email="tfvarley@uvm.edu" },
+]
+maintainers = [
+  { name="Thomas F. Valey", email="tfvarley@uvm.edu" },
+]
+description = "A package for discrete a gaussian multivariate information theory."
+readme = "README.md"
+requires-python = ">=3.8"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Operating System :: OS Independent",
+]
+license = "MIT"
+license-files = ["LICEN[CS]E*"]
+dependencies = [
+    "numpy",
+    "scipy",
+    "networkx"
+]
+
+[project.urls]
+#Homepage = ""
+#Issues = ""
