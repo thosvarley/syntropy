@@ -1,5 +1,5 @@
 ---
-title: "Syntropy": a Python package for discrete and continuous information theory.
+title: "Syntropy: a Python package for discrete and continuous information theory."
 tags:
     - information theory 
     - data science
