@@ -311,15 +311,15 @@ def local_o_information(
     data: np.ndarray, cov: np.ndarray = COV_NULL, inputs: tuple = (-1,)
 ) -> np.ndarray:
     """
-    
+
     See:
         Scagliarini, T., Marinazzo, D., Guo, Y., Stramaglia, S., & Rosas, F. E. (2022).
         Quantifying high-order interdependencies on individual patterns via the local O-information: Theory and applications to music analysis.
         Physical Review Research, 4(1), 013184.
         https://doi.org/10.1103/PhysRevResearch.4.013184
 
-        Pope, M., Varley, T. F., Grazia Puxeddu, M., Faskowitz, J., & Sporns, O. (2025). 
-        Time-varying synergy/redundancy dominance in the human cerebral cortex. Journal of Physics: Complexity, 6(1), 015015. 
+        Pope, M., Varley, T. F., Grazia Puxeddu, M., Faskowitz, J., & Sporns, O. (2025).
+        Time-varying synergy/redundancy dominance in the human cerebral cortex. Journal of Physics: Complexity, 6(1), 015015.
         https://doi.org/10.1088/2632-072X/adbaa9
 
     Parameters

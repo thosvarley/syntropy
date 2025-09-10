@@ -30,12 +30,12 @@ def differential_entropy(cov: np.ndarray, inputs: tuple = (-1,)) -> float:
     """
 
     if inputs[0] == -1:
-        return stats.multivariate_normal(cov=cov).entropy()
+        return stats.multivariate_normal(cov=cov, allow_singular=True).entropy()
     else:
         if len(inputs) == 1:
             return H_SINGLE
         else:
-            return stats.multivariate_normal(cov=cov[inputs, :][:, inputs]).entropy()
+            return stats.multivariate_normal(cov=cov[inputs, :][:, inputs], allow_singular=True).entropy()
 
 
 def local_differential_entropy(
@@ -66,10 +66,10 @@ def local_differential_entropy(
         cov = 1 * cov
 
     if N == 1:
-        return -stats.norm.logpdf(x=data, loc=data.mean(), scale=data.std())
+        return -stats.norm.logpdf(x=data, loc=data.mean(), scale=data.std(), allow_singular=True)
     else:
         return -(
-            stats.multivariate_normal.logpdf(x=data.T, mean=data.mean(axis=-1), cov=cov)
+            stats.multivariate_normal.logpdf(x=data.T, mean=data.mean(axis=-1), cov=cov, allow_singular=True)
         )
 
 

@@ -10,7 +10,7 @@ authors:
     - affiliation: 1
 affiliations:
     - name: Vermont Complex Systems Institute, University of Vermont, Burlington, VT, USA. 
-    index: 1
+    - index: 1
 date: 01 May 2025
 bibliography: references.bib
 ---
