@@ -7,7 +7,7 @@ tags:
 authors:
     - name: Thomas F. Varley
     - orcid: 0000-0002-3317-9882 
-    - affiliation: 1
+    - affiliation: "1"
 affiliations:
     - name: Vermont Complex Systems Institute, University of Vermont, Burlington, VT, USA. 
     - index: 1
