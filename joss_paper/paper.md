@@ -16,7 +16,7 @@ bibliography: references.bib
 ---
 
 # Summary:
-Information theory (a branch of mathematics concerned with the logic of inference and uncertainty) has emerged as a kind of *lingua franca* for the study of complex systems [@varley_information_2024], finding applications in neuroscience [@timme_synergy_2014][@varley_serotonergic_2024], climatology [@goodwell_its_2020][@goodwell_debatesdoes_2020], developmental biology [@blackiston_revealing_2025], economics [@kim_predicting_2020][@rajpal_synergistic_2025], sociology [varley_untangling_2022] and more. 
+Information theory (a branch of mathematics concerned with the logic of inference and uncertainty) has emerged as a kind of *lingua franca* for the study of complex systems [@varley_information_2024], finding applications in neuroscience [@timme_synergy_2014][@varley_serotonergic_2024], climatology [@goodwell_its_2020][@goodwell_debatesdoes_2020], developmental biology [@blackiston_revealing_2025], economics [@kim_predicting_2020][@rajpal_synergistic_2025], sociology [@varley_untangling_2022] and more. 
 The goal of the Syntropy package is to provide an accessible, easy-to-use API for scientists interested in applying information-theoretic analyses to arbitrary data sets. 
 To this end, Syntropy implements a variety of different measures, as well as a variety of estimators for different types of data (discrete, continuous, time series, etc). 
 Being primarily concerned with multivariate information theory and the application to complex systems, a core part of the Syntropy package is implementing the various information decompositions and higher-order mutual information measures that have been developed in recent years for the study of redundant and synergistic interactions in complex systems. 
