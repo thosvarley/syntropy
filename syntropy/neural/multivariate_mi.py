@@ -157,28 +157,3 @@ def higher_order_information(
     }
 
     return results 
-
-# %%
-in_dir = "/home/thosvarley/Documents/UVM/research/normalizing_flow/data/"
-from syntropy.gaussian.shannon import mutual_information as MI
-
-cov: np.ndarray = np.load(in_dir + "six_cov.npz")["arr_0"]
-
-gaussian = stats.multivariate_normal(mean=np.zeros(cov.shape[0]), cov=cov)
-data_train = torch.Tensor(gaussian.rvs(10_000))
-data_test = torch.Tensor(gaussian.rvs(10_000))
-
-
-idxs = (0, 1, 3)
-train_kwargs = {"num_epochs": 50}
-results = higher_order_information(
-    idxs, data_train, data_test=data_test, train_kwargs=train_kwargs, verbose=True
-)
-
-# %%
-from syntropy.gaussian.multivariate_mi import o_information, total_correlation, s_information, dual_total_correlation 
-cov_ = cov[idxs,:][:,idxs]
-print(o_information(cov_))
-print(s_information(cov_))
-print(dual_total_correlation(cov_))
-print(total_correlation(cov_))
