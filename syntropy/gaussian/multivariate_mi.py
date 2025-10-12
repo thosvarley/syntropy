@@ -29,9 +29,9 @@ def local_total_correlation(
         The local total correaltion for each frame.
 
     """
-    assert (
-        cov.shape[0] == data.shape[0]
-    ), "The data and covariance matrix must have the same dimensionality"
+    assert cov.shape[0] == data.shape[0], (
+        "The data and covariance matrix must have the same dimensionality"
+    )
 
     if inputs[0] == -1:
         _inputs = tuple(i for i in range(data.shape[0]))
@@ -39,7 +39,7 @@ def local_total_correlation(
         _inputs = inputs
     N = len(_inputs)
 
-    whole = local_differential_entropy(data[_inputs, :], cov[_inputs, :][:, _inputs])
+    whole = local_differential_entropy(data[_inputs, :], cov[np.ix(_inputs, _inputs)])
 
     sum_parts = np.zeros_like(whole)
     for i in range(N):
@@ -81,13 +81,13 @@ def total_correlation(cov: np.ndarray, inputs: tuple = (-1,)) -> float:
     else:
         _inputs = inputs
 
-    _cov: np.ndarray = cov[_inputs, :][:, _inputs]
+    _cov: np.ndarray = cov[np.ix_(_inputs, _inputs)]
 
     # Converting to a correlation/coherence matrix.
     diag: np.ndarray = np.sqrt(np.diag(_cov))
     d_inv: np.ndarray = np.diag(1.0 / diag)
 
-    corr = d_inv @ _cov @ d_inv
+    corr: np.ndarray = d_inv @ _cov @ d_inv
 
     return -np.linalg.slogdet(corr)[1] / 2
 
@@ -124,14 +124,14 @@ def local_k_wms(
 
     N: int = len(_inputs)
     whole = (N - k) * local_total_correlation(
-        data[_inputs, :], cov[_inputs, :][:, _inputs]
+        data[_inputs, :], cov[np.ix_(_inputs, _inputs)]
     )
 
     sum_parts = np.zeros_like(whole)
 
     for i in range(N):
         idxs = tuple(_inputs[j] for j in range(N) if j != i)
-        sum_parts += local_total_correlation(data[idxs, :], cov[idxs, :][:, idxs])
+        sum_parts += local_total_correlation(data[idxs, :], cov[np.ix_(idxs, idxs)])
 
     return whole - sum_parts
 
@@ -167,11 +167,10 @@ def k_wms(k: int, cov: np.ndarray, inputs: tuple = (-1,)) -> float:
 
     N: int = len(_inputs)
 
-    whole: float = (N - k) * total_correlation(cov[_inputs, :][:, _inputs])
+    whole: float = (N - k) * total_correlation(cov[np.ix_(_inputs, _inputs)])
     sum_parts: float = 0.0
 
     for i in range(N):
-
         idxs: tuple = tuple(_inputs[j] for j in range(N) if j != i)
         sum_parts += total_correlation(cov[idxs, :][:, idxs])
 
@@ -412,7 +411,6 @@ def tse_complexity(num_samples: int, cov: np.ndarray) -> float:
     exp_tcs[-1] = tc_whole
 
     for k in range(1, N):
-
         # All of the samples of subsets at scale i
         samples: np.ndarray = np.array(
             [np.random.choice(N, size=k, replace=False) for _ in range(num_samples)]
