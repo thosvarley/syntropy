@@ -5,6 +5,50 @@ import scipy.io as io
 import scipy.stats as stats
 
 
+def construct_csd_tensor(
+    idxs: tuple, data: np.ndarray, fs: int = 1, nperseg: int = 1024
+) -> np.ndarray:
+    """
+
+    Parameters
+    ----------
+    idxs : tuple
+
+    data : np.ndarray
+
+    fs : int
+
+    nperseg : int
+
+
+    Returns
+    -------
+    np.ndarray
+
+
+    """
+    N: int = len(idxs)
+    S: np.ndarray = np.zeros((nperseg, N, N))
+
+    for i in range(N):
+        for j in range(i + 1):
+            f, Pij = signal.csd(
+                data[idxs[i], :],
+                data[idxs[j], :],
+                return_onesided=False,
+                fs=fs,
+                nperseg=nperseg,
+            )
+            Pij = np.fft.fftshift(Pij)
+            S[:i, j] = Pij.real
+            S[:, j, i] = np.conj(Pij).real
+
+    omega = 2 * np.pi * f / fs
+    omega = np.fft.fftshift(omega)
+
+    return S, omega
+
+
 def differential_entropy_rate(
     idxs: tuple,
     data: np.ndarray,
@@ -40,23 +84,7 @@ def differential_entropy_rate(
     # %%
     N = len(idxs)
 
-    S = np.zeros((nperseg, N, N))
-
-    for i in range(N):
-        for j in range(i + 1):
-            f, Pij = signal.csd(
-                data[idxs[i], :],
-                data[idxs[j], :],
-                return_onesided=False,
-                fs=fs,
-                nperseg=nperseg,
-            )
-            Pij = np.fft.fftshift(Pij)
-            S[:, i, j] = Pij.real
-            S[:, j, i] = np.conj(Pij).real
-
-    omega = 2 * np.pi * f / fs  # from Hz to rad/sample
-    omega = np.fft.fftshift(omega)
+    S, omega = construct_csd_tensor(idxs=idxs, data=data, fs=fs, nperseg=nperseg)
 
     ptw = np.array(
         [(1 / 2) * np.log(((2 * np.pi * np.e) ** N) * np.linalg.det(a)) for a in S]
@@ -72,10 +100,10 @@ def mutual_information_rate(
     data: np.ndarray,
     fs: int = 1,
     nperseg: int = 1024,
-) -> (np.ndarray, float):
+) -> (np.ndarray, float, np.ndarray):
     """
     Computes the mutual information rate between two (potentially multivariate) Gaussian processes.
-    
+
     :math:`I(X; Y) = \\frac{1}{4\\pi} \\int_{-\\pi}^{\\pi} \\log \\left( \\frac{  |S_X(\\omega)||S_Y(\\omega)| }{ |S_{XY}(\\omega)| } \\right) d\\omega`
 
     See:
@@ -121,27 +149,10 @@ def mutual_information_rate(
     reidxs_x: tuple = tuple(i for i in range(Nx))
     reidxs_y: tuple = tuple(i + Nx for i in range(Ny))
 
-    S: np.ndarray = np.zeros((nperseg, N, N))
+    S, omega = construct_csd_tensor(idxs=idxs_, data=data, fs=fs, nperseg=nperseg)
 
-    for i in range(N):
-        for j in range(i + 1):
-            f, Pij = signal.csd(
-                data[idxs_[i], :],
-                data[idxs_[j], :],
-                return_onesided=False,
-                fs=fs,
-                nperseg=nperseg,
-            )
-
-            Pij: np.ndarray = np.fft.fftshift(Pij)
-            S[:, i, j] = Pij.real
-            S[:, j, i] = np.conj(Pij).real
-
-    omega: np.ndarray = 2 * np.pi * f / fs  # from Hz to rad/sample
-    omega = np.fft.fftshift(omega)
-
-    log_x = np.array([np.linalg.slogdet(a[reidxs_x, :][:, reidxs_x])[1] for a in S])
-    log_y = np.array([np.linalg.slogdet(a[reidxs_y, :][:, reidxs_y])[1] for a in S])
+    log_x = np.array([np.linalg.slogdet(a[np.ix_(reidxs_x, reidxs_x)])[1] for a in S])
+    log_y = np.array([np.linalg.slogdet(a[np.ix_(reidxs_y, reidxs_y)])[1] for a in S])
     log_xy = np.array([np.linalg.slogdet(a)[1] for a in S])
 
     ptw = (1 / 2) * (log_x + log_y - log_xy)
@@ -160,7 +171,7 @@ def total_correlation_rate(
     A straightforward extension of the mutual information rate to the total correlation.
 
     :math:`TC(X,Y,\\ldots,Z) = \\frac{1}{4\\pi} \\int_{-\\pi}^{\\pi} \\log \\left( \\frac{  |S_X(\\omega)||S_Y(\\omega)|\\ldots|S_Z(\\omega)| }{ |S_{XY\\ldots Z}(\\omega)| } \\right) d\\omega`
-    
+
     WARNING: As far as I know this TC rate idea has never been formally explored before. It should work fine as a natural generalization of the MI, but it hasn't ever been published or peer reviewed.
 
     Parameters
@@ -187,23 +198,7 @@ def total_correlation_rate(
 
     N = len(idxs)
 
-    S = np.zeros((nperseg, N, N))
-
-    for i in range(N):
-        for j in range(i + 1):
-            f, Pij = signal.csd(
-                data[idxs[i], :],
-                data[idxs[j], :],
-                return_onesided=False,
-                fs=fs,
-                nperseg=nperseg,
-            )
-            Pij = np.fft.fftshift(Pij)
-            S[:, i, j] = Pij.real
-            S[:, j, i] = np.conj(Pij).real
-
-    omega = 2 * np.pi * f / fs  # from Hz to rad/sample
-    omega = np.fft.fftshift(omega)
+    S, omega = construct_csd_tensor(idxs=idxs, data=data, fs=fs, nperseg=nperseg)
 
     sum_parts = np.array([np.log(np.diag(a)) for a in S]).sum(axis=-1)
 
@@ -224,7 +219,7 @@ def k_wms_rate(
     verbose: bool = False,
 ) -> (np.ndarray, float):
     """
-    A straightforward extension of the total correlation rate to the K whole-minus-sum rate. 
+    A straightforward extension of the total correlation rate to the K whole-minus-sum rate.
 
     Recall that S-information, DTC, and negative O-information can all be written in a general form:
 
@@ -272,7 +267,6 @@ def k_wms_rate(
     avg_sum_parts: float = 0.0
 
     for i in range(N0):
-
         idxs_residual: tuple = tuple(idxs[j] for j in range(N0) if j != i)
 
         ptw_residuals, avg_residuals = total_correlation_rate(
@@ -301,7 +295,7 @@ def s_information_rate(
     The S-information is equivalant to:
 
     :math:`\\Sigma(X) = \\sum_{i=1}^{N}I(X_i;X^{-i})`
-        
+
     :math:`\\Sigma(X) = TC(X) + DTC(X)`
 
     WARNING: As far as I know this rate idea has never been formally explored before. It should work fine as a natural generalization of the MI, but it hasn't even been published or peer reviewed.
@@ -358,11 +352,11 @@ def dual_total_correlation_rate(
     The dual total correlation is given alternately by:
 
     :math:`DTC(X) = H(X) - \\sum_{i=1}^{N}H(X_i|X^{-i})`
-        
+
     :math:`DTC(X) = (N-1)TC(X) - \\sum_{i=1}^{N}TC(X^{-i})`
 
     WARNING: As far as I know this rate idea has never been formally explored before. It should work fine as a natural generalization of the MI, but it hasn't even been published or peer reviewed.
-    
+
     See:
         Abdallah, S. A., & Plumbley, M. D. (2012).
         A measure of statistical complexity based on predictive information with application to finite spin systems.
@@ -412,9 +406,9 @@ def o_information_rate(
 ) -> (np.ndarray, float):
     """
     A straightforward extension of the O-information rate from the total correlation rate.
-    
+
     :math:`\\Omega(X) = (2-N)TC(X) + \\sum_{i=1}^{N}TC(X^{-i})`
-    
+
     :math:`\\Omega(X) = TC(X) - DTC(X)`
 
     WARNING: As far as I know this rate idea has never been formally explored before. It should work fine as a natural generalization of the MI, but it hasn't even been published or peer reviewed.

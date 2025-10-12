@@ -38,9 +38,9 @@ def partial_information_decomposition(
     if cov[0][0] == -1:
         cov = np.cov(data, ddof=0)
     else:
-        assert (
-            cov.shape[0] == data.shape[0]
-        ), "The covariance matrix must have the same dimensionality as the data."
+        assert cov.shape[0] == data.shape[0], (
+            "The covariance matrix must have the same dimensionality as the data."
+        )
 
     N_inputs: int = len(inputs)
     N_target: int = len(target)
@@ -51,7 +51,7 @@ def partial_information_decomposition(
         data=np.vstack((data[inputs, :], data[target, :])),
         inputs=tuple(i for i in range(N_inputs)),
         target=tuple(i + N_inputs for i in range(N_target)),
-        cov=cov[joint, :][:, joint],
+        cov=cov[np.ix_(joint, joint)],
     )
 
     return ptw, avg
@@ -93,9 +93,9 @@ def partial_entropy_decomposition(
     if cov[0][0] == -1:
         cov = np.cov(data, ddof=0)
     else:
-        assert (
-            cov.shape[0] == data.shape[0]
-        ), "The covariance matrix must have the same dimensionality as the data."
+        assert cov.shape[0] == data.shape[0], (
+            "The covariance matrix must have the same dimensionality as the data."
+        )
 
     N_inputs: int = len(inputs)
 
@@ -103,7 +103,7 @@ def partial_entropy_decomposition(
         decomposition="ped",
         data=data[inputs, :],
         inputs=tuple(i for i in range(N_inputs)),
-        cov=cov[inputs, :][:, inputs],
+        cov=cov[np.ix_(inputs, inputs)],
     )
 
     return ptw, avg
@@ -153,14 +153,14 @@ def generalized_information_decomposition(
         decomposition="ped",
         data=data[inputs, :],
         inputs=tuple(i for i in range(N_inputs)),
-        cov=cov_prior[inputs, :][:, inputs],
+        cov=cov_prior[np.ix_(inputs, inputs)],
     )
 
     ptw_posterior, _ = mobius_inversion(
         decomposition="ped",
         data=data[inputs, :],
         inputs=tuple(i for i in range(N_inputs)),
-        cov=cov_posterior[inputs, :][:, inputs],
+        cov=cov_prior[np.ix_(inputs, inputs)],
     )
 
     ptw: dict = {key: ptw_prior[key] - ptw_posterior[key] for key in ptw_prior.keys()}

@@ -104,9 +104,7 @@ def simulated_annealing(
     counter: int = 1
     print("Annealing...")
     while temperature > min_temperature:
-
         for _ in range(iters_per_temperature):
-
             # Randomly pick an available element and an chosen element
             swap = (
                 random.choice(tuple(chosen_set)),
@@ -163,7 +161,7 @@ def simulated_annealing(
         temperature *= cooling_rate
         counter += 1
 
-    if convergence == False:
+    if convergence is False:
         print("Annealing schedule finished")
         print("No convergence achieved")
 

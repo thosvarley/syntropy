@@ -35,7 +35,9 @@ def differential_entropy(cov: np.ndarray, inputs: tuple = (-1,)) -> float:
         if len(inputs) == 1:
             return H_SINGLE
         else:
-            return stats.multivariate_normal(cov=cov[inputs, :][:, inputs], allow_singular=True).entropy()
+            return stats.multivariate_normal(
+                cov=cov[inputs, :][:, inputs], allow_singular=True
+            ).entropy()
 
 
 def local_differential_entropy(
@@ -66,10 +68,14 @@ def local_differential_entropy(
         cov = 1 * cov
 
     if N == 1:
-        return -stats.norm.logpdf(x=data, loc=data.mean(), scale=data.std(), allow_singular=True)
+        return -stats.norm.logpdf(
+            x=data, loc=data.mean(), scale=data.std(), allow_singular=True
+        )
     else:
         return -(
-            stats.multivariate_normal.logpdf(x=data.T, mean=data.mean(axis=-1), cov=cov, allow_singular=True)
+            stats.multivariate_normal.logpdf(
+                x=data.T, mean=data.mean(axis=-1), cov=cov, allow_singular=True
+            )
         )
 
 
@@ -128,8 +134,8 @@ def local_conditional_entropy(
 
     joint = idxs_x + idxs_y
 
-    h_y = local_differential_entropy(data[idxs_y, :], cov[idxs_y, :][:, idxs_y])
-    h_joint = local_differential_entropy(data[joint, :], cov[joint, :][:, joint])
+    h_y = local_differential_entropy(data[idxs_y, :], cov[np.ix_(idxs_y, idxs_y)])
+    h_joint = local_differential_entropy(data[joint, :], cov[np.ix_(joint, joint)])
 
     return h_joint - h_y
 
@@ -153,11 +159,11 @@ def mutual_information(idxs_x: tuple, idxs_y: tuple, cov: np.ndarray) -> float:
     float
 
     """
-    joint = idxs_x + idxs_y
+    joint: tuple = idxs_x + idxs_y
 
-    cov_idxs_x = cov[idxs_x, :][:, idxs_x]
-    cov_idxs_y = cov[idxs_y, :][:, idxs_y]
-    cov_joint = cov[joint, :][:, joint]
+    cov_idxs_x: np.ndarray = cov[np.ix_(idxs_x, idxs_x)]
+    cov_idxs_y: np.ndarray = cov[np.ix_(idxs_y, idxs_y)]
+    cov_joint: np.ndarray = cov[np.ix_(joint, joint)]
 
     det_idxs_x: float = 0.0
     if len(idxs_x) == 1:
@@ -206,11 +212,11 @@ def local_mutual_information(
     if cov[0][0] == -1:
         cov = np.cov(data, ddof=0.0)
 
-    joint = idxs_x + idxs_y
+    joint: tuple = idxs_x + idxs_y
 
-    h_x = local_differential_entropy(data[idxs_x, :], cov[idxs_x, :][:, idxs_x])
-    h_y = local_differential_entropy(data[idxs_y, :], cov[idxs_y, :][:, idxs_y])
-    h_joint = local_differential_entropy(data[joint, :], cov[joint, :][:, joint])
+    h_x: np.ndarray = local_differential_entropy(data[idxs_x, :], cov[np.ix_(idxs_x, idxs_x)])
+    h_y: np.ndarray = local_differential_entropy(data[idxs_y, :], cov[np.ix_(idxs_y, idxs_y)])
+    h_joint: np.ndarray = local_differential_entropy(data[joint, :], cov[np.ix_(joint, joint)])
 
     return h_x + h_y - h_joint
 
