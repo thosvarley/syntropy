@@ -39,7 +39,7 @@ def local_total_correlation(
         _inputs = inputs
     N = len(_inputs)
 
-    whole = local_differential_entropy(data[_inputs, :], cov[np.ix(_inputs, _inputs)])
+    whole = local_differential_entropy(data[_inputs, :], cov[np.ix_(_inputs, _inputs)])
 
     sum_parts = np.zeros_like(whole)
     for i in range(N):
@@ -241,7 +241,7 @@ def s_information(cov: np.ndarray, inputs: tuple = (-1,)) -> float:
 
 
 def local_dual_total_correlation(
-    data: np.ndarray, cov: np.ndarray = COV_NULL, inputs: tuple = (-1)
+    data: np.ndarray, cov: np.ndarray = COV_NULL, inputs: tuple = (-1,)
 ) -> np.ndarray:
     """
     dtc(x) = (N-1)tc(x) + \sum tc(x^-i)
@@ -446,10 +446,7 @@ def description_complexity(cov: np.ndarray, inputs: tuple = (-1,)) -> float:
 
     """
 
-    if inputs[0] == -1:
-        N: float = float(cov.shape[0])
-    else:
-        N: float = float(len(inputs))
+    N: float = float(cov.shape[0]) if inputs[0] == -1 else float(len(inputs))
 
     return dual_total_correlation(cov=cov, inputs=inputs) / N
 
@@ -478,9 +475,6 @@ def local_description_complexity(
 
     """
 
-    if inputs[0] == -1:
-        N: float = float(data.shape[0])
-    else:
-        N: float = float(len(inputs))
+    N: float = float(cov.shape[0]) if inputs[0] == -1 else float(len(inputs))
 
     return local_k_wms(k=1, data=data, cov=cov, inputs=inputs) / N

@@ -11,7 +11,7 @@ authors = [
 maintainers = [
   { name="Thomas F. Valey", email="tfvarley@uvm.edu" },
 ]
-description = "A package for discrete a gaussian multivariate information theory."
+description = "A package for multivariate information theory on discrete and continuous random variables."
 readme = "README.md"
 requires-python = ">=3.8"
 classifiers = [
@@ -23,7 +23,9 @@ license-files = ["LICEN[CS]E*"]
 dependencies = [
     "numpy",
     "scipy",
-    "networkx"
+    "networkx",
+    "torch",
+    "nflows"
 ]
 
 [project.urls]

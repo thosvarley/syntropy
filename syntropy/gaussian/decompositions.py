@@ -4,7 +4,7 @@ from syntropy.gaussian.utils import COV_NULL, mobius_inversion
 
 def partial_information_decomposition(
     inputs: tuple, target: tuple, data: np.ndarray, cov: np.ndarray = COV_NULL
-) -> (dict, dict):
+) -> tuple[dict, dict]:
     """
      The pointwise and average partial information decomposition
      using the Gaussian imin function. See:
@@ -59,7 +59,7 @@ def partial_information_decomposition(
 
 def partial_entropy_decomposition(
     inputs: tuple, data: np.ndarray, cov: np.ndarray = COV_NULL
-) -> (dict, dict):
+) -> tuple[dict, dict]:
     """
     Computes the partial entropy decomposition of a joint distribution
     with up to four elements. Uses the Gaussian hmin estimator. See:
@@ -111,7 +111,7 @@ def partial_entropy_decomposition(
 
 def generalized_information_decomposition(
     inputs: tuple, data: np.ndarray, cov_posterior: np.ndarray, cov_prior: np.ndarray
-) -> (dict, dict):
+) -> tuple[dict, dict]:
     """
     Computes the generalized information decomposition from Varley et al.
     The GID is a decomposition of the Kullback-Leibler divergence of a

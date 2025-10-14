@@ -31,7 +31,7 @@ def simulated_annealing(
     iters_per_temperature: int = 10,
     convergence_window: int = 100,
     convergence_threshold: float = 1e-6,
-) -> (set, float, list):
+) -> tuple[set, float, np.ndarray]:
     """
     Implements a simulated annealing algorithm for optimizing
     multivariate information measures (O-info, DTC, etc) from
@@ -94,7 +94,7 @@ def simulated_annealing(
     num_steps = (
         math.ceil(np.log(min_temperature / temperature) / np.log(cooling_rate)) + 1
     )
-    values: np.ndaray = np.zeros(num_steps)
+    values: np.ndarray = np.zeros(num_steps)
 
     best_value: float = value
     best_set: set = chosen_set.copy()

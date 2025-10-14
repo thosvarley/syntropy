@@ -1,13 +1,11 @@
 import numpy as np
 import scipy.signal as signal
 import scipy.integrate as integrate
-import scipy.io as io
-import scipy.stats as stats
 
 
 def construct_csd_tensor(
     idxs: tuple, data: np.ndarray, fs: int = 1, nperseg: int = 1024
-) -> np.ndarray:
+) -> tuple[np.ndarray, np.ndarray]:
     """
 
     Parameters
@@ -54,7 +52,7 @@ def differential_entropy_rate(
     data: np.ndarray,
     fs: int = 1,
     nperseg: int = 1024,
-) -> (np.ndarray, float):
+) -> tuple[np.ndarray, float]:
     """
     Computes the differential entropy rate of a potentially multivariate stochastic process.
 
@@ -100,7 +98,7 @@ def mutual_information_rate(
     data: np.ndarray,
     fs: int = 1,
     nperseg: int = 1024,
-) -> (np.ndarray, float, np.ndarray):
+) -> tuple[np.ndarray, float]:
     """
     Computes the mutual information rate between two (potentially multivariate) Gaussian processes.
 
@@ -142,7 +140,6 @@ def mutual_information_rate(
     """
     Nx: int = len(idxs_x)
     Ny: int = len(idxs_y)
-    N: int = Nx + Ny
 
     idxs_: tuple = idxs_x + idxs_y
 
@@ -166,7 +163,7 @@ def total_correlation_rate(
     data: np.ndarray,
     fs: int = 1,
     nperseg: int = 1024,
-) -> (np.ndarray, float):
+) -> tuple[np.ndarray, float]:
     """
     A straightforward extension of the mutual information rate to the total correlation.
 
@@ -196,8 +193,6 @@ def total_correlation_rate(
         The average total correlation across the whole spectrum.
     """
 
-    N = len(idxs)
-
     S, omega = construct_csd_tensor(idxs=idxs, data=data, fs=fs, nperseg=nperseg)
 
     sum_parts = np.array([np.log(np.diag(a)) for a in S]).sum(axis=-1)
@@ -217,7 +212,7 @@ def k_wms_rate(
     fs: int = 1,
     nperseg: int = 1024,
     verbose: bool = False,
-) -> (np.ndarray, float):
+) -> tuple[np.ndarray, float]:
     """
     A straightforward extension of the total correlation rate to the K whole-minus-sum rate.
 
@@ -288,7 +283,7 @@ def s_information_rate(
     fs: int = 1,
     nperseg: int = 1024,
     verbose: bool = False,
-) -> (np.array, float):
+) -> tuple[np.ndarray, float]:
     """
     A straightforward extension of the S-information rate from the total correlation rate.
 
@@ -345,7 +340,7 @@ def dual_total_correlation_rate(
     fs: int = 1,
     nperseg: int = 1024,
     verbose: bool = False,
-) -> (np.ndarray, float):
+) -> tuple[np.ndarray, float]:
     """
     A straightforward extension of the dual total correlation rate from the total correlation rate.
 
@@ -403,7 +398,7 @@ def o_information_rate(
     fs: int = 1,
     nperseg: int = 1024,
     verbose: bool = False,
-) -> (np.ndarray, float):
+) -> tuple[np.ndarray, float]:
     """
     A straightforward extension of the O-information rate from the total correlation rate.
 
