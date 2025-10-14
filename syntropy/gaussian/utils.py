@@ -220,7 +220,7 @@ def mobius_inversion(
     inputs: tuple,
     target: tuple = (None,),
     cov: np.ndarray = COV_NULL,
-) -> (dict, dict):
+) -> tuple[dict, dict]:
     """
     Computes the Mobius inversion on a lattice, given a redundancy function.
 
