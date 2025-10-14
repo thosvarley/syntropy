@@ -3,15 +3,21 @@ import numpy as np
 
 from syntropy.discrete.shannon import conditional_entropy
 from syntropy.discrete.optimization import constrained_maximum_entropy_distributions
-from syntropy.discrete.utils import get_marginal_distribution
+from syntropy.discrete.utils import get_marginal_distribution, reduce_state
+
+from typing import Any
+
+DiscreteDist = dict[tuple[Any, ...], float]
+AlphaSynDist = dict[tuple[Any, ...], float]
+PartialSpectra = dict[tuple[Any, ...], list[float]]
 
 
 def alpha_synergistic_entropy(
-    joint_distribution: dict[tuple, float],
+    joint_distribution: DiscreteDist,
     alpha: int,
     num_samples: int = -1,
     definition: str = "min",
-) -> dict[tuple, float]:
+) -> AlphaSynDist:
     """
     Computes the :math:`\\alpha`-synergistic entropy for a joint distribution
     for a given value of :math:`\\alpha`. See:
@@ -40,19 +46,24 @@ def alpha_synergistic_entropy(
         The local alpha-synergy for each state.
 
     """
+    assert definition in {
+        "min",
+        "max",
+        "avg",
+    }, "The optional definitions are 'min', 'max', or 'avg'."
 
-    N: int = len(list(joint_distribution.keys())[0])
+    N: int = len(next(iter(joint_distribution)))
+
+    val: float = 0.0
 
     if definition == "min":
-        val: float = np.inf
+        val = np.inf
     elif definition == "max":
-        val: float = -np.inf
-    elif val == "average":
-        val: float = 0.0
+        val = -np.inf
 
-    alpha_syns: dict[tuple, float] = {key: val for key in joint_distribution.keys()}
+    alpha_syns: AlphaSynDist = {key: val for key in joint_distribution.keys()}
 
-    sources: list[tuple] = []
+    sources: list[tuple[Any, ...]] = []
     if num_samples == -1:  # Get all combinations of elements of size alpha.
         sources += list(itertools.combinations(tuple(i for i in range(N)), r=alpha))
     else:  # Randomly sample elements of size alpha.
@@ -65,29 +76,31 @@ def alpha_synergistic_entropy(
 
     num_sources: int = len(sources)
 
-    residuals: list = [
+    residuals: list[
+        tuple[Any, ...]
+    ] = [  # The residual indices for each source in sources.
         tuple(i for i in range(N) if i not in source) for source in sources
     ]
 
     for i in range(num_sources):
+        source: tuple[Any, ...] = sources[i]  # The indices of the source variables.
+        complement: tuple[Any, ...] = residuals[
+            i
+        ]  # The indices of the complenetary variables.
 
-        source: tuple = sources[i]
-        complement: tuple = residuals[i]
-
-        idxs: tuple = source + complement
+        idxs: tuple[Any, ...] = source + complement
 
         ptw, _ = conditional_entropy(source, complement, joint_distribution)
 
         for key in ptw.keys():
-
             # Undoing the unpacking of state into source and
             # conditional
-            flatten: tuple = sum(key, ())  # ((0,1),(2,)) -> (0,1,2)
+            flatten: tuple[Any, ...] = sum(key, ())  # ((0,1),(2,)) -> (0,1,2)
 
-            state = [0] * N
-            for i in range(N):
-                state[idxs[i]] = flatten[i]
-            state = tuple(state)
+            temp: list[int] = [0] * N
+            for i in range(N):  # For each element of flatten:
+                temp[idxs[i]] = flatten[i]  # Mapping back to the original order.
+            state: tuple[Any, ...] = tuple(temp)
 
             # Accounting for the various ways synergy can be defined.
             if definition == "min":
@@ -103,10 +116,10 @@ def alpha_synergistic_entropy(
 
 
 def partial_entropy_spectra(
-    joint_distribution: dict[tuple, float],
+    joint_distribution: DiscreteDist,
     num_samples: int = -1,
     definition: str = "min",
-) -> dict[tuple, list]:
+) -> PartialSpectra:
     """
     Computes the partial entropy spectrum for each state.
 
@@ -127,10 +140,12 @@ def partial_entropy_spectra(
     """
 
     N: int = len(list(joint_distribution.keys())[0])
-    spectra: dict[tuple, list] = {key: [] for key in joint_distribution.keys()}
+    spectra: dict[tuple[Any, ...], list[float]] = {
+        key: [] for key in joint_distribution.keys()
+    }
 
     for alpha in range(1, N + 1):
-        alpha_syns = alpha_synergistic_entropy(
+        alpha_syns: AlphaSynDist = alpha_synergistic_entropy(
             joint_distribution,
             alpha=alpha,
             num_samples=num_samples,
@@ -144,11 +159,11 @@ def partial_entropy_spectra(
 
 
 def partial_kullback_leibler_spectra(
-    posterior: dict[tuple, float],
-    prior: dict[tuple, float],
+    posterior: DiscreteDist,
+    prior: DiscreteDist,
     num_samples: int = -1,
     definition: str = "min",
-) -> dict[tuple, list]:
+) -> PartialSpectra:
     """
     Computes the local Kullback-Leibler spectrum for each state
 
@@ -172,16 +187,15 @@ def partial_kullback_leibler_spectra(
 
     """
 
-    dkl_spectra: dict[tuple, list] = {key: [] for key in posterior.keys()}
-    prior_spectra: dict[tuple, list] = partial_entropy_spectra(
+    dkl_spectra: PartialSpectra = {key: [] for key in posterior.keys()}
+    prior_spectra: PartialSpectra = partial_entropy_spectra(
         prior, num_samples=num_samples, definition=definition
     )
-    posterior_spectra: dict[tuple, list] = partial_entropy_spectra(
+    posterior_spectra: PartialSpectra = partial_entropy_spectra(
         posterior, num_samples=num_samples, definition=definition
     )
 
     for key in dkl_spectra.keys():
-
         dkl_spectra[key] = list(
             map(lambda x, y: x - y, prior_spectra[key], posterior_spectra[key])
         )
@@ -190,10 +204,10 @@ def partial_kullback_leibler_spectra(
 
 
 def partial_total_correlation_spectra(
-    joint_distribution: dict[tuple, float],
+    joint_distribution: DiscreteDist,
     num_samples: int = -1,
     definition: str = "min",
-) -> dict[tuple, list]:
+) -> PartialSpectra:
     """
     Computes the local total correlation spectrum for each state.
 
@@ -214,7 +228,7 @@ def partial_total_correlation_spectra(
 
     """
 
-    prior: dict[tuple, float] = constrained_maximum_entropy_distributions(
+    prior: DiscreteDist = constrained_maximum_entropy_distributions(
         joint_distribution, order=1
     )
 
@@ -224,12 +238,12 @@ def partial_total_correlation_spectra(
 
 
 def partial_information_spectra(
-    inputs: tuple,
-    target: tuple,
-    joint_distribution: dict[tuple, float],
+    inputs: tuple[Any, ...],
+    target: tuple[Any, ...],
+    joint_distribution: DiscreteDist,
     num_samples: int = -1,
     definition: str = "min",
-) -> dict[tuple, float]:
+) -> list[float]:
     """
     Computes the local mutual information spectrum for each state.
 
@@ -248,62 +262,54 @@ def partial_information_spectra(
 
     Returns
     -------
-    dict[tuple,list]
-        The alpha-synergistic total correlation spectrum for each state.
-
+    list[float]
     """
 
-    N = len(inputs)
+    N: int = len(inputs)
 
     # The marginal distribution on the inputs
     # and target.
-    marginal_inputs = get_marginal_distribution(inputs, joint_distribution)
-    marginal_targets = get_marginal_distribution(target, joint_distribution)
+    marginal_inputs: DiscreteDist = get_marginal_distribution(
+        inputs, joint_distribution
+    )
+    marginal_targets: DiscreteDist = get_marginal_distribution(
+        target, joint_distribution
+    )
 
     # The alpha-synergistic entropy decomposition of h(x)
-    input_entropy_spectra = partial_entropy_spectra(
+    input_entropy_spectra: PartialSpectra = partial_entropy_spectra(
         marginal_inputs, num_samples=num_samples, definition=definition
     )
 
-    conditional_distribution = conditional_entropy(inputs, target, joint_distribution)[
-        0
-    ]
-
-    # Converting the pointwise conditional entropies back into a
-    # probability distribution.
-    conditional_distribution = {
-        key: 2 ** (-conditional_distribution[key])
-        for key in conditional_distribution.keys()
-    }
-
-    avg = [0 for i in range(N)]
+    avg: list[float] = [0.0 for _ in range(N)]
     for target_key in marginal_targets.keys():
+        p_y: float = marginal_targets[target_key]
 
-        target_conditional_distribution = {
-            key[0]: conditional_distribution[key]
-            for key in conditional_distribution.keys()
-            if key[1] == target_key
+        target_conditional_distribution: DiscreteDist = {
+            reduce_state(key, inputs): joint_distribution[key] / p_y
+            for key in joint_distribution.keys()
+            if reduce_state(key, target) == target_key
         }
 
-        conditional_entropy_spectra = partial_entropy_spectra(
+        conditional_entropy_spectra: PartialSpectra = partial_entropy_spectra(
             target_conditional_distribution,
             num_samples=num_samples,
             definition=definition,
         )
 
-        ptw = [0 for i in range(N)]
+        ptw: list[float] = [0 for _ in range(N)]
         for input_key in conditional_entropy_spectra.keys():
-
-            input_spectra = input_entropy_spectra[input_key]
-            conditional_spectra = conditional_entropy_spectra[input_key]
+            
+            input_spectra: list[float] = input_entropy_spectra[input_key]
+            conditional_spectra: list[float] = conditional_entropy_spectra[input_key]
+            target_conditional_entropy: float = target_conditional_distribution[input_key]
 
             for i in range(N):
-                ptw[i] += target_conditional_distribution[input_key] * (
+                ptw[i] += target_conditional_entropy * (
                     input_spectra[i] - conditional_spectra[i]
                 )
-
+        
         for i in range(N):
-
-            avg[i] += ptw[i] * marginal_targets[target_key]
-
+            avg[i] += ptw[i] * p_y
+        
     return avg
