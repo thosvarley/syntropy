@@ -1,10 +1,14 @@
 import numpy as np
 from syntropy.discrete.utils import get_marginal_distribution
 
-def shannon_entropy(joint_distribution: dict) -> tuple[dict, float]:
+from typing import Any
+
+DiscreteDist = dict[tuple[Any, ...], float]
+
+def shannon_entropy(joint_distribution: DiscreteDist) -> tuple[dict, float]:
     """
     Computes the Shannon entropy of the distribution :math:`P(x)`.
-    
+
     .. math::
         H(X) = -\\sum_{x} P(x) \\log P(x)
 
@@ -39,7 +43,7 @@ def shannon_entropy(joint_distribution: dict) -> tuple[dict, float]:
 
 
 def conditional_entropy(
-    inputs_x: tuple, inputs_y: tuple, joint_distribution: dict
+    idxs_x: tuple[int, ...], idxs_y: tuple[int, ...], joint_distribution: DiscreteDist
 ) -> tuple[dict, float]:
     """
     Computes the conditional entropy of X given Y.
@@ -48,9 +52,9 @@ def conditional_entropy(
 
     Parameters
     ----------
-    inputs_x : tuple
+    idxs_x : tuple
         The indices of the variables to compute the entropy on.
-    inputs_y : tuple
+    idxs_y : tuple
         The indicies of the variables to contintue on.
     joint_distribution : dict
         DESCRIPTION.joint_distribution : dict
@@ -64,21 +68,21 @@ def conditional_entropy(
         The pointwise entropy for each state in the joint distribution.
     avg : float
         The average entropy
-    
+
     """
 
-    Nx: int = len(inputs_x)
+    Nx: int = len(idxs_x)
 
-    inputs_xy: tuple = inputs_x + inputs_y
+    idxs_xy: tuple[int, ...] = idxs_x + idxs_y
 
-    marginal_xy: dict = get_marginal_distribution(inputs_xy, joint_distribution)
-    marginal_y: dict = get_marginal_distribution(inputs_y, joint_distribution)
+    marginal_xy: DiscreteDist = get_marginal_distribution(idxs_xy, joint_distribution)
+    marginal_y: DiscreteDist = get_marginal_distribution(idxs_y, joint_distribution)
 
     ptw: dict = {}
     avg: float = 0
+
     for state in marginal_xy.keys():
         if marginal_xy[state] > 0.0:
-
             p_y: float = marginal_y[state[Nx:]]
             h: float = -np.log2(marginal_xy[state] / p_y)
             ptw[((state[:Nx]), (state[Nx:]))] = h
@@ -89,9 +93,9 @@ def conditional_entropy(
 
 
 def mutual_information(
-    inputs_x: tuple,
-    inputs_y: tuple,
-    joint_distribution: dict,
+    idxs_x: tuple[int, ...],
+    idxs_y: tuple[int, ...],
+    joint_distribution: DiscreteDist,
 ) -> tuple[dict, float]:
     """
     Computes the mutual information between X and Y.
@@ -100,9 +104,9 @@ def mutual_information(
 
     Parameters
     ----------
-    inputs_x : tuple
+    idxs_x : tuple
         The indices of the X variable(s).
-    inputs_y : tuple
+    idxs_y : tuple
         The indices of the Y variable(s).
     joint_distribution : dict
         The joint probability distribution.
@@ -116,22 +120,22 @@ def mutual_information(
         The pointwise mutual information for each state in the joint distribution.
     avg : float
         The average mutual information
-    
+
     """
 
-    Nx: int = len(inputs_x)
+    Nx: int = len(idxs_x)
 
-    inputs_xy: tuple = inputs_x + inputs_y
+    idxs_xy: tuple[int, ...] = idxs_x + idxs_y
 
-    marginal_xy: dict = get_marginal_distribution(inputs_xy, joint_distribution)
-    marginal_y: dict = get_marginal_distribution(inputs_y, joint_distribution)
-    marginal_x: dict = get_marginal_distribution(inputs_x, joint_distribution)
+    marginal_xy: DiscreteDist = get_marginal_distribution(idxs_xy, joint_distribution)
+    marginal_y: DiscreteDist = get_marginal_distribution(idxs_y, joint_distribution)
+    marginal_x: DiscreteDist = get_marginal_distribution(idxs_x, joint_distribution)
 
     ptw: dict = {}
     avg: float = 0.0
+
     for state in marginal_xy.keys():
         if marginal_xy[state] > 0.0:
-
             p_x: float = marginal_x[state[:Nx]]
             p_y: float = marginal_y[state[Nx:]]
 
@@ -145,7 +149,7 @@ def mutual_information(
 
 
 def conditional_mutual_information(
-    inputs_x: tuple, inputs_y: tuple, inputs_z: tuple, joint_distribution: dict
+    idxs_x: tuple, idxs_y: tuple, idxs_z: tuple, joint_distribution: DiscreteDist
 ) -> tuple[dict, float]:
     """
     Computes the mutual information between X and Y condioned on Z.
@@ -154,11 +158,11 @@ def conditional_mutual_information(
 
     Parameters
     ----------
-    inputs_x : tuple
+    idxs_x : tuple
         The indices of the X variable(s).
-    inputs_y : tuple
+    idxs_y : tuple
         The indices of the Y variable(s).
-    inputs_z : tuple
+    idxs_z : tuple
         The indices of the variables to condition on.
     joint_distribution : dict
         The joint probability distribution.
@@ -174,19 +178,18 @@ def conditional_mutual_information(
 
     """
 
-    Nx: int = len(inputs_x)
+    Nx: int = len(idxs_x)
 
-    joint = inputs_x + inputs_y
+    joint: tuple[int, ...] = idxs_x + idxs_y
 
-    ptw_xz, avg_xz = conditional_entropy(inputs_x, inputs_z, joint_distribution)
-    ptw_yz, avg_yz = conditional_entropy(inputs_y, inputs_z, joint_distribution)
-    ptw_xyz, avg_xyz = conditional_entropy(joint, inputs_z, joint_distribution)
+    ptw_xz, avg_xz = conditional_entropy(idxs_x, idxs_z, joint_distribution)
+    ptw_yz, avg_yz = conditional_entropy(idxs_y, idxs_z, joint_distribution)
+    ptw_xyz, avg_xyz = conditional_entropy(joint, idxs_z, joint_distribution)
 
     avg: float = avg_xz + avg_yz - avg_xyz
     ptw: dict = {}
 
     for state in ptw_xyz.keys():
-
         sx = state[0][:Nx]
         sy = state[0][Nx:]
 
@@ -199,7 +202,7 @@ def conditional_mutual_information(
 
 
 def kullback_leibler_divergence(
-    posterior_distribution: dict, prior_distribution: dict
+    posterior_distribution: DiscreteDist, prior_distribution: DiscreteDist
 ) -> tuple[dict, float]:
     """
     Computes the Kullback-Leibler divergence from a prior distribution P(X) and
@@ -220,7 +223,7 @@ def kullback_leibler_divergence(
         The pointwise Kullback-Leibler divergence for each state in the joint distribution.
     avg : float
         The average Kullback-Leibler divergence.
-    
+
     """
 
     assert set(prior_distribution.keys()).issuperset(
@@ -230,7 +233,6 @@ def kullback_leibler_divergence(
     avg: float = 0
     ptw: dict = {state: 0 for state in posterior_distribution.keys()}
     for state in posterior_distribution.keys():
-
         log_ratio: float = np.log2(
             posterior_distribution[state] / prior_distribution[state]
         )
