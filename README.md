@@ -27,8 +27,13 @@ xor_distribution = {
 The discrete estimators typically take in the distribution, and the indices of the relevant variables, represented as tuples. For example, the mutual information estimator syntax is:
 
 ```python
-_, mi = mutual_information((0,1), (2,), xor_distribution) # Returns 1 bit.
+ptw, avg = mutual_information(
+    idxs_x = (0,1), 
+    idxs_y = (2,), 
+    joint_distributions = xor_distribution)
 ```
+
+the `ptw` object is a dictionary with the pointwise mutual informations for each possible joint state, while avg is the expected mutual information. 
 
 Syntropy also includes a number of utility functions for manipulating discrete probability distributions.
 
@@ -39,10 +44,33 @@ Gaussian estimators assume that real valued data are drawn from a $k$-dimensiona
 
 $$H(X) = \frac{k}{2}\log(2\pi\textnormal{e}) + \frac{1}{2}\log |\Sigma_{X}|$$
 
-Where $|\Sigma_{X}|$ is the determinant of the covariance matrix. 
+Where $|\Sigma_{X}|$ is the determinant of the covariance matrix.
+
+The Gaussian estimator syntax uses the same form as the discrete estimators, but with the covariance matrix instead:
+
+```python
+mi = mutual_information(
+    idxs_x = (0,), 
+    idxs_y = (1,),
+    cov = cov 
+)
+```
+To get pointwise estimates, there are `local_` functions that also take in the raw data as well.
 
 ##### Neural 
 
+Neural estimators are non-parametric estimators based on [normalizing-flow neural networks](https://en.wikipedia.org/wiki/Flow-based_generative_model). The flow finds the set of invertible transformations that transforms a Gaussian distribution into a non-parametric distribution that maximizes the likelihood of the given data. 
+
+The neural estimators take the same syntax as above:
+
+```python
+mi = mutual_information(
+    idxs_x = (0,),
+    idxs_y = (1,),
+    data = data 
+)
+```
+Here, data is a PyTorch tensor object.
 
 #### Installation
 
