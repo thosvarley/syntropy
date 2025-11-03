@@ -1,8 +1,8 @@
 import torch
 import torch.optim as optim
 from torch.utils.data import DataLoader, TensorDataset
-import numpy as np
 
+import nflows
 from nflows.distributions.normal import StandardNormal
 from nflows.flows.base import Flow
 from nflows.transforms.autoregressive import MaskedAffineAutoregressiveTransform
@@ -15,8 +15,8 @@ def initialize_flow(
     dim_context: int = 0,
     num_layers: int = 5,
     hidden_features: int = 64,
-    dropout_probability=0.1,
-):
+    dropout_probability: float = 0.1,
+) -> nflows.flows.base.Flow:
     """
     Initializes a new normalizing flow network.
 
@@ -60,7 +60,7 @@ def initialize_flow(
 
 
 def train_flow(
-    flow,
+    flow: nflows.flows.base.Flow,
     data: torch.Tensor,
     context: None | torch.Tensor = None,
     batch_size: int = 256,
@@ -70,7 +70,7 @@ def train_flow(
     convergence_threshold: float = 0.0,
     alpha: float = 0.1,
     verbose: bool = False,
-):
+) -> nflows.flows.base.Flow:
     """
     Trains a normalizing flow network to approximate the maximally likely distribution to have generated the given data.
 
@@ -162,8 +162,11 @@ def train_flow(
 
     return flow
 
+
 def evaluate_flow(
-    flow, data: torch.Tensor, context: None | torch.Tensor = None
+    flow: nflows.flows.base.Flow,
+    data: torch.Tensor,
+    context: None | torch.Tensor = None,
 ) -> tuple[float, float]:
     """
     Evaluates a trainied normalizing flow network on the given data.

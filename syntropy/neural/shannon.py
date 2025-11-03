@@ -1,41 +1,44 @@
-import numpy as np
-import scipy.stats as stats
 import torch
+import nflows
 from utils import initialize_flow, train_flow, evaluate_flow
 
 
 def differential_entropy(
-    idxs: tuple[int],
+    idxs: tuple[int, ...],
     data: torch.Tensor,
-    context: None | tuple[int] = None,
+    context: None | tuple[int, ...] = None,
     data_test: None | torch.Tensor = None,
     flow_kwargs: dict = None,
     train_kwargs: dict = None,
     verbose: bool = False,
-) -> float:
+) -> tuple[float, nflows.flows.base.Flow]:
 
     """
+    Computes the differential entropy of the data. 
 
     Parameters
     ----------
-    idxs : tuple[int]
-        
+    idxs : tuple[int, ...]
+        The tuple of indices the differential entropy is computed for.
     data : torch.Tensor
-        
+        The training data, in samples x features format.
     context : None | tuple[int]
-        
+        If not None, the indices of the conditioning variables.
     data_test : None | torch.Tensor
-        
+        If not None, the testing data in samples x features format.
     flow_kwargs : dict
-        
+        Arguments for the utils.initalize_flow function.
     train_kwargs : dict
-        
+        Arguments for the utils.train_flow function.
     verbose : bool
+        Whether to print the training progress.
         
 
     Returns
     -------
-    
+    float
+
+    nflows.flows.base.Flow
         
 
     """
@@ -77,12 +80,41 @@ def mutual_information(
     idxs_x: tuple[int],
     idxs_y: tuple[int],
     data: torch.Tensor,
-    context: None | tuple[int] = None,
+    context: None | tuple[int, ...] = None,
     data_test: None | torch.Tensor = None,
     flow_kwargs: dict = None,
     train_kwargs: dict = None,
     verbose: bool = False,
 ) -> float:
+
+    """
+    Computes the mutual information between the elements given by idxs_x and idxs_y.
+    Parameters
+    ----------
+    idxs_x : tuple[int, ...]
+        The tuple of indices the x variable.
+    idxs_y : tuple[int, ...]
+        The tuple of indices for the y variable.
+    data : torch.Tensor
+        The training data, in samples x features format.
+    context : None | tuple[int]
+        If not None, the indices of the conditioning variables.
+    data_test : None | torch.Tensor
+        If not None, the testing data in samples x features format.
+    flow_kwargs : dict
+        Arguments for the utils.initalize_flow function.
+    train_kwargs : dict
+        Arguments for the utils.train_flow function.
+    verbose : bool
+        Whether to print the training progress.
+        
+
+    Returns
+    -------
+    float
+        
+
+    """
     flow_kwargs = flow_kwargs or {}
     train_kwargs = train_kwargs or {}
 
