@@ -1,5 +1,6 @@
 import numpy as np
 import scipy.stats as stats
+from numpy.typing import NDArray
 
 H_SINGLE: float = np.log(np.sqrt(2.0 * np.pi * np.e))
 LN_TWO_PI_E: float = np.log(2.0 * np.pi * np.e)
@@ -9,7 +10,9 @@ SQRT_TWO_PI: float = np.sqrt(TWO_PI)
 COV_NULL = np.array([[-1]])
 
 
-def differential_entropy(cov: np.ndarray, inputs: tuple = (-1,)) -> float:
+def differential_entropy(
+    cov: NDArray[np.floating], idxs: tuple[int, ...] = (-1,)
+) -> float:
     """
     Computes the expected differential entropy of a multivariate
     distribution parameterized by a covariance matrix using a
@@ -17,9 +20,9 @@ def differential_entropy(cov: np.ndarray, inputs: tuple = (-1,)) -> float:
 
     Parameters
     ----------
-    cov : np.ndarray
+    cov : NDArray[np.floating]
         The covariance matrix that defines the distribution.
-    inputs : tuple, optional
+    idxs : tuple, optional
         The specific subset of variables to compute the total correlation of.
         Defaults to computing the TC of the entire covariance matrix.
 
@@ -29,34 +32,34 @@ def differential_entropy(cov: np.ndarray, inputs: tuple = (-1,)) -> float:
 
     """
 
-    if inputs[0] == -1:
+    if idxs[0] == -1:
         return stats.multivariate_normal(cov=cov, allow_singular=True).entropy()
     else:
-        if len(inputs) == 1:
+        if len(idxs) == 1:
             return H_SINGLE
         else:
             return stats.multivariate_normal(
-                cov=cov[inputs, :][:, inputs], allow_singular=True
+                cov=cov[idxs, :][:, idxs], allow_singular=True
             ).entropy()
 
 
 def local_differential_entropy(
-    data: np.ndarray, cov: np.ndarray = COV_NULL
-) -> np.ndarray:
+    data: NDArray[np.floating], cov: NDArray[np.floating] = COV_NULL
+) -> NDArray[np.floating]:
     """
     Computes the framewise differential entropy for a set of variables.
 
     Parameters
     ----------
-    data : np.ndarray
+    data : NDArray[np.floating]
         The data in channels x samples format.
-    cov : np.ndarray, optional
+    cov : NDArray[np.floating], optional
         The covariance matrix that defines the distribution.
         If none is provided, it is computed from the data object.
 
     Returns
     -------
-    np.ndarray
+    NDArray[np.floating]
         The series of pointwise entropies.
 
     """
@@ -80,7 +83,9 @@ def local_differential_entropy(
 
 
 def conditional_entropy(
-    idxs_x: tuple, idxs_y: tuple, cov: np.ndarray = COV_NULL
+    idxs_x: tuple[int, ...],
+    idxs_y: tuple[int, ...],
+    cov: NDArray[np.floating] = COV_NULL,
 ) -> float:
     """
     Computes the conditional entropy of X given Y.
@@ -91,7 +96,7 @@ def conditional_entropy(
         The indices of the variables to compute the conditional entropy on.
     idxs_y : tuple
         The indices of the conditioning set.
-    cov : np.ndarray, optional
+    cov : NDArray[np.floating], optional
         The covariance matrix that defines the distribution.
         If none is provided, it is computed from the data object.
 
@@ -110,8 +115,11 @@ def conditional_entropy(
 
 
 def local_conditional_entropy(
-    idxs_x: tuple, idxs_y: tuple, data: np.ndarray, cov: np.ndarray = COV_NULL
-) -> np.ndarray:
+    idxs_x: tuple[int, ...],
+    idxs_y: tuple[int, ...],
+    data: NDArray[np.floating],
+    cov: NDArray[np.floating] = COV_NULL,
+) -> NDArray[np.floating]:
     """
     Computes the local condition entropy for every sample in data.
 
@@ -121,15 +129,15 @@ def local_conditional_entropy(
         The indices of the variables to compute the conditional entropy on.
     idxs_y : tuple
         The indices of the conditioning set.
-    data : np.ndarray
+    data : NDArray[np.floating]
         The data in channels x samples format.
-    cov : np.ndarray, optional
+    cov : NDArray[np.floating], optional
         The covariance matrix that defines the distribution.
         If none is provided, it is computed from the data object.
 
     Returns
     -------
-    np.ndarray
+    NDArray[np.floating]
     """
 
     joint = idxs_x + idxs_y
@@ -140,7 +148,9 @@ def local_conditional_entropy(
     return h_joint - h_y
 
 
-def mutual_information(idxs_x: tuple, idxs_y: tuple, cov: np.ndarray) -> float:
+def mutual_information(
+    idxs_x: tuple[int, ...], idxs_y: tuple[int, ...], cov: NDArray[np.floating]
+) -> float:
     """
     Computes the mutual information between the idxs_x and the idxs_y.
     Note that the mutual information is symmetric in its arguments.
@@ -151,7 +161,7 @@ def mutual_information(idxs_x: tuple, idxs_y: tuple, cov: np.ndarray) -> float:
         The indices of the source variables. Can be multivariate.
     idxs_y : tuple
         The indices of the idxs_y variable. Can be multivariate.
-    cov : np.ndarray
+    cov : NDArray[np.floating]
         The covariance matrix that defines the distribution.
 
     Returns
@@ -159,11 +169,11 @@ def mutual_information(idxs_x: tuple, idxs_y: tuple, cov: np.ndarray) -> float:
     float
 
     """
-    joint: tuple = idxs_x + idxs_y
+    joint: tuple[int, ...] = idxs_x + idxs_y
 
-    cov_idxs_x: np.ndarray = cov[np.ix_(idxs_x, idxs_x)]
-    cov_idxs_y: np.ndarray = cov[np.ix_(idxs_y, idxs_y)]
-    cov_joint: np.ndarray = cov[np.ix_(joint, joint)]
+    cov_idxs_x: NDArray[np.floating] = cov[np.ix_(idxs_x, idxs_x)]
+    cov_idxs_y: NDArray[np.floating] = cov[np.ix_(idxs_y, idxs_y)]
+    cov_joint: NDArray[np.floating] = cov[np.ix_(joint, joint)]
 
     det_idxs_x: float = 0.0
     if len(idxs_x) == 1:
@@ -185,8 +195,11 @@ def mutual_information(idxs_x: tuple, idxs_y: tuple, cov: np.ndarray) -> float:
 
 
 def local_mutual_information(
-    idxs_x: tuple, idxs_y: tuple, data: np.ndarray, cov: np.ndarray = COV_NULL
-) -> np.ndarray:
+    idxs_x: tuple[int, ...],
+    idxs_y: tuple[int, ...],
+    data: NDArray[np.floating],
+    cov: NDArray[np.floating] = COV_NULL,
+) -> NDArray[np.floating]:
     """
     Computes the local mutual information between X and Y for every sample in data.
     Note that the local mutual information can be negative.
@@ -197,32 +210,41 @@ def local_mutual_information(
         The indices of the source variables. Can be multivariate.
     idxs_y : tuple
         The indices of the idxs_y variable. Can be multivariate.
-    data : np.ndarray
+    data : NDArray[np.floating]
         The data in channels x samples format.
-    cov : np.ndarray, optional
+    cov : NDArray[np.floating], optional
         The covariance matrix that defines the distribution.
         If none is provided, it is computed from the data object.
 
     Returns
     -------
-     np.ndarray
+     NDArray[np.floating]
 
     """
 
     if cov[0][0] == -1:
         cov = np.cov(data, ddof=0.0)
 
-    joint: tuple = idxs_x + idxs_y
+    joint: tuple[int, ...] = idxs_x + idxs_y
 
-    h_x: np.ndarray = local_differential_entropy(data[idxs_x, :], cov[np.ix_(idxs_x, idxs_x)])
-    h_y: np.ndarray = local_differential_entropy(data[idxs_y, :], cov[np.ix_(idxs_y, idxs_y)])
-    h_joint: np.ndarray = local_differential_entropy(data[joint, :], cov[np.ix_(joint, joint)])
+    h_x: NDArray[np.floating] = local_differential_entropy(
+        data[idxs_x, :], cov[np.ix_(idxs_x, idxs_x)]
+    )
+    h_y: NDArray[np.floating] = local_differential_entropy(
+        data[idxs_y, :], cov[np.ix_(idxs_y, idxs_y)]
+    )
+    h_joint: NDArray[np.floating] = local_differential_entropy(
+        data[joint, :], cov[np.ix_(joint, joint)]
+    )
 
     return h_x + h_y - h_joint
 
 
 def conditional_mutual_information(
-    idxs_x: tuple, idxs_y: tuple, idxs_z: tuple, cov: np.ndarray
+    idxs_x: tuple[int, ...],
+    idxs_y: tuple[int, ...],
+    idxs_z: tuple[int, ...],
+    cov: NDArray[np.floating],
 ) -> float:
     """
     Computes the expected mutual information between a set of variables X
@@ -236,7 +258,7 @@ def conditional_mutual_information(
         The indices of the Y variable. Can be multivariate.
     idxs_z : tuple
         The indices of the conditioning set. Can be multivariate.
-    cov : np.ndarray
+    cov : NDArray[np.floating]
         The covariance matrix that defines the distribution.
 
     Returns
@@ -245,7 +267,7 @@ def conditional_mutual_information(
 
     """
 
-    joint: tuple = idxs_x + idxs_y
+    joint: tuple[int, ...] = idxs_x + idxs_y
 
     h_x_z = conditional_entropy(idxs_x, idxs_z, cov)
     h_y_z = conditional_entropy(idxs_y, idxs_z, cov)
@@ -255,11 +277,11 @@ def conditional_mutual_information(
 
 
 def local_conditional_mutual_information(
-    idxs_x: tuple,
-    idxs_y: tuple,
-    idxs_z: tuple,
-    data: np.ndarray,
-    cov: np.ndarray = COV_NULL,
+    idxs_x: tuple[int, ...],
+    idxs_y: tuple[int, ...],
+    idxs_z: tuple[int, ...],
+    data: NDArray[np.floating],
+    cov: NDArray[np.floating] = COV_NULL,
 ):
     """
     Computes the local conditional mutual information between
@@ -275,15 +297,15 @@ def local_conditional_mutual_information(
         The indices of the Y variable. Can be multivariate.
     idxs_z : tuple
         The indices of the conditioning set. Can be multivariate.
-    data : np.ndarray
+    data : NDArray[np.floating]
          The data in channels x samples format.
-    cov : np.ndarray, optional
+    cov : NDArray[np.floating], optional
         The covariance matrix that defines the distribution.
         If none is provided, it is computed from the data object.
 
     Returns
     -------
-    np.ndarray
+    NDArray[np.floating]
     """
     if cov[0][0] == -1:
         cov = np.cov(data, ddof=0.0)
@@ -298,7 +320,7 @@ def local_conditional_mutual_information(
 
 
 def kullback_leibler_divergence(
-    cov_posterior: np.ndarray, cov_prior: np.ndarray
+    cov_posterior: NDArray[np.floating], cov_prior: NDArray[np.floating]
 ) -> float:
     """
     Computes the Gaussian Kullback-Leibler divergence between
@@ -306,9 +328,9 @@ def kullback_leibler_divergence(
 
     Parameters
     ----------
-    cov_posterior : np.ndarray
+    cov_posterior : NDArray[np.floating]
         The covariance matrix that defines the posterior distribution.
-    cov_prior : np.ndarray
+    cov_prior : NDArray[np.floating]
         The covariance matrix that defines the prior distribution .
 
     Returns
@@ -330,8 +352,10 @@ def kullback_leibler_divergence(
 
 
 def local_kullback_leibler_divergence(
-    cov_posterior: np.ndarray, cov_prior: np.ndarray, data: np.ndarray
-) -> np.ndarray:
+    cov_posterior: NDArray[np.floating],
+    cov_prior: NDArray[np.floating],
+    data: NDArray[np.floating],
+) -> NDArray[np.floating]:
     """
     Computes the local Kullback-Leibler divergence between the
     posterior and the prior for every sample in the data.
@@ -345,16 +369,16 @@ def local_kullback_leibler_divergence(
 
     Parameters
     ----------
-    cov_posterior : np.ndarray
+    cov_posterior : NDArray[np.floating]
         The covariance matrix that defines the posterior distribution.
-    cov_prior : np.ndarray
+    cov_prior : NDArray[np.floating]
         The covariance matrix that defines the prior distribution .
-    data : np.ndarray
+    data : NDArray[np.floating]
         The data, assumed to be in channels x samples format.
 
     Returns
     -------
-    np.ndarray.
+    NDArray[np.floating].
         The local Kullback-Leibler divergence.
 
     """
