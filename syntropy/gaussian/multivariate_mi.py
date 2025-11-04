@@ -4,7 +4,7 @@ from syntropy.gaussian.shannon import local_differential_entropy
 
 
 def local_total_correlation(
-    data: np.ndarray, cov: np.ndarray, inputs: tuple = (-1,)
+    data: np.ndarray, cov: np.ndarray, idxs: tuple = (-1,)
 ) -> np.ndarray:
     """
     The local total correlation.
@@ -33,22 +33,22 @@ def local_total_correlation(
         "The data and covariance matrix must have the same dimensionality"
     )
 
-    if inputs[0] == -1:
-        _inputs = tuple(i for i in range(data.shape[0]))
+    if idxs[0] == -1:
+        _idxs = tuple(i for i in range(data.shape[0]))
     else:
-        _inputs = inputs
-    N = len(_inputs)
+        _idxs = idxs
+    N = len(_idxs)
 
-    whole = local_differential_entropy(data[_inputs, :], cov[np.ix_(_inputs, _inputs)])
+    whole = local_differential_entropy(data[_idxs, :], cov[np.ix_(_idxs, _idxs)])
 
     sum_parts = np.zeros_like(whole)
     for i in range(N):
-        sum_parts += local_differential_entropy(data[_inputs[i], :])
+        sum_parts += local_differential_entropy(data[_idxs[i], :])
 
     return sum_parts - whole
 
 
-def total_correlation(cov: np.ndarray, inputs: tuple = (-1,)) -> float:
+def total_correlation(cov: np.ndarray, idxs: tuple = (-1,)) -> float:
     """
     The expected total correlation.
 
@@ -67,7 +67,7 @@ def total_correlation(cov: np.ndarray, inputs: tuple = (-1,)) -> float:
     ----------
     cov : np.ndarray
         The covariance matrix.
-    inputs : tuple, optional
+    idxs : tuple, optional
         The specific subset of variables to compute the total correlation of.
         Defaults to computing the TC of the entire covariance matrix.
 
@@ -76,12 +76,12 @@ def total_correlation(cov: np.ndarray, inputs: tuple = (-1,)) -> float:
     float
         The expected total correlation.
     """
-    if inputs[0] == -1:
-        _inputs = tuple(i for i in range(cov.shape[0]))
+    if idxs[0] == -1:
+        _idxs = tuple(i for i in range(cov.shape[0]))
     else:
-        _inputs = inputs
+        _idxs = idxs
 
-    _cov: np.ndarray = cov[np.ix_(_inputs, _inputs)]
+    _cov: np.ndarray = cov[np.ix_(_idxs, _idxs)]
 
     # Converting to a correlation/coherence matrix.
     diag: np.ndarray = np.sqrt(np.diag(_cov))
@@ -93,7 +93,7 @@ def total_correlation(cov: np.ndarray, inputs: tuple = (-1,)) -> float:
 
 
 def local_k_wms(
-    k: int, data: np.ndarray, cov: np.ndarray, inputs: tuple = (-1,)
+    k: int, data: np.ndarray, cov: np.ndarray, idxs: tuple = (-1,)
 ) -> np.ndarray:
     """
 
@@ -107,7 +107,7 @@ def local_k_wms(
     cov : np.ndarray, optional
         The covariance matrix that defines the distribution.
         If unspecified it is computed directly from the data.
-    inputs : tuple, optional
+    idxs : tuple, optional
         The specific subset of variables to compute the total correlation of.
         Defaults to computing the TC of the entire covariance matrix.
 
@@ -117,26 +117,26 @@ def local_k_wms(
         The series of local k_{wms}.
 
     """
-    if inputs[0] == -1:
-        _inputs: tuple = tuple(i for i in range(data.shape[0]))
+    if idxs[0] == -1:
+        _idxs: tuple = tuple(i for i in range(data.shape[0]))
     else:
-        _inputs = inputs
+        _idxs = idxs
 
-    N: int = len(_inputs)
+    N: int = len(_idxs)
     whole = (N - k) * local_total_correlation(
-        data[_inputs, :], cov[np.ix_(_inputs, _inputs)]
+        data[_idxs, :], cov[np.ix_(_idxs, _idxs)]
     )
 
     sum_parts = np.zeros_like(whole)
 
     for i in range(N):
-        idxs = tuple(_inputs[j] for j in range(N) if j != i)
+        idxs = tuple(_idxs[j] for j in range(N) if j != i)
         sum_parts += local_total_correlation(data[idxs, :], cov[np.ix_(idxs, idxs)])
 
     return whole - sum_parts
 
 
-def k_wms(k: int, cov: np.ndarray, inputs: tuple = (-1,)) -> float:
+def k_wms(k: int, cov: np.ndarray, idxs: tuple = (-1,)) -> float:
     """
     A utility function that computes the generalized form
     of the O-information, S-information, and DTC.
@@ -150,7 +150,7 @@ def k_wms(k: int, cov: np.ndarray, inputs: tuple = (-1,)) -> float:
         S-info, DTC, or negative O-information.
     cov : np.ndarray
         The covariance matrix that defines the distribution.
-    inputs : tuple, optional
+    idxs : tuple, optional
         The specific subset of variables to compute the total correlation of.
         Defaults to computing the TC of the entire covariance matrix.
 
@@ -160,25 +160,25 @@ def k_wms(k: int, cov: np.ndarray, inputs: tuple = (-1,)) -> float:
 
     """
 
-    if inputs[0] == -1:
-        _inputs: tuple = tuple(i for i in range(cov.shape[0]))
+    if idxs[0] == -1:
+        _idxs: tuple = tuple(i for i in range(cov.shape[0]))
     else:
-        _inputs = inputs
+        _idxs = idxs
 
-    N: int = len(_inputs)
+    N: int = len(_idxs)
 
-    whole: float = (N - k) * total_correlation(cov[np.ix_(_inputs, _inputs)])
+    whole: float = (N - k) * total_correlation(cov[np.ix_(_idxs, _idxs)])
     sum_parts: float = 0.0
 
     for i in range(N):
-        idxs: tuple = tuple(_inputs[j] for j in range(N) if j != i)
+        idxs: tuple = tuple(_idxs[j] for j in range(N) if j != i)
         sum_parts += total_correlation(cov[idxs, :][:, idxs])
 
     return whole - sum_parts
 
 
 def local_s_information(
-    data: np.ndarray, cov: np.ndarray = COV_NULL, inputs: tuple = (-1,)
+    data: np.ndarray, cov: np.ndarray = COV_NULL, idxs: tuple = (-1,)
 ) -> np.ndarray:
     """
     s(x) = N*tc(x) - \sum tc(x^-i)
@@ -190,7 +190,7 @@ def local_s_information(
     cov : np.ndarray, optional
         The covariance matrix that defines the distribution.
         If unspecified it is computed directly from the data.
-    inputs : tuple, optional
+    idxs : tuple, optional
         The specific subset of variables to compute the total correlation of.
         Defaults to computing the TC of the entire covariance matrix.
 
@@ -203,10 +203,10 @@ def local_s_information(
     if cov[0][0] == -1:
         cov = np.cov(data, ddof=0)
 
-    return local_k_wms(k=0, data=data, cov=cov, inputs=inputs)
+    return local_k_wms(k=0, data=data, cov=cov, idxs=idxs)
 
 
-def s_information(cov: np.ndarray, inputs: tuple = (-1,)) -> float:
+def s_information(cov: np.ndarray, idxs: tuple = (-1,)) -> float:
     """
     See:
         Rosas, F., Mediano, P. A. M., Gastpar, M., & Jensen, H. J. (2019).
@@ -226,7 +226,7 @@ def s_information(cov: np.ndarray, inputs: tuple = (-1,)) -> float:
         The data in channels x samples format.
     cov : np.ndarray
         The covariance matrix that defines the distribution.
-    inputs : tuple, optional
+    idxs : tuple, optional
         The specific subset of variables to compute the total correlation of.
         Defaults to computing the TC of the entire covariance matrix.
 
@@ -237,11 +237,11 @@ def s_information(cov: np.ndarray, inputs: tuple = (-1,)) -> float:
 
     """
 
-    return k_wms(k=0, cov=cov, inputs=inputs)
+    return k_wms(k=0, cov=cov, idxs=idxs)
 
 
 def local_dual_total_correlation(
-    data: np.ndarray, cov: np.ndarray = COV_NULL, inputs: tuple = (-1,)
+    data: np.ndarray, cov: np.ndarray = COV_NULL, idxs: tuple = (-1,)
 ) -> np.ndarray:
     """
     dtc(x) = (N-1)tc(x) + \sum tc(x^-i)
@@ -253,7 +253,7 @@ def local_dual_total_correlation(
     cov : np.ndarray, optional
         The covariance matrix that defines the distribution.
         If unspecified it is computed directly from the data.
-    inputs : tuple, optional
+    idxs : tuple, optional
         The specific subset of variables to compute the total correlation of.
         Defaults to computing the TC of the entire covariance matrix.
 
@@ -266,10 +266,10 @@ def local_dual_total_correlation(
     if cov[0][0] == -1:
         cov = np.cov(data, ddof=0)
 
-    return local_k_wms(k=1, data=data, cov=cov, inputs=inputs)
+    return local_k_wms(k=1, data=data, cov=cov, idxs=idxs)
 
 
-def dual_total_correlation(cov: np.ndarray, inputs: tuple = (-1,)) -> float:
+def dual_total_correlation(cov: np.ndarray, idxs: tuple = (-1,)) -> float:
     """
     DTC(X) = (N-1)TC(X) + \sum TC(X^-i)
 
@@ -292,7 +292,7 @@ def dual_total_correlation(cov: np.ndarray, inputs: tuple = (-1,)) -> float:
         The data in channels x samples format.
     cov : np.ndarray
         The covariance matrix that defines the distribution. .
-    inputs : tuple, optional
+    idxs : tuple, optional
         The specific subset of variables to compute the total correlation of.
         Defaults to computing the TC of the entire covariance matrix.
 
@@ -303,11 +303,11 @@ def dual_total_correlation(cov: np.ndarray, inputs: tuple = (-1,)) -> float:
 
     """
 
-    return k_wms(k=1, cov=cov, inputs=inputs)
+    return k_wms(k=1, cov=cov, idxs=idxs)
 
 
 def local_o_information(
-    data: np.ndarray, cov: np.ndarray = COV_NULL, inputs: tuple = (-1,)
+    data: np.ndarray, cov: np.ndarray = COV_NULL, idxs: tuple = (-1,)
 ) -> np.ndarray:
     """
 
@@ -328,7 +328,7 @@ def local_o_information(
     cov : np.ndarray, optional
         The covariance matrix that defines the distribution.
         If unspecified it is computed directly from the data.
-    inputs : tuple, optional
+    idxs : tuple, optional
         The specific subset of variables to compute the total correlation of.
         Defaults to computing the TC of the entire covariance matrix.
 
@@ -338,10 +338,10 @@ def local_o_information(
         The series of local O-informations.
     """
 
-    return -local_k_wms(k=2, data=data, cov=cov, inputs=inputs)
+    return -local_k_wms(k=2, data=data, cov=cov, idxs=idxs)
 
 
-def o_information(cov: np.ndarray, inputs: tuple = (-1,)) -> float:
+def o_information(cov: np.ndarray, idxs: tuple = (-1,)) -> float:
     """
     See:
         Rosas, F., Mediano, P. A. M., Gastpar, M., & Jensen, H. J. (2019).
@@ -360,7 +360,7 @@ def o_information(cov: np.ndarray, inputs: tuple = (-1,)) -> float:
     cov : np.ndarray, optional
         The covariance matrix that defines the distribution.
         If unspecified it is computed directly from the data.
-    inputs : tuple, optional
+    idxs : tuple, optional
         The specific subset of variables to compute the total correlation of.
         Defaults to computing the TC of the entire covariance matrix.
 
@@ -371,7 +371,7 @@ def o_information(cov: np.ndarray, inputs: tuple = (-1,)) -> float:
 
     """
 
-    return -k_wms(k=2, cov=cov, inputs=inputs)
+    return -k_wms(k=2, cov=cov, idxs=idxs)
 
 
 def tse_complexity(num_samples: int, cov: np.ndarray) -> float:
@@ -421,13 +421,13 @@ def tse_complexity(num_samples: int, cov: np.ndarray) -> float:
         samples = np.unique(samples, axis=0)
 
         exp_tcs[k - 1] = np.mean(
-            [total_correlation(cov, inputs=tuple(sample)) for sample in samples]
+            [total_correlation(cov, idxs=tuple(sample)) for sample in samples]
         )
 
     return (null_tcs - exp_tcs).sum()
 
 
-def description_complexity(cov: np.ndarray, inputs: tuple = (-1,)) -> float:
+def description_complexity(cov: np.ndarray, idxs: tuple = (-1,)) -> float:
     """
     C(X) = DTC(X) / N
 
@@ -435,7 +435,7 @@ def description_complexity(cov: np.ndarray, inputs: tuple = (-1,)) -> float:
     ----------
     cov : np.ndarray
         The covariance matrix that defines the distribution.
-    inputs : tuple, optional
+    idxs : tuple, optional
         The specific subset of variables to compute the total correlation of.
         Defaults to computing the TC of the entire covariance matrix.
 
@@ -446,13 +446,13 @@ def description_complexity(cov: np.ndarray, inputs: tuple = (-1,)) -> float:
 
     """
 
-    N: float = float(cov.shape[0]) if inputs[0] == -1 else float(len(inputs))
+    N: float = float(cov.shape[0]) if idxs[0] == -1 else float(len(idxs))
 
-    return dual_total_correlation(cov=cov, inputs=inputs) / N
+    return dual_total_correlation(cov=cov, idxs=idxs) / N
 
 
 def local_description_complexity(
-    data: np.ndarray, cov: np.ndarray = COV_NULL, inputs: tuple = (-1,)
+    data: np.ndarray, cov: np.ndarray = COV_NULL, idxs: tuple = (-1,)
 ) -> np.ndarray:
     """
     c(x) = dtc(x) / N
@@ -464,7 +464,7 @@ def local_description_complexity(
     cov : np.ndarray, optional
         The covariance matrix that defines the distribution.
         If unspecified it is computed directly from the data.
-    inputs : tuple, optional
+    idxs : tuple, optional
         The specific subset of variables to compute the total correlation of.
         Defaults to computing the TC of the entire covariance matrix.
 
@@ -475,6 +475,6 @@ def local_description_complexity(
 
     """
 
-    N: float = float(cov.shape[0]) if inputs[0] == -1 else float(len(inputs))
+    N: float = float(cov.shape[0]) if idxs[0] == -1 else float(len(idxs))
 
-    return local_k_wms(k=1, data=data, cov=cov, inputs=inputs) / N
+    return local_k_wms(k=1, data=data, cov=cov, idxs=idxs) / N
