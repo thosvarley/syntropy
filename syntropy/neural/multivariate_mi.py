@@ -13,7 +13,7 @@ def total_correlation(
     verbose: bool = False,
 ) -> tuple[float, float]:
     """
-    Computes the total correlation of the data 
+    Computes the total correlation of the data using normalizing flow estimators.  
 
 
     Parameters
@@ -48,7 +48,7 @@ def total_correlation(
     else:
         context_arg = context
 
-    lookup: dict = {}
+    lookup: dict[tuple[int,...], float] = {}
 
     h_idxs, _ = differential_entropy(
         idxs=idxs,

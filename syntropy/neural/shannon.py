@@ -89,6 +89,7 @@ def mutual_information(
 
     """
     Computes the mutual information between the elements given by idxs_x and idxs_y.
+    
     Parameters
     ----------
     idxs_x : tuple[int, ...]
