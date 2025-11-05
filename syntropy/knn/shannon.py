@@ -12,23 +12,30 @@ from scipy.special import digamma
 from scipy.spatial import cKDTree
 from utils import check_idxs, build_tree_and_get_distances, get_counts_from_tree
 
+
 def differential_entropy(
     data: NDArray[np.floating], k: int, idxs: tuple[int, ...] = (-1,)
 ) -> tuple[NDArray[np.floating], float]:
     """
+    Computes the differential entropy using the Kozachenko-Leoneko estimator.
 
-        Parameters
-        ----------
-        data : NDArray[np.floating]
+    :math: `H(X) = -\psi(k)+\psi(N) + (1/N)\\sum_{i=1}^{N}\log d_i`
 
-        k : int
-
-        idxs : tuple[int, ...]
-    :
-
-        Returns
-        -------
-        tuple[NDArray[np.floating], float]
+    Parameters
+    ----------
+    data : NDArray[np.floating]
+        Data array of shape (n_variables, n_samples)
+    k : int
+        Number of nearest neighbors
+    idxs : tuple[int, ...]
+        Indices of variables to use (-1 means all)
+:
+    Returns
+    -------
+    NDArray[np.floating
+        The local differential entropy for each sample.
+    float
+        The expected differential entropy over all samples
 
 
     """
@@ -58,21 +65,24 @@ def mutual_information(
 
     Parameters
     ----------
-    algorithm :
-
     idxs_x : tuple[int, ...]
-
+        Indices of the x-variable.
     idxs_y : tuple[int, ...]
-
+        Indices of the y-variable.
     k : int
-
+        Number of nearest neighbors
     data : NDArray[np.floating]
-
+        Data array of shape (n_variables, n_samples)
+    algorithm : int
+        Whether to use algorithm 1 or 2.
+        Defaults to 1
 
     Returns
     -------
-    tuple[NDArray[np.floating], float]
-
+    NDArray[np.floating
+        The local mutual information for each sample.
+    float
+        The expected mutual information over all samples
 
     """
     assert algorithm in {1, 2}, "Algorithm must be 1 or 2."
@@ -98,18 +108,20 @@ def mutual_information_1(
     Parameters
     ----------
     idxs_x : tuple[int, ...]
-
+        Indices of the x-variable.
     idxs_y : tuple[int, ...]
-
+        Indices of the y-variable.
     k : int
-
+        Number of nearest neighbors
     data : NDArray[np.floating]
-
+        Data array of shape (n_variables, n_samples)
 
     Returns
     -------
-    tuple[NDArray[np.floating], float]
-
+    NDArray[np.floating
+        The local mutual information for each sample.
+    float
+        The expected mutual information over all samples
 
     """
     idxs_xy: tuple[int, ...] = idxs_x + idxs_y
@@ -145,23 +157,23 @@ def mutual_information_2(
     Physical Review E, 69(6), 066138.
     https://doi.org/10.1103/PhysRevE.69.066138
 
-
-
     Parameters
     ----------
     idxs_x : tuple[int, ...]
-
+        Indices of the x-variable.
     idxs_y : tuple[int, ...]
-
+        Indices of the y-variable.
     k : int
-
+        Number of nearest neighbors
     data : NDArray[np.floating]
-
+        Data array of shape (n_variables, n_samples)
 
     Returns
     -------
-    tuple[NDArray[np.floating], float]
-
+    NDArray[np.floating
+        The local mutual information for each sample.
+    float
+        The expected mutual information over all samples
 
     """
     idxs_xy: tuple[int, ...] = idxs_x + idxs_y
@@ -173,19 +185,20 @@ def mutual_information_2(
 
     _, distances, indices = build_tree_and_get_distances(data[idxs_xy, :], k=k)
     neighbors: NDArray[np.integer] = indices[:, 1:]
-    
-    ptw: NDArray[np.floating] = np.full(N, psi_k - (1/k) + psi_N)
-    for idxs in (idxs_x, idxs_y):
 
+    ptw: NDArray[np.floating] = np.full(N, psi_k - (1 / k) + psi_N)
+    for idxs in (idxs_x, idxs_y):
         data_idx: NDArray[np.floating] = data[idxs, :].T
         eps: NDArray[np.floating] = np.repeat(-np.inf, N)
-        
+
         for j in range(k):
-            norm: NDArray[np.floating] = np.linalg.norm(data_idx - data_idx[neighbors[:, j]], ord=np.inf, axis=1)
+            norm: NDArray[np.floating] = np.linalg.norm(
+                data_idx - data_idx[neighbors[:, j]], ord=np.inf, axis=1
+            )
             eps = np.maximum(norm, eps)
 
         tree, distances, _ = build_tree_and_get_distances(data_idx.T, k=k)
         counts = get_counts_from_tree(tree, data_idx.T, eps)
         ptw -= digamma(counts)
 
-    return ptw, ptw.mean() 
+    return ptw, ptw.mean()

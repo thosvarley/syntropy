@@ -1,23 +1,23 @@
 import numpy as np
 from numpy.typing import NDArray
-from scipy.special import digamma
 from scipy.spatial import cKDTree
 
 
 def check_idxs(idxs: tuple[int, ...], N: int) -> tuple[int, ...]:
     """
+    Checks whether the idxs input is -1, in which case, defaults to all processes. 
 
     Parameters
     ----------
     idxs : tuple[int, ...]
-
+        Indices of variables to use (-1 means all)
     N : int
-
+        The total number of processes.
 
     Returns
     -------
     tuple[int, ...]
-
+        Either idxs, or a tuple of all processes.
 
     """
     if idxs[0] == -1:
@@ -32,18 +32,23 @@ def build_tree_and_get_distances(
     data: NDArray[np.floating], k: int
 ) -> tuple[cKDTree, NDArray[np.floating], NDArray[np.integer]]:
     """
+    Builds the KNN tree and returns the indices and distances between each point and it's k-nearest neighbors.
 
     Parameters
     ----------
     data : NDArray[np.floating]
-
+        Data array of shape (n_variables, n_samples)
     k : int
-
+        Number of nearest neighbors
 
     Returns
     -------
-    tuple[cKDTree, NDArray[np.floating], NDArray[np.integer]]
-
+    cKDTree 
+        The KNN tree constructed from data.
+    NDArray[np.floating] 
+        The indices of each of the k-nearest neighbors.
+    NDArray[np.integer]
+        The distances to each k-nearest neighbors (using the max norm).
 
     """
     tree = cKDTree(data.T)
