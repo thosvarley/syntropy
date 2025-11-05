@@ -1,18 +1,19 @@
 import numpy as np
 import scipy.signal as signal
 import scipy.integrate as integrate
+from numpy.typing import NDArray
 
 
 def construct_csd_tensor(
-    idxs: tuple, data: np.ndarray, fs: int = 1, nperseg: int = 1024
-) -> tuple[np.ndarray, np.ndarray]:
+    idxs: tuple[int, ...], data: NDArray[np.floating], fs: int = 1, nperseg: int = 1024
+) -> tuple[NDArray[np.floating], NDArray[np.floating]]:
     """
 
     Parameters
     ----------
-    idxs : tuple
+    idxs : tuple[int, ...]
 
-    data : np.ndarray
+    data : NDArray[np.floating]
 
     fs : int
 
@@ -21,12 +22,12 @@ def construct_csd_tensor(
 
     Returns
     -------
-    np.ndarray
+    NDArray[np.floating]
 
 
     """
     N: int = len(idxs)
-    S: np.ndarray = np.zeros((nperseg, N, N))
+    S: NDArray[np.floating] = np.zeros((nperseg, N, N))
 
     for i in range(N):
         for j in range(i + 1):
@@ -48,11 +49,11 @@ def construct_csd_tensor(
 
 
 def differential_entropy_rate(
-    idxs: tuple,
-    data: np.ndarray,
+    idxs: tuple[int, ...],
+    data: NDArray[np.floating],
     fs: int = 1,
     nperseg: int = 1024,
-) -> tuple[np.ndarray, float]:
+) -> tuple[NDArray[np.floating], float]:
     """
     Computes the differential entropy rate of a potentially multivariate stochastic process.
 
@@ -60,9 +61,9 @@ def differential_entropy_rate(
 
     Parameters
     ----------
-    idxs : tuple
+    idxs : tuple[int, ...]
         The indices of the channels to include in the analysis.
-    data : np.ndarray
+    data : NDArray[np.floating]
         The data in channels x samples format.
     fs: int
         The sampling rate of the time series data in Hz.
@@ -74,7 +75,7 @@ def differential_entropy_rate(
 
     Returns
     -------
-    np.ndarray
+    NDArray[np.floating]
         The local entropies for each frequency band.
     float
         The average entropy across the whole spectrum.
@@ -93,12 +94,12 @@ def differential_entropy_rate(
 
 
 def mutual_information_rate(
-    idxs_x: tuple,
-    idxs_y: tuple,
-    data: np.ndarray,
+    idxs_x: tuple[int, ...],
+    idxs_y: tuple[int, ...],
+    data: NDArray[np.floating],
     fs: int = 1,
     nperseg: int = 1024,
-) -> tuple[np.ndarray, float]:
+) -> tuple[NDArray[np.floating], float]:
     """
     Computes the mutual information rate between two (potentially multivariate) Gaussian processes.
 
@@ -117,11 +118,11 @@ def mutual_information_rate(
 
     Parameters
     ----------
-    idxs_x : tuple
+    idxs_x : tuple[int, ...]
         The indices of the channels to include in the inputs.
-    idxs_y : tuple
+    idxs_y : tuple[int, ...]
         The indices of the channels to include in the target.
-    data : np.ndarray
+    data : NDArray[np.floating]
         The data in channels x samples format.
     fs: int
         The sampling rate of the time series data in Hz.
@@ -133,7 +134,7 @@ def mutual_information_rate(
 
     Returns
     -------
-    np.ndarray
+    NDArray[np.floating]
         The local mutual informations for each frequency band.
     float
         The average mutual information across the whole spectrum.
@@ -141,16 +142,20 @@ def mutual_information_rate(
     Nx: int = len(idxs_x)
     Ny: int = len(idxs_y)
 
-    idxs_: tuple = idxs_x + idxs_y
+    idxs_: tuple[int, ...] = idxs_x + idxs_y
 
-    reidxs_x: tuple = tuple(i for i in range(Nx))
-    reidxs_y: tuple = tuple(i + Nx for i in range(Ny))
+    reidxs_x: tuple[int, ...] = tuple(i for i in range(Nx))
+    reidxs_y: tuple[int, ...] = tuple(i + Nx for i in range(Ny))
 
     S, omega = construct_csd_tensor(idxs=idxs_, data=data, fs=fs, nperseg=nperseg)
 
-    log_x = np.array([np.linalg.slogdet(a[np.ix_(reidxs_x, reidxs_x)])[1] for a in S])
-    log_y = np.array([np.linalg.slogdet(a[np.ix_(reidxs_y, reidxs_y)])[1] for a in S])
-    log_xy = np.array([np.linalg.slogdet(a)[1] for a in S])
+    log_x: NDArray[np.floating] = np.array(
+        [np.linalg.slogdet(a[np.ix_(reidxs_x, reidxs_x)])[1] for a in S]
+    )
+    log_y: NDArray[np.floating] = np.array(
+        [np.linalg.slogdet(a[np.ix_(reidxs_y, reidxs_y)])[1] for a in S]
+    )
+    log_xy: NDArray[np.floating] = np.array([np.linalg.slogdet(a)[1] for a in S])
 
     ptw = (1 / 2) * (log_x + log_y - log_xy)
     avg = (1 / (2 * np.pi)) * integrate.simpson(ptw, omega)
@@ -159,11 +164,11 @@ def mutual_information_rate(
 
 
 def total_correlation_rate(
-    idxs: tuple,
-    data: np.ndarray,
+    idxs: tuple[int, ...],
+    data: NDArray[np.floating],
     fs: int = 1,
     nperseg: int = 1024,
-) -> tuple[np.ndarray, float]:
+) -> tuple[NDArray[np.floating], float]:
     """
     A straightforward extension of the mutual information rate to the total correlation.
 
@@ -173,9 +178,9 @@ def total_correlation_rate(
 
     Parameters
     ----------
-    idxs : tuple
+    idxs : tuple[int, ...]
         The indices of the channels to include in the total correlation calculation.
-    data : np.ndarray
+    data : NDArray[np.floating]
         The data in channels x samples format.
     fs: int
         The sampling rate of the time series data in Hz.
@@ -187,7 +192,7 @@ def total_correlation_rate(
 
     Returns
     -------
-    np.ndarray
+    NDArray[np.floating]
         The local total correlation  for each frequency band.
     float
         The average total correlation across the whole spectrum.
@@ -206,13 +211,13 @@ def total_correlation_rate(
 
 
 def k_wms_rate(
-    idxs: tuple,
+    idxs: tuple[int, ...],
     k: int,
-    data: np.ndarray,
+    data: NDArray[np.floating],
     fs: int = 1,
     nperseg: int = 1024,
     verbose: bool = False,
-) -> tuple[np.ndarray, float]:
+) -> tuple[NDArray[np.floating], float]:
     """
     A straightforward extension of the total correlation rate to the K whole-minus-sum rate.
 
@@ -231,9 +236,9 @@ def k_wms_rate(
 
     Parameters
     ----------
-    idxs : tuple
+    idxs : tuple[int, ...]
         The indices of the channels to include in the calculation.
-    data : np.ndarray
+    data : NDArray[np.floating]
         The data in channels x samples format.
     fs: int
         The sampling rate of the time series data in Hz.
@@ -245,24 +250,27 @@ def k_wms_rate(
 
     Returns
     -------
-    np.ndarray
+    NDArray[np.floating]
         The local k_wms rate for each frequency band.
     float
         The average k_wms across the whole spectrum.
     """
     N0: int = len(idxs)
+    ptw_whole: NDArray[np.floating]
+    avg_whole: float 
+    
     ptw_whole, avg_whole = total_correlation_rate(
         idxs=idxs, data=data, fs=fs, nperseg=nperseg
     )
 
-    ptw_whole *= (N0 - k) * ptw_whole
-    avg_whole *= (N0 - k) * avg_whole
+    ptw_whole *= (N0 - k)
+    avg_whole *= (N0 - k)
 
-    ptw_sum_parts: np.ndarray = np.zeros_like(ptw_whole)
+    ptw_sum_parts: NDArray[np.floating] = np.zeros_like(ptw_whole)
     avg_sum_parts: float = 0.0
 
     for i in range(N0):
-        idxs_residual: tuple = tuple(idxs[j] for j in range(N0) if j != i)
+        idxs_residual: tuple[idxs, ...] = tuple(idxs[j] for j in range(N0) if j != i)
 
         ptw_residuals, avg_residuals = total_correlation_rate(
             idxs=idxs_residual, data=data, fs=fs, nperseg=nperseg
@@ -278,12 +286,12 @@ def k_wms_rate(
 
 
 def s_information_rate(
-    idxs: tuple,
-    data: np.ndarray,
+    idxs: tuple[int, ...],
+    data: NDArray[np.floating],
     fs: int = 1,
     nperseg: int = 1024,
     verbose: bool = False,
-) -> tuple[np.ndarray, float]:
+) -> tuple[NDArray[np.floating], float]:
     """
     A straightforward extension of the S-information rate from the total correlation rate.
 
@@ -308,9 +316,9 @@ def s_information_rate(
 
     Parameters
     ----------
-    idxs : tuple
+    idxs : tuple[int, ...]
         The indices of the channels to include in the calculation.
-    data : np.ndarray
+    data : NDArray[np.floating]
         The data in channels x samples format.
     fs: int
         The sampling rate of the time series data in Hz.
@@ -322,7 +330,7 @@ def s_information_rate(
 
     Returns
     -------
-    np.ndarray
+    NDArray[np.floating]
         The local S-information rate for each frequency band.
     float
         The average S-information across the whole spectrum.
@@ -335,12 +343,12 @@ def s_information_rate(
 
 
 def dual_total_correlation_rate(
-    idxs: tuple,
-    data: np.ndarray,
+    idxs: tuple[int, ...],
+    data: NDArray[np.floating],
     fs: int = 1,
     nperseg: int = 1024,
     verbose: bool = False,
-) -> tuple[np.ndarray, float]:
+) -> tuple[NDArray[np.floating], float]:
     """
     A straightforward extension of the dual total correlation rate from the total correlation rate.
 
@@ -366,9 +374,9 @@ def dual_total_correlation_rate(
 
     Parameters
     ----------
-    idxs : tuple
+    idxs : tuple[int, ...]
         The indices of the channels to include in the calculation.
-    data : np.ndarray
+    data : NDArray[np.floating]
         The data in channels x samples format.
     fs: int
         The sampling rate of the time series data in Hz.
@@ -380,7 +388,7 @@ def dual_total_correlation_rate(
 
     Returns
     -------
-    np.ndarray
+    NDArray[np.floating]
         The local dual total correlation rate for each frequency band.
     float
         The average dual total correlation across the whole spectrum.
@@ -393,12 +401,12 @@ def dual_total_correlation_rate(
 
 
 def o_information_rate(
-    idxs: tuple,
-    data: np.ndarray,
+    idxs: tuple[int, ...],
+    data: NDArray[np.floating],
     fs: int = 1,
     nperseg: int = 1024,
     verbose: bool = False,
-) -> tuple[np.ndarray, float]:
+) -> tuple[NDArray[np.floating], float]:
     """
     A straightforward extension of the O-information rate from the total correlation rate.
 
@@ -421,9 +429,9 @@ def o_information_rate(
 
     Parameters
     ----------
-    idxs : tuple
+    idxs : tuple[int, ...]
         The indices of the channels to include in the calculation.
-    data : np.ndarray
+    data : NDArray[np.floating]
         The data in channels x samples format.
     fs: int
         The sampling rate of the time series data in Hz.
@@ -435,7 +443,7 @@ def o_information_rate(
 
     Returns
     -------
-    np.ndarray
+    NDArray[np.floating]
         The local O-information rate for each frequency band.
     float
         The average O-information across the whole spectrum.

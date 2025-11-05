@@ -9,21 +9,34 @@ Created on Sun Feb 16 13:01:12 2025
 import numpy as np
 import random
 import math
-
+from numpy.typing import NDArray
 from syntropy.gaussian.multivariate_mi import o_information
+from typing import Callable
 
 
-def neg_o_information(x):
+def neg_o_information(x: tuple[NDArray[np.floating], tuple[int, ...]]) -> float:
     """
     A utility function for computing the negative of the O-information
     for a hill-climbing optimizer.
+
+    Parameters
+    ----------
+    x : tuple[NDArray[np.floating], set[int]]
+        A tuple of the arguments to the O-information function.
+        The covariance matrix (NDArray) and indices (tuple of ints)
+
+    Returns
+    -------
+    float
+        The negative O-information.
+
     """
     return -1 * o_information(*x)
 
 
 def simulated_annealing(
-    cov: np.ndarray,
-    function,
+    cov: NDArray[np.floating],
+    function: Callable,
     size: int,
     temperature: float = 1.0,
     cooling_rate: float = 0.999,
@@ -31,7 +44,7 @@ def simulated_annealing(
     iters_per_temperature: int = 10,
     convergence_window: int = 100,
     convergence_threshold: float = 1e-6,
-) -> tuple[set, float, np.ndarray]:
+) -> tuple[set[int], float, NDArray[np.floating]]:
     """
     Implements a simulated annealing algorithm for optimizing
     multivariate information measures (O-info, DTC, etc) from
@@ -46,7 +59,7 @@ def simulated_annealing(
 
     Parameters
     ----------
-    cov : np.ndarray
+    cov : NDArray[np.floating]
         The covariance matrix that defines the full distribution.
     function : function
         The objective function. Should be taken from the
@@ -74,7 +87,7 @@ def simulated_annealing(
 
     Returns
     -------
-    set:
+    set[int]:
         The indicies of the optimal set.
     float:
         The value of the optimal set.
@@ -85,28 +98,26 @@ def simulated_annealing(
 
     print("Initializing annealing...")
 
-    chosen_set: set = set(np.random.choice(cov.shape[0], size=size, replace=False))
-
-    available_set: set = {i for i in range(cov.shape[0]) if i not in chosen_set}
-
-    value: float = function((cov, tuple(chosen_set)))
-
-    num_steps = (
+    num_steps: int = (
         math.ceil(np.log(min_temperature / temperature) / np.log(cooling_rate)) + 1
     )
-    values: np.ndarray = np.zeros(num_steps)
+    
+    chosen_set: set[int] = set(np.random.choice(cov.shape[0], size=size, replace=False))
+    best_set: set[int] = chosen_set.copy()
+    available_set: set[int] = {i for i in range(cov.shape[0]) if i not in chosen_set}
+    
+    value: float = function((cov, tuple(chosen_set)))
+    best_value: float = 1*value
+    values: NDArray[np.floating] = np.zeros(num_steps)
 
-    best_value: float = value
-    best_set: set = chosen_set.copy()
-
-    convergence = False
+    convergence: bool = False
 
     counter: int = 1
     print("Annealing...")
     while temperature > min_temperature:
         for _ in range(iters_per_temperature):
             # Randomly pick an available element and an chosen element
-            swap = (
+            swap: tuple[int, int] = (
                 random.choice(tuple(chosen_set)),
                 random.choice(tuple(available_set)),
             )
@@ -118,9 +129,9 @@ def simulated_annealing(
             chosen_set.add(swap[1])
             available_set.add(swap[0])
 
-            new_value = function((cov, tuple(chosen_set)))
+            new_value: float = function((cov, tuple(chosen_set)))
 
-            diff = (new_value - value) / abs(
+            diff: float = (new_value - value) / abs(
                 value
             )  # I assume this will never *actually* be 0 exactly.
 
@@ -168,16 +179,16 @@ def simulated_annealing(
     return best_set, best_value, values[:counter]
 
 
-def irreducible_synergy(cov: np.ndarray, inputs: tuple):
+def irreducible_synergy(cov: NDArray[np.floating], inputs: tuple[int, ...]) -> bool:
     """
     Computes whether it is possible to remove an element from a
     synergistic sysem and increase the synergy.
 
     Parameters
     ----------
-    cov : np.ndarray
+    cov : NDArray[np.floating]
         The covariance matrix that defines the distribution.
-    inputs : tuple
+    inputs : tuple[int, ...]
         The specific elements to test.
 
     Returns
@@ -188,12 +199,13 @@ def irreducible_synergy(cov: np.ndarray, inputs: tuple):
 
     """
 
-    value = o_information(cov, inputs)
+    value: float = o_information(cov, inputs)
     assert value < 0, "This only works for initially synergy-dominated subsets."
-    N = len(inputs)
+
+    N: int = len(inputs)
 
     for i in range(N):
-        reduced_set = tuple(inputs[j] for j in range(N) if j != i)
+        reduced_set: tuple[int, ...] = tuple(inputs[j] for j in range(N) if j != i)
         if o_information(cov, reduced_set) < value:
             return False
     return True
