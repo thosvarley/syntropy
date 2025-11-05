@@ -64,9 +64,8 @@ def total_correlation_1(
 
     N: int = data.shape[1]
     m: int = len(idxs_)
-
-    psi_k: float = digamma(k)
-    psi_N: float = digamma(N)
+    
+    psi_k, psi_N = digamma([k, N])
 
     tree: cKDTree = cKDTree(data[idxs_, :].T)
     distances: NDArray[np.floating]
@@ -77,14 +76,9 @@ def total_correlation_1(
 
     for i in idxs_:
         tree_i: cKDTree = cKDTree(data[(i,), :].T)
-
-        counts_i: NDArray[np.integer] = np.array(
-            [
-                tree_i.query_ball_point(x_i, eps_i, return_length=True, p=np.inf) - 1
-                for x_i, eps_i in zip(data[i, :].T, eps)
-            ]
-        )
-        ptw -= digamma(counts_i + 1)
+        
+        counts: NDArray[np.integer] = get_counts_from_tree(tree_i, data[i,:].T, eps)
+        ptw -= digamma(counts + 1)
 
     ptw += psi_k + (m - 1) * psi_N
 
@@ -122,8 +116,7 @@ def total_correlation_2(
     N: int = data.shape[1]
     m: int = len(idxs_)
 
-    psi_k: float = digamma(k)
-    psi_N: float = digamma(N)
+    psi_k, psi_N = digamma([k, N])
 
     tree: cKDTree = cKDTree(data[idxs_, :].T)
 
@@ -145,19 +138,12 @@ def total_correlation_2(
             eps = np.maximum(eps, norm)
 
         tree_i: cKDTree = cKDTree(data_i)
-        counts_i: NDArray[np.integer] = np.array(
-            [
-                tree_i.query_ball_point(x_i, eps_i, return_length=True, p=np.inf) - 1
-                for x_i, eps_i in zip(data_i, eps)
-            ]
-        )
-
-        ptw -= digamma(counts_i)
+        counts: NDArray[np.integer] = get_counts_from_tree(tree_i, data_i.T, eps)
+        ptw -= digamma(counts)
 
     ptw += psi_k - ((m - 1) / k) + ((m - 1) * psi_N)
-    avg: float = ptw.mean()
 
-    return ptw, avg
+    return ptw, ptw.mean()
 
 
 def dual_total_correlation(
@@ -185,19 +171,11 @@ def dual_total_correlation(
     N: int = data.shape[1]
     m: int = len(idxs_)
 
-    psi_k: float = digamma(k)
-    psi_N: float = digamma(N)
+    psi_k, psi_N = digamma([k, N])
 
     # Build tree for joint distribution (all m dimensions)
-    joint_data = data[list(idxs_), :].T
-    tree: cKDTree = cKDTree(joint_data)
-
-    # Find k-th nearest neighbor distance for each point (excluding self)
-    distances: NDArray[np.floating]
-    distances, _ = tree.query(joint_data, k=k + 1, p=np.inf)
-    eps: NDArray[np.floating] = distances[
-        :, k
-    ]  # k-th neighbor distance (index k excludes self at index 0)
+    tree, distances, _ = build_tree_and_get_distances(data[idxs_, :], k=k)
+    eps: NDArray[np.floating] = distances[:, -1]
 
     # Initialize local values: start with (ψ(k) - ψ(N))
     ptw: NDArray[np.floating] = np.full(N, psi_k - psi_N)
@@ -211,12 +189,7 @@ def dual_total_correlation(
         tree_i = cKDTree(marginal_data)
 
         # Count neighbors strictly within eps for each point
-        counts = np.array(
-            [
-                tree_i.query_ball_point(x_i, eps_i, p=np.inf, return_length=True) - 1
-                for x_i, eps_i in zip(marginal_data, eps)
-            ]
-        )
+        counts: NDArray[np.integer] = get_counts_from_tree(tree_i, marginal_data.T, eps)
 
         # Subtract the contribution from this marginal, divided by (m-1)
         ptw -= (digamma(counts + 1) - psi_N) / (m - 1)
@@ -224,9 +197,7 @@ def dual_total_correlation(
     # Multiply everything by (m-1)
     ptw *= m - 1
 
-    avg = ptw.mean()
-
-    return ptw, avg
+    return ptw, ptw.mean() 
 
 
 def s_information(
@@ -257,17 +228,11 @@ def s_information(
     N: int = data.shape[1]
     m: int = len(idxs_)
 
-    psi_k: float = digamma(k)
-    psi_N: float = digamma(N)
+    psi_k, psi_N = digamma([k, N])
 
     # Build tree for joint distribution (all m dimensions)
-    joint_data = data[list(idxs_), :].T
-    tree: cKDTree = cKDTree(joint_data)
-
-    # Find k-th nearest neighbor distance for each point (excluding self)
-    distances: NDArray[np.floating]
-    distances, _ = tree.query(joint_data, k=k + 1, p=np.inf)
-    eps: NDArray[np.floating] = distances[:, k]
+    tree, distances, _ = build_tree_and_get_distances(data[idxs_, :], k=k)
+    eps: NDArray[np.floating] = distances[:, -1]
 
     # Initialize local values: start with (ψ(k) - ψ(N))
     ptw: NDArray[np.floating] = np.full(N, psi_k - psi_N)
@@ -283,21 +248,8 @@ def s_information(
         big_marginal_data = data[big_marginal_idxs, :].T  # Shape: (N, m-1)
         tree_big = cKDTree(big_marginal_data)
         
-        # Count neighbors for small marginal
-        counts_small = np.array(
-            [
-                tree_small.query_ball_point(x_i, eps_i, p=np.inf, return_length=True) - 1
-                for x_i, eps_i in zip(small_marginal_data, eps)
-            ]
-        )
-        
-        # Count neighbors for big marginal
-        counts_big = np.array(
-            [
-                tree_big.query_ball_point(x_i, eps_i, p=np.inf, return_length=True) - 1
-                for x_i, eps_i in zip(big_marginal_data, eps)
-            ]
-        )
+        counts_small = get_counts_from_tree(tree_small, small_marginal_data.T, eps)
+        counts_big = get_counts_from_tree(tree_big, big_marginal_data.T, eps)
         
         # Subtract contributions from both marginals, divided by m
         ptw -= (digamma(counts_big + 1) - psi_N) / m
@@ -306,9 +258,7 @@ def s_information(
     # Multiply everything by m
     ptw *= m
 
-    avg = ptw.mean()
-
-    return ptw, avg
+    return ptw, ptw.mean()
 
 
 def o_information(
@@ -346,11 +296,10 @@ def o_information(
     if m == 2:
         return np.zeros(N), 0.0
 
-    psi_k: float = digamma(k)
-    psi_N: float = digamma(N)
+    psi_k, psi_N = digamma([k, N])
 
     tree, distances, _ = build_tree_and_get_distances(data[idxs_, :], k=k)
-    eps: NDArray[np.floating] = distances[:, k]
+    eps: NDArray[np.floating] = distances[:, -1]
 
     # Initialize local values: start with (ψ(k) - ψ(N))
     ptw: NDArray[np.floating] = np.full(N, psi_k - psi_N)
