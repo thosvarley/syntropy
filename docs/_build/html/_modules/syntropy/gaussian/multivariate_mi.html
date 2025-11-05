@@ -258,7 +258,7 @@
 <div class="viewcode-block" id="local_total_correlation">
 <a class="viewcode-back" href="../../../gaussian/multivariate_mi.html#syntropy.gaussian.multivariate_mi.local_total_correlation">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">local_total_correlation</span><span class="p">(</span>
-    <span class="n">data</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">cov</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="n">COV_NULL</span><span class="p">,</span> <span class="n">inputs</span><span class="p">:</span> <span class="nb">tuple</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,)</span>
+    <span class="n">data</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">cov</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">inputs</span><span class="p">:</span> <span class="nb">tuple</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,)</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The local total correlation.</span>
@@ -275,36 +275,29 @@
 <span class="sd">    ----------</span>
 <span class="sd">    data : np.ndarray</span>
 <span class="sd">        The data in channels x samples format.</span>
-<span class="sd">    cov : np.ndarray, optional</span>
-<span class="sd">        The covariance matrix that defines the distribution.</span>
-<span class="sd">        If unspecified it is computed directly from the data.</span>
-
+<span class="sd">    inptuts: tuple</span>
+<span class="sd">        The indices of the channels to include.</span>
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    np.ndarray</span>
 <span class="sd">        The local total correaltion for each frame.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">assert</span> <span class="n">cov</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="p">(</span>
+        <span class="s2">&quot;The data and covariance matrix must have the same dimensionality&quot;</span>
+    <span class="p">)</span>
 
     <span class="k">if</span> <span class="n">inputs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
-        <span class="n">_data</span> <span class="o">=</span> <span class="n">data</span>
+        <span class="n">_inputs</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="n">_data</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">inputs</span><span class="p">,</span> <span class="p">:]</span>
+        <span class="n">_inputs</span> <span class="o">=</span> <span class="n">inputs</span>
+    <span class="n">N</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">_inputs</span><span class="p">)</span>
 
-    <span class="k">if</span> <span class="n">cov</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
-        <span class="n">_cov</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cov</span><span class="p">(</span><span class="n">_data</span><span class="p">,</span> <span class="n">ddof</span><span class="o">=</span><span class="mf">0.0</span><span class="p">)</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">_cov</span> <span class="o">=</span> <span class="n">cov</span><span class="p">[:,</span> <span class="n">inputs</span><span class="p">][</span><span class="n">inputs</span><span class="p">,</span> <span class="p">:]</span>
-        <span class="k">assert</span> <span class="p">(</span>
-            <span class="n">_cov</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-        <span class="p">),</span> <span class="s2">&quot;The covariance matrix and the data must have the same dimensionality!&quot;</span>
+    <span class="n">whole</span> <span class="o">=</span> <span class="n">local_differential_entropy</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">_inputs</span><span class="p">,</span> <span class="p">:],</span> <span class="n">cov</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ix_</span><span class="p">(</span><span class="n">_inputs</span><span class="p">,</span> <span class="n">_inputs</span><span class="p">)])</span>
 
-    <span class="n">whole</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="n">local_differential_entropy</span><span class="p">(</span><span class="n">_data</span><span class="p">,</span> <span class="n">_cov</span><span class="p">)</span>
-    <span class="n">sum_parts</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">whole</span><span class="p">)</span>
-
-    <span class="n">N</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">_data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">sum_parts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">whole</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">):</span>
-        <span class="n">sum_parts</span> <span class="o">+=</span> <span class="n">local_differential_entropy</span><span class="p">(</span><span class="n">_data</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+        <span class="n">sum_parts</span> <span class="o">+=</span> <span class="n">local_differential_entropy</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">_inputs</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="p">:])</span>
 
     <span class="k">return</span> <span class="n">sum_parts</span> <span class="o">-</span> <span class="n">whole</span></div>
 
@@ -345,15 +338,13 @@
     <span class="k">else</span><span class="p">:</span>
         <span class="n">_inputs</span> <span class="o">=</span> <span class="n">inputs</span>
 
-    <span class="nb">print</span><span class="p">(</span><span class="n">inputs</span><span class="p">)</span>
-
-    <span class="n">_cov</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="n">cov</span><span class="p">[</span><span class="n">_inputs</span><span class="p">,</span> <span class="p">:][:,</span> <span class="n">_inputs</span><span class="p">]</span>
+    <span class="n">_cov</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="n">cov</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ix_</span><span class="p">(</span><span class="n">_inputs</span><span class="p">,</span> <span class="n">_inputs</span><span class="p">)]</span>
 
     <span class="c1"># Converting to a correlation/coherence matrix.</span>
     <span class="n">diag</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="n">_cov</span><span class="p">))</span>
     <span class="n">d_inv</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="mf">1.0</span> <span class="o">/</span> <span class="n">diag</span><span class="p">)</span>
 
-    <span class="n">corr</span> <span class="o">=</span> <span class="n">d_inv</span> <span class="o">@</span> <span class="n">_cov</span> <span class="o">@</span> <span class="n">d_inv</span>
+    <span class="n">corr</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="n">d_inv</span> <span class="o">@</span> <span class="n">_cov</span> <span class="o">@</span> <span class="n">d_inv</span>
 
     <span class="k">return</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">slogdet</span><span class="p">(</span><span class="n">corr</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="mi">2</span></div>
 
@@ -362,7 +353,7 @@
 <div class="viewcode-block" id="local_k_wms">
 <a class="viewcode-back" href="../../../gaussian/multivariate_mi.html#syntropy.gaussian.multivariate_mi.local_k_wms">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">local_k_wms</span><span class="p">(</span>
-    <span class="n">k</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">cov</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="n">COV_NULL</span><span class="p">,</span> <span class="n">inputs</span><span class="p">:</span> <span class="nb">tuple</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,)</span>
+    <span class="n">k</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">cov</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">inputs</span><span class="p">:</span> <span class="nb">tuple</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,)</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 
@@ -386,29 +377,21 @@
 <span class="sd">        The series of local k_{wms}.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
-
     <span class="k">if</span> <span class="n">inputs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
-        <span class="n">_data</span> <span class="o">=</span> <span class="n">data</span>
+        <span class="n">_inputs</span><span class="p">:</span> <span class="nb">tuple</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="n">_data</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">inputs</span><span class="p">,</span> <span class="p">:]</span>
+        <span class="n">_inputs</span> <span class="o">=</span> <span class="n">inputs</span>
 
-    <span class="k">if</span> <span class="n">cov</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
-        <span class="n">_cov</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cov</span><span class="p">(</span><span class="n">_data</span><span class="p">,</span> <span class="n">ddof</span><span class="o">=</span><span class="mf">0.0</span><span class="p">)</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">_cov</span> <span class="o">=</span> <span class="n">cov</span><span class="p">[:,</span> <span class="n">inputs</span><span class="p">][</span><span class="n">inputs</span><span class="p">,</span> <span class="p">:]</span>
+    <span class="n">N</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">_inputs</span><span class="p">)</span>
+    <span class="n">whole</span> <span class="o">=</span> <span class="p">(</span><span class="n">N</span> <span class="o">-</span> <span class="n">k</span><span class="p">)</span> <span class="o">*</span> <span class="n">local_total_correlation</span><span class="p">(</span>
+        <span class="n">data</span><span class="p">[</span><span class="n">_inputs</span><span class="p">,</span> <span class="p">:],</span> <span class="n">cov</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ix_</span><span class="p">(</span><span class="n">_inputs</span><span class="p">,</span> <span class="n">_inputs</span><span class="p">)]</span>
+    <span class="p">)</span>
 
-    <span class="n">N0</span><span class="p">,</span> <span class="n">N1</span> <span class="o">=</span> <span class="n">_data</span><span class="o">.</span><span class="n">shape</span>
+    <span class="n">sum_parts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">whole</span><span class="p">)</span>
 
-    <span class="n">whole</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="p">(</span><span class="n">N0</span> <span class="o">-</span> <span class="n">k</span><span class="p">)</span> <span class="o">*</span> <span class="n">local_total_correlation</span><span class="p">(</span><span class="n">_data</span><span class="p">,</span> <span class="n">_cov</span><span class="p">)</span>
-
-    <span class="n">sum_parts</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">N1</span><span class="p">)</span>
-
-    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N0</span><span class="p">):</span>
-
-        <span class="n">idxs</span><span class="p">:</span> <span class="nb">tuple</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">j</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N0</span><span class="p">)</span> <span class="k">if</span> <span class="n">j</span> <span class="o">!=</span> <span class="n">i</span><span class="p">)</span>
-        <span class="n">ltc</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="n">local_total_correlation</span><span class="p">(</span><span class="n">_data</span><span class="p">,</span> <span class="n">_cov</span><span class="p">,</span> <span class="n">inputs</span><span class="o">=</span><span class="n">idxs</span><span class="p">)</span>
-
-        <span class="n">sum_parts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">sum_parts</span><span class="p">,</span> <span class="n">ltc</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">):</span>
+        <span class="n">idxs</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">_inputs</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">)</span> <span class="k">if</span> <span class="n">j</span> <span class="o">!=</span> <span class="n">i</span><span class="p">)</span>
+        <span class="n">sum_parts</span> <span class="o">+=</span> <span class="n">local_total_correlation</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">idxs</span><span class="p">,</span> <span class="p">:],</span> <span class="n">cov</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ix_</span><span class="p">(</span><span class="n">idxs</span><span class="p">,</span> <span class="n">idxs</span><span class="p">)])</span>
 
     <span class="k">return</span> <span class="n">whole</span> <span class="o">-</span> <span class="n">sum_parts</span></div>
 
@@ -421,7 +404,7 @@
 <span class="sd">    A utility function that computes the generalized form</span>
 <span class="sd">    of the O-information, S-information, and DTC.</span>
 
-<span class="sd">    $K_{WMS}(X) = (N-k)TC(X) - \sum TC(X^-i)$</span>
+<span class="sd">    :math:`K_{WMS}(X) = (N-k)TC(X) - \\sum_{i=1}^{N} TC(X^{-i})`</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -441,22 +424,18 @@
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">if</span> <span class="n">inputs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
-        <span class="n">cov_i</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">*</span> <span class="n">cov</span>
+        <span class="n">_inputs</span><span class="p">:</span> <span class="nb">tuple</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">cov</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="n">cov_i</span> <span class="o">=</span> <span class="n">cov</span><span class="p">[</span><span class="n">inputs</span><span class="p">,</span> <span class="p">:][:,</span> <span class="n">inputs</span><span class="p">]</span>
+        <span class="n">_inputs</span> <span class="o">=</span> <span class="n">inputs</span>
 
-    <span class="n">N0</span><span class="p">:</span> <span class="nb">int</span>
-    <span class="n">N0</span> <span class="o">=</span> <span class="n">cov_i</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">N</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">_inputs</span><span class="p">)</span>
 
-    <span class="n">whole</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="p">(</span><span class="n">N0</span> <span class="o">-</span> <span class="n">k</span><span class="p">)</span> <span class="o">*</span> <span class="n">total_correlation</span><span class="p">(</span><span class="n">cov_i</span><span class="p">)</span>
+    <span class="n">whole</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="p">(</span><span class="n">N</span> <span class="o">-</span> <span class="n">k</span><span class="p">)</span> <span class="o">*</span> <span class="n">total_correlation</span><span class="p">(</span><span class="n">cov</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ix_</span><span class="p">(</span><span class="n">_inputs</span><span class="p">,</span> <span class="n">_inputs</span><span class="p">)])</span>
     <span class="n">sum_parts</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span>
 
-    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N0</span><span class="p">):</span>
-
-        <span class="n">idxs</span><span class="p">:</span> <span class="nb">tuple</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">j</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N0</span><span class="p">)</span> <span class="k">if</span> <span class="n">j</span> <span class="o">!=</span> <span class="n">i</span><span class="p">)</span>
-        <span class="n">tc</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">total_correlation</span><span class="p">(</span><span class="n">cov_i</span><span class="p">[</span><span class="n">idxs</span><span class="p">,</span> <span class="p">:][:,</span> <span class="n">idxs</span><span class="p">])</span>
-
-        <span class="n">sum_parts</span> <span class="o">+=</span> <span class="n">tc</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">):</span>
+        <span class="n">idxs</span><span class="p">:</span> <span class="nb">tuple</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">_inputs</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">)</span> <span class="k">if</span> <span class="n">j</span> <span class="o">!=</span> <span class="n">i</span><span class="p">)</span>
+        <span class="n">sum_parts</span> <span class="o">+=</span> <span class="n">total_correlation</span><span class="p">(</span><span class="n">cov</span><span class="p">[</span><span class="n">idxs</span><span class="p">,</span> <span class="p">:][:,</span> <span class="n">idxs</span><span class="p">])</span>
 
     <span class="k">return</span> <span class="n">whole</span> <span class="o">-</span> <span class="n">sum_parts</span></div>
 
@@ -520,7 +499,7 @@
 <span class="sd">        The specific subset of variables to compute the total correlation of.</span>
 <span class="sd">        Defaults to computing the TC of the entire covariance matrix.</span>
 
-<span class="sd">    Returns</span>
+<span class="sd">    Return:</span>
 <span class="sd">    -------</span>
 <span class="sd">    float</span>
 <span class="sd">        The expected S-information.</span>
@@ -534,7 +513,7 @@
 <div class="viewcode-block" id="local_dual_total_correlation">
 <a class="viewcode-back" href="../../../gaussian/multivariate_mi.html#syntropy.gaussian.multivariate_mi.local_dual_total_correlation">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">local_dual_total_correlation</span><span class="p">(</span>
-    <span class="n">data</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">cov</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="n">COV_NULL</span><span class="p">,</span> <span class="n">inputs</span><span class="p">:</span> <span class="nb">tuple</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">data</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">cov</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="n">COV_NULL</span><span class="p">,</span> <span class="n">inputs</span><span class="p">:</span> <span class="nb">tuple</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,)</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    dtc(x) = (N-1)tc(x) + \sum tc(x^-i)</span>
@@ -609,16 +588,16 @@
     <span class="n">data</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">cov</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="n">COV_NULL</span><span class="p">,</span> <span class="n">inputs</span><span class="p">:</span> <span class="nb">tuple</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,)</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    o(x) = (2-N)tc(x) + \sum tc(x^-i)</span>
-<span class="sd">         = (N-2)tc(x) - \sum Tc(x^-i)</span>
 
 <span class="sd">    See:</span>
 <span class="sd">        Scagliarini, T., Marinazzo, D., Guo, Y., Stramaglia, S., &amp; Rosas, F. E. (2022).</span>
-<span class="sd">        Quantifying high-order interdependencies on individual patterns via the local O-information:</span>
-<span class="sd">            Theory and applications to music analysis.</span>
+<span class="sd">        Quantifying high-order interdependencies on individual patterns via the local O-information: Theory and applications to music analysis.</span>
 <span class="sd">        Physical Review Research, 4(1), 013184.</span>
 <span class="sd">        https://doi.org/10.1103/PhysRevResearch.4.013184</span>
 
+<span class="sd">        Pope, M., Varley, T. F., Grazia Puxeddu, M., Faskowitz, J., &amp; Sporns, O. (2025).</span>
+<span class="sd">        Time-varying synergy/redundancy dominance in the human cerebral cortex. Journal of Physics: Complexity, 6(1), 015015.</span>
+<span class="sd">        https://doi.org/10.1088/2632-072X/adbaa9</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -645,9 +624,6 @@
 <a class="viewcode-back" href="../../../gaussian/multivariate_mi.html#syntropy.gaussian.multivariate_mi.o_information">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">o_information</span><span class="p">(</span><span class="n">cov</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">inputs</span><span class="p">:</span> <span class="nb">tuple</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,))</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    O(X) = (2-N)TC(X) + \sum TC(X^-i)</span>
-<span class="sd">         = (N-2)TC(X) - \sum TC(X^-i)</span>
-
 <span class="sd">    See:</span>
 <span class="sd">        Rosas, F., Mediano, P. A. M., Gastpar, M., &amp; Jensen, H. J. (2019).</span>
 <span class="sd">        Quantifying High-order Interdependencies via Multivariate</span>
@@ -719,7 +695,6 @@
     <span class="n">exp_tcs</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">tc_whole</span>
 
     <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">N</span><span class="p">):</span>
-
         <span class="c1"># All of the samples of subsets at scale i</span>
         <span class="n">samples</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
             <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">N</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">k</span><span class="p">,</span> <span class="n">replace</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_samples</span><span class="p">)]</span>
@@ -758,10 +733,7 @@
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">if</span> <span class="n">inputs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
-        <span class="n">N</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">cov</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">N</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">inputs</span><span class="p">))</span>
+    <span class="n">N</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">cov</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="k">if</span> <span class="n">inputs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span> <span class="k">else</span> <span class="nb">float</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">inputs</span><span class="p">))</span>
 
     <span class="k">return</span> <span class="n">dual_total_correlation</span><span class="p">(</span><span class="n">cov</span><span class="o">=</span><span class="n">cov</span><span class="p">,</span> <span class="n">inputs</span><span class="o">=</span><span class="n">inputs</span><span class="p">)</span> <span class="o">/</span> <span class="n">N</span></div>
 
@@ -793,10 +765,7 @@
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">if</span> <span class="n">inputs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
-        <span class="n">N</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">N</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">inputs</span><span class="p">))</span>
+    <span class="n">N</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">cov</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="k">if</span> <span class="n">inputs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span> <span class="k">else</span> <span class="nb">float</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">inputs</span><span class="p">))</span>
 
     <span class="k">return</span> <span class="n">local_k_wms</span><span class="p">(</span><span class="n">k</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">cov</span><span class="o">=</span><span class="n">cov</span><span class="p">,</span> <span class="n">inputs</span><span class="o">=</span><span class="n">inputs</span><span class="p">)</span> <span class="o">/</span> <span class="n">N</span></div>
 

@@ -258,7 +258,7 @@
 <a class="viewcode-back" href="../../../gaussian/decompositions.html#syntropy.gaussian.decompositions.partial_information_decomposition">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">partial_information_decomposition</span><span class="p">(</span>
     <span class="n">inputs</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">,</span> <span class="n">target</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">cov</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="n">COV_NULL</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="p">(</span><span class="nb">dict</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">dict</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">     The pointwise and average partial information decomposition</span>
 <span class="sd">     using the Gaussian imin function. See:</span>
@@ -292,9 +292,9 @@
     <span class="k">if</span> <span class="n">cov</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
         <span class="n">cov</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cov</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">ddof</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="k">assert</span> <span class="p">(</span>
-            <span class="n">cov</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-        <span class="p">),</span> <span class="s2">&quot;The covariance matrix must have the same dimensionality as the data.&quot;</span>
+        <span class="k">assert</span> <span class="n">cov</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="p">(</span>
+            <span class="s2">&quot;The covariance matrix must have the same dimensionality as the data.&quot;</span>
+        <span class="p">)</span>
 
     <span class="n">N_inputs</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">inputs</span><span class="p">)</span>
     <span class="n">N_target</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">target</span><span class="p">)</span>
@@ -305,7 +305,7 @@
         <span class="n">data</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">((</span><span class="n">data</span><span class="p">[</span><span class="n">inputs</span><span class="p">,</span> <span class="p">:],</span> <span class="n">data</span><span class="p">[</span><span class="n">target</span><span class="p">,</span> <span class="p">:])),</span>
         <span class="n">inputs</span><span class="o">=</span><span class="nb">tuple</span><span class="p">(</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N_inputs</span><span class="p">)),</span>
         <span class="n">target</span><span class="o">=</span><span class="nb">tuple</span><span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="n">N_inputs</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N_target</span><span class="p">)),</span>
-        <span class="n">cov</span><span class="o">=</span><span class="n">cov</span><span class="p">[</span><span class="n">joint</span><span class="p">,</span> <span class="p">:][:,</span> <span class="n">joint</span><span class="p">],</span>
+        <span class="n">cov</span><span class="o">=</span><span class="n">cov</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ix_</span><span class="p">(</span><span class="n">joint</span><span class="p">,</span> <span class="n">joint</span><span class="p">)],</span>
     <span class="p">)</span>
 
     <span class="k">return</span> <span class="n">ptw</span><span class="p">,</span> <span class="n">avg</span></div>
@@ -316,7 +316,7 @@
 <a class="viewcode-back" href="../../../gaussian/decompositions.html#syntropy.gaussian.decompositions.partial_entropy_decomposition">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">partial_entropy_decomposition</span><span class="p">(</span>
     <span class="n">inputs</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">cov</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="n">COV_NULL</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="p">(</span><span class="nb">dict</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">dict</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Computes the partial entropy decomposition of a joint distribution</span>
 <span class="sd">    with up to four elements. Uses the Gaussian hmin estimator. See:</span>
@@ -350,9 +350,9 @@
     <span class="k">if</span> <span class="n">cov</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
         <span class="n">cov</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cov</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">ddof</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="k">assert</span> <span class="p">(</span>
-            <span class="n">cov</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-        <span class="p">),</span> <span class="s2">&quot;The covariance matrix must have the same dimensionality as the data.&quot;</span>
+        <span class="k">assert</span> <span class="n">cov</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="p">(</span>
+            <span class="s2">&quot;The covariance matrix must have the same dimensionality as the data.&quot;</span>
+        <span class="p">)</span>
 
     <span class="n">N_inputs</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">inputs</span><span class="p">)</span>
 
@@ -360,7 +360,7 @@
         <span class="n">decomposition</span><span class="o">=</span><span class="s2">&quot;ped&quot;</span><span class="p">,</span>
         <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="n">inputs</span><span class="p">,</span> <span class="p">:],</span>
         <span class="n">inputs</span><span class="o">=</span><span class="nb">tuple</span><span class="p">(</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N_inputs</span><span class="p">)),</span>
-        <span class="n">cov</span><span class="o">=</span><span class="n">cov</span><span class="p">[</span><span class="n">inputs</span><span class="p">,</span> <span class="p">:][:,</span> <span class="n">inputs</span><span class="p">],</span>
+        <span class="n">cov</span><span class="o">=</span><span class="n">cov</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ix_</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="n">inputs</span><span class="p">)],</span>
     <span class="p">)</span>
 
     <span class="k">return</span> <span class="n">ptw</span><span class="p">,</span> <span class="n">avg</span></div>
@@ -371,7 +371,7 @@
 <a class="viewcode-back" href="../../../gaussian/decompositions.html#syntropy.gaussian.decompositions.generalized_information_decomposition">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">generalized_information_decomposition</span><span class="p">(</span>
     <span class="n">inputs</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">cov_posterior</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">cov_prior</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="p">(</span><span class="nb">dict</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">dict</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Computes the generalized information decomposition from Varley et al.</span>
 <span class="sd">    The GID is a decomposition of the Kullback-Leibler divergence of a</span>
@@ -413,14 +413,14 @@
         <span class="n">decomposition</span><span class="o">=</span><span class="s2">&quot;ped&quot;</span><span class="p">,</span>
         <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="n">inputs</span><span class="p">,</span> <span class="p">:],</span>
         <span class="n">inputs</span><span class="o">=</span><span class="nb">tuple</span><span class="p">(</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N_inputs</span><span class="p">)),</span>
-        <span class="n">cov</span><span class="o">=</span><span class="n">cov_prior</span><span class="p">[</span><span class="n">inputs</span><span class="p">,</span> <span class="p">:][:,</span> <span class="n">inputs</span><span class="p">],</span>
+        <span class="n">cov</span><span class="o">=</span><span class="n">cov_prior</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ix_</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="n">inputs</span><span class="p">)],</span>
     <span class="p">)</span>
 
     <span class="n">ptw_posterior</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">mobius_inversion</span><span class="p">(</span>
         <span class="n">decomposition</span><span class="o">=</span><span class="s2">&quot;ped&quot;</span><span class="p">,</span>
         <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="n">inputs</span><span class="p">,</span> <span class="p">:],</span>
         <span class="n">inputs</span><span class="o">=</span><span class="nb">tuple</span><span class="p">(</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N_inputs</span><span class="p">)),</span>
-        <span class="n">cov</span><span class="o">=</span><span class="n">cov_posterior</span><span class="p">[</span><span class="n">inputs</span><span class="p">,</span> <span class="p">:][:,</span> <span class="n">inputs</span><span class="p">],</span>
+        <span class="n">cov</span><span class="o">=</span><span class="n">cov_prior</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ix_</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="n">inputs</span><span class="p">)],</span>
     <span class="p">)</span>
 
     <span class="n">ptw</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="p">{</span><span class="n">key</span><span class="p">:</span> <span class="n">ptw_prior</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">-</span> <span class="n">ptw_posterior</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">ptw_prior</span><span class="o">.</span><span class="n">keys</span><span class="p">()}</span>

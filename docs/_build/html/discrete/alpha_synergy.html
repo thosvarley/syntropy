@@ -178,7 +178,7 @@
           <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
         </button>
       </div>
-      <label class="toc-overlay-icon toc-header-icon" for="__toc">
+      <label class="toc-overlay-icon toc-header-icon no-toc" for="__toc">
         <div class="visually-hidden">Toggle table of contents sidebar</div>
         <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
       </label>
@@ -250,7 +250,7 @@
               <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
             </button>
           </div>
-          <label class="toc-overlay-icon toc-content-icon" for="__toc">
+          <label class="toc-overlay-icon toc-content-icon no-toc" for="__toc">
             <div class="visually-hidden">Toggle table of contents sidebar</div>
             <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
           </label>
@@ -258,125 +258,6 @@
         <article role="main" id="furo-main-content">
           <section id="alpha-synergy-module">
 <h1>Alpha Synergy Module<a class="headerlink" href="#alpha-synergy-module" title="Link to this heading">¶</a></h1>
-<dl class="py function" id="module-syntropy.discrete.alpha_synergy">
-<dt class="sig sig-object py" id="syntropy.discrete.alpha_synergy.alpha_synergistic_entropy">
-<span class="sig-prename descclassname"><span class="pre">syntropy.discrete.alpha_synergy.</span></span><span class="sig-name descname"><span class="pre">alpha_synergistic_entropy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">joint_distribution</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_samples</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">definition</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'min'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/discrete/alpha_synergy.html#alpha_synergistic_entropy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.discrete.alpha_synergy.alpha_synergistic_entropy" title="Link to this definition">¶</a></dt>
-<dd><p>Computes the <span class="math notranslate nohighlight">\(\alpha\)</span>-synergistic entropy for a joint distribution
-for a given value of <span class="math notranslate nohighlight">\(\alpha\)</span>. See:</p>
-<blockquote>
-<div><p>Varley, T. F. (2024).
-A scalable synergy-first backbone decomposition of
-higher-order structures in complex systems.
-Npj Complexity, 1(1), 1–11.
-<a class="reference external" href="https://doi.org/10.1038/s44260-024-00011-1">https://doi.org/10.1038/s44260-024-00011-1</a></p>
-</div></blockquote>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>joint_distribution</strong> (<em>dict</em><em>[</em><em>tuple</em><em>, </em><em>float</em><em>]</em>) – The joint distribution dictionary object.</p></li>
-<li><p><strong>alpha</strong> (<em>int</em>) – The scale to consider.</p></li>
-<li><p><strong>num_samples</strong> (<em>int</em><em>, </em><em>optional</em>) – The number of samples to trial. The default is -1, in which case, all permutations are trialed.</p></li>
-<li><p><strong>definition</strong> (<em>str</em><em>, </em><em>optional</em>) – How to define the loss of information. Can be “min”, “max”, or “avg”. The default is “min”.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>The local alpha-synergy for each state.</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>dict[tuple, float]</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="syntropy.discrete.alpha_synergy.partial_entropy_spectra">
-<span class="sig-prename descclassname"><span class="pre">syntropy.discrete.alpha_synergy.</span></span><span class="sig-name descname"><span class="pre">partial_entropy_spectra</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">joint_distribution</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_samples</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">definition</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'min'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/discrete/alpha_synergy.html#partial_entropy_spectra"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.discrete.alpha_synergy.partial_entropy_spectra" title="Link to this definition">¶</a></dt>
-<dd><p>Computes the partial entropy spectrum for each state.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>joint_distribution</strong> (<em>dict</em><em>[</em><em>tuple</em><em>,</em><em>float</em><em>]</em>) – The joint probability dictionary object.</p></li>
-<li><p><strong>num_samples</strong> (<em>int</em><em>, </em><em>optional</em>) – The number of samples to trial. The default is -1, in which case, all permutations are trialed.</p></li>
-<li><p><strong>definition</strong> (<em>str</em><em>, </em><em>optional</em>) – How to define the loss of information. Can be “min”, “max”, or “avg”. The default is “min”.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>The alpha-synergistic entropy spectrum for each state.</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>dict[tuple,list]</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="syntropy.discrete.alpha_synergy.partial_kullback_leibler_spectra">
-<span class="sig-prename descclassname"><span class="pre">syntropy.discrete.alpha_synergy.</span></span><span class="sig-name descname"><span class="pre">partial_kullback_leibler_spectra</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">posterior</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prior</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_samples</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">definition</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'min'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/discrete/alpha_synergy.html#partial_kullback_leibler_spectra"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.discrete.alpha_synergy.partial_kullback_leibler_spectra" title="Link to this definition">¶</a></dt>
-<dd><p>Computes the local Kullback-Leibler spectrum for each state</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>posterior</strong> (<em>dict</em><em>[</em><em>tuple</em><em>,</em><em>float</em><em>]</em>) – The distribution that describes the posterior beliefs.</p></li>
-<li><p><strong>prior</strong> (<em>dict</em><em>[</em><em>tuple</em><em>,</em><em>float</em><em>]</em>) – The distribution that describes the prior beliefs.</p></li>
-<li><p><strong>num_samples</strong> (<em>int</em><em>, </em><em>optional</em>) – The number of samples to trial.
-The default is -1, in which case, all permutations are trialed.</p></li>
-<li><p><strong>definition</strong> (<em>str</em><em>, </em><em>optional</em>) – How to define the loss of information.
-Can be “min”, “max”, or “avg”. The default is “min”.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>The alpha-synergistic DKL spectrum for each state.</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>dict[tuple,list]</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="syntropy.discrete.alpha_synergy.partial_total_correlation_spectra">
-<span class="sig-prename descclassname"><span class="pre">syntropy.discrete.alpha_synergy.</span></span><span class="sig-name descname"><span class="pre">partial_total_correlation_spectra</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">joint_distribution</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_samples</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">definition</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'min'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/discrete/alpha_synergy.html#partial_total_correlation_spectra"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.discrete.alpha_synergy.partial_total_correlation_spectra" title="Link to this definition">¶</a></dt>
-<dd><p>Computes the local total correlation spectrum for each state.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>joint_distribution</strong> (<em>dict</em><em>[</em><em>tuple</em><em>,</em><em>float</em><em>]</em>) – The joint probability dictionary object.</p></li>
-<li><p><strong>num_samples</strong> (<em>int</em><em>, </em><em>optional</em>) – The number of samples to trial. The default is -1, in which case, all permutations are trialed.</p></li>
-<li><p><strong>definition</strong> (<em>str</em><em>, </em><em>optional</em>) – How to define the loss of information. Can be “min”, “max”, or “avg”. The default is “min”.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>The alpha-synergistic total correlation spectrum for each state.</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>dict[tuple,list]</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="syntropy.discrete.alpha_synergy.partial_information_spectra">
-<span class="sig-prename descclassname"><span class="pre">syntropy.discrete.alpha_synergy.</span></span><span class="sig-name descname"><span class="pre">partial_information_spectra</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inputs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">joint_distribution</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_samples</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">definition</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'min'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/discrete/alpha_synergy.html#partial_information_spectra"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.discrete.alpha_synergy.partial_information_spectra" title="Link to this definition">¶</a></dt>
-<dd><p>Computes the local mutual information spectrum for each state.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>inputs</strong> (<em>tuple</em>) – The indices of the input variables.</p></li>
-<li><p><strong>target</strong> (<em>tuple</em>) – The indices of the target variables.</p></li>
-<li><p><strong>joint_distribution</strong> (<em>dict</em><em>[</em><em>tuple</em><em>,</em><em>float</em><em>]</em>) – The joint probability dictionary object.</p></li>
-<li><p><strong>num_samples</strong> (<em>int</em><em>, </em><em>optional</em>) – The number of samples to trial. The default is -1, in which case, all permutations are trialed.</p></li>
-<li><p><strong>definition</strong> (<em>str</em><em>, </em><em>optional</em>) – How to define the loss of information. Can be “min”, “max”, or “avg”. The default is “min”.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>The alpha-synergistic total correlation spectrum for each state.</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>dict[tuple,list]</p>
-</dd>
-</dl>
-</dd></dl>
-
 </section>
 
         </article>
@@ -422,31 +303,8 @@ Can be “min”, “max”, or “avg”. The default is “min”.</p></li>
         
       </footer>
     </div>
-    <aside class="toc-drawer">
+    <aside class="toc-drawer no-toc">
       
-      
-      <div class="toc-sticky toc-scroll">
-        <div class="toc-title-container">
-          <span class="toc-title">
-            On this page
-          </span>
-        </div>
-        <div class="toc-tree-container">
-          <div class="toc-tree">
-            <ul>
-<li><a class="reference internal" href="#">Alpha Synergy Module</a><ul>
-<li><a class="reference internal" href="#syntropy.discrete.alpha_synergy.alpha_synergistic_entropy"><code class="docutils literal notranslate"><span class="pre">alpha_synergistic_entropy()</span></code></a></li>
-<li><a class="reference internal" href="#syntropy.discrete.alpha_synergy.partial_entropy_spectra"><code class="docutils literal notranslate"><span class="pre">partial_entropy_spectra()</span></code></a></li>
-<li><a class="reference internal" href="#syntropy.discrete.alpha_synergy.partial_kullback_leibler_spectra"><code class="docutils literal notranslate"><span class="pre">partial_kullback_leibler_spectra()</span></code></a></li>
-<li><a class="reference internal" href="#syntropy.discrete.alpha_synergy.partial_total_correlation_spectra"><code class="docutils literal notranslate"><span class="pre">partial_total_correlation_spectra()</span></code></a></li>
-<li><a class="reference internal" href="#syntropy.discrete.alpha_synergy.partial_information_spectra"><code class="docutils literal notranslate"><span class="pre">partial_information_spectra()</span></code></a></li>
-</ul>
-</li>
-</ul>
-
-          </div>
-        </div>
-      </div>
       
       
     </aside>
@@ -455,6 +313,5 @@ Can be “min”, “max”, or “avg”. The default is “min”.</p></li>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/furo.js?v=46bd48cc"></script>
-    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     </body>
 </html>

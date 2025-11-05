@@ -253,8 +253,53 @@
 <span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">scipy.signal</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">signal</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">scipy.integrate</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">integrate</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">scipy.io</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">io</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">scipy.stats</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">stats</span>
+
+
+<div class="viewcode-block" id="construct_csd_tensor">
+<a class="viewcode-back" href="../../../gaussian/temporal.html#syntropy.gaussian.temporal.construct_csd_tensor">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">construct_csd_tensor</span><span class="p">(</span>
+    <span class="n">idxs</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">fs</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">nperseg</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1024</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    idxs : tuple</span>
+
+<span class="sd">    data : np.ndarray</span>
+
+<span class="sd">    fs : int</span>
+
+<span class="sd">    nperseg : int</span>
+
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    np.ndarray</span>
+
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">N</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">idxs</span><span class="p">)</span>
+    <span class="n">S</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">nperseg</span><span class="p">,</span> <span class="n">N</span><span class="p">,</span> <span class="n">N</span><span class="p">))</span>
+
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="n">f</span><span class="p">,</span> <span class="n">Pij</span> <span class="o">=</span> <span class="n">signal</span><span class="o">.</span><span class="n">csd</span><span class="p">(</span>
+                <span class="n">data</span><span class="p">[</span><span class="n">idxs</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="p">:],</span>
+                <span class="n">data</span><span class="p">[</span><span class="n">idxs</span><span class="p">[</span><span class="n">j</span><span class="p">],</span> <span class="p">:],</span>
+                <span class="n">return_onesided</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                <span class="n">fs</span><span class="o">=</span><span class="n">fs</span><span class="p">,</span>
+                <span class="n">nperseg</span><span class="o">=</span><span class="n">nperseg</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">Pij</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">fftshift</span><span class="p">(</span><span class="n">Pij</span><span class="p">)</span>
+            <span class="n">S</span><span class="p">[:</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">Pij</span><span class="o">.</span><span class="n">real</span>
+            <span class="n">S</span><span class="p">[:,</span> <span class="n">j</span><span class="p">,</span> <span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">conj</span><span class="p">(</span><span class="n">Pij</span><span class="p">)</span><span class="o">.</span><span class="n">real</span>
+
+    <span class="n">omega</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">f</span> <span class="o">/</span> <span class="n">fs</span>
+    <span class="n">omega</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">fftshift</span><span class="p">(</span><span class="n">omega</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">S</span><span class="p">,</span> <span class="n">omega</span></div>
+
 
 
 <div class="viewcode-block" id="differential_entropy_rate">
@@ -264,7 +309,7 @@
     <span class="n">data</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
     <span class="n">fs</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
     <span class="n">nperseg</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1024</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="nb">float</span><span class="p">):</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Computes the differential entropy rate of a potentially multivariate stochastic process.</span>
 
@@ -294,23 +339,7 @@
     <span class="c1"># %%</span>
     <span class="n">N</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">idxs</span><span class="p">)</span>
 
-    <span class="n">S</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">nperseg</span><span class="p">,</span> <span class="n">N</span><span class="p">,</span> <span class="n">N</span><span class="p">))</span>
-
-    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">):</span>
-        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
-            <span class="n">f</span><span class="p">,</span> <span class="n">Pij</span> <span class="o">=</span> <span class="n">signal</span><span class="o">.</span><span class="n">csd</span><span class="p">(</span>
-                <span class="n">data</span><span class="p">[</span><span class="n">idxs</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="p">:],</span>
-                <span class="n">data</span><span class="p">[</span><span class="n">idxs</span><span class="p">[</span><span class="n">j</span><span class="p">],</span> <span class="p">:],</span>
-                <span class="n">return_onesided</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-                <span class="n">fs</span><span class="o">=</span><span class="n">fs</span><span class="p">,</span>
-                <span class="n">nperseg</span><span class="o">=</span><span class="n">nperseg</span><span class="p">,</span>
-            <span class="p">)</span>
-            <span class="n">Pij</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">fftshift</span><span class="p">(</span><span class="n">Pij</span><span class="p">)</span>
-            <span class="n">S</span><span class="p">[:,</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">Pij</span><span class="o">.</span><span class="n">real</span>
-            <span class="n">S</span><span class="p">[:,</span> <span class="n">j</span><span class="p">,</span> <span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">conj</span><span class="p">(</span><span class="n">Pij</span><span class="p">)</span><span class="o">.</span><span class="n">real</span>
-
-    <span class="n">omega</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">f</span> <span class="o">/</span> <span class="n">fs</span>  <span class="c1"># from Hz to rad/sample</span>
-    <span class="n">omega</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">fftshift</span><span class="p">(</span><span class="n">omega</span><span class="p">)</span>
+    <span class="n">S</span><span class="p">,</span> <span class="n">omega</span> <span class="o">=</span> <span class="n">construct_csd_tensor</span><span class="p">(</span><span class="n">idxs</span><span class="o">=</span><span class="n">idxs</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">fs</span><span class="o">=</span><span class="n">fs</span><span class="p">,</span> <span class="n">nperseg</span><span class="o">=</span><span class="n">nperseg</span><span class="p">)</span>
 
     <span class="n">ptw</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
         <span class="p">[(</span><span class="mi">1</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(((</span><span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">e</span><span class="p">)</span> <span class="o">**</span> <span class="n">N</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">det</span><span class="p">(</span><span class="n">a</span><span class="p">))</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">S</span><span class="p">]</span>
@@ -329,10 +358,10 @@
     <span class="n">data</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
     <span class="n">fs</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
     <span class="n">nperseg</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1024</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="nb">float</span><span class="p">):</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Computes the mutual information rate between two (potentially multivariate) Gaussian processes.</span>
-<span class="sd">    </span>
+
 <span class="sd">    :math:`I(X; Y) = \\frac{1}{4\\pi} \\int_{-\\pi}^{\\pi} \\log \\left( \\frac{  |S_X(\\omega)||S_Y(\\omega)| }{ |S_{XY}(\\omega)| } \\right) d\\omega`</span>
 
 <span class="sd">    See:</span>
@@ -371,34 +400,16 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">Nx</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">idxs_x</span><span class="p">)</span>
     <span class="n">Ny</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">idxs_y</span><span class="p">)</span>
-    <span class="n">N</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">Nx</span> <span class="o">+</span> <span class="n">Ny</span>
 
     <span class="n">idxs_</span><span class="p">:</span> <span class="nb">tuple</span> <span class="o">=</span> <span class="n">idxs_x</span> <span class="o">+</span> <span class="n">idxs_y</span>
 
     <span class="n">reidxs_x</span><span class="p">:</span> <span class="nb">tuple</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">Nx</span><span class="p">))</span>
     <span class="n">reidxs_y</span><span class="p">:</span> <span class="nb">tuple</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="n">Nx</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">Ny</span><span class="p">))</span>
 
-    <span class="n">S</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">nperseg</span><span class="p">,</span> <span class="n">N</span><span class="p">,</span> <span class="n">N</span><span class="p">))</span>
+    <span class="n">S</span><span class="p">,</span> <span class="n">omega</span> <span class="o">=</span> <span class="n">construct_csd_tensor</span><span class="p">(</span><span class="n">idxs</span><span class="o">=</span><span class="n">idxs_</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">fs</span><span class="o">=</span><span class="n">fs</span><span class="p">,</span> <span class="n">nperseg</span><span class="o">=</span><span class="n">nperseg</span><span class="p">)</span>
 
-    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">):</span>
-        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
-            <span class="n">f</span><span class="p">,</span> <span class="n">Pij</span> <span class="o">=</span> <span class="n">signal</span><span class="o">.</span><span class="n">csd</span><span class="p">(</span>
-                <span class="n">data</span><span class="p">[</span><span class="n">idxs_</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="p">:],</span>
-                <span class="n">data</span><span class="p">[</span><span class="n">idxs_</span><span class="p">[</span><span class="n">j</span><span class="p">],</span> <span class="p">:],</span>
-                <span class="n">return_onesided</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-                <span class="n">fs</span><span class="o">=</span><span class="n">fs</span><span class="p">,</span>
-                <span class="n">nperseg</span><span class="o">=</span><span class="n">nperseg</span><span class="p">,</span>
-            <span class="p">)</span>
-
-            <span class="n">Pij</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">fftshift</span><span class="p">(</span><span class="n">Pij</span><span class="p">)</span>
-            <span class="n">S</span><span class="p">[:,</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">Pij</span><span class="o">.</span><span class="n">real</span>
-            <span class="n">S</span><span class="p">[:,</span> <span class="n">j</span><span class="p">,</span> <span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">conj</span><span class="p">(</span><span class="n">Pij</span><span class="p">)</span><span class="o">.</span><span class="n">real</span>
-
-    <span class="n">omega</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">f</span> <span class="o">/</span> <span class="n">fs</span>  <span class="c1"># from Hz to rad/sample</span>
-    <span class="n">omega</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">fftshift</span><span class="p">(</span><span class="n">omega</span><span class="p">)</span>
-
-    <span class="n">log_x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">slogdet</span><span class="p">(</span><span class="n">a</span><span class="p">[</span><span class="n">reidxs_x</span><span class="p">,</span> <span class="p">:][:,</span> <span class="n">reidxs_x</span><span class="p">])[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">S</span><span class="p">])</span>
-    <span class="n">log_y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">slogdet</span><span class="p">(</span><span class="n">a</span><span class="p">[</span><span class="n">reidxs_y</span><span class="p">,</span> <span class="p">:][:,</span> <span class="n">reidxs_y</span><span class="p">])[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">S</span><span class="p">])</span>
+    <span class="n">log_x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">slogdet</span><span class="p">(</span><span class="n">a</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ix_</span><span class="p">(</span><span class="n">reidxs_x</span><span class="p">,</span> <span class="n">reidxs_x</span><span class="p">)])[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">S</span><span class="p">])</span>
+    <span class="n">log_y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">slogdet</span><span class="p">(</span><span class="n">a</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ix_</span><span class="p">(</span><span class="n">reidxs_y</span><span class="p">,</span> <span class="n">reidxs_y</span><span class="p">)])[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">S</span><span class="p">])</span>
     <span class="n">log_xy</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">slogdet</span><span class="p">(</span><span class="n">a</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">S</span><span class="p">])</span>
 
     <span class="n">ptw</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">log_x</span> <span class="o">+</span> <span class="n">log_y</span> <span class="o">-</span> <span class="n">log_xy</span><span class="p">)</span>
@@ -415,12 +426,12 @@
     <span class="n">data</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
     <span class="n">fs</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
     <span class="n">nperseg</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1024</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="nb">float</span><span class="p">):</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A straightforward extension of the mutual information rate to the total correlation.</span>
 
 <span class="sd">    :math:`TC(X,Y,\\ldots,Z) = \\frac{1}{4\\pi} \\int_{-\\pi}^{\\pi} \\log \\left( \\frac{  |S_X(\\omega)||S_Y(\\omega)|\\ldots|S_Z(\\omega)| }{ |S_{XY\\ldots Z}(\\omega)| } \\right) d\\omega`</span>
-<span class="sd">    </span>
+
 <span class="sd">    WARNING: As far as I know this TC rate idea has never been formally explored before. It should work fine as a natural generalization of the MI, but it hasn&#39;t ever been published or peer reviewed.</span>
 
 <span class="sd">    Parameters</span>
@@ -445,25 +456,7 @@
 <span class="sd">        The average total correlation across the whole spectrum.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="n">N</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">idxs</span><span class="p">)</span>
-
-    <span class="n">S</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">nperseg</span><span class="p">,</span> <span class="n">N</span><span class="p">,</span> <span class="n">N</span><span class="p">))</span>
-
-    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">):</span>
-        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
-            <span class="n">f</span><span class="p">,</span> <span class="n">Pij</span> <span class="o">=</span> <span class="n">signal</span><span class="o">.</span><span class="n">csd</span><span class="p">(</span>
-                <span class="n">data</span><span class="p">[</span><span class="n">idxs</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="p">:],</span>
-                <span class="n">data</span><span class="p">[</span><span class="n">idxs</span><span class="p">[</span><span class="n">j</span><span class="p">],</span> <span class="p">:],</span>
-                <span class="n">return_onesided</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-                <span class="n">fs</span><span class="o">=</span><span class="n">fs</span><span class="p">,</span>
-                <span class="n">nperseg</span><span class="o">=</span><span class="n">nperseg</span><span class="p">,</span>
-            <span class="p">)</span>
-            <span class="n">Pij</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">fftshift</span><span class="p">(</span><span class="n">Pij</span><span class="p">)</span>
-            <span class="n">S</span><span class="p">[:,</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">Pij</span><span class="o">.</span><span class="n">real</span>
-            <span class="n">S</span><span class="p">[:,</span> <span class="n">j</span><span class="p">,</span> <span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">conj</span><span class="p">(</span><span class="n">Pij</span><span class="p">)</span><span class="o">.</span><span class="n">real</span>
-
-    <span class="n">omega</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">f</span> <span class="o">/</span> <span class="n">fs</span>  <span class="c1"># from Hz to rad/sample</span>
-    <span class="n">omega</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">fftshift</span><span class="p">(</span><span class="n">omega</span><span class="p">)</span>
+    <span class="n">S</span><span class="p">,</span> <span class="n">omega</span> <span class="o">=</span> <span class="n">construct_csd_tensor</span><span class="p">(</span><span class="n">idxs</span><span class="o">=</span><span class="n">idxs</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">fs</span><span class="o">=</span><span class="n">fs</span><span class="p">,</span> <span class="n">nperseg</span><span class="o">=</span><span class="n">nperseg</span><span class="p">)</span>
 
     <span class="n">sum_parts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="n">a</span><span class="p">))</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">S</span><span class="p">])</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
 
@@ -485,9 +478,9 @@
     <span class="n">fs</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
     <span class="n">nperseg</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1024</span><span class="p">,</span>
     <span class="n">verbose</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="nb">float</span><span class="p">):</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    A straightforward extension of the total correlation rate to the K whole-minus-sum rate. </span>
+<span class="sd">    A straightforward extension of the total correlation rate to the K whole-minus-sum rate.</span>
 
 <span class="sd">    Recall that S-information, DTC, and negative O-information can all be written in a general form:</span>
 
@@ -535,7 +528,6 @@
     <span class="n">avg_sum_parts</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span>
 
     <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N0</span><span class="p">):</span>
-
         <span class="n">idxs_residual</span><span class="p">:</span> <span class="nb">tuple</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">idxs</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N0</span><span class="p">)</span> <span class="k">if</span> <span class="n">j</span> <span class="o">!=</span> <span class="n">i</span><span class="p">)</span>
 
         <span class="n">ptw_residuals</span><span class="p">,</span> <span class="n">avg_residuals</span> <span class="o">=</span> <span class="n">total_correlation_rate</span><span class="p">(</span>
@@ -560,14 +552,14 @@
     <span class="n">fs</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
     <span class="n">nperseg</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1024</span><span class="p">,</span>
     <span class="n">verbose</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">,</span> <span class="nb">float</span><span class="p">):</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A straightforward extension of the S-information rate from the total correlation rate.</span>
 
 <span class="sd">    The S-information is equivalant to:</span>
 
 <span class="sd">    :math:`\\Sigma(X) = \\sum_{i=1}^{N}I(X_i;X^{-i})`</span>
-<span class="sd">        </span>
+
 <span class="sd">    :math:`\\Sigma(X) = TC(X) + DTC(X)`</span>
 
 <span class="sd">    WARNING: As far as I know this rate idea has never been formally explored before. It should work fine as a natural generalization of the MI, but it hasn&#39;t even been published or peer reviewed.</span>
@@ -620,18 +612,18 @@
     <span class="n">fs</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
     <span class="n">nperseg</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1024</span><span class="p">,</span>
     <span class="n">verbose</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="nb">float</span><span class="p">):</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A straightforward extension of the dual total correlation rate from the total correlation rate.</span>
 
 <span class="sd">    The dual total correlation is given alternately by:</span>
 
 <span class="sd">    :math:`DTC(X) = H(X) - \\sum_{i=1}^{N}H(X_i|X^{-i})`</span>
-<span class="sd">        </span>
+
 <span class="sd">    :math:`DTC(X) = (N-1)TC(X) - \\sum_{i=1}^{N}TC(X^{-i})`</span>
 
 <span class="sd">    WARNING: As far as I know this rate idea has never been formally explored before. It should work fine as a natural generalization of the MI, but it hasn&#39;t even been published or peer reviewed.</span>
-<span class="sd">    </span>
+
 <span class="sd">    See:</span>
 <span class="sd">        Abdallah, S. A., &amp; Plumbley, M. D. (2012).</span>
 <span class="sd">        A measure of statistical complexity based on predictive information with application to finite spin systems.</span>
@@ -681,12 +673,12 @@
     <span class="n">fs</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
     <span class="n">nperseg</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1024</span><span class="p">,</span>
     <span class="n">verbose</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="nb">float</span><span class="p">):</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A straightforward extension of the O-information rate from the total correlation rate.</span>
-<span class="sd">    </span>
+
 <span class="sd">    :math:`\\Omega(X) = (2-N)TC(X) + \\sum_{i=1}^{N}TC(X^{-i})`</span>
-<span class="sd">    </span>
+
 <span class="sd">    :math:`\\Omega(X) = TC(X) - DTC(X)`</span>
 
 <span class="sd">    WARNING: As far as I know this rate idea has never been formally explored before. It should work fine as a natural generalization of the MI, but it hasn&#39;t even been published or peer reviewed.</span>
