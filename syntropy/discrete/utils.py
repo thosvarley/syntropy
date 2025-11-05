@@ -2,12 +2,35 @@
 import numpy as np
 import networkx as nx
 import itertools as it
+from ..lattices import LATTICE_2, LATTICE_3, LATTICE_4
 
+BOTTOM_2: tuple = ((0,), (1,))
+BOTTOM_3: tuple = ((0,), (1,), (2,))
+BOTTOM_4: tuple = ((0,), (1,), (2,), (3,))
 
-COV_NULL = np.array([[-1]])
+PATHS_2: dict = nx.shortest_paths.shortest_path_length(
+    LATTICE_2, source=None, target=BOTTOM_2
+)
+LAYERS_2: dict = {
+    val: {key for key in PATHS_2.keys() if PATHS_2[key] == val}
+    for val in set(PATHS_2.values())
+}
 
-# %% LIBRARY
+PATHS_3: dict = nx.shortest_paths.shortest_path_length(
+    LATTICE_3, source=None, target=BOTTOM_3
+)
+LAYERS_3: dict = {
+    val: {key for key in PATHS_3.keys() if PATHS_3[key] == val}
+    for val in set(PATHS_3.values())
+}
 
+PATHS_4: dict = nx.shortest_paths.shortest_path_length(
+    LATTICE_4, source=None, target=BOTTOM_4
+)
+LAYERS_4: dict = {
+    val: {key for key in PATHS_4.keys() if PATHS_4[key] == val}
+    for val in set(PATHS_4.values())
+}
 
 def make_powerset(iterable):
     """
@@ -555,35 +578,7 @@ def mobius_inversion(
         The pointwise and average partial information atom dictionaries.
 
     """
-    from syntropy.lattices import LATTICE_2, LATTICE_3, LATTICE_4
 
-    BOTTOM_2: tuple = ((0,), (1,))
-    BOTTOM_3: tuple = ((0,), (1,), (2,))
-    BOTTOM_4: tuple = ((0,), (1,), (2,), (3,))
-
-    PATHS_2: dict = nx.shortest_paths.shortest_path_length(
-        LATTICE_2, source=None, target=BOTTOM_2
-    )
-    LAYERS_2: dict = {
-        val: {key for key in PATHS_2.keys() if PATHS_2[key] == val}
-        for val in set(PATHS_2.values())
-    }
-
-    PATHS_3: dict = nx.shortest_paths.shortest_path_length(
-        LATTICE_3, source=None, target=BOTTOM_3
-    )
-    LAYERS_3: dict = {
-        val: {key for key in PATHS_3.keys() if PATHS_3[key] == val}
-        for val in set(PATHS_3.values())
-    }
-
-    PATHS_4: dict = nx.shortest_paths.shortest_path_length(
-        LATTICE_4, source=None, target=BOTTOM_4
-    )
-    LAYERS_4: dict = {
-        val: {key for key in PATHS_4.keys() if PATHS_4[key] == val}
-        for val in set(PATHS_4.values())
-    }
 
     decomposition_lower = decomposition.lower()
     assert decomposition_lower in {

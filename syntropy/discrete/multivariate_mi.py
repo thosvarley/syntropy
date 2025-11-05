@@ -1,14 +1,14 @@
 import numpy as np
 import itertools as it
 from scipy.special import comb
-from syntropy.discrete.utils import (
+from .utils import (
     reduce_state,
     get_marginal_distribution,
     marginalize_out,
     get_all_marginal_distributions,
 )
-from syntropy.discrete.shannon import kullback_leibler_divergence, shannon_entropy
-from syntropy.discrete.optimization import constrained_maximum_entropy_distributions
+from .shannon import kullback_leibler_divergence, shannon_entropy
+from .optimization import constrained_maximum_entropy_distributions
 
 binom_lookup = {N: {k: comb(N, k, exact=True) for k in range(N)} for N in range(16)}
 

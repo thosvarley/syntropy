@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>syntropy.gaussian.shannon &#8212; Syntropy 1.0.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/basic.css?v=b08954a9" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/alabaster.css?v=27fed22d" />
+    <script src="../../../_static/documentation_options.js?v=8d563738"></script>
+    <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for syntropy.gaussian.shannon</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">scipy.stats</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">stats</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">numpy.typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">NDArray</span>
+
+<span class="n">H_SINGLE</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mf">2.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">e</span><span class="p">))</span>
+<span class="n">LN_TWO_PI_E</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="mf">2.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">e</span><span class="p">)</span>
+<span class="n">TWO_PI</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span>
+<span class="n">SQRT_TWO_PI</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">TWO_PI</span><span class="p">)</span>
+
+<span class="n">COV_NULL</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="o">-</span><span class="mf">1.0</span><span class="p">]])</span>
+
+
+<div class="viewcode-block" id="differential_entropy">
+<a class="viewcode-back" href="../../../api/syntropy.gaussian.html#syntropy.gaussian.differential_entropy">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">differential_entropy</span><span class="p">(</span>
+    <span class="n">cov</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">],</span> <span class="n">idxs</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,)</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Computes the expected differential entropy of a multivariate</span>
+<span class="sd">    distribution parameterized by a covariance matrix using a</span>
+<span class="sd">    Gaussian estimator.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    cov : NDArray[np.floating]</span>
+<span class="sd">        The covariance matrix that defines the distribution.</span>
+<span class="sd">    idxs : tuple[int, ...], optional</span>
+<span class="sd">        The specific subset of variables to compute the total correlation of.</span>
+<span class="sd">        Defaults to computing the TC of the entire covariance matrix.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    float</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">idxs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">stats</span><span class="o">.</span><span class="n">multivariate_normal</span><span class="p">(</span><span class="n">cov</span><span class="o">=</span><span class="n">cov</span><span class="p">,</span> <span class="n">allow_singular</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">entropy</span><span class="p">()</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">idxs</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">H_SINGLE</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">stats</span><span class="o">.</span><span class="n">multivariate_normal</span><span class="p">(</span>
+                <span class="n">cov</span><span class="o">=</span><span class="n">cov</span><span class="p">[</span><span class="n">idxs</span><span class="p">,</span> <span class="p">:][:,</span> <span class="n">idxs</span><span class="p">],</span> <span class="n">allow_singular</span><span class="o">=</span><span class="kc">True</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">entropy</span><span class="p">()</span></div>
+
+
+
+<div class="viewcode-block" id="local_differential_entropy">
+<a class="viewcode-back" href="../../../api/syntropy.gaussian.html#syntropy.gaussian.local_differential_entropy">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">local_differential_entropy</span><span class="p">(</span>
+    <span class="n">data</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">],</span> <span class="n">cov</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">]</span> <span class="o">=</span> <span class="n">COV_NULL</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Computes the framewise differential entropy for a set of variables.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    data : NDArray[np.floating]</span>
+<span class="sd">        The data in channels x samples format.</span>
+<span class="sd">    cov : NDArray[np.floating], optional</span>
+<span class="sd">        The covariance matrix that defines the distribution.</span>
+<span class="sd">        If none is provided, it is computed from the data object.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    NDArray[np.floating]</span>
+<span class="sd">        The series of pointwise entropies.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">N</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="k">if</span> <span class="n">cov</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+        <span class="n">cov</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">cov</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">ddof</span><span class="o">=</span><span class="mf">0.0</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">cov</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">*</span> <span class="n">cov</span>
+
+    <span class="k">if</span> <span class="n">N</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">return</span> <span class="o">-</span><span class="n">stats</span><span class="o">.</span><span class="n">norm</span><span class="o">.</span><span class="n">logpdf</span><span class="p">(</span>
+            <span class="n">x</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">loc</span><span class="o">=</span><span class="n">data</span><span class="o">.</span><span class="n">mean</span><span class="p">(),</span> <span class="n">scale</span><span class="o">=</span><span class="n">data</span><span class="o">.</span><span class="n">std</span><span class="p">(),</span> <span class="n">allow_singular</span><span class="o">=</span><span class="kc">True</span>
+        <span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="o">-</span><span class="p">(</span>
+            <span class="n">stats</span><span class="o">.</span><span class="n">multivariate_normal</span><span class="o">.</span><span class="n">logpdf</span><span class="p">(</span>
+                <span class="n">x</span><span class="o">=</span><span class="n">data</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">mean</span><span class="o">=</span><span class="n">data</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">),</span> <span class="n">cov</span><span class="o">=</span><span class="n">cov</span><span class="p">,</span> <span class="n">allow_singular</span><span class="o">=</span><span class="kc">True</span>
+            <span class="p">)</span>
+        <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="conditional_entropy">
+<a class="viewcode-back" href="../../../api/syntropy.gaussian.html#syntropy.gaussian.conditional_entropy">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">conditional_entropy</span><span class="p">(</span>
+    <span class="n">idxs_x</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span>
+    <span class="n">idxs_y</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span>
+    <span class="n">cov</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">]</span> <span class="o">=</span> <span class="n">COV_NULL</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Computes the conditional entropy of X given Y.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    idxs_x : tuple</span>
+<span class="sd">        The indices of the variables to compute the conditional entropy on.</span>
+<span class="sd">    idxs_y : tuple</span>
+<span class="sd">        The indices of the conditioning set.</span>
+<span class="sd">    cov : NDArray[np.floating], optional</span>
+<span class="sd">        The covariance matrix that defines the distribution.</span>
+<span class="sd">        If none is provided, it is computed from the data object.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    float</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">joint</span> <span class="o">=</span> <span class="n">idxs_x</span> <span class="o">+</span> <span class="n">idxs_y</span>
+
+    <span class="n">h_joint</span> <span class="o">=</span> <span class="n">differential_entropy</span><span class="p">(</span><span class="n">cov</span><span class="p">,</span> <span class="n">joint</span><span class="p">)</span>
+    <span class="n">h_y</span> <span class="o">=</span> <span class="n">differential_entropy</span><span class="p">(</span><span class="n">cov</span><span class="p">,</span> <span class="n">idxs_y</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">h_joint</span> <span class="o">-</span> <span class="n">h_y</span></div>
+
+
+
+<div class="viewcode-block" id="local_conditional_entropy">
+<a class="viewcode-back" href="../../../api/syntropy.gaussian.html#syntropy.gaussian.local_conditional_entropy">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">local_conditional_entropy</span><span class="p">(</span>
+    <span class="n">idxs_x</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span>
+    <span class="n">idxs_y</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span>
+    <span class="n">data</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">],</span>
+    <span class="n">cov</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">]</span> <span class="o">=</span> <span class="n">COV_NULL</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Computes the local condition entropy for every sample in data.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    idxs_x : tuple</span>
+<span class="sd">        The indices of the variables to compute the conditional entropy on.</span>
+<span class="sd">    idxs_y : tuple</span>
+<span class="sd">        The indices of the conditioning set.</span>
+<span class="sd">    data : NDArray[np.floating]</span>
+<span class="sd">        The data in channels x samples format.</span>
+<span class="sd">    cov : NDArray[np.floating], optional</span>
+<span class="sd">        The covariance matrix that defines the distribution.</span>
+<span class="sd">        If none is provided, it is computed from the data object.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    NDArray[np.floating]</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">joint</span> <span class="o">=</span> <span class="n">idxs_x</span> <span class="o">+</span> <span class="n">idxs_y</span>
+
+    <span class="n">h_y</span> <span class="o">=</span> <span class="n">local_differential_entropy</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">idxs_y</span><span class="p">,</span> <span class="p">:],</span> <span class="n">cov</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ix_</span><span class="p">(</span><span class="n">idxs_y</span><span class="p">,</span> <span class="n">idxs_y</span><span class="p">)])</span>
+    <span class="n">h_joint</span> <span class="o">=</span> <span class="n">local_differential_entropy</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">joint</span><span class="p">,</span> <span class="p">:],</span> <span class="n">cov</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ix_</span><span class="p">(</span><span class="n">joint</span><span class="p">,</span> <span class="n">joint</span><span class="p">)])</span>
+
+    <span class="k">return</span> <span class="n">h_joint</span> <span class="o">-</span> <span class="n">h_y</span></div>
+
+
+
+<div class="viewcode-block" id="mutual_information">
+<a class="viewcode-back" href="../../../api/syntropy.gaussian.html#syntropy.gaussian.mutual_information">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">mutual_information</span><span class="p">(</span>
+    <span class="n">idxs_x</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span> <span class="n">idxs_y</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span> <span class="n">cov</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">]</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Computes the mutual information between the idxs_x and the idxs_y.</span>
+<span class="sd">    Note that the mutual information is symmetric in its arguments.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    idxs_x : tuple</span>
+<span class="sd">        The indices of the source variables. Can be multivariate.</span>
+<span class="sd">    idxs_y : tuple</span>
+<span class="sd">        The indices of the idxs_y variable. Can be multivariate.</span>
+<span class="sd">    cov : NDArray[np.floating]</span>
+<span class="sd">        The covariance matrix that defines the distribution.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    float</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">joint</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="n">idxs_x</span> <span class="o">+</span> <span class="n">idxs_y</span>
+
+    <span class="n">cov_idxs_x</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">]</span> <span class="o">=</span> <span class="n">cov</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ix_</span><span class="p">(</span><span class="n">idxs_x</span><span class="p">,</span> <span class="n">idxs_x</span><span class="p">)]</span>
+    <span class="n">cov_idxs_y</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">]</span> <span class="o">=</span> <span class="n">cov</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ix_</span><span class="p">(</span><span class="n">idxs_y</span><span class="p">,</span> <span class="n">idxs_y</span><span class="p">)]</span>
+    <span class="n">cov_joint</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">]</span> <span class="o">=</span> <span class="n">cov</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ix_</span><span class="p">(</span><span class="n">joint</span><span class="p">,</span> <span class="n">joint</span><span class="p">)]</span>
+
+    <span class="n">det_idxs_x</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">idxs_x</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">det_idxs_x</span> <span class="o">+=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">det</span><span class="p">([[</span><span class="n">cov_idxs_x</span><span class="p">]])</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">det_idxs_x</span> <span class="o">+=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">det</span><span class="p">(</span><span class="n">cov_idxs_x</span><span class="p">)</span>
+
+    <span class="n">det_idxs_y</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">idxs_y</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">det_idxs_y</span> <span class="o">+=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">det</span><span class="p">([[</span><span class="n">cov_idxs_y</span><span class="p">]])</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">det_idxs_y</span> <span class="o">+=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">det</span><span class="p">(</span><span class="n">cov_idxs_y</span><span class="p">)</span>
+
+    <span class="n">det_joint</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">det</span><span class="p">(</span><span class="n">cov_joint</span><span class="p">)</span>
+
+    <span class="n">dets</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="p">(</span><span class="n">det_idxs_x</span> <span class="o">*</span> <span class="n">det_idxs_y</span><span class="p">)</span> <span class="o">/</span> <span class="n">det_joint</span>
+
+    <span class="k">return</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">dets</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">item</span><span class="p">()</span></div>
+
+
+
+<div class="viewcode-block" id="local_mutual_information">
+<a class="viewcode-back" href="../../../api/syntropy.gaussian.html#syntropy.gaussian.local_mutual_information">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">local_mutual_information</span><span class="p">(</span>
+    <span class="n">idxs_x</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span>
+    <span class="n">idxs_y</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span>
+    <span class="n">data</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">],</span>
+    <span class="n">cov</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">]</span> <span class="o">=</span> <span class="n">COV_NULL</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Computes the local mutual information between X and Y for every sample in data.</span>
+<span class="sd">    Note that the local mutual information can be negative.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    idxs_x : tuple</span>
+<span class="sd">        The indices of the source variables. Can be multivariate.</span>
+<span class="sd">    idxs_y : tuple</span>
+<span class="sd">        The indices of the idxs_y variable. Can be multivariate.</span>
+<span class="sd">    data : NDArray[np.floating]</span>
+<span class="sd">        The data in channels x samples format.</span>
+<span class="sd">    cov : NDArray[np.floating], optional</span>
+<span class="sd">        The covariance matrix that defines the distribution.</span>
+<span class="sd">        If none is provided, it is computed from the data object.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">     NDArray[np.floating]</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">cov</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+        <span class="n">cov</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cov</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">ddof</span><span class="o">=</span><span class="mf">0.0</span><span class="p">)</span>
+
+    <span class="n">joint</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="n">idxs_x</span> <span class="o">+</span> <span class="n">idxs_y</span>
+
+    <span class="n">h_x</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">]</span> <span class="o">=</span> <span class="n">local_differential_entropy</span><span class="p">(</span>
+        <span class="n">data</span><span class="p">[</span><span class="n">idxs_x</span><span class="p">,</span> <span class="p">:],</span> <span class="n">cov</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ix_</span><span class="p">(</span><span class="n">idxs_x</span><span class="p">,</span> <span class="n">idxs_x</span><span class="p">)]</span>
+    <span class="p">)</span>
+    <span class="n">h_y</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">]</span> <span class="o">=</span> <span class="n">local_differential_entropy</span><span class="p">(</span>
+        <span class="n">data</span><span class="p">[</span><span class="n">idxs_y</span><span class="p">,</span> <span class="p">:],</span> <span class="n">cov</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ix_</span><span class="p">(</span><span class="n">idxs_y</span><span class="p">,</span> <span class="n">idxs_y</span><span class="p">)]</span>
+    <span class="p">)</span>
+    <span class="n">h_joint</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">]</span> <span class="o">=</span> <span class="n">local_differential_entropy</span><span class="p">(</span>
+        <span class="n">data</span><span class="p">[</span><span class="n">joint</span><span class="p">,</span> <span class="p">:],</span> <span class="n">cov</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ix_</span><span class="p">(</span><span class="n">joint</span><span class="p">,</span> <span class="n">joint</span><span class="p">)]</span>
+    <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">h_x</span> <span class="o">+</span> <span class="n">h_y</span> <span class="o">-</span> <span class="n">h_joint</span></div>
+
+
+
+<div class="viewcode-block" id="conditional_mutual_information">
+<a class="viewcode-back" href="../../../api/syntropy.gaussian.html#syntropy.gaussian.conditional_mutual_information">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">conditional_mutual_information</span><span class="p">(</span>
+    <span class="n">idxs_x</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span>
+    <span class="n">idxs_y</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span>
+    <span class="n">idxs_z</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span>
+    <span class="n">cov</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">],</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Computes the expected mutual information between a set of variables X</span>
+<span class="sd">    and Y, conditional on a third set Z.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    idxs_x : tuple</span>
+<span class="sd">        The indices of the X variables. Can be multivariate.</span>
+<span class="sd">    idxs_y : tuple</span>
+<span class="sd">        The indices of the Y variable. Can be multivariate.</span>
+<span class="sd">    idxs_z : tuple</span>
+<span class="sd">        The indices of the conditioning set. Can be multivariate.</span>
+<span class="sd">    cov : NDArray[np.floating]</span>
+<span class="sd">        The covariance matrix that defines the distribution.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    float</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">joint</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="n">idxs_x</span> <span class="o">+</span> <span class="n">idxs_y</span>
+
+    <span class="n">h_x_z</span> <span class="o">=</span> <span class="n">conditional_entropy</span><span class="p">(</span><span class="n">idxs_x</span><span class="p">,</span> <span class="n">idxs_z</span><span class="p">,</span> <span class="n">cov</span><span class="p">)</span>
+    <span class="n">h_y_z</span> <span class="o">=</span> <span class="n">conditional_entropy</span><span class="p">(</span><span class="n">idxs_y</span><span class="p">,</span> <span class="n">idxs_z</span><span class="p">,</span> <span class="n">cov</span><span class="p">)</span>
+    <span class="n">h_xy_z</span> <span class="o">=</span> <span class="n">conditional_entropy</span><span class="p">(</span><span class="n">joint</span><span class="p">,</span> <span class="n">idxs_z</span><span class="p">,</span> <span class="n">cov</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">h_x_z</span> <span class="o">+</span> <span class="n">h_y_z</span> <span class="o">-</span> <span class="n">h_xy_z</span></div>
+
+
+
+<div class="viewcode-block" id="local_conditional_mutual_information">
+<a class="viewcode-back" href="../../../api/syntropy.gaussian.html#syntropy.gaussian.local_conditional_mutual_information">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">local_conditional_mutual_information</span><span class="p">(</span>
+    <span class="n">idxs_x</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span>
+    <span class="n">idxs_y</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span>
+    <span class="n">idxs_z</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span>
+    <span class="n">data</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">],</span>
+    <span class="n">cov</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">]</span> <span class="o">=</span> <span class="n">COV_NULL</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Computes the local conditional mutual information between</span>
+<span class="sd">    two sets of variables X and Y, conditional on another set Z.</span>
+
+<span class="sd">    Returns a numpy array with one value for every sample.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    idxs_x : tuple</span>
+<span class="sd">        The indices of the X variables. Can be multivariate.</span>
+<span class="sd">    idxs_y : tuple</span>
+<span class="sd">        The indices of the Y variable. Can be multivariate.</span>
+<span class="sd">    idxs_z : tuple</span>
+<span class="sd">        The indices of the conditioning set. Can be multivariate.</span>
+<span class="sd">    data : NDArray[np.floating]</span>
+<span class="sd">         The data in channels x samples format.</span>
+<span class="sd">    cov : NDArray[np.floating], optional</span>
+<span class="sd">        The covariance matrix that defines the distribution.</span>
+<span class="sd">        If none is provided, it is computed from the data object.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    NDArray[np.floating]</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">cov</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+        <span class="n">cov</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cov</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">ddof</span><span class="o">=</span><span class="mf">0.0</span><span class="p">)</span>
+
+    <span class="n">joint</span> <span class="o">=</span> <span class="n">idxs_x</span> <span class="o">+</span> <span class="n">idxs_y</span>
+
+    <span class="n">h_x_z</span> <span class="o">=</span> <span class="n">local_conditional_entropy</span><span class="p">(</span><span class="n">idxs_x</span><span class="p">,</span> <span class="n">idxs_z</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">cov</span><span class="p">)</span>
+    <span class="n">h_y_z</span> <span class="o">=</span> <span class="n">local_conditional_entropy</span><span class="p">(</span><span class="n">idxs_y</span><span class="p">,</span> <span class="n">idxs_z</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">cov</span><span class="p">)</span>
+    <span class="n">h_xy_z</span> <span class="o">=</span> <span class="n">local_conditional_entropy</span><span class="p">(</span><span class="n">joint</span><span class="p">,</span> <span class="n">idxs_z</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">cov</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">h_x_z</span> <span class="o">+</span> <span class="n">h_y_z</span> <span class="o">-</span> <span class="n">h_xy_z</span></div>
+
+
+
+<div class="viewcode-block" id="kullback_leibler_divergence">
+<a class="viewcode-back" href="../../../api/syntropy.gaussian.html#syntropy.gaussian.kullback_leibler_divergence">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">kullback_leibler_divergence</span><span class="p">(</span>
+    <span class="n">cov_posterior</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">],</span> <span class="n">cov_prior</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">]</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Computes the Gaussian Kullback-Leibler divergence between</span>
+<span class="sd">    two multivariate Gaussians parameterized by covariance matrices.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    cov_posterior : NDArray[np.floating]</span>
+<span class="sd">        The covariance matrix that defines the posterior distribution.</span>
+<span class="sd">    cov_prior : NDArray[np.floating]</span>
+<span class="sd">        The covariance matrix that defines the prior distribution .</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    float</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">N</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">cov_prior</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>  <span class="c1"># Dimensionality</span>
+
+    <span class="k">assert</span> <span class="n">N</span> <span class="o">==</span> <span class="n">cov_posterior</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s2">&quot;The covariance matrices must be the same size&quot;</span>
+
+    <span class="n">inv_prior</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">inv</span><span class="p">(</span><span class="n">cov_prior</span><span class="p">)</span>  <span class="c1"># Inverse of Sigma2</span>
+    <span class="n">trace_term</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">trace</span><span class="p">(</span><span class="n">inv_prior</span> <span class="o">@</span> <span class="n">cov_posterior</span><span class="p">)</span>  <span class="c1"># tr(Sigma2^{-1} Sigma1)</span>
+    <span class="n">log_det_term</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">slogdet</span><span class="p">(</span><span class="n">cov_prior</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">slogdet</span><span class="p">(</span><span class="n">cov_posterior</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="p">)</span>  <span class="c1"># log(det(Sigma2)/det(Sigma1))</span>
+
+    <span class="k">return</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="n">trace_term</span> <span class="o">-</span> <span class="n">N</span> <span class="o">+</span> <span class="n">log_det_term</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="local_kullback_leibler_divergence">
+<a class="viewcode-back" href="../../../api/syntropy.gaussian.html#syntropy.gaussian.local_kullback_leibler_divergence">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">local_kullback_leibler_divergence</span><span class="p">(</span>
+    <span class="n">cov_posterior</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">],</span>
+    <span class="n">cov_prior</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">],</span>
+    <span class="n">data</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">],</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Computes the local Kullback-Leibler divergence between the</span>
+<span class="sd">    posterior and the prior for every sample in the data.</span>
+
+<span class="sd">    The local KL divergence is a rarely used measure, for details, see:</span>
+
+<span class="sd">    Varley, T. F. (2024).</span>
+<span class="sd">    Generalized decomposition of multivariate information.</span>
+<span class="sd">    PLOS ONE, 19(2), e0297128.</span>
+<span class="sd">    https://doi.org/10.1371/journal.pone.0297128</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    cov_posterior : NDArray[np.floating]</span>
+<span class="sd">        The covariance matrix that defines the posterior distribution.</span>
+<span class="sd">    cov_prior : NDArray[np.floating]</span>
+<span class="sd">        The covariance matrix that defines the prior distribution .</span>
+<span class="sd">    data : NDArray[np.floating]</span>
+<span class="sd">        The data, assumed to be in channels x samples format.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    NDArray[np.floating].</span>
+<span class="sd">        The local Kullback-Leibler divergence.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">h_posterior</span> <span class="o">=</span> <span class="n">local_differential_entropy</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">cov_posterior</span><span class="p">)</span>
+    <span class="n">h_prior</span> <span class="o">=</span> <span class="n">local_differential_entropy</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">cov_prior</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">h_prior</span> <span class="o">-</span> <span class="n">h_posterior</span></div>
+
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../index.html">Syntropy</a></h1>
+
+
+
+
+
+
+
+
+
+<search id="searchbox" style="display: none" role="search">
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Search"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script><h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2025, Thomas F. Varley.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 8.2.3</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>
