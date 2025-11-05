@@ -1,11 +1,12 @@
 import numpy as np
 from syntropy.gaussian.utils import COV_NULL
 from syntropy.gaussian.shannon import local_differential_entropy
+from numpy.typing import NDArray
 
 
 def local_total_correlation(
-    data: np.ndarray, cov: np.ndarray, idxs: tuple = (-1,)
-) -> np.ndarray:
+    data: NDArray[np.floating], cov: NDArray[np.floating], idxs: tuple[int, ...] = (-1,)
+) -> NDArray[np.floating]:
     """
     The local total correlation.
 
@@ -19,13 +20,13 @@ def local_total_correlation(
 
     Parameters
     ----------
-    data : np.ndarray
+    data : NDArray[np.floating]
         The data in channels x samples format.
     inptuts: tuple
         The indices of the channels to include.
     Returns
     -------
-    np.ndarray
+    NDArray[np.floating]
         The local total correaltion for each frame.
 
     """
@@ -48,9 +49,13 @@ def local_total_correlation(
     return sum_parts - whole
 
 
-def total_correlation(cov: np.ndarray, idxs: tuple = (-1,)) -> float:
+def total_correlation(
+    cov: NDArray[np.floating], idxs: tuple[int, ...] = (-1,)
+) -> float:
     """
     The expected total correlation.
+
+    :math: TC(X) = \\sum_{i=1}^{N}H(X_i) - H(X)
 
     See:
         Watanabe, S. (1960). Information Theoretical Analysis of Multivariate Correlation.
@@ -65,7 +70,7 @@ def total_correlation(cov: np.ndarray, idxs: tuple = (-1,)) -> float:
 
     Parameters
     ----------
-    cov : np.ndarray
+    cov : NDArray[np.floating]
         The covariance matrix.
     idxs : tuple, optional
         The specific subset of variables to compute the total correlation of.
@@ -81,30 +86,38 @@ def total_correlation(cov: np.ndarray, idxs: tuple = (-1,)) -> float:
     else:
         _idxs = idxs
 
-    _cov: np.ndarray = cov[np.ix_(_idxs, _idxs)]
+    _cov: NDArray[np.floating] = cov[np.ix_(_idxs, _idxs)]
 
     # Converting to a correlation/coherence matrix.
-    diag: np.ndarray = np.sqrt(np.diag(_cov))
-    d_inv: np.ndarray = np.diag(1.0 / diag)
+    diag: NDArray[np.floating] = np.sqrt(np.diag(_cov))
+    d_inv: NDArray[np.floating] = np.diag(1.0 / diag)
 
-    corr: np.ndarray = d_inv @ _cov @ d_inv
+    corr: NDArray[np.floating] = d_inv @ _cov @ d_inv
 
     return -np.linalg.slogdet(corr)[1] / 2
 
 
 def local_k_wms(
-    k: int, data: np.ndarray, cov: np.ndarray, idxs: tuple = (-1,)
-) -> np.ndarray:
+    k: int,
+    data: NDArray[np.floating],
+    cov: NDArray[np.floating],
+    idxs: tuple[int, ...] = (-1,),
+) -> NDArray[np.floating]:
     """
+    A utility function that computes the local generalized form
+    of the O-information, S-information, and DTC.
+
+    :math:`k_{WMS}(x) = (N-k)tc(x) - \\sum_{i=1}^{N} tc(x^{-i})`
+
 
     Parameters
     ----------
     k : int
         The integer value that defines whether one is computing
         S-info, DTC, or negative O-information.
-    data : np.ndarray
+    data : NDArray[np.floating]
         The data in channels x samples format.
-    cov : np.ndarray, optional
+    cov : NDArray[np.floating], optional
         The covariance matrix that defines the distribution.
         If unspecified it is computed directly from the data.
     idxs : tuple, optional
@@ -113,19 +126,17 @@ def local_k_wms(
 
     Returns
     -------
-    np.ndarray.
+    NDArray[np.floating].
         The series of local k_{wms}.
 
     """
     if idxs[0] == -1:
-        _idxs: tuple = tuple(i for i in range(data.shape[0]))
+        _idxs: tuple[int, ...] = tuple(i for i in range(data.shape[0]))
     else:
         _idxs = idxs
 
     N: int = len(_idxs)
-    whole = (N - k) * local_total_correlation(
-        data[_idxs, :], cov[np.ix_(_idxs, _idxs)]
-    )
+    whole = (N - k) * local_total_correlation(data[_idxs, :], cov[np.ix_(_idxs, _idxs)])
 
     sum_parts = np.zeros_like(whole)
 
@@ -136,7 +147,7 @@ def local_k_wms(
     return whole - sum_parts
 
 
-def k_wms(k: int, cov: np.ndarray, idxs: tuple = (-1,)) -> float:
+def k_wms(k: int, cov: NDArray[np.floating], idxs: tuple[int, ...] = (-1,)) -> float:
     """
     A utility function that computes the generalized form
     of the O-information, S-information, and DTC.
@@ -148,7 +159,7 @@ def k_wms(k: int, cov: np.ndarray, idxs: tuple = (-1,)) -> float:
     k : int
         The integer value that defines whether one is computing
         S-info, DTC, or negative O-information.
-    cov : np.ndarray
+    cov : NDArray[np.floating]
         The covariance matrix that defines the distribution.
     idxs : tuple, optional
         The specific subset of variables to compute the total correlation of.
@@ -161,7 +172,7 @@ def k_wms(k: int, cov: np.ndarray, idxs: tuple = (-1,)) -> float:
     """
 
     if idxs[0] == -1:
-        _idxs: tuple = tuple(i for i in range(cov.shape[0]))
+        _idxs: tuple[int, ...] = tuple(i for i in range(cov.shape[0]))
     else:
         _idxs = idxs
 
@@ -171,23 +182,28 @@ def k_wms(k: int, cov: np.ndarray, idxs: tuple = (-1,)) -> float:
     sum_parts: float = 0.0
 
     for i in range(N):
-        idxs: tuple = tuple(_idxs[j] for j in range(N) if j != i)
+        idxs: tuple[int, ...] = tuple(_idxs[j] for j in range(N) if j != i)
         sum_parts += total_correlation(cov[idxs, :][:, idxs])
 
     return whole - sum_parts
 
 
 def local_s_information(
-    data: np.ndarray, cov: np.ndarray = COV_NULL, idxs: tuple = (-1,)
-) -> np.ndarray:
+    data: NDArray[np.floating],
+    cov: NDArray[np.floating] = COV_NULL,
+    idxs: tuple[int, ...] = (-1,),
+) -> NDArray[np.floating]:
     """
-    s(x) = N*tc(x) - \sum tc(x^-i)
+    Compute local S-information using Gaussian estimation.
+
+    :math: `\sigma(x) = tc(x) + dtc(x)`
+    :math: `\sigma(x) = \\sum_{i=1}^{N}i(x_i ; x^{-i})`
 
     Parameters
     ----------
-    data : np.ndarray
+    data : NDArray[np.floating]
         The data in channels x samples format.
-    cov : np.ndarray, optional
+    cov : NDArray[np.floating], optional
         The covariance matrix that defines the distribution.
         If unspecified it is computed directly from the data.
     idxs : tuple, optional
@@ -196,7 +212,7 @@ def local_s_information(
 
     Returns
     -------
-    np.ndarray.
+    NDArray[np.floating].
         The series of local S-information.
     """
 
@@ -206,8 +222,13 @@ def local_s_information(
     return local_k_wms(k=0, data=data, cov=cov, idxs=idxs)
 
 
-def s_information(cov: np.ndarray, idxs: tuple = (-1,)) -> float:
+def s_information(cov: NDArray[np.floating], idxs: tuple[int, ...] = (-1,)) -> float:
     """
+    Compute S-information using Gaussian estimation.
+
+    :math: `\Sigma(X) = TC(X) + DTC(X)`
+    :math: `\Sigma(X) = \\sum_{i=1}^{N}I(X_i ; X^{-i})`
+
     See:
         Rosas, F., Mediano, P. A. M., Gastpar, M., & Jensen, H. J. (2019).
         Quantifying High-order Interdependencies via Multivariate
@@ -222,9 +243,9 @@ def s_information(cov: np.ndarray, idxs: tuple = (-1,)) -> float:
 
     Parameters
     ----------
-    data : np.ndarray
+    data : NDArray[np.floating]
         The data in channels x samples format.
-    cov : np.ndarray
+    cov : NDArray[np.floating]
         The covariance matrix that defines the distribution.
     idxs : tuple, optional
         The specific subset of variables to compute the total correlation of.
@@ -241,16 +262,19 @@ def s_information(cov: np.ndarray, idxs: tuple = (-1,)) -> float:
 
 
 def local_dual_total_correlation(
-    data: np.ndarray, cov: np.ndarray = COV_NULL, idxs: tuple = (-1,)
-) -> np.ndarray:
+    data: NDArray[np.floating],
+    cov: NDArray[np.floating] = COV_NULL,
+    idxs: tuple[int, ...] = (-1,),
+) -> NDArray[np.floating]:
     """
-    dtc(x) = (N-1)tc(x) + \sum tc(x^-i)
+    :math: `dtc(x) = h(x) - \\sum_{i=1}^{N}h(x_i|x^{-i})`
+    :math: `dtc(x) = (N-1)tc(x) + \sum tc(x^-i)`
 
     Parameters
     ----------
-    data : np.ndarray
+    data : NDArray[np.floating]
         The data in channels x samples format.
-    cov : np.ndarray, optional
+    cov : NDArray[np.floating], optional
         The covariance matrix that defines the distribution.
         If unspecified it is computed directly from the data.
     idxs : tuple, optional
@@ -259,7 +283,7 @@ def local_dual_total_correlation(
 
     Returns
     -------
-    np.ndarray.
+    NDArray[np.floating].
         The series of local dual total correlations.
     """
 
@@ -269,9 +293,12 @@ def local_dual_total_correlation(
     return local_k_wms(k=1, data=data, cov=cov, idxs=idxs)
 
 
-def dual_total_correlation(cov: np.ndarray, idxs: tuple = (-1,)) -> float:
+def dual_total_correlation(
+    cov: NDArray[np.floating], idxs: tuple[int, ...] = (-1,)
+) -> float:
     """
-    DTC(X) = (N-1)TC(X) + \sum TC(X^-i)
+    :math: `DTC(X) = H(X) - \\sum_{i=1}^{N}H(X_i|X^{-i})`
+    :math: `DTC(X) = (N-1)TC(X) + \sum TC(X^-i)`
 
     See:
         Abdallah, S. A., & Plumbley, M. D. (2012).
@@ -288,9 +315,9 @@ def dual_total_correlation(cov: np.ndarray, idxs: tuple = (-1,)) -> float:
 
     Parameters
     ----------
-    data : np.ndarray
+    data : NDArray[np.floating]
         The data in channels x samples format.
-    cov : np.ndarray
+    cov : NDArray[np.floating]
         The covariance matrix that defines the distribution. .
     idxs : tuple, optional
         The specific subset of variables to compute the total correlation of.
@@ -307,10 +334,16 @@ def dual_total_correlation(cov: np.ndarray, idxs: tuple = (-1,)) -> float:
 
 
 def local_o_information(
-    data: np.ndarray, cov: np.ndarray = COV_NULL, idxs: tuple = (-1,)
-) -> np.ndarray:
+    data: NDArray[np.floating],
+    cov: NDArray[np.floating] = COV_NULL,
+    idxs: tuple[int, ...] = (-1,),
+) -> NDArray[np.floating]:
     """
+    Computes the local O-information for each sample using Gaussian estimation.
 
+    :math: `\omega(X) = tc(x) - dtc(x)`
+    :math: `\omega(X) = (2-N)tc(x) + \\sum_{i=1}^{N}tc(x^{-i})`
+    
     See:
         Scagliarini, T., Marinazzo, D., Guo, Y., Stramaglia, S., & Rosas, F. E. (2022).
         Quantifying high-order interdependencies on individual patterns via the local O-information: Theory and applications to music analysis.
@@ -323,9 +356,9 @@ def local_o_information(
 
     Parameters
     ----------
-    data : np.ndarray
+    data : NDArray[np.floating]
         The data in channels x samples format.
-    cov : np.ndarray, optional
+    cov : NDArray[np.floating], optional
         The covariance matrix that defines the distribution.
         If unspecified it is computed directly from the data.
     idxs : tuple, optional
@@ -334,15 +367,23 @@ def local_o_information(
 
     Returns
     -------
-    np.ndarray.
+    NDArray[np.floating].
         The series of local O-informations.
     """
 
     return -local_k_wms(k=2, data=data, cov=cov, idxs=idxs)
 
 
-def o_information(cov: np.ndarray, idxs: tuple = (-1,)) -> float:
+def o_information(cov: NDArray[np.floating], idxs: tuple[int, ...] = (-1,)) -> float:
     """
+    Compute O-information using Gaussian estimation.
+    
+    :math: `\Omega(X) = TC(X) - DTC(X)`
+    :math: `\Omega(X) = (2-N)TC(X) + \\sum_{i=1}^{N}TC(X^{-i})`
+
+    O-information quantifies the balance between redundancy (positive values)
+    and synergy (negative values) in multivariate information.
+
     See:
         Rosas, F., Mediano, P. A. M., Gastpar, M., & Jensen, H. J. (2019).
         Quantifying High-order Interdependencies via Multivariate
@@ -357,7 +398,7 @@ def o_information(cov: np.ndarray, idxs: tuple = (-1,)) -> float:
 
     Parameters
     ----------
-    cov : np.ndarray, optional
+    cov : NDArray[np.floating], optional
         The covariance matrix that defines the distribution.
         If unspecified it is computed directly from the data.
     idxs : tuple, optional
@@ -374,7 +415,7 @@ def o_information(cov: np.ndarray, idxs: tuple = (-1,)) -> float:
     return -k_wms(k=2, cov=cov, idxs=idxs)
 
 
-def tse_complexity(num_samples: int, cov: np.ndarray) -> float:
+def tse_complexity(num_samples: int, cov: NDArray[np.floating]) -> float:
     """
     Computes the Tononi-Sporns-Edelman complexity using Gaussian
     estimators.
@@ -391,7 +432,7 @@ def tse_complexity(num_samples: int, cov: np.ndarray) -> float:
     ----------
     num_samples : int
         The number of sample subsets to compute.
-    cov : np.ndarray
+    cov : NDArray[np.floating]
         The covariance matrix that defines the distribution.
 
     Returns
@@ -404,15 +445,15 @@ def tse_complexity(num_samples: int, cov: np.ndarray) -> float:
 
     tc_whole: float = total_correlation(cov)  # Global total correlation
 
-    null_tcs: np.ndarray = np.array(
+    null_tcs: NDArray[np.floating] = np.array(
         [(float(i) / float(N)) * tc_whole for i in range(1, N + 1)]
     )
-    exp_tcs: np.ndarray = np.zeros(null_tcs.shape[0])
+    exp_tcs: NDArray[np.floating] = np.zeros(null_tcs.shape[0])
     exp_tcs[-1] = tc_whole
 
     for k in range(1, N):
         # All of the samples of subsets at scale i
-        samples: np.ndarray = np.array(
+        samples: NDArray[np.floating] = np.array(
             [np.random.choice(N, size=k, replace=False) for _ in range(num_samples)]
         )
         samples.sort(axis=-1)
@@ -427,13 +468,15 @@ def tse_complexity(num_samples: int, cov: np.ndarray) -> float:
     return (null_tcs - exp_tcs).sum()
 
 
-def description_complexity(cov: np.ndarray, idxs: tuple = (-1,)) -> float:
+def description_complexity(
+    cov: NDArray[np.floating], idxs: tuple[int, ...] = (-1,)
+) -> float:
     """
     C(X) = DTC(X) / N
 
     Parameters
     ----------
-    cov : np.ndarray
+    cov : NDArray[np.floating]
         The covariance matrix that defines the distribution.
     idxs : tuple, optional
         The specific subset of variables to compute the total correlation of.
@@ -452,16 +495,18 @@ def description_complexity(cov: np.ndarray, idxs: tuple = (-1,)) -> float:
 
 
 def local_description_complexity(
-    data: np.ndarray, cov: np.ndarray = COV_NULL, idxs: tuple = (-1,)
-) -> np.ndarray:
+    data: NDArray[np.floating],
+    cov: NDArray[np.floating] = COV_NULL,
+    idxs: tuple[int, ...] = (-1,),
+) -> NDArray[np.floating]:
     """
     c(x) = dtc(x) / N
 
     Parameters
     ----------
-    data : np.ndarray
+    data : NDArray[np.floating]
         The data in channels x time format.
-    cov : np.ndarray, optional
+    cov : NDArray[np.floating], optional
         The covariance matrix that defines the distribution.
         If unspecified it is computed directly from the data.
     idxs : tuple, optional
@@ -470,7 +515,7 @@ def local_description_complexity(
 
     Returns
     -------
-    np.ndarray.
+    NDArray[np.floating].
         The series of local description complexities.
 
     """

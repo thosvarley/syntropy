@@ -1,9 +1,13 @@
 import numpy as np
 from syntropy.gaussian.utils import COV_NULL, mobius_inversion
+from numpy.typing import NDArray
 
 
 def partial_information_decomposition(
-    inputs: tuple, target: tuple, data: np.ndarray, cov: np.ndarray = COV_NULL
+    inputs: tuple[int, ...],
+    target: tuple[int, ...],
+    data: NDArray[np.floating],
+    cov: NDArray[np.floating] = COV_NULL,
 ) -> tuple[dict, dict]:
     """
      The pointwise and average partial information decomposition
@@ -17,13 +21,13 @@ def partial_information_decomposition(
 
      Parameters
      ----------
-    inputs : tuple
+     inputs : tuple[int, ...]
         The indices of the input variables.
-    target : tuple
+     target : tuple[int, ...]
         The indices of the target variable(s).
-    data : np.ndarray
+    data : NDArray[np.floating]
         The data in channels x time format.
-    cov : np.ndarray
+    cov : NDArray[np.floating]
         The covariance matrix of the data.
         The default is COV_NULL.
 
@@ -58,7 +62,9 @@ def partial_information_decomposition(
 
 
 def partial_entropy_decomposition(
-    inputs: tuple, data: np.ndarray, cov: np.ndarray = COV_NULL
+    inputs: tuple[int, ...],
+    data: NDArray[np.floating],
+    cov: NDArray[np.floating] = COV_NULL,
 ) -> tuple[dict, dict]:
     """
     Computes the partial entropy decomposition of a joint distribution
@@ -72,11 +78,11 @@ def partial_entropy_decomposition(
 
     Parameters
     ----------
-    inputs : tuple
+     inputs : tuple[int, ...]
         The indices of the elements to analyze.
-    data : np.ndarray
+    data : NDArray[np.floating]
         The numpy array, assumed to be in channels x time format.
-    cov : np.ndarray, optional
+    cov : NDArray[np.floating], optional
         The covariance matrix. If none is not provided, it is computed
         from the data directly.
 
@@ -110,7 +116,10 @@ def partial_entropy_decomposition(
 
 
 def generalized_information_decomposition(
-    inputs: tuple, data: np.ndarray, cov_posterior: np.ndarray, cov_prior: np.ndarray
+    inputs: tuple[int, ...],
+    data: NDArray[np.floating],
+    cov_posterior: NDArray[np.floating],
+    cov_prior: NDArray[np.floating],
 ) -> tuple[dict, dict]:
     """
     Computes the generalized information decomposition from Varley et al.
@@ -127,13 +136,13 @@ def generalized_information_decomposition(
 
     Parameters
     ----------
-    inputs : tuple
+     inputs : tuple[int, ...]
         The indices of the elements to analyze.
-    data : np.ndarray
+    data : NDArray[np.floating]
         The numpy array, assumed to be in channels x time format.
-    cov_posterior : np.ndarray
+    cov_posterior : NDArray[np.floating]
         The covariance matrix that defines the prior distribution.
-    cov_prior : np.ndarray
+    cov_prior : NDArray[np.floating]
         The covariance matrix that defines the posterior distribution.
 
     Returns
