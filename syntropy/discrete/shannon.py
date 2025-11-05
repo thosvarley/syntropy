@@ -1,5 +1,5 @@
 import numpy as np
-from syntropy.discrete.utils import get_marginal_distribution
+from .utils import get_marginal_distribution
 
 from typing import Any
 

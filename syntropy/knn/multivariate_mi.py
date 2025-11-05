@@ -2,7 +2,7 @@ import numpy as np
 from numpy.typing import NDArray
 from scipy.special import digamma
 from scipy.spatial import cKDTree
-from utils import check_idxs, build_tree_and_get_distances, get_counts_from_tree 
+from .utils import check_idxs, build_tree_and_get_distances, get_counts_from_tree 
 
 
 def total_correlation(
@@ -12,21 +12,8 @@ def total_correlation(
     algorithm: int = 1,
 ) -> tuple[NDArray[np.floating], float]:
     """
-    Computes the total correlation using either the first or second KSG estimator presented in 
+    A wrapper function for the two TC functions. 
 
-    Kraskov, A., Stögbauer, H., & Grassberger, P. (2004).
-    Estimating mutual information.
-    Physical Review E, 69(6), 066138.
-    https://doi.org/10.1103/PhysRevE.69.066138
-    
-    :math: `TC(X) = \\sum_{i=1}^{N}H(X_i) - H(X)`
-
-    See:
-        Watanabe, S. (1960). 
-        Information Theoretical Analysis of Multivariate Correlation.
-        IBM Journal of Research and Development, 4(1), Article 1.
-        https://doi.org/10.1147/rd.41.0066
-    
     Parameters
     ----------
     data : NDArray[np.floating]
@@ -39,6 +26,11 @@ def total_correlation(
         Whether to use algorithm 1 or 2. 
         Defaults to 1
 
+    See Also
+    --------
+    total_correlation_1 : The TC computed using algorithm 1.
+    total_correlation_2 : The TC computed using algorithm 2.
+
     Returns
     -------
     NDArray[np.floating 
@@ -47,6 +39,7 @@ def total_correlation(
         The expected total correlation over all samples
 
     """
+    
     assert algorithm in {1, 2}, "Algorithm must be 1 or 2."
 
     if algorithm == 1:
@@ -59,14 +52,10 @@ def total_correlation_1(
     data: NDArray[np.floating], k: int, idxs: tuple[int, ...] = (-1,)
 ) -> tuple[NDArray[np.floating], float]:
     """
-    Computes the Kraskov, Stogbauer, Grassberger estimate of the total correlation using the first algorithm presented in:
+    Computes the Kraskov, Stogbauer, Grassberger estimate of the total correlation using the first algorithm presented Kraskov et. al (2004) 
     
-    Kraskov, A., Stögbauer, H., & Grassberger, P. (2004).
-    Estimating mutual information.
-    Physical Review E, 69(6), 066138.
-    https://doi.org/10.1103/PhysRevE.69.066138
-    
-    :math: `TC(X) = \psi(k) - (m-1)\psi(N) - \rangle \psi(n_{x_{1}}+1) + \ldots + \psi(n_{x_{N}}+1)\langle`
+    .. math:: 
+        \hat{TC}(X) = \psi(k) - (m-1)\psi(N) -\\langle \psi(n_{x_{1}}+1) + \ldots + \psi(n_{x_{N}}+1)\\rangle
 
     Parameters
     ----------
@@ -84,6 +73,18 @@ def total_correlation_1(
     float
         The expected total correlation over all samples
 
+    References
+    ----------
+    Kraskov, A., Stögbauer, H., & Grassberger, P. (2004).
+    Estimating mutual information.
+    Physical Review E, 69(6), 066138.
+    https://doi.org/10.1103/PhysRevE.69.066138
+    
+    Watanabe, S. (1960). 
+    Information Theoretical Analysis of Multivariate Correlation.
+    IBM Journal of Research and Development, 4(1), Article 1.
+    https://doi.org/10.1147/rd.41.0066
+    
     """
     idxs_: tuple[int,...] = check_idxs(idxs, data.shape[0])
 
@@ -114,14 +115,10 @@ def total_correlation_2(
     data: NDArray[np.floating], k: int, idxs: tuple[int, ...] = (-1,)
 ) -> tuple[NDArray[np.floating], float]:
     """
-    Computes the Kraskov, Stogbauer, Grassberger estimate of the total correlation using the second algorithm presented in:
+    Computes the Kraskov, Stogbauer, Grassberger estimate of the total correlation using the second algorithm presented in Kraskov et. al., (2004).
     
-    Kraskov, A., Stögbauer, H., & Grassberger, P. (2004).
-    Estimating mutual information.
-    Physical Review E, 69(6), 066138.
-    https://doi.org/10.1103/PhysRevE.69.066138
-    
-    :math: `TC(X) = \psi(k) - ((m-1)/k) - (m-1)\psi(N) - \langle \psi(n_{x_{1}}) + \ldots + \psi(n_{x_{N}}) \rangle`
+    .. math:: 
+        \hat{TC}(X) = \psi(k) - ((m-1)/k) - (m-1)\psi(N) - \langle \psi(n_{x_{1}}) + \ldots + \psi(n_{x_{N}}) \\rangle`
 
     Parameters
     ----------
@@ -139,6 +136,17 @@ def total_correlation_2(
     float
         The expected total correlation over all samples
 
+    References
+    ----------
+    Kraskov, A., Stögbauer, H., & Grassberger, P. (2004).
+    Estimating mutual information.
+    Physical Review E, 69(6), 066138.
+    https://doi.org/10.1103/PhysRevE.69.066138
+    
+    Watanabe, S. (1960). 
+    Information Theoretical Analysis of Multivariate Correlation.
+    IBM Journal of Research and Development, 4(1), Article 1.
+    https://doi.org/10.1147/rd.41.0066
     
     """
     idxs_: tuple[int,...] = check_idxs(idxs, data.shape[0])
@@ -181,22 +189,9 @@ def dual_total_correlation(
 ) -> tuple[NDArray[np.floating], float]:
     """
     Compute dual total correlation using KSG estimation.
+    Code adapted from JIDT 
+    https://github.com/jlizier/jidt/blob/master/java/source/infodynamics/measures/continuous/kraskov/DualTotalCorrelationCalculatorKraskov.java
 
-    :math: `DTC(X) = H(X) - \\sum_{i=1}^{N}H(X_i|X^{-i})` 
-    :math: `DTC(X) = (N-1)TC(X) + \sum TC(X^-i)`
-
-    See:
-        Abdallah, S. A., & Plumbley, M. D. (2012).
-        A measure of statistical complexity based on predictive
-            information with application to finite spin systems.
-        Physics Letters A, 376(4), 275–281.
-        https://doi.org/10.1016/j.physleta.2011.10.066
-
-        Rosas, F., Mediano, P. A. M., Gastpar, M., & Jensen, H. J. (2019).
-        Quantifying High-order Interdependencies via Multivariate
-            Extensions of the Mutual Information.
-        Physical Review E, 100(3), Article 3.
-        https://doi.org/10.1103/PhysRevE.100.032305
     Parameters
     ----------
     data : NDArray[np.floating]
@@ -212,6 +207,19 @@ def dual_total_correlation(
         The local dual total correlation for each sample.
     float
         The expected dual total correlation over all samples
+    
+    References
+    ----------
+    Abdallah, S. A., & Plumbley, M. D. (2012).
+    A measure of statistical complexity based on predictive information with application to finite spin systems.
+    Physics Letters A, 376(4), 275–281.
+    https://doi.org/10.1016/j.physleta.2011.10.066
+
+    Rosas, F., Mediano, P. A. M., Gastpar, M., & Jensen, H. J. (2019).
+    Quantifying High-order Interdependencies via Multivariate Extensions of the Mutual Information.
+    Physical Review E, 100(3), Article 3.
+    https://doi.org/10.1103/PhysRevE.100.032305
+    
     """
     idxs_: tuple[int,...] = check_idxs(idxs, data.shape[0])
 
@@ -252,21 +260,8 @@ def s_information(
 ) -> tuple[NDArray[np.floating], float]:
     """
     Compute S-information using KSG estimation.
-    
-    :math: `\Sigma(X) = TC(X) + DTC(X)` 
-    :math: `\Sigma(X) = \\sum_{i=1}^{N}I(X_i ; X^{-i})`
-
-    See:
-        Rosas, F., Mediano, P. A. M., Gastpar, M., & Jensen, H. J. (2019).
-        Quantifying High-order Interdependencies via Multivariate
-            Extensions of the Mutual Information.
-        Physical Review E, 100(3), Article 3.
-        https://doi.org/10.1103/PhysRevE.100.032305
-
-        Varley, T. F., Pope, M., Faskowitz, J., & Sporns, O. (2023).
-        Multivariate information theory uncovers synergistic subsystems of the human cerebral cortex.
-        Communications Biology, 6(1), Article 1.
-        https://doi.org/10.1038/s42003-023-04843-w
+    Code adapted from JIDT 
+    https://github.com/jlizier/jidt/blob/master/java/source/infodynamics/measures/continuous/kraskov/SInfoCalculatorKraskov.java
 
     Parameters
     ----------
@@ -283,6 +278,19 @@ def s_information(
         The local S-information for each sample.
     float
         The expected S-information over all samples
+    
+    References
+    ----------
+    Rosas, F., Mediano, P. A. M., Gastpar, M., & Jensen, H. J. (2019).
+    Quantifying High-order Interdependencies via Multivariate Extensions of the Mutual Information.
+    Physical Review E, 100(3), Article 3.
+    https://doi.org/10.1103/PhysRevE.100.032305
+
+    Varley, T. F., Pope, M., Faskowitz, J., & Sporns, O. (2023).
+    Multivariate information theory uncovers synergistic subsystems of the human cerebral cortex.
+    Communications Biology, 6(1), Article 1.
+    https://doi.org/10.1038/s42003-023-04843-w
+
     """
     idxs_: tuple[int,...] = check_idxs(idxs, data.shape[0])
 
@@ -327,21 +335,11 @@ def o_information(
 ) -> tuple[NDArray[np.floating], float]:
     """
     Compute O-information using KSG estimation.
+    Code adapted from JIDT 
+    https://github.com/jlizier/jidt/blob/master/java/source/infodynamics/measures/continuous/kraskov/OInfoCalculatorKraskov.java
     
     O-information quantifies the balance between redundancy (positive values)
     and synergy (negative values) in multivariate information.
-
-    See:
-        Rosas, F., Mediano, P. A. M., Gastpar, M., & Jensen, H. J. (2019).
-        Quantifying High-order Interdependencies via Multivariate
-        Extensions of the Mutual Information.
-        Physical Review E, 100(3), Article 3.
-        https://doi.org/10.1103/PhysRevE.100.032305
-
-        Varley, T. F., Pope, M., Faskowitz, J., & Sporns, O. (2023).
-        Multivariate information theory uncovers synergistic subsystems of the human cerebral cortex.
-        Communications Biology, 6(1), Article 1.
-        https://doi.org/10.1038/s42003-023-04843-w
 
     Parameters
     ----------
@@ -358,6 +356,20 @@ def o_information(
         The local O-information for each sample.
     float
         The expected O-information over all samples
+    
+    References
+    ----------
+    Rosas, F., Mediano, P. A. M., Gastpar, M., & Jensen, H. J. (2019).
+    Quantifying High-order Interdependencies via Multivariate
+    Extensions of the Mutual Information.
+    Physical Review E, 100(3), Article 3.
+    https://doi.org/10.1103/PhysRevE.100.032305
+
+    Varley, T. F., Pope, M., Faskowitz, J., & Sporns, O. (2023).
+    Multivariate information theory uncovers synergistic subsystems of the human cerebral cortex.
+    Communications Biology, 6(1), Article 1.
+    https://doi.org/10.1038/s42003-023-04843-w
+
     """
     if idxs[0] == -1:
         idxs_ = tuple(range(data.shape[0]))

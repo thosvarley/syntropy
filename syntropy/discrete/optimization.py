@@ -1,6 +1,6 @@
 import numpy as np
 import itertools as it
-from syntropy.discrete.utils import get_marginal_distribution, reduce_state
+from .utils import get_marginal_distribution, reduce_state
 
 
 def constrained_maximum_entropy_distributions(

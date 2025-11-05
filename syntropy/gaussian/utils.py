@@ -2,8 +2,7 @@ import numpy as np
 import networkx as nx
 import itertools as it
 
-from syntropy.lattices import LATTICE_2, LATTICE_3, LATTICE_4
-from syntropy.gaussian.shannon import local_differential_entropy
+from ..lattices import LATTICE_2, LATTICE_3, LATTICE_4
 
 BOTTOM_2: tuple = ((0,), (1,))
 BOTTOM_3: tuple = ((0,), (1,), (2,))

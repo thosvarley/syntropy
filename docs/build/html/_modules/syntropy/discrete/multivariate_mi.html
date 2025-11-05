@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>syntropy.discrete.multivariate_mi &#8212; Syntropy 1.0.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/basic.css?v=b08954a9" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/alabaster.css?v=27fed22d" />
+    <script src="../../../_static/documentation_options.js?v=8d563738"></script>
+    <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for syntropy.discrete.multivariate_mi</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">itertools</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">it</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">scipy.special</span><span class="w"> </span><span class="kn">import</span> <span class="n">comb</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.utils</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">reduce_state</span><span class="p">,</span>
+    <span class="n">get_marginal_distribution</span><span class="p">,</span>
+    <span class="n">marginalize_out</span><span class="p">,</span>
+    <span class="n">get_all_marginal_distributions</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.shannon</span><span class="w"> </span><span class="kn">import</span> <span class="n">kullback_leibler_divergence</span><span class="p">,</span> <span class="n">shannon_entropy</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.optimization</span><span class="w"> </span><span class="kn">import</span> <span class="n">constrained_maximum_entropy_distributions</span>
+
+<span class="n">binom_lookup</span> <span class="o">=</span> <span class="p">{</span><span class="n">N</span><span class="p">:</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">comb</span><span class="p">(</span><span class="n">N</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">exact</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">)}</span> <span class="k">for</span> <span class="n">N</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">16</span><span class="p">)}</span>
+
+
+<div class="viewcode-block" id="total_correlation">
+<a class="viewcode-back" href="../../../api/syntropy.discrete.html#syntropy.discrete.total_correlation">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">total_correlation</span><span class="p">(</span><span class="n">joint_distribution</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="p">(</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">dict</span><span class="p">,</span> <span class="nb">float</span><span class="p">],</span> <span class="nb">float</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Computes the average and pointwise total correlations:</span>
+
+<span class="sd">    :math:`TC(X) = D_{KL}(P(X) || \\prod_{i=1}^{N}P(X_i)`</span>
+
+<span class="sd">    See:</span>
+<span class="sd">        Watanabe, S. (1960). Information Theoretical Analysis of Multivariate Correlation.</span>
+<span class="sd">        IBM Journal of Research and Development, 4(1), Article 1.</span>
+<span class="sd">        https://doi.org/10.1147/rd.41.0066</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    joint_distribution : dict[tuple, float]</span>
+<span class="sd">        The joint probability distribution.</span>
+<span class="sd">        Keys are tuples corresponding to the state of each element.</span>
+<span class="sd">        The valules are the probabilities.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    ptw : dict[tuple, float]</span>
+<span class="sd">        The pointwise TC .</span>
+<span class="sd">    avg : float</span>
+<span class="sd">        The average TC.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">maxent_distribution</span> <span class="o">=</span> <span class="n">constrained_maximum_entropy_distributions</span><span class="p">(</span>
+        <span class="n">joint_distribution</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="mi">1</span>
+    <span class="p">)</span>
+
+    <span class="n">ptw</span><span class="p">,</span> <span class="n">avg</span> <span class="o">=</span> <span class="n">kullback_leibler_divergence</span><span class="p">(</span><span class="n">joint_distribution</span><span class="p">,</span> <span class="n">maxent_distribution</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">ptw</span><span class="p">,</span> <span class="n">avg</span></div>
+
+
+
+<div class="viewcode-block" id="k_wms">
+<a class="viewcode-back" href="../../../api/syntropy.discrete.html#syntropy.discrete.k_wms">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">k_wms</span><span class="p">(</span><span class="n">k</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">joint_distribution</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">tuple</span><span class="p">,</span> <span class="nb">float</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="p">(</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">dict</span><span class="p">,</span> <span class="nb">float</span><span class="p">],</span> <span class="nb">float</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    S-information, DTC, and negative O-information can all be written in a general form:</span>
+
+<span class="sd">    :math:`WMS^{k}(X) = (N-k)TC(X) - \\sum_{i=1}^{N}TC(X^{-i})`</span>
+
+<span class="sd">    See:</span>
+<span class="sd">        Varley, T. F., Pope, M., Faskowitz, J., &amp; Sporns, O. (2023).</span>
+<span class="sd">        Multivariate information theory uncovers synergistic subsystems of the human cerebral cortex.</span>
+<span class="sd">        Communications Biology, 6(1), Article 1.</span>
+<span class="sd">        https://doi.org/10.1038/s42003-023-04843-w</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    k : int</span>
+<span class="sd">        DESCRIPTION.</span>
+<span class="sd">    joint_distribution : dict[tuple, float]</span>
+<span class="sd">        The joint probability distribution.</span>
+<span class="sd">        Keys are tuples corresponding to the state of each element.</span>
+<span class="sd">        The valules are the probabilities.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    ptw : dict[tuple, float]</span>
+<span class="sd">        The pointwise w-WMS .</span>
+<span class="sd">    avg : float</span>
+<span class="sd">        The average k-WMS.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">states</span><span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">joint_distribution</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+    <span class="n">N</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">states</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+
+    <span class="n">ptw_tc</span><span class="p">:</span> <span class="nb">dict</span>
+    <span class="n">avg_tc</span><span class="p">:</span> <span class="nb">float</span>
+
+    <span class="n">ptw_tc</span><span class="p">,</span> <span class="n">avg_tc</span> <span class="o">=</span> <span class="n">total_correlation</span><span class="p">(</span><span class="n">joint_distribution</span><span class="p">)</span>
+
+    <span class="n">avg_whole</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="p">(</span><span class="n">N</span> <span class="o">-</span> <span class="n">k</span><span class="p">)</span> <span class="o">*</span> <span class="n">avg_tc</span>
+    <span class="n">avg_sum_parts</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span>
+
+    <span class="n">ptw_whole</span> <span class="o">=</span> <span class="p">{</span><span class="n">state</span><span class="p">:</span> <span class="n">ptw_tc</span><span class="p">[</span><span class="n">state</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="n">N</span> <span class="o">-</span> <span class="n">k</span><span class="p">)</span> <span class="k">for</span> <span class="n">state</span> <span class="ow">in</span> <span class="n">states</span><span class="p">}</span>
+    <span class="n">ptw_sum_parts</span> <span class="o">=</span> <span class="p">{</span><span class="n">state</span><span class="p">:</span> <span class="mi">0</span> <span class="k">for</span> <span class="n">state</span> <span class="ow">in</span> <span class="n">states</span><span class="p">}</span>
+
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">):</span>
+
+        <span class="n">residuals</span><span class="p">:</span> <span class="nb">tuple</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">j</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">)</span> <span class="k">if</span> <span class="n">j</span> <span class="o">!=</span> <span class="n">i</span><span class="p">)</span>
+
+        <span class="n">reduced_distribution</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="n">marginalize_out</span><span class="p">((</span><span class="n">i</span><span class="p">,),</span> <span class="n">joint_distribution</span><span class="p">)</span>
+
+        <span class="n">ptw_r</span><span class="p">:</span> <span class="nb">dict</span>
+        <span class="n">avg_r</span><span class="p">:</span> <span class="nb">dict</span>
+        <span class="n">ptw_r</span><span class="p">,</span> <span class="n">avg_r</span> <span class="o">=</span> <span class="n">total_correlation</span><span class="p">(</span><span class="n">reduced_distribution</span><span class="p">)</span>
+
+        <span class="n">avg_sum_parts</span> <span class="o">+=</span> <span class="n">avg_r</span>
+
+        <span class="k">for</span> <span class="n">state</span> <span class="ow">in</span> <span class="n">ptw_r</span><span class="p">:</span>
+            <span class="n">full_states</span> <span class="o">=</span> <span class="p">{</span><span class="n">s</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">states</span> <span class="k">if</span> <span class="n">reduce_state</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">residuals</span><span class="p">)</span> <span class="o">==</span> <span class="n">state</span><span class="p">}</span>
+
+            <span class="k">for</span> <span class="n">full_state</span> <span class="ow">in</span> <span class="n">full_states</span><span class="p">:</span>
+                <span class="n">ptw_sum_parts</span><span class="p">[</span><span class="n">full_state</span><span class="p">]</span> <span class="o">+=</span> <span class="n">ptw_r</span><span class="p">[</span><span class="n">state</span><span class="p">]</span>
+
+    <span class="n">ptw</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="p">{</span><span class="n">state</span><span class="p">:</span> <span class="n">ptw_whole</span><span class="p">[</span><span class="n">state</span><span class="p">]</span> <span class="o">-</span> <span class="n">ptw_sum_parts</span><span class="p">[</span><span class="n">state</span><span class="p">]</span> <span class="k">for</span> <span class="n">state</span> <span class="ow">in</span> <span class="n">states</span><span class="p">}</span>
+    <span class="n">avg</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">avg_whole</span> <span class="o">-</span> <span class="n">avg_sum_parts</span>
+
+    <span class="k">return</span> <span class="n">ptw</span><span class="p">,</span> <span class="n">avg</span></div>
+
+
+
+<div class="viewcode-block" id="s_information">
+<a class="viewcode-back" href="../../../api/syntropy.discrete.html#syntropy.discrete.s_information">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">s_information</span><span class="p">(</span><span class="n">joint_distribution</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">tuple</span><span class="p">,</span> <span class="nb">float</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="p">(</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">dict</span><span class="p">,</span> <span class="nb">float</span><span class="p">],</span> <span class="nb">float</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Computes the local and expected S-information for the joint distribution.</span>
+
+<span class="sd">    The S-information is equivalant to:</span>
+
+<span class="sd">    :math:`\\Sigma(X) = \\sum_{i=1}^{N}I(X_i;X^{-i})`</span>
+<span class="sd">        </span>
+<span class="sd">    :math:`\\Sigma(X) = TC(X) + DTC(X)`</span>
+
+<span class="sd">    See:</span>
+<span class="sd">        Rosas, F., Mediano, P. A. M., Gastpar, M., &amp; Jensen, H. J. (2019).</span>
+<span class="sd">        Quantifying High-order Interdependencies via Multivariate Extensions of the Mutual Information.</span>
+<span class="sd">        Physical Review E, 100(3), Article 3.</span>
+<span class="sd">        https://doi.org/10.1103/PhysRevE.100.032305</span>
+
+<span class="sd">        Varley, T. F., Pope, M., Faskowitz, J., &amp; Sporns, O. (2023).</span>
+<span class="sd">        Multivariate information theory uncovers synergistic subsystems of the human cerebral cortex.</span>
+<span class="sd">        Communications Biology, 6(1), Article 1.</span>
+<span class="sd">        https://doi.org/10.1038/s42003-023-04843-w</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    joint_distribution : dict[tuple, float]</span>
+<span class="sd">        The joint probability distribution.</span>
+<span class="sd">        Keys are tuples corresponding to the state of each element.</span>
+<span class="sd">        The valules are the probabilities.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    ptw : dict[tuple, float]</span>
+<span class="sd">        The pointwise S-information .</span>
+<span class="sd">    avg : float</span>
+<span class="sd">        The average S-information.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">ptw</span><span class="p">:</span> <span class="nb">dict</span>
+    <span class="n">avg</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">ptw</span><span class="p">,</span> <span class="n">avg</span> <span class="o">=</span> <span class="n">k_wms</span><span class="p">(</span><span class="n">k</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">joint_distribution</span><span class="o">=</span><span class="n">joint_distribution</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">ptw</span><span class="p">,</span> <span class="n">avg</span></div>
+
+
+
+<div class="viewcode-block" id="dual_total_correlation">
+<a class="viewcode-back" href="../../../api/syntropy.discrete.html#syntropy.discrete.dual_total_correlation">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">dual_total_correlation</span><span class="p">(</span><span class="n">joint_distribution</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">tuple</span><span class="p">,</span> <span class="nb">float</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="p">(</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">dict</span><span class="p">,</span> <span class="nb">float</span><span class="p">],</span> <span class="nb">float</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Computes the local and expected dual total correlations for the joint distribution.</span>
+
+<span class="sd">    The dual total correlation is given alternately by:</span>
+
+<span class="sd">    :math:`DTC(X) = H(X) - \\sum_{i=1}^{N}H(X_i|X^{-i})`</span>
+<span class="sd">        </span>
+<span class="sd">    :math:`DTC(X) = (N-1)TC(X) - \\sum_{i=1}^{N}TC(X^{-i})`</span>
+
+<span class="sd">    See:</span>
+<span class="sd">        Abdallah, S. A., &amp; Plumbley, M. D. (2012).</span>
+<span class="sd">        A measure of statistical complexity based on predictive information with application to finite spin systems.</span>
+<span class="sd">        Physics Letters A, 376(4), 275–281.</span>
+<span class="sd">        https://doi.org/10.1016/j.physleta.2011.10.066</span>
+
+<span class="sd">        Rosas, F., Mediano, P. A. M., Gastpar, M., &amp; Jensen, H. J. (2019).</span>
+<span class="sd">        Quantifying High-order Interdependencies via Multivariate Extensions of the Mutual Information.</span>
+<span class="sd">        Physical Review E, 100(3), Article 3.</span>
+<span class="sd">        https://doi.org/10.1103/PhysRevE.100.032305</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    joint_distribution : dict[tuple, float]</span>
+<span class="sd">        The joint probability distribution.</span>
+<span class="sd">        Keys are tuples corresponding to the state of each element.</span>
+<span class="sd">        The valules are the probabilities.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    ptw : dict[tuple, float]</span>
+<span class="sd">        The pointwise DTC .</span>
+<span class="sd">    avg : float</span>
+<span class="sd">        The average DTC.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">ptw</span><span class="p">:</span> <span class="nb">dict</span>
+    <span class="n">avg</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">ptw</span><span class="p">,</span> <span class="n">avg</span> <span class="o">=</span> <span class="n">k_wms</span><span class="p">(</span><span class="n">k</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">joint_distribution</span><span class="o">=</span><span class="n">joint_distribution</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">ptw</span><span class="p">,</span> <span class="n">avg</span></div>
+
+
+
+<div class="viewcode-block" id="o_information">
+<a class="viewcode-back" href="../../../api/syntropy.discrete.html#syntropy.discrete.o_information">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">o_information</span><span class="p">(</span><span class="n">joint_distribution</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">tuple</span><span class="p">,</span> <span class="nb">float</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="p">(</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">dict</span><span class="p">,</span> <span class="nb">float</span><span class="p">],</span> <span class="nb">float</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Computes the local and expected O-informations for the joint distribution.</span>
+
+<span class="sd">    :math:`\\Omega(X) = (2-N)TC(X) + \\sum_{i=1}^{N}TC(X^{-i})`</span>
+<span class="sd">    </span>
+<span class="sd">    :math:`\\Omega(X) = TC(X) - DTC(X)`</span>
+
+<span class="sd">    See:</span>
+<span class="sd">        Rosas, F., Mediano, P. A. M., Gastpar, M., &amp; Jensen, H. J. (2019).</span>
+<span class="sd">        Quantifying High-order Interdependencies via Multivariate Extensions of the Mutual Information.</span>
+<span class="sd">        Physical Review E, 100(3), Article 3.</span>
+<span class="sd">        https://doi.org/10.1103/PhysRevE.100.032305</span>
+
+<span class="sd">        Varley, T. F., Pope, M., Faskowitz, J., &amp; Sporns, O. (2023).</span>
+<span class="sd">        Multivariate information theory uncovers synergistic subsystems of the human cerebral cortex.</span>
+<span class="sd">        Communications Biology, 6(1), Article 1.</span>
+<span class="sd">        https://doi.org/10.1038/s42003-023-04843-w</span>
+
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    joint_distribution : dict[tuple, float]</span>
+<span class="sd">        The joint probability distribution.</span>
+<span class="sd">        Keys are tuples corresponding to the state of each element.</span>
+<span class="sd">        The valules are the probabilities.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    ptw : dict[tuple, float]</span>
+<span class="sd">        The pointwise O-information .</span>
+<span class="sd">    avg : float</span>
+<span class="sd">        The average O-information.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">ptw</span><span class="p">:</span> <span class="nb">dict</span>
+    <span class="n">avg</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">ptw</span><span class="p">,</span> <span class="n">avg</span> <span class="o">=</span> <span class="n">k_wms</span><span class="p">(</span><span class="n">k</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">joint_distribution</span><span class="o">=</span><span class="n">joint_distribution</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="p">{</span><span class="n">state</span><span class="p">:</span> <span class="o">-</span><span class="n">ptw</span><span class="p">[</span><span class="n">state</span><span class="p">]</span> <span class="k">for</span> <span class="n">state</span> <span class="ow">in</span> <span class="n">ptw</span><span class="o">.</span><span class="n">keys</span><span class="p">()},</span> <span class="o">-</span><span class="n">avg</span></div>
+
+
+
+<div class="viewcode-block" id="co_information">
+<a class="viewcode-back" href="../../../api/syntropy.discrete.html#syntropy.discrete.co_information">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">co_information</span><span class="p">(</span><span class="n">joint_distribution</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">tuple</span><span class="p">,</span> <span class="nb">float</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="p">(</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">dict</span><span class="p">,</span> <span class="nb">float</span><span class="p">],</span> <span class="nb">float</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Computes the cO-information, the third generalization of bivariate mutual information. Unlike total correlation and dual total correlation, the cO-information can be negative and is difficult to interpret.</span>
+
+<span class="sd">    See:</span>
+<span class="sd">        Bell, A. J. (2003, April).</span>
+<span class="sd">        The cO-information lattice.</span>
+<span class="sd">        4th International Symposium on Independent Component Analysis and</span>
+<span class="sd">        Blind Signal Separation, Nara, Japan.</span>
+<span class="sd">        https://www.semanticscholar.org/paper/THE-CO-INFORMATION-LATTICE-Bell/25a0cd8d486d5ffd204485685226f189e6eadd4d</span>
+
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    joint_distribution : dict[tuple, float]</span>
+<span class="sd">        The joint probability distribution.</span>
+<span class="sd">        Keys are tuples corresponding to the state of each element.</span>
+<span class="sd">        The valules are the probabilities.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    ptw : dict[tuple, float]</span>
+<span class="sd">        The pointwise cO-information.</span>
+<span class="sd">    avg : float</span>
+<span class="sd">        The average cO-information.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Get the lattice of marginal distributions.</span>
+    <span class="n">marginals</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="n">get_all_marginal_distributions</span><span class="p">(</span><span class="n">joint_distribution</span><span class="p">)</span>
+    <span class="c1"># Convert them to local entropies as a batch.</span>
+    <span class="n">h_marginals</span> <span class="o">=</span> <span class="p">{</span><span class="n">key</span><span class="p">:</span> <span class="n">shannon_entropy</span><span class="p">(</span><span class="n">marginals</span><span class="p">[</span><span class="n">key</span><span class="p">])[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">marginals</span><span class="p">}</span>
+
+    <span class="n">ptw</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="p">{</span><span class="n">state</span><span class="p">:</span> <span class="mf">0.0</span> <span class="k">for</span> <span class="n">state</span> <span class="ow">in</span> <span class="n">joint_distribution</span><span class="o">.</span><span class="n">keys</span><span class="p">()}</span>
+    <span class="n">avg</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span>
+
+    <span class="k">for</span> <span class="n">state</span> <span class="ow">in</span> <span class="n">joint_distribution</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+
+        <span class="k">for</span> <span class="n">source</span> <span class="ow">in</span> <span class="n">h_marginals</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+
+            <span class="n">sign</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="o">**</span> <span class="nb">len</span><span class="p">(</span><span class="n">source</span><span class="p">)</span>
+
+            <span class="n">ptw</span><span class="p">[</span><span class="n">state</span><span class="p">]</span> <span class="o">-=</span> <span class="n">sign</span> <span class="o">*</span> <span class="n">h_marginals</span><span class="p">[</span><span class="n">source</span><span class="p">][</span><span class="n">reduce_state</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">source</span><span class="p">)]</span>
+
+        <span class="n">avg</span> <span class="o">+=</span> <span class="n">joint_distribution</span><span class="p">[</span><span class="n">state</span><span class="p">]</span> <span class="o">*</span> <span class="n">ptw</span><span class="p">[</span><span class="n">state</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="n">ptw</span><span class="p">,</span> <span class="n">avg</span></div>
+
+
+
+<div class="viewcode-block" id="tse_complexity">
+<a class="viewcode-back" href="../../../api/syntropy.discrete.html#syntropy.discrete.tse_complexity">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">tse_complexity</span><span class="p">(</span><span class="n">joint_distribution</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">tuple</span><span class="p">,</span> <span class="nb">float</span><span class="p">],</span> <span class="n">num_samples</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    The Tononi-Sporns-Edelman neural complexity measure, which provides a measure of the balance between integration and segregation across scales.</span>
+
+<span class="sd">    Runtimes scale very badly with system size (as it requires brute-forcing) all possible bipartitions of the system. If the system is too large, a sub-sampling approach is taken: at each scale, num_samples are drawn from the space of bipartitions.</span>
+
+<span class="sd">    See:</span>
+<span class="sd">        Tononi, G., Sporns, O., &amp; Edelman, G. M. (1994).</span>
+<span class="sd">        A measure for brain complexity: Relating functional segregation and integration in the nervous system.</span>
+<span class="sd">        Proceedings of the National Academy of Sciences, 91(11), Article 11.</span>
+<span class="sd">        https://doi.org/10.1073/pnas.91.11.5033</span>
+
+<span class="sd">        Varley, T. F., Pope, M., Faskowitz, J., &amp; Sporns, O. (2023).</span>
+<span class="sd">        Multivariate information theory uncovers synergistic subsystems of the human cerebral cortex.</span>
+<span class="sd">        Communications Biology, 6(1), Article 1.</span>
+<span class="sd">        https://doi.org/10.1038/s42003-023-04843-w</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    joint_distribution : dict[tuple, float]</span>
+<span class="sd">        The joint probability distribution.</span>
+<span class="sd">        Keys are tuples corresponding to the state of each element.</span>
+<span class="sd">        The valules are the probabilities.</span>
+<span class="sd">    num_samples : int</span>
+<span class="sd">        The number of samples to do for each subset size..</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    float</span>
+<span class="sd">        The TSE complexity. No local complexity is computed. .</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">N</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">joint_distribution</span><span class="o">.</span><span class="n">keys</span><span class="p">())[</span><span class="mi">0</span><span class="p">])</span>
+
+    <span class="n">tc_whole</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">total_correlation</span><span class="p">(</span><span class="n">joint_distribution</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+
+    <span class="n">null_tcs</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+        <span class="p">[(</span><span class="nb">float</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="o">/</span> <span class="nb">float</span><span class="p">(</span><span class="n">N</span><span class="p">))</span> <span class="o">*</span> <span class="n">tc_whole</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">N</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)]</span>
+    <span class="p">)</span>
+    <span class="n">exp_tcs</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">null_tcs</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="n">exp_tcs</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">tc_whole</span>
+
+    <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">N</span><span class="p">):</span>  <span class="c1"># For each layer of the TSE-leaf.</span>
+
+        <span class="n">binom</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">binom_lookup</span><span class="p">[</span><span class="n">N</span><span class="p">][</span><span class="n">k</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="p">(</span>
+            <span class="n">binom</span> <span class="o">&gt;</span> <span class="n">num_samples</span>
+        <span class="p">):</span>  <span class="c1"># if N-choose-k is greater than the pre-specified number of samples:</span>
+            <span class="c1"># Samples is a set to avoid repeats.</span>
+            <span class="n">samples</span><span class="p">:</span> <span class="nb">set</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="nb">tuple</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="nb">tuple</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">N</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">k</span><span class="p">,</span> <span class="n">replace</span><span class="o">=</span><span class="kc">False</span><span class="p">))))</span>
+                <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_samples</span><span class="p">)</span>
+            <span class="p">}</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">samples</span><span class="p">:</span> <span class="nb">set</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">it</span><span class="o">.</span><span class="n">combinations</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">),</span> <span class="n">k</span><span class="p">))</span>
+
+        <span class="n">tcs</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span>
+
+        <span class="n">sample</span><span class="p">:</span> <span class="nb">tuple</span>
+        <span class="k">for</span> <span class="n">sample</span> <span class="ow">in</span> <span class="n">samples</span><span class="p">:</span>
+
+            <span class="n">marginal</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="n">get_marginal_distribution</span><span class="p">(</span><span class="n">sample</span><span class="p">,</span> <span class="n">joint_distribution</span><span class="p">)</span>
+            <span class="n">tcs</span> <span class="o">+=</span> <span class="n">total_correlation</span><span class="p">(</span><span class="n">marginal</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+
+        <span class="n">exp_tcs</span><span class="p">[</span><span class="n">k</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">tcs</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">samples</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="p">(</span><span class="n">null_tcs</span> <span class="o">-</span> <span class="n">exp_tcs</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span></div>
+
+
+
+<div class="viewcode-block" id="description_complexity">
+<a class="viewcode-back" href="../../../api/syntropy.discrete.html#syntropy.discrete.description_complexity">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">description_complexity</span><span class="p">(</span><span class="n">joint_distribution</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">tuple</span><span class="p">,</span> <span class="nb">float</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="p">(</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">dict</span><span class="p">,</span> <span class="nb">float</span><span class="p">],</span> <span class="nb">float</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    The description complexity was proposed by Tononi and Sporns as a</span>
+<span class="sd">    heuristic, easy-to-compute approximation of the full TSE-Complexity.</span>
+<span class="sd">    Later shown by Varley et al., to be directly proportional to</span>
+<span class="sd">    the dual total correlation.</span>
+
+<span class="sd">    :math:`C(X) = DTC(X) / N`</span>
+
+<span class="sd">    Where :math:`N` is the number of elements in :math:`X`.</span>
+
+<span class="sd">    See:</span>
+<span class="sd">        Varley, T. F., Pope, M., Faskowitz, J., &amp; Sporns, O. (2023).</span>
+<span class="sd">        Multivariate information theory uncovers synergistic subsystems of the human cerebral cortex.</span>
+<span class="sd">        Communications Biology, 6(1), Article 1.</span>
+<span class="sd">        https://doi.org/10.1038/s42003-023-04843-w</span>
+
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    joint_distribution : dict[tuple, float]</span>
+<span class="sd">        The joint probability distribution.</span>
+<span class="sd">        Keys are tuples corresponding to the state of each element.</span>
+<span class="sd">        The valules are the probabilities.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    ptw : dict[tuple, float]</span>
+<span class="sd">        The pointwise description complexity.</span>
+<span class="sd">    avg : float</span>
+<span class="sd">        The average description complexity.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">N</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">joint_distribution</span><span class="o">.</span><span class="n">keys</span><span class="p">())[</span><span class="mi">0</span><span class="p">]))</span>
+
+    <span class="n">ptw</span><span class="p">:</span> <span class="nb">dict</span>
+    <span class="n">avg</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">ptw</span><span class="p">,</span> <span class="n">avg</span> <span class="o">=</span> <span class="n">k_wms</span><span class="p">(</span><span class="n">k</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">joint_distribution</span><span class="o">=</span><span class="n">joint_distribution</span><span class="p">)</span>
+
+    <span class="n">avg</span> <span class="o">/=</span> <span class="n">N</span>
+    <span class="n">ptw</span> <span class="o">=</span> <span class="p">{</span><span class="n">key</span><span class="p">:</span> <span class="n">ptw</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">/</span> <span class="n">N</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">ptw</span><span class="o">.</span><span class="n">keys</span><span class="p">()}</span>
+
+    <span class="k">return</span> <span class="n">ptw</span><span class="p">,</span> <span class="n">avg</span></div>
+
+
+
+<div class="viewcode-block" id="connected_information">
+<a class="viewcode-back" href="../../../api/syntropy.discrete.html#syntropy.discrete.connected_information">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">connected_information</span><span class="p">(</span><span class="n">joint_distribution</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">tuple</span><span class="p">,</span> <span class="nb">float</span><span class="p">],</span> <span class="n">maximum_order</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns the connected information profile from Schneidman et al.,</span>
+<span class="sd">    which decomposes the total correlation into contributing parts of</span>
+<span class="sd">    different orders.</span>
+
+<span class="sd">    One of the few measures that can reliably distinguish between the</span>
+<span class="sd">    JAMES_DYADIC and JAMES_TRIADIC distributions.</span>
+
+<span class="sd">    See:</span>
+<span class="sd">        Schneidman, E., Still, S., Berry, M. J., &amp; Bialek, W. (2003).</span>
+<span class="sd">        Network Information and Connected Correlations.</span>
+<span class="sd">        Physical Review Letters, 91(23), 238701.</span>
+<span class="sd">        https://doi.org/10.1103/PhysRevLett.91.238701</span>
+
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    joint_distribution : dict[tuple, float]</span>
+<span class="sd">        The joint probability distribution.</span>
+<span class="sd">        Keys are tuples corresponding to the state of each element.</span>
+<span class="sd">        The valules are the probabilities.</span>
+<span class="sd">    maximum_order : int, optional</span>
+<span class="sd">        The highest order of marginals to sweep.</span>
+<span class="sd">        The default sweeps all.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    list[float]</span>
+<span class="sd">        The connected information profile.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">N</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">joint_distribution</span><span class="o">.</span><span class="n">keys</span><span class="p">())[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="n">profile</span><span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">maxent</span> <span class="o">=</span> <span class="n">constrained_maximum_entropy_distributions</span><span class="p">(</span><span class="n">joint_distribution</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="n">profile</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">shannon_entropy</span><span class="p">(</span><span class="n">maxent</span><span class="p">)[</span><span class="mi">1</span><span class="p">])</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">shannon_entropy</span><span class="p">(</span><span class="n">maxent</span><span class="p">)[</span><span class="mi">1</span><span class="p">])</span>
+
+    <span class="k">if</span> <span class="n">maximum_order</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+        <span class="n">maximum_order</span> <span class="o">=</span> <span class="n">N</span>
+
+    <span class="n">order</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="k">for</span> <span class="n">order</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="n">maximum_order</span><span class="p">):</span>
+
+        <span class="n">maxent</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="n">constrained_maximum_entropy_distributions</span><span class="p">(</span>
+            <span class="n">joint_distribution</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="n">order</span>
+        <span class="p">)</span>
+
+        <span class="n">entropy</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">shannon_entropy</span><span class="p">(</span><span class="n">maxent</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="n">order</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="n">profile</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">entropy</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">profile</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">profile</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">entropy</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">profile</span></div>
+
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../index.html">Syntropy</a></h1>
+
+
+
+
+
+
+
+
+
+<search id="searchbox" style="display: none" role="search">
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Search"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script><h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2025, Thomas F. Varley.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 8.2.3</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

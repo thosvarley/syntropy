@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>syntropy.neural.utils &#8212; Syntropy 1.0.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/basic.css?v=b08954a9" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/alabaster.css?v=27fed22d" />
+    <script src="../../../_static/documentation_options.js?v=8d563738"></script>
+    <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for syntropy.neural.utils</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">torch.optim</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">optim</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">torch.utils.data</span><span class="w"> </span><span class="kn">import</span> <span class="n">DataLoader</span><span class="p">,</span> <span class="n">TensorDataset</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">nflows</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">nflows.distributions.normal</span><span class="w"> </span><span class="kn">import</span> <span class="n">StandardNormal</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">nflows.flows.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">Flow</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">nflows.transforms.autoregressive</span><span class="w"> </span><span class="kn">import</span> <span class="n">MaskedAffineAutoregressiveTransform</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">nflows.transforms.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">CompositeTransform</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">nflows.transforms.permutations</span><span class="w"> </span><span class="kn">import</span> <span class="n">RandomPermutation</span>
+
+
+<div class="viewcode-block" id="initialize_flow">
+<a class="viewcode-back" href="../../../api/syntropy.neural.html#syntropy.neural.utils.initialize_flow">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">initialize_flow</span><span class="p">(</span>
+    <span class="n">dim</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">dim_context</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="n">num_layers</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">5</span><span class="p">,</span>
+    <span class="n">hidden_features</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">64</span><span class="p">,</span>
+    <span class="n">dropout_probability</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.1</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">nflows</span><span class="o">.</span><span class="n">flows</span><span class="o">.</span><span class="n">base</span><span class="o">.</span><span class="n">Flow</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Initializes a new normalizing flow network.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    dim : int</span>
+<span class="sd">        The number of input dimensions.</span>
+<span class="sd">    dim_context : int</span>
+<span class="sd">        The number of conditioning dimension.</span>
+<span class="sd">        The default is zero.</span>
+<span class="sd">    num_layers : int</span>
+<span class="sd">        The number of hidden layers.</span>
+<span class="sd">        The default is 5 layers.</span>
+<span class="sd">    hidden_features : int</span>
+<span class="sd">        The number of neurons in each hidden layer.</span>
+<span class="sd">        The default is 64 neurons.</span>
+<span class="sd">    dropout_probability : int</span>
+<span class="sd">        The probability of a neuron dropping out.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">        nflows.flows.base.Flow</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">transforms</span><span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_layers</span><span class="p">):</span>
+        <span class="n">transforms</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="n">MaskedAffineAutoregressiveTransform</span><span class="p">(</span>
+                <span class="n">features</span><span class="o">=</span><span class="n">dim</span><span class="p">,</span>
+                <span class="n">hidden_features</span><span class="o">=</span><span class="n">hidden_features</span><span class="p">,</span>
+                <span class="n">context_features</span><span class="o">=</span><span class="n">dim_context</span><span class="p">,</span>
+                <span class="n">dropout_probability</span><span class="o">=</span><span class="n">dropout_probability</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">transforms</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">RandomPermutation</span><span class="p">(</span><span class="n">features</span><span class="o">=</span><span class="n">dim</span><span class="p">))</span>
+
+    <span class="n">transform</span> <span class="o">=</span> <span class="n">CompositeTransform</span><span class="p">(</span><span class="n">transforms</span><span class="p">)</span>
+    <span class="n">base_dist</span> <span class="o">=</span> <span class="n">StandardNormal</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">[</span><span class="n">dim</span><span class="p">])</span>
+
+    <span class="k">return</span> <span class="n">Flow</span><span class="p">(</span><span class="n">transform</span><span class="p">,</span> <span class="n">base_dist</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="train_flow">
+<a class="viewcode-back" href="../../../api/syntropy.neural.html#syntropy.neural.utils.train_flow">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">train_flow</span><span class="p">(</span>
+    <span class="n">flow</span><span class="p">:</span> <span class="n">nflows</span><span class="o">.</span><span class="n">flows</span><span class="o">.</span><span class="n">base</span><span class="o">.</span><span class="n">Flow</span><span class="p">,</span>
+    <span class="n">data</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
+    <span class="n">context</span><span class="p">:</span> <span class="kc">None</span> <span class="o">|</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">batch_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">256</span><span class="p">,</span>
+    <span class="n">lr</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1e-4</span><span class="p">,</span>
+    <span class="n">num_epochs</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">100</span><span class="p">,</span>
+    <span class="n">weight_decay</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1e-5</span><span class="p">,</span>
+    <span class="n">convergence_threshold</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>
+    <span class="n">alpha</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.1</span><span class="p">,</span>
+    <span class="n">verbose</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">nflows</span><span class="o">.</span><span class="n">flows</span><span class="o">.</span><span class="n">base</span><span class="o">.</span><span class="n">Flow</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Trains a normalizing flow network to approximate the maximally likely distribution to have generated the given data.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    flow : nflows.flows.base.Flow</span>
+<span class="sd">        An untrained normalizing flow network.</span>
+<span class="sd">    data : torch.Tensor</span>
+<span class="sd">        The training data, in samples x features format.</span>
+<span class="sd">    context : None | torch.Tensor</span>
+<span class="sd">        Conditioning random variables.</span>
+<span class="sd">        Default is None.</span>
+<span class="sd">    batch_size : int</span>
+<span class="sd">        The size of each batch.</span>
+<span class="sd">        The default value is 256.</span>
+<span class="sd">    lr : float</span>
+<span class="sd">        The learning rate.</span>
+<span class="sd">        The default value is 1e-4</span>
+<span class="sd">    num_epochs : int</span>
+<span class="sd">        The number of training epochs.</span>
+<span class="sd">        The default value is 100,</span>
+<span class="sd">    weight_decay: float</span>
+<span class="sd">        The rate at which parameter weights decay. A regularizer to reduce over-fitting.</span>
+<span class="sd">        The default is 1e-5.</span>
+<span class="sd">    convergence_threshold : float</span>
+<span class="sd">        The value of the coefficient of variation below which the training terminates.</span>
+<span class="sd">        The default value is 0.0, which means the training will not stop before num_epochs is hit.</span>
+<span class="sd">    alpha : float</span>
+<span class="sd">        How quickly the exponentially weighted moving standard deviation downweights older data.</span>
+<span class="sd">        The default is 0.2.</span>
+<span class="sd">    verbose : bool</span>
+<span class="sd">        Whether to print the loss for each epoch throughout training.</span>
+<span class="sd">        The default is False.</span>
+
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+
+<span class="sd">    nflows.flows.base.Flow</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">context</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">dataset</span> <span class="o">=</span> <span class="n">TensorDataset</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">context</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">dataset</span> <span class="o">=</span> <span class="n">TensorDataset</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">context</span><span class="p">)</span>
+
+    <span class="n">loader</span> <span class="o">=</span> <span class="n">DataLoader</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="n">batch_size</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="n">optimizer</span> <span class="o">=</span> <span class="n">optim</span><span class="o">.</span><span class="n">Adam</span><span class="p">(</span><span class="n">flow</span><span class="o">.</span><span class="n">parameters</span><span class="p">(),</span> <span class="n">lr</span><span class="o">=</span><span class="n">lr</span><span class="p">,</span> <span class="n">weight_decay</span><span class="o">=</span><span class="n">weight_decay</span><span class="p">)</span>
+
+    <span class="n">flow</span><span class="o">.</span><span class="n">train</span><span class="p">()</span>
+
+    <span class="n">running_mean</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span>
+    <span class="n">running_var</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span>
+
+    <span class="k">for</span> <span class="n">epoch</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_epochs</span><span class="p">):</span>
+        <span class="n">epoch_nll_sum</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="k">for</span> <span class="n">batch</span> <span class="ow">in</span> <span class="n">loader</span><span class="p">:</span>
+            <span class="n">optimizer</span><span class="o">.</span><span class="n">zero_grad</span><span class="p">()</span>
+
+            <span class="k">if</span> <span class="n">context</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">x</span> <span class="o">=</span> <span class="n">batch</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="n">batch_nll</span> <span class="o">=</span> <span class="o">-</span><span class="n">flow</span><span class="o">.</span><span class="n">log_prob</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">x</span><span class="p">,</span> <span class="n">c</span> <span class="o">=</span> <span class="n">batch</span>
+                <span class="n">batch_nll</span> <span class="o">=</span> <span class="o">-</span><span class="n">flow</span><span class="o">.</span><span class="n">log_prob</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="n">c</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+            <span class="n">batch_nll</span><span class="o">.</span><span class="n">backward</span><span class="p">()</span>
+
+            <span class="n">optimizer</span><span class="o">.</span><span class="n">step</span><span class="p">()</span>
+
+            <span class="n">epoch_nll_sum</span> <span class="o">+=</span> <span class="n">batch_nll</span><span class="o">.</span><span class="n">item</span><span class="p">()</span> <span class="o">*</span> <span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="n">epoch_avg_nll</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">epoch_nll_sum</span> <span class="o">/</span> <span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="n">delta</span> <span class="o">=</span> <span class="n">epoch_avg_nll</span> <span class="o">-</span> <span class="n">running_mean</span>
+        <span class="n">running_mean</span> <span class="o">+=</span> <span class="n">alpha</span> <span class="o">*</span> <span class="n">delta</span>
+        <span class="n">running_var</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">alpha</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">running_var</span> <span class="o">+</span> <span class="n">alpha</span> <span class="o">*</span> <span class="n">delta</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+        <span class="n">running_std</span> <span class="o">=</span> <span class="n">running_var</span> <span class="o">**</span> <span class="p">(</span><span class="mi">1</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="n">coef_var</span> <span class="o">=</span> <span class="n">running_std</span> <span class="o">/</span> <span class="p">(</span><span class="n">running_mean</span> <span class="o">+</span> <span class="mf">1e-8</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">verbose</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Epoch </span><span class="si">{</span><span class="n">epoch</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="si">}</span><span class="s2">, NLL: </span><span class="si">{</span><span class="n">epoch_avg_nll</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">, Coef. var: </span><span class="si">{</span><span class="n">coef_var</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">coef_var</span> <span class="o">&lt;</span> <span class="n">convergence_threshold</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">flow</span>
+
+    <span class="k">return</span> <span class="n">flow</span></div>
+
+
+
+<div class="viewcode-block" id="evaluate_flow">
+<a class="viewcode-back" href="../../../api/syntropy.neural.html#syntropy.neural.utils.evaluate_flow">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">evaluate_flow</span><span class="p">(</span>
+    <span class="n">flow</span><span class="p">:</span> <span class="n">nflows</span><span class="o">.</span><span class="n">flows</span><span class="o">.</span><span class="n">base</span><span class="o">.</span><span class="n">Flow</span><span class="p">,</span>
+    <span class="n">data</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
+    <span class="n">context</span><span class="p">:</span> <span class="kc">None</span> <span class="o">|</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Evaluates a trainied normalizing flow network on the given data.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    flow : nflows.flows.base.Flow</span>
+<span class="sd">        A trained normalilzing flow network.</span>
+<span class="sd">    data : torch.Tensor</span>
+<span class="sd">        The testing data in samples x features format.</span>
+<span class="sd">    context : None | torch.Tensor</span>
+
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    tuple[float, float]</span>
+<span class="sd">        The average entropy (in nat)</span>
+<span class="sd">        The standard error of the estimate.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">flow</span><span class="o">.</span><span class="n">eval</span><span class="p">()</span>
+
+    <span class="k">with</span> <span class="n">torch</span><span class="o">.</span><span class="n">no_grad</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">context</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">log_probs</span> <span class="o">=</span> <span class="n">flow</span><span class="o">.</span><span class="n">log_prob</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">log_probs</span> <span class="o">=</span> <span class="n">flow</span><span class="o">.</span><span class="n">log_prob</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">)</span>
+        <span class="n">h</span> <span class="o">=</span> <span class="o">-</span><span class="n">log_probs</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
+
+    <span class="k">return</span> <span class="n">h</span></div>
+
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../index.html">Syntropy</a></h1>
+
+
+
+
+
+
+
+
+
+<search id="searchbox" style="display: none" role="search">
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Search"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script><h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2025, Thomas F. Varley.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 8.2.3</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

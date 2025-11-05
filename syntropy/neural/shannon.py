@@ -1,6 +1,6 @@
 import torch
 import nflows
-from utils import initialize_flow, train_flow, evaluate_flow
+from .utils import initialize_flow, train_flow, evaluate_flow
 
 
 def differential_entropy(

@@ -1,16 +1,15 @@
 import itertools
 import numpy as np
 
-from syntropy.discrete.shannon import conditional_entropy
-from syntropy.discrete.optimization import constrained_maximum_entropy_distributions
-from syntropy.discrete.utils import get_marginal_distribution, reduce_state
+from .shannon import conditional_entropy
+from .optimization import constrained_maximum_entropy_distributions
+from .utils import get_marginal_distribution, reduce_state
 
 from typing import Any
 
 DiscreteDist = dict[tuple[Any, ...], float]
 AlphaSynDist = dict[tuple[Any, ...], float]
 PartialSpectra = dict[tuple[Any, ...], list[float]]
-
 
 def alpha_synergistic_entropy(
     joint_distribution: DiscreteDist,

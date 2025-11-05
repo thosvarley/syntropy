@@ -7,7 +7,7 @@ LN_TWO_PI_E: float = np.log(2.0 * np.pi * np.e)
 TWO_PI: float = 2.0 * np.pi
 SQRT_TWO_PI: float = np.sqrt(TWO_PI)
 
-COV_NULL = np.array([[-1]])
+COV_NULL: NDArray[np.floating] = np.array([[-1.0]])
 
 
 def differential_entropy(
@@ -138,6 +138,7 @@ def local_conditional_entropy(
     Returns
     -------
     NDArray[np.floating]
+
     """
 
     joint = idxs_x + idxs_y
@@ -306,6 +307,7 @@ def local_conditional_mutual_information(
     Returns
     -------
     NDArray[np.floating]
+
     """
     if cov[0][0] == -1:
         cov = np.cov(data, ddof=0.0)

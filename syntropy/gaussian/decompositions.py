@@ -1,5 +1,5 @@
 import numpy as np
-from syntropy.gaussian.utils import COV_NULL, mobius_inversion
+from .utils import COV_NULL, mobius_inversion
 from numpy.typing import NDArray
 
 
@@ -10,20 +10,20 @@ def partial_information_decomposition(
     cov: NDArray[np.floating] = COV_NULL,
 ) -> tuple[dict, dict]:
     """
-     The pointwise and average partial information decomposition
-     using the Gaussian imin function. See:
+    The pointwise and average partial information decomposition
+    using the Gaussian imin function. See:
+    
+    See:
+        Finn, C., & Lizier, J. T. (2018).
+        Pointwise Partial Information Decomposition Using the Specificity and Ambiguity Lattices.
+        Entropy, 20(4), Article 4.
+        https://doi.org/10.3390/e20040297
 
-         Finn, C., & Lizier, J. T. (2018).
-         Pointwise Partial Information Decomposition Using
-         the Specificity and Ambiguity Lattices.
-         Entropy, 20(4), Article 4.
-         https://doi.org/10.3390/e20040297
-
-     Parameters
-     ----------
-     inputs : tuple[int, ...]
+    Parameters
+    ----------
+    inputs : tuple[int, ...]
         The indices of the input variables.
-     target : tuple[int, ...]
+    target : tuple[int, ...]
         The indices of the target variable(s).
     data : NDArray[np.floating]
         The data in channels x time format.
@@ -31,12 +31,13 @@ def partial_information_decomposition(
         The covariance matrix of the data.
         The default is COV_NULL.
 
-     Returns
-     -------
-     ptw : dict
-         The pointwise PID for every frame in the data.
-     avg : dict
-         The average PID for the data
+    Returns
+    -------
+    ptw : dict
+        The pointwise PID for every frame in the data.
+    avg : dict
+        The average PID for the data
+
     """
 
     if cov[0][0] == -1:

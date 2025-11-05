@@ -2,7 +2,6 @@ import numpy as np
 from numpy.typing import NDArray
 from scipy.spatial import cKDTree
 
-
 def check_idxs(idxs: tuple[int, ...], N: int) -> tuple[int, ...]:
     """
     Checks whether the idxs input is -1, in which case, defaults to all processes. 

@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>syntropy.gaussian.temporal &#8212; Syntropy 1.0.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/basic.css?v=b08954a9" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/alabaster.css?v=27fed22d" />
+    <script src="../../../_static/documentation_options.js?v=8d563738"></script>
+    <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for syntropy.gaussian.temporal</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">scipy.signal</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">signal</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">scipy.integrate</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">integrate</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">numpy.typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">NDArray</span>
+
+
+<div class="viewcode-block" id="construct_csd_tensor">
+<a class="viewcode-back" href="../../../api/syntropy.gaussian.html#syntropy.gaussian.construct_csd_tensor">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">construct_csd_tensor</span><span class="p">(</span>
+    <span class="n">idxs</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span> <span class="n">data</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">],</span> <span class="n">fs</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">nperseg</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1024</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">],</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    idxs : tuple[int, ...]</span>
+
+<span class="sd">    data : NDArray[np.floating]</span>
+
+<span class="sd">    fs : int</span>
+
+<span class="sd">    nperseg : int</span>
+
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    NDArray[np.floating]</span>
+
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">N</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">idxs</span><span class="p">)</span>
+    <span class="n">S</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">nperseg</span><span class="p">,</span> <span class="n">N</span><span class="p">,</span> <span class="n">N</span><span class="p">))</span>
+
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="n">f</span><span class="p">,</span> <span class="n">Pij</span> <span class="o">=</span> <span class="n">signal</span><span class="o">.</span><span class="n">csd</span><span class="p">(</span>
+                <span class="n">data</span><span class="p">[</span><span class="n">idxs</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="p">:],</span>
+                <span class="n">data</span><span class="p">[</span><span class="n">idxs</span><span class="p">[</span><span class="n">j</span><span class="p">],</span> <span class="p">:],</span>
+                <span class="n">return_onesided</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                <span class="n">fs</span><span class="o">=</span><span class="n">fs</span><span class="p">,</span>
+                <span class="n">nperseg</span><span class="o">=</span><span class="n">nperseg</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">Pij</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">fftshift</span><span class="p">(</span><span class="n">Pij</span><span class="p">)</span>
+            <span class="n">S</span><span class="p">[:</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">Pij</span><span class="o">.</span><span class="n">real</span>
+            <span class="n">S</span><span class="p">[:,</span> <span class="n">j</span><span class="p">,</span> <span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">conj</span><span class="p">(</span><span class="n">Pij</span><span class="p">)</span><span class="o">.</span><span class="n">real</span>
+
+    <span class="n">omega</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">f</span> <span class="o">/</span> <span class="n">fs</span>
+    <span class="n">omega</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">fftshift</span><span class="p">(</span><span class="n">omega</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">S</span><span class="p">,</span> <span class="n">omega</span></div>
+
+
+
+<div class="viewcode-block" id="differential_entropy_rate">
+<a class="viewcode-back" href="../../../api/syntropy.gaussian.html#syntropy.gaussian.differential_entropy_rate">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">differential_entropy_rate</span><span class="p">(</span>
+    <span class="n">idxs</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span>
+    <span class="n">data</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">],</span>
+    <span class="n">fs</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="n">nperseg</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1024</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">],</span> <span class="nb">float</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Computes the differential entropy rate of a potentially multivariate stochastic process.</span>
+
+<span class="sd">    :math:`H(X)=\\frac{1}{4\\pi} \int_{-\\pi}^{\\pi} \\log \\left( (2\\pi e)^N |S_X(\\omega)| \\right) \\, d\\omega`</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    idxs : tuple[int, ...]</span>
+<span class="sd">        The indices of the channels to include in the analysis.</span>
+<span class="sd">    data : NDArray[np.floating]</span>
+<span class="sd">        The data in channels x samples format.</span>
+<span class="sd">    fs: int</span>
+<span class="sd">        The sampling rate of the time series data in Hz.</span>
+<span class="sd">        The default is 1.</span>
+<span class="sd">    nperseg: int</span>
+<span class="sd">        The number of samples to include in each segment.</span>
+<span class="sd">        Passed to the various scipy.signal functions that compute the spectral analyses.</span>
+<span class="sd">        The default is 1024</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    NDArray[np.floating]</span>
+<span class="sd">        The local entropies for each frequency band.</span>
+<span class="sd">    float</span>
+<span class="sd">        The average entropy across the whole spectrum.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># %%</span>
+    <span class="n">N</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">idxs</span><span class="p">)</span>
+
+    <span class="n">S</span><span class="p">,</span> <span class="n">omega</span> <span class="o">=</span> <span class="n">construct_csd_tensor</span><span class="p">(</span><span class="n">idxs</span><span class="o">=</span><span class="n">idxs</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">fs</span><span class="o">=</span><span class="n">fs</span><span class="p">,</span> <span class="n">nperseg</span><span class="o">=</span><span class="n">nperseg</span><span class="p">)</span>
+
+    <span class="n">ptw</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+        <span class="p">[(</span><span class="mi">1</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(((</span><span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">e</span><span class="p">)</span> <span class="o">**</span> <span class="n">N</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">det</span><span class="p">(</span><span class="n">a</span><span class="p">))</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">S</span><span class="p">]</span>
+    <span class="p">)</span>
+    <span class="n">avg</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">/</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">))</span> <span class="o">*</span> <span class="n">integrate</span><span class="o">.</span><span class="n">simpson</span><span class="p">(</span><span class="n">ptw</span><span class="p">,</span> <span class="n">omega</span><span class="p">)</span>
+    <span class="c1"># %%</span>
+    <span class="k">return</span> <span class="n">ptw</span><span class="p">,</span> <span class="n">avg</span></div>
+
+
+
+<div class="viewcode-block" id="mutual_information_rate">
+<a class="viewcode-back" href="../../../api/syntropy.gaussian.html#syntropy.gaussian.mutual_information_rate">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">mutual_information_rate</span><span class="p">(</span>
+    <span class="n">idxs_x</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span>
+    <span class="n">idxs_y</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span>
+    <span class="n">data</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">],</span>
+    <span class="n">fs</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="n">nperseg</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1024</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">],</span> <span class="nb">float</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Computes the mutual information rate between two (potentially multivariate) Gaussian processes.</span>
+
+<span class="sd">    :math:`I(X; Y) = \\frac{1}{4\\pi} \\int_{-\\pi}^{\\pi} \\log \\left( \\frac{  |S_X(\\omega)||S_Y(\\omega)| }{ |S_{XY}(\\omega)| } \\right) d\\omega`</span>
+
+<span class="sd">    See:</span>
+
+<span class="sd">    Faes, L., Sparacino, L., Mijatovic, G., Antonacci, Y., Ricci, L., Marinazzo, D., &amp; Stramaglia, S. (2025).</span>
+<span class="sd">    Partial Information Rate Decomposition (No. arXiv:2502.04550). arXiv.</span>
+<span class="sd">    https://doi.org/10.48550/arXiv.2502.04550</span>
+
+<span class="sd">    Faes, L., Pernice, R., Mijatovic, G., Antonacci, Y., Krohova, J. C., Javorka, M., &amp; Porta, A. (2021).</span>
+<span class="sd">    Information decomposition in the frequency domain: A new framework to study cardiovascular and cardiorespiratory oscillations.</span>
+<span class="sd">    Philosophical Transactions of the Royal Society A: Mathematical, Physical and Engineering Sciences, 379(2212), 20200250.</span>
+<span class="sd">    https://doi.org/10.1098/rsta.2020.0250</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    idxs_x : tuple[int, ...]</span>
+<span class="sd">        The indices of the channels to include in the inputs.</span>
+<span class="sd">    idxs_y : tuple[int, ...]</span>
+<span class="sd">        The indices of the channels to include in the target.</span>
+<span class="sd">    data : NDArray[np.floating]</span>
+<span class="sd">        The data in channels x samples format.</span>
+<span class="sd">    fs: int</span>
+<span class="sd">        The sampling rate of the time series data in Hz.</span>
+<span class="sd">        The default is 1.</span>
+<span class="sd">    nperseg: int</span>
+<span class="sd">        The number of samples to include in each segment.</span>
+<span class="sd">        Passed to the various scipy.signal functions that compute the spectral analyses.</span>
+<span class="sd">        The default is 1024</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    NDArray[np.floating]</span>
+<span class="sd">        The local mutual informations for each frequency band.</span>
+<span class="sd">    float</span>
+<span class="sd">        The average mutual information across the whole spectrum.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">Nx</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">idxs_x</span><span class="p">)</span>
+    <span class="n">Ny</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">idxs_y</span><span class="p">)</span>
+
+    <span class="n">idxs_</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="n">idxs_x</span> <span class="o">+</span> <span class="n">idxs_y</span>
+
+    <span class="n">reidxs_x</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">Nx</span><span class="p">))</span>
+    <span class="n">reidxs_y</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="n">Nx</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">Ny</span><span class="p">))</span>
+
+    <span class="n">S</span><span class="p">,</span> <span class="n">omega</span> <span class="o">=</span> <span class="n">construct_csd_tensor</span><span class="p">(</span><span class="n">idxs</span><span class="o">=</span><span class="n">idxs_</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">fs</span><span class="o">=</span><span class="n">fs</span><span class="p">,</span> <span class="n">nperseg</span><span class="o">=</span><span class="n">nperseg</span><span class="p">)</span>
+
+    <span class="n">log_x</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+        <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">slogdet</span><span class="p">(</span><span class="n">a</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ix_</span><span class="p">(</span><span class="n">reidxs_x</span><span class="p">,</span> <span class="n">reidxs_x</span><span class="p">)])[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">S</span><span class="p">]</span>
+    <span class="p">)</span>
+    <span class="n">log_y</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+        <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">slogdet</span><span class="p">(</span><span class="n">a</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ix_</span><span class="p">(</span><span class="n">reidxs_y</span><span class="p">,</span> <span class="n">reidxs_y</span><span class="p">)])[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">S</span><span class="p">]</span>
+    <span class="p">)</span>
+    <span class="n">log_xy</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">slogdet</span><span class="p">(</span><span class="n">a</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">S</span><span class="p">])</span>
+
+    <span class="n">ptw</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">log_x</span> <span class="o">+</span> <span class="n">log_y</span> <span class="o">-</span> <span class="n">log_xy</span><span class="p">)</span>
+    <span class="n">avg</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">/</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">))</span> <span class="o">*</span> <span class="n">integrate</span><span class="o">.</span><span class="n">simpson</span><span class="p">(</span><span class="n">ptw</span><span class="p">,</span> <span class="n">omega</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">ptw</span><span class="p">,</span> <span class="n">avg</span></div>
+
+
+
+<div class="viewcode-block" id="total_correlation_rate">
+<a class="viewcode-back" href="../../../api/syntropy.gaussian.html#syntropy.gaussian.total_correlation_rate">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">total_correlation_rate</span><span class="p">(</span>
+    <span class="n">idxs</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span>
+    <span class="n">data</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">],</span>
+    <span class="n">fs</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="n">nperseg</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1024</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">],</span> <span class="nb">float</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A straightforward extension of the mutual information rate to the total correlation.</span>
+
+<span class="sd">    :math:`TC(X,Y,\\ldots,Z) = \\frac{1}{4\\pi} \\int_{-\\pi}^{\\pi} \\log \\left( \\frac{  |S_X(\\omega)||S_Y(\\omega)|\\ldots|S_Z(\\omega)| }{ |S_{XY\\ldots Z}(\\omega)| } \\right) d\\omega`</span>
+
+<span class="sd">    WARNING: As far as I know this TC rate idea has never been formally explored before. It should work fine as a natural generalization of the MI, but it hasn&#39;t ever been published or peer reviewed.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    idxs : tuple[int, ...]</span>
+<span class="sd">        The indices of the channels to include in the total correlation calculation.</span>
+<span class="sd">    data : NDArray[np.floating]</span>
+<span class="sd">        The data in channels x samples format.</span>
+<span class="sd">    fs: int</span>
+<span class="sd">        The sampling rate of the time series data in Hz.</span>
+<span class="sd">        The default is 1.</span>
+<span class="sd">    nperseg: int</span>
+<span class="sd">        The number of samples to include in each segment.</span>
+<span class="sd">        Passed to the various scipy.signal functions that compute the spectral analyses.</span>
+<span class="sd">        The default is 1024</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    NDArray[np.floating]</span>
+<span class="sd">        The local total correlation  for each frequency band.</span>
+<span class="sd">    float</span>
+<span class="sd">        The average total correlation across the whole spectrum.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">S</span><span class="p">,</span> <span class="n">omega</span> <span class="o">=</span> <span class="n">construct_csd_tensor</span><span class="p">(</span><span class="n">idxs</span><span class="o">=</span><span class="n">idxs</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">fs</span><span class="o">=</span><span class="n">fs</span><span class="p">,</span> <span class="n">nperseg</span><span class="o">=</span><span class="n">nperseg</span><span class="p">)</span>
+
+    <span class="n">sum_parts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="n">a</span><span class="p">))</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">S</span><span class="p">])</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="n">whole</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">slogdet</span><span class="p">(</span><span class="n">a</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">S</span><span class="p">])</span>
+
+    <span class="n">ptw</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">sum_parts</span> <span class="o">-</span> <span class="n">whole</span><span class="p">)</span>
+    <span class="n">avg</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">/</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">))</span> <span class="o">*</span> <span class="n">integrate</span><span class="o">.</span><span class="n">simpson</span><span class="p">(</span><span class="n">ptw</span><span class="p">,</span> <span class="n">omega</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">ptw</span><span class="p">,</span> <span class="n">avg</span></div>
+
+
+
+<div class="viewcode-block" id="k_wms_rate">
+<a class="viewcode-back" href="../../../api/syntropy.gaussian.html#syntropy.gaussian.k_wms_rate">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">k_wms_rate</span><span class="p">(</span>
+    <span class="n">idxs</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span>
+    <span class="n">k</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">data</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">],</span>
+    <span class="n">fs</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="n">nperseg</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1024</span><span class="p">,</span>
+    <span class="n">verbose</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">],</span> <span class="nb">float</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A straightforward extension of the total correlation rate to the K whole-minus-sum rate.</span>
+
+<span class="sd">    Recall that S-information, DTC, and negative O-information can all be written in a general form:</span>
+
+<span class="sd">    :math:`WMS^{k}(X) = (N-k)TC(X) - \\sum_{i=1}^{N}TC(X^{-i})`</span>
+
+<span class="sd">    See:</span>
+<span class="sd">        Varley, T. F., Pope, M., Faskowitz, J., &amp; Sporns, O. (2023).</span>
+<span class="sd">        Multivariate information theory uncovers synergistic subsystems of the human cerebral cortex.</span>
+<span class="sd">        Communications Biology, 6(1), Article 1.</span>
+<span class="sd">        https://doi.org/10.1038/s42003-023-04843-w</span>
+
+
+<span class="sd">    WARNING: As far as I know this rate idea has never been formally explored before. It should work fine as a natural generalization of the MI, but it hasn&#39;t even been published or peer reviewed.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    idxs : tuple[int, ...]</span>
+<span class="sd">        The indices of the channels to include in the calculation.</span>
+<span class="sd">    data : NDArray[np.floating]</span>
+<span class="sd">        The data in channels x samples format.</span>
+<span class="sd">    fs: int</span>
+<span class="sd">        The sampling rate of the time series data in Hz.</span>
+<span class="sd">        The default is 1.</span>
+<span class="sd">    nperseg: int</span>
+<span class="sd">        The number of samples to include in each segment.</span>
+<span class="sd">        Passed to the various scipy.signal functions that compute the spectral analyses.</span>
+<span class="sd">        The default is 1024</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    NDArray[np.floating]</span>
+<span class="sd">        The local k_wms rate for each frequency band.</span>
+<span class="sd">    float</span>
+<span class="sd">        The average k_wms across the whole spectrum.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">N0</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">idxs</span><span class="p">)</span>
+    <span class="n">ptw_whole</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">]</span>
+    <span class="n">avg_whole</span><span class="p">:</span> <span class="nb">float</span> 
+    
+    <span class="n">ptw_whole</span><span class="p">,</span> <span class="n">avg_whole</span> <span class="o">=</span> <span class="n">total_correlation_rate</span><span class="p">(</span>
+        <span class="n">idxs</span><span class="o">=</span><span class="n">idxs</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">fs</span><span class="o">=</span><span class="n">fs</span><span class="p">,</span> <span class="n">nperseg</span><span class="o">=</span><span class="n">nperseg</span>
+    <span class="p">)</span>
+
+    <span class="n">ptw_whole</span> <span class="o">*=</span> <span class="p">(</span><span class="n">N0</span> <span class="o">-</span> <span class="n">k</span><span class="p">)</span>
+    <span class="n">avg_whole</span> <span class="o">*=</span> <span class="p">(</span><span class="n">N0</span> <span class="o">-</span> <span class="n">k</span><span class="p">)</span>
+
+    <span class="n">ptw_sum_parts</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">ptw_whole</span><span class="p">)</span>
+    <span class="n">avg_sum_parts</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span>
+
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N0</span><span class="p">):</span>
+        <span class="n">idxs_residual</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">idxs</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">idxs</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N0</span><span class="p">)</span> <span class="k">if</span> <span class="n">j</span> <span class="o">!=</span> <span class="n">i</span><span class="p">)</span>
+
+        <span class="n">ptw_residuals</span><span class="p">,</span> <span class="n">avg_residuals</span> <span class="o">=</span> <span class="n">total_correlation_rate</span><span class="p">(</span>
+            <span class="n">idxs</span><span class="o">=</span><span class="n">idxs_residual</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">fs</span><span class="o">=</span><span class="n">fs</span><span class="p">,</span> <span class="n">nperseg</span><span class="o">=</span><span class="n">nperseg</span>
+        <span class="p">)</span>
+
+        <span class="n">ptw_sum_parts</span> <span class="o">+=</span> <span class="n">ptw_residuals</span>
+        <span class="n">avg_sum_parts</span> <span class="o">+=</span> <span class="n">avg_residuals</span>
+
+        <span class="k">if</span> <span class="n">verbose</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">((</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="n">N0</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">ptw_whole</span> <span class="o">-</span> <span class="n">ptw_sum_parts</span><span class="p">,</span> <span class="n">avg_whole</span> <span class="o">-</span> <span class="n">avg_sum_parts</span></div>
+
+
+
+<div class="viewcode-block" id="s_information_rate">
+<a class="viewcode-back" href="../../../api/syntropy.gaussian.html#syntropy.gaussian.s_information_rate">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">s_information_rate</span><span class="p">(</span>
+    <span class="n">idxs</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span>
+    <span class="n">data</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">],</span>
+    <span class="n">fs</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="n">nperseg</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1024</span><span class="p">,</span>
+    <span class="n">verbose</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">],</span> <span class="nb">float</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A straightforward extension of the S-information rate from the total correlation rate.</span>
+
+<span class="sd">    The S-information is equivalant to:</span>
+
+<span class="sd">    :math:`\\Sigma(X) = \\sum_{i=1}^{N}I(X_i;X^{-i})`</span>
+
+<span class="sd">    :math:`\\Sigma(X) = TC(X) + DTC(X)`</span>
+
+<span class="sd">    WARNING: As far as I know this rate idea has never been formally explored before. It should work fine as a natural generalization of the MI, but it hasn&#39;t even been published or peer reviewed.</span>
+
+<span class="sd">    See:</span>
+<span class="sd">        Rosas, F., Mediano, P. A. M., Gastpar, M., &amp; Jensen, H. J. (2019).</span>
+<span class="sd">        Quantifying High-order Interdependencies via Multivariate Extensions of the Mutual Information.</span>
+<span class="sd">        Physical Review E, 100(3), Article 3.</span>
+<span class="sd">        https://doi.org/10.1103/PhysRevE.100.032305</span>
+
+<span class="sd">        Varley, T. F., Pope, M., Faskowitz, J., &amp; Sporns, O. (2023).</span>
+<span class="sd">        Multivariate information theory uncovers synergistic subsystems of the human cerebral cortex.</span>
+<span class="sd">        Communications Biology, 6(1), Article 1.</span>
+<span class="sd">        https://doi.org/10.1038/s42003-023-04843-w</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    idxs : tuple[int, ...]</span>
+<span class="sd">        The indices of the channels to include in the calculation.</span>
+<span class="sd">    data : NDArray[np.floating]</span>
+<span class="sd">        The data in channels x samples format.</span>
+<span class="sd">    fs: int</span>
+<span class="sd">        The sampling rate of the time series data in Hz.</span>
+<span class="sd">        The default is 1.</span>
+<span class="sd">    nperseg: int</span>
+<span class="sd">        The number of samples to include in each segment.</span>
+<span class="sd">        Passed to the various scipy.signal functions that compute the spectral analyses.</span>
+<span class="sd">        The default is 1024</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    NDArray[np.floating]</span>
+<span class="sd">        The local S-information rate for each frequency band.</span>
+<span class="sd">    float</span>
+<span class="sd">        The average S-information across the whole spectrum.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">ptw_s</span><span class="p">,</span> <span class="n">avg_s</span> <span class="o">=</span> <span class="n">k_wms_rate</span><span class="p">(</span>
+        <span class="n">idxs</span><span class="o">=</span><span class="n">idxs</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">fs</span><span class="o">=</span><span class="n">fs</span><span class="p">,</span> <span class="n">nperseg</span><span class="o">=</span><span class="n">nperseg</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">ptw_s</span><span class="p">,</span> <span class="n">avg_s</span></div>
+
+
+
+<div class="viewcode-block" id="dual_total_correlation_rate">
+<a class="viewcode-back" href="../../../api/syntropy.gaussian.html#syntropy.gaussian.dual_total_correlation_rate">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">dual_total_correlation_rate</span><span class="p">(</span>
+    <span class="n">idxs</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span>
+    <span class="n">data</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">],</span>
+    <span class="n">fs</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="n">nperseg</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1024</span><span class="p">,</span>
+    <span class="n">verbose</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">],</span> <span class="nb">float</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A straightforward extension of the dual total correlation rate from the total correlation rate.</span>
+
+<span class="sd">    The dual total correlation is given alternately by:</span>
+
+<span class="sd">    :math:`DTC(X) = H(X) - \\sum_{i=1}^{N}H(X_i|X^{-i})`</span>
+
+<span class="sd">    :math:`DTC(X) = (N-1)TC(X) - \\sum_{i=1}^{N}TC(X^{-i})`</span>
+
+<span class="sd">    WARNING: As far as I know this rate idea has never been formally explored before. It should work fine as a natural generalization of the MI, but it hasn&#39;t even been published or peer reviewed.</span>
+
+<span class="sd">    See:</span>
+<span class="sd">        Abdallah, S. A., &amp; Plumbley, M. D. (2012).</span>
+<span class="sd">        A measure of statistical complexity based on predictive information with application to finite spin systems.</span>
+<span class="sd">        Physics Letters A, 376(4), 275–281.</span>
+<span class="sd">        https://doi.org/10.1016/j.physleta.2011.10.066</span>
+
+<span class="sd">        Rosas, F., Mediano, P. A. M., Gastpar, M., &amp; Jensen, H. J. (2019).</span>
+<span class="sd">        Quantifying High-order Interdependencies via Multivariate Extensions of the Mutual Information.</span>
+<span class="sd">        Physical Review E, 100(3), Article 3.</span>
+<span class="sd">        https://doi.org/10.1103/PhysRevE.100.032305</span>
+
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    idxs : tuple[int, ...]</span>
+<span class="sd">        The indices of the channels to include in the calculation.</span>
+<span class="sd">    data : NDArray[np.floating]</span>
+<span class="sd">        The data in channels x samples format.</span>
+<span class="sd">    fs: int</span>
+<span class="sd">        The sampling rate of the time series data in Hz.</span>
+<span class="sd">        The default is 1.</span>
+<span class="sd">    nperseg: int</span>
+<span class="sd">        The number of samples to include in each segment.</span>
+<span class="sd">        Passed to the various scipy.signal functions that compute the spectral analyses.</span>
+<span class="sd">        The default is 1024</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    NDArray[np.floating]</span>
+<span class="sd">        The local dual total correlation rate for each frequency band.</span>
+<span class="sd">    float</span>
+<span class="sd">        The average dual total correlation across the whole spectrum.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">ptw_dtc</span><span class="p">,</span> <span class="n">avg_dtc</span> <span class="o">=</span> <span class="n">k_wms_rate</span><span class="p">(</span>
+        <span class="n">idxs</span><span class="o">=</span><span class="n">idxs</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">fs</span><span class="o">=</span><span class="n">fs</span><span class="p">,</span> <span class="n">nperseg</span><span class="o">=</span><span class="n">nperseg</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">ptw_dtc</span><span class="p">,</span> <span class="n">avg_dtc</span></div>
+
+
+
+<div class="viewcode-block" id="o_information_rate">
+<a class="viewcode-back" href="../../../api/syntropy.gaussian.html#syntropy.gaussian.o_information_rate">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">o_information_rate</span><span class="p">(</span>
+    <span class="n">idxs</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span>
+    <span class="n">data</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">],</span>
+    <span class="n">fs</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="n">nperseg</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1024</span><span class="p">,</span>
+    <span class="n">verbose</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">],</span> <span class="nb">float</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A straightforward extension of the O-information rate from the total correlation rate.</span>
+
+<span class="sd">    :math:`\\Omega(X) = (2-N)TC(X) + \\sum_{i=1}^{N}TC(X^{-i})`</span>
+
+<span class="sd">    :math:`\\Omega(X) = TC(X) - DTC(X)`</span>
+
+<span class="sd">    WARNING: As far as I know this rate idea has never been formally explored before. It should work fine as a natural generalization of the MI, but it hasn&#39;t even been published or peer reviewed.</span>
+
+<span class="sd">    See:</span>
+<span class="sd">        Rosas, F., Mediano, P. A. M., Gastpar, M., &amp; Jensen, H. J. (2019).</span>
+<span class="sd">        Quantifying High-order Interdependencies via Multivariate Extensions of the Mutual Information.</span>
+<span class="sd">        Physical Review E, 100(3), Article 3.</span>
+<span class="sd">        https://doi.org/10.1103/PhysRevE.100.032305</span>
+
+<span class="sd">        Varley, T. F., Pope, M., Faskowitz, J., &amp; Sporns, O. (2023).</span>
+<span class="sd">        Multivariate information theory uncovers synergistic subsystems of the human cerebral cortex.</span>
+<span class="sd">        Communications Biology, 6(1), Article 1.</span>
+<span class="sd">        https://doi.org/10.1038/s42003-023-04843-w</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    idxs : tuple[int, ...]</span>
+<span class="sd">        The indices of the channels to include in the calculation.</span>
+<span class="sd">    data : NDArray[np.floating]</span>
+<span class="sd">        The data in channels x samples format.</span>
+<span class="sd">    fs: int</span>
+<span class="sd">        The sampling rate of the time series data in Hz.</span>
+<span class="sd">        The default is 1.</span>
+<span class="sd">    nperseg: int</span>
+<span class="sd">        The number of samples to include in each segment.</span>
+<span class="sd">        Passed to the various scipy.signal functions that compute the spectral analyses.</span>
+<span class="sd">        The default is 1024</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    NDArray[np.floating]</span>
+<span class="sd">        The local O-information rate for each frequency band.</span>
+<span class="sd">    float</span>
+<span class="sd">        The average O-information across the whole spectrum.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">ptw_o</span><span class="p">,</span> <span class="n">avg_o</span> <span class="o">=</span> <span class="n">k_wms_rate</span><span class="p">(</span>
+        <span class="n">idxs</span><span class="o">=</span><span class="n">idxs</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">fs</span><span class="o">=</span><span class="n">fs</span><span class="p">,</span> <span class="n">nperseg</span><span class="o">=</span><span class="n">nperseg</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="o">-</span><span class="n">ptw_o</span><span class="p">,</span> <span class="o">-</span><span class="n">avg_o</span></div>
+
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../index.html">Syntropy</a></h1>
+
+
+
+
+
+
+
+
+
+<search id="searchbox" style="display: none" role="search">
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Search"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script><h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2025, Thomas F. Varley.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 8.2.3</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

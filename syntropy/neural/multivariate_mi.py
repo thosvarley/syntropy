@@ -1,6 +1,6 @@
 import scipy.stats as stats
 import torch
-from shannon import differential_entropy
+from .shannon import differential_entropy
 
 
 def total_correlation(

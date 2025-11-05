@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>syntropy.discrete.decompositions &#8212; Syntropy 1.0.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/basic.css?v=b08954a9" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/alabaster.css?v=27fed22d" />
+    <script src="../../../_static/documentation_options.js?v=8d563738"></script>
+    <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for syntropy.discrete.decompositions</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">mobius_inversion</span>
+
+
+<div class="viewcode-block" id="partial_information_decomposition">
+<a class="viewcode-back" href="../../../api/syntropy.discrete.html#syntropy.discrete.partial_information_decomposition">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">partial_information_decomposition</span><span class="p">(</span>
+    <span class="n">redundancy</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">inputs</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">,</span>
+    <span class="n">target</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">,</span>
+    <span class="n">joint_distribution</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">tuple</span><span class="p">,</span> <span class="nb">float</span><span class="p">],</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="p">(</span><span class="nb">dict</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Computes the partial information decomposition for up to four input variables</span>
+<span class="sd">    onto one (potentially joint) target variable.</span>
+
+<span class="sd">    The available redundancy functions are i_min from Finn and Lizier</span>
+<span class="sd">    and i_sx from Makkeh et al.. See:</span>
+
+<span class="sd">        Finn, C., &amp; Lizier, J. T. (2018).</span>
+<span class="sd">        Pointwise Partial Information Decomposition Using</span>
+<span class="sd">        the Specificity and Ambiguity Lattices.</span>
+<span class="sd">        Entropy, 20(4), Article 4.</span>
+<span class="sd">        https://doi.org/10.3390/e20040297</span>
+
+<span class="sd">        Makkeh, A., Gutknecht, A. J., &amp; Wibral, M. (2021).</span>
+<span class="sd">        Introducing a differentiable measure of pointwise</span>
+<span class="sd">        shared information.</span>
+<span class="sd">        Physical Review E, 103(3), 032149.</span>
+<span class="sd">        https://doi.org/10.1103/PhysRevE.103.032149</span>
+
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    redundancy : str</span>
+<span class="sd">        The redundancy function.</span>
+<span class="sd">        &quot;imin&quot; for the Finn and Lizier measure</span>
+<span class="sd">        &quot;isx&quot; for the Makkeh et al., measure</span>
+<span class="sd">    inputs : tuple</span>
+<span class="sd">        The set of up to four input elements.</span>
+<span class="sd">    target : tuple</span>
+<span class="sd">        The set of target elements.</span>
+<span class="sd">        If len(target) &gt; 1, then the target is the joint</span>
+<span class="sd">        state of all elements</span>
+<span class="sd">    joint_distribution : dict[tuple,float]</span>
+<span class="sd">        The joint distribution object.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    ptw : dict</span>
+<span class="sd">        A dictionary of dictionaries,</span>
+<span class="sd">        The outer dictionary has one key for each joint state.</span>
+<span class="sd">        Each inner dictionary is the lookup of partial information atoms.</span>
+<span class="sd">    avg : dict</span>
+<span class="sd">        The expected value for each partial information atom.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">ptw</span><span class="p">,</span> <span class="n">avg</span> <span class="o">=</span> <span class="n">mobius_inversion</span><span class="p">(</span>
+        <span class="n">decomposition</span><span class="o">=</span><span class="s2">&quot;pid&quot;</span><span class="p">,</span>
+        <span class="n">joint_distribution</span><span class="o">=</span><span class="n">joint_distribution</span><span class="p">,</span>
+        <span class="n">inputs</span><span class="o">=</span><span class="n">inputs</span><span class="p">,</span>
+        <span class="n">redundancy</span><span class="o">=</span><span class="n">redundancy</span><span class="p">,</span>
+        <span class="n">target</span><span class="o">=</span><span class="n">target</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">ptw</span><span class="p">,</span> <span class="n">avg</span></div>
+
+
+
+<div class="viewcode-block" id="partial_entropy_decomposition">
+<a class="viewcode-back" href="../../../api/syntropy.discrete.html#syntropy.discrete.partial_entropy_decomposition">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">partial_entropy_decomposition</span><span class="p">(</span>
+    <span class="n">redundancy</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">joint_distribution</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">tuple</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="p">(</span><span class="nb">dict</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Computes the partial entropy decomposition of a joint distribution</span>
+<span class="sd">    with up to four elements.</span>
+
+<span class="sd">    The available redundancy functions are h_min from Finn and Lizier</span>
+<span class="sd">    and h_sx from Varley et al., See:</span>
+
+<span class="sd">        Finn, C., &amp; Lizier, J. T. (2020).</span>
+<span class="sd">        Generalised Measures of Multivariate Information Content.</span>
+<span class="sd">        Entropy, 22(2), Article 2.</span>
+<span class="sd">        https://doi.org/10.3390/e22020216</span>
+
+<span class="sd">        Varley, T. F., Pope, M., Maria Grazia, P., Joshua, F., &amp; Sporns, O. (2023).</span>
+<span class="sd">        Partial entropy decomposition reveals higher-order</span>
+<span class="sd">        information structures in human brain activity.</span>
+<span class="sd">        Proceedings of the National Academy of Sciences,</span>
+<span class="sd">        120(30), e2300888120.</span>
+<span class="sd">        https://doi.org/10.1073/pnas.2300888120</span>
+
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    redundancy : str</span>
+<span class="sd">        The redundnacy function to use.</span>
+<span class="sd">        &quot;hmin&quot; for the measure from Finn and Lizier,</span>
+<span class="sd">        &quot;hsx&quot; for the measure from Varley et al.,</span>
+<span class="sd">    joint_distribution : dict[tuple,float]</span>
+<span class="sd">        The joint distribution object.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    ptw : dict[tuple, dict]</span>
+<span class="sd">        A dictionary of dictionaries,</span>
+<span class="sd">        The outer dictionary has one key for each joint state.</span>
+<span class="sd">        Each inner dictionary is the lookup of partial entropy atoms.</span>
+<span class="sd">    avg : dict[tuple, float]</span>
+<span class="sd">        The expected value for each partial entropy atom.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">ptw</span><span class="p">,</span> <span class="n">avg</span> <span class="o">=</span> <span class="n">mobius_inversion</span><span class="p">(</span>
+        <span class="n">decomposition</span><span class="o">=</span><span class="s2">&quot;ped&quot;</span><span class="p">,</span>
+        <span class="n">joint_distribution</span><span class="o">=</span><span class="n">joint_distribution</span><span class="p">,</span>
+        <span class="n">redundancy</span><span class="o">=</span><span class="n">redundancy</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">ptw</span><span class="p">,</span> <span class="n">avg</span></div>
+
+
+
+<div class="viewcode-block" id="generalized_information_decomposition">
+<a class="viewcode-back" href="../../../api/syntropy.discrete.html#syntropy.discrete.generalized_information_decomposition">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">generalized_information_decomposition</span><span class="p">(</span>
+    <span class="n">redundancy</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">posterior_distribution</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">tuple</span><span class="p">,</span><span class="nb">float</span><span class="p">],</span> <span class="n">prior_distribution</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">tuple</span><span class="p">,</span><span class="nb">float</span><span class="p">]</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="p">(</span><span class="nb">dict</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Computes the generalized information decomposition from Varley et al.</span>
+<span class="sd">    The GID is a decomposition of the Kullback-Leibler divergence of a</span>
+<span class="sd">    posterior distribution from a prior distribution.</span>
+
+<span class="sd">    Available redundnacy functions are &quot;hmin&quot; and &quot;hsx&quot;. See</span>
+<span class="sd">    the documentation for the partial_entropy_decomposition() function</span>
+<span class="sd">    for details.</span>
+
+<span class="sd">    See:</span>
+<span class="sd">        Varley, T. F. (2024).</span>
+<span class="sd">        Generalized decomposition of multivariate information.</span>
+<span class="sd">        PLOS ONE, 19(2), e0297128.</span>
+<span class="sd">        https://doi.org/10.1371/journal.pone.0297128</span>
+
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    redundancy : str</span>
+<span class="sd">        The localizable redundancy function.</span>
+<span class="sd">        Options are: hmin and hsx.</span>
+<span class="sd">    posterior_distribution : dict[tuple, float]</span>
+<span class="sd">        The posterior distribution.</span>
+<span class="sd">        The support set of this distribution must be a subset of</span>
+<span class="sd">        the supppirt set of the prior distribution.</span>
+<span class="sd">    prior_distribution : dict[tuple, float]</span>
+<span class="sd">        The prior distribution.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    ptw : dict[tuple, dict]</span>
+<span class="sd">        A dict of dicts.</span>
+<span class="sd">        The local Kullback-Leibler divergence for each atom for each state.</span>
+<span class="sd">    avg : dict[tuple, float]</span>
+<span class="sd">        The average Kullback-Leibler divergence for each atom.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">assert</span> <span class="nb">set</span><span class="p">(</span><span class="n">prior_distribution</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span><span class="o">.</span><span class="n">issuperset</span><span class="p">(</span>
+        <span class="nb">set</span><span class="p">(</span><span class="n">posterior_distribution</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+    <span class="p">),</span> <span class="s2">&quot;The support set of the prior must be a superset of the support set of the posterior.&quot;</span>
+    <span class="k">assert</span> <span class="n">redundancy</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">in</span> <span class="p">{</span>
+        <span class="s2">&quot;hmin&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;hsx&quot;</span><span class="p">,</span>
+    <span class="p">},</span> <span class="s2">&quot;The supported redundancy functions are hmin and hsx.&quot;</span>
+
+    <span class="n">ptw_prior</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">mobius_inversion</span><span class="p">(</span>
+        <span class="n">decomposition</span><span class="o">=</span><span class="s2">&quot;ped&quot;</span><span class="p">,</span>
+        <span class="n">joint_distribution</span><span class="o">=</span><span class="n">prior_distribution</span><span class="p">,</span>
+        <span class="n">redundancy</span><span class="o">=</span><span class="n">redundancy</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">ptw_posterior</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">mobius_inversion</span><span class="p">(</span>
+        <span class="n">decomposition</span><span class="o">=</span><span class="s2">&quot;ped&quot;</span><span class="p">,</span>
+        <span class="n">joint_distribution</span><span class="o">=</span><span class="n">posterior_distribution</span><span class="p">,</span>
+        <span class="n">redundancy</span><span class="o">=</span><span class="n">redundancy</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">nodes</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">ptw_prior</span><span class="p">[</span><span class="nb">list</span><span class="p">(</span><span class="n">prior_distribution</span><span class="o">.</span><span class="n">keys</span><span class="p">())[</span><span class="mi">0</span><span class="p">]]</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+
+    <span class="n">ptw</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="n">state</span><span class="p">:</span> <span class="p">{</span>
+            <span class="n">node</span><span class="p">:</span> <span class="n">ptw_prior</span><span class="p">[</span><span class="n">state</span><span class="p">][</span><span class="n">node</span><span class="p">]</span> <span class="o">-</span> <span class="n">ptw_posterior</span><span class="p">[</span><span class="n">state</span><span class="p">][</span><span class="n">node</span><span class="p">]</span> <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">nodes</span>
+        <span class="p">}</span>
+        <span class="k">for</span> <span class="n">state</span> <span class="ow">in</span> <span class="n">posterior_distribution</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+    <span class="p">}</span>
+
+    <span class="n">avg</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">nodes</span><span class="p">:</span>
+        <span class="n">avg</span><span class="p">[</span><span class="n">node</span><span class="p">]</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span>
+            <span class="p">[</span><span class="n">posterior_distribution</span><span class="p">[</span><span class="n">state</span><span class="p">]</span> <span class="o">*</span> <span class="n">ptw</span><span class="p">[</span><span class="n">state</span><span class="p">][</span><span class="n">node</span><span class="p">]</span> <span class="k">for</span> <span class="n">state</span> <span class="ow">in</span> <span class="n">ptw</span><span class="o">.</span><span class="n">keys</span><span class="p">()]</span>
+        <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">ptw</span><span class="p">,</span> <span class="n">avg</span></div>
+
+
+
+<div class="viewcode-block" id="representational_complexity">
+<a class="viewcode-back" href="../../../api/syntropy.discrete.html#syntropy.discrete.representational_complexity">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">representational_complexity</span><span class="p">(</span><span class="n">avg</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">comparator</span><span class="o">=</span><span class="nb">min</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Computes the representational complexity of a given partial information or entropy lattice.</span>
+<span class="sd">    The representational complexity is a measure of how</span>
+<span class="sd">    much partial information atoms of a given degree of synergy</span>
+<span class="sd">    contribute to the overall mutual information or entropy.</span>
+
+<span class="sd">    See:</span>
+<span class="sd">        Ehrlich, D. A., Schneider, A. C., Priesemann, V., Wibral, M., &amp; Makkeh, A. (2023).</span>
+<span class="sd">        A Measure of the Complexity of Neural Representations</span>
+<span class="sd">        based on Partial Information Decomposition.</span>
+<span class="sd">        Transactions on Machine Learning Research.</span>
+<span class="sd">        https://openreview.net/forum?id=R8TU3pfzFr</span>
+
+
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    avg : dict[tuple, float]</span>
+<span class="sd">        The dictionary of partial information/entropy atoms.</span>
+<span class="sd">        Returned from any of the above functions.</span>
+<span class="sd">    comparator : function, optional</span>
+<span class="sd">        Whether to consider the minimum complexity of an atom.</span>
+<span class="sd">        or the maximum complexity of an atom.</span>
+<span class="sd">        Options are: min, max, np.min, np.max.</span>
+<span class="sd">        The default is min, following the original work</span>
+<span class="sd">        by Ehrlich et al.,.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    float</span>
+<span class="sd">        The representational complexity.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">assert</span> <span class="n">comparator</span> <span class="ow">in</span> <span class="p">(</span><span class="nb">min</span><span class="p">,</span> <span class="nb">max</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">),</span> <span class="s2">&quot;The comparator must be min or max&quot;</span>
+
+    <span class="n">rc</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span>
+
+    <span class="k">for</span> <span class="n">atom</span> <span class="ow">in</span> <span class="n">avg</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+        <span class="n">rc</span> <span class="o">+=</span> <span class="n">avg</span><span class="p">[</span><span class="n">atom</span><span class="p">]</span> <span class="o">*</span> <span class="n">comparator</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">source</span><span class="p">)</span> <span class="k">for</span> <span class="n">source</span> <span class="ow">in</span> <span class="n">atom</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">rc</span> <span class="o">/</span> <span class="nb">sum</span><span class="p">(</span><span class="n">avg</span><span class="o">.</span><span class="n">values</span><span class="p">())</span></div>
+
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../index.html">Syntropy</a></h1>
+
+
+
+
+
+
+
+
+
+<search id="searchbox" style="display: none" role="search">
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Search"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script><h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2025, Thomas F. Varley.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 8.2.3</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

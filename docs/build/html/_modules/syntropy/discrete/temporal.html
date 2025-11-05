@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>syntropy.discrete.temporal &#8212; Syntropy 1.0.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/basic.css?v=b08954a9" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/alabaster.css?v=27fed22d" />
+    <script src="../../../_static/documentation_options.js?v=8d563738"></script>
+    <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for syntropy.discrete.temporal</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+
+
+<div class="viewcode-block" id="lempel_ziv_complexity">
+<a class="viewcode-back" href="../../../api/syntropy.discrete.html#syntropy.discrete.lempel_ziv_complexity">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">lempel_ziv_complexity</span><span class="p">(</span>
+    <span class="n">X</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span> <span class="n">return_dictionary</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">set</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Uses the classic Lempel-Ziv compression algorithm to estimate the</span>
+<span class="sd">    entropy rate of a one-dimensional array. If each element in X is a</span>
+<span class="sd">    multi-dimensional tuple, then the result is equivalent to the</span>
+<span class="sd">    joint mutual information rate.</span>
+
+<span class="sd">    The extension to multivariate Lempel-Ziv is straightforward and involves representing</span>
+<span class="sd">    the joint state of each element at time t as a tuple (X(t), Y(t)) and</span>
+<span class="sd">    treating the two sources as a single joint source.</span>
+
+<span class="sd">    See:</span>
+<span class="sd">        Zozor, S., Ravier, P., &amp; Buttelli, O. (2005).</span>
+<span class="sd">        On Lempel–Ziv complexity for multidimensional data analysis.</span>
+<span class="sd">        Physica A: Statistical Mechanics and Its Applications, 345(1), 285–302.</span>
+<span class="sd">        https://doi.org/10.1016/j.physa.2004.07.025</span>
+
+<span class="sd">        Blanc, J.-L., Schmidt, N., Bonnier, L., Pezard, L., &amp; Lesne, A. (2008).</span>
+<span class="sd">        Quantifying Neural Correlations Using Lempel-Ziv Complexity.</span>
+<span class="sd">        Deuxième conférence française de Neurosciences Computationnelles,</span>
+<span class="sd">        Marseille, France.</span>
+<span class="sd">        https://hal.science/hal-00331599/document</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    X : list</span>
+<span class="sd">        A discrete array. Can contain digits 0-9 and/or</span>
+<span class="sd">        single-character strings (&quot;A&quot;, &quot;a&quot;, &quot;B&quot;, &quot;b&quot;, etc.)..</span>
+<span class="sd">    return_substrings : bool, optional</span>
+<span class="sd">        DESCRIPTION. The default is False.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    float</span>
+<span class="sd">        The estimated Lempel-Ziv complexity.</span>
+<span class="sd">    set</span>
+<span class="sd">        The dictionary (only returned if return_dictionary == True)</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">tuples</span><span class="p">:</span> <span class="nb">tuple</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">((</span><span class="n">i</span><span class="p">,)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">X</span><span class="p">)</span>
+    <span class="n">N</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">tuples</span><span class="p">)</span>
+    <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="n">dictionary</span> <span class="o">=</span> <span class="p">{</span><span class="n">tuples</span><span class="p">[</span><span class="mi">0</span><span class="p">]}</span>  <span class="c1"># Store unique substrings</span>
+
+    <span class="k">while</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">N</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:</span>  <span class="c1"># Scanning the string</span>
+        <span class="n">j</span> <span class="o">=</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span>
+        <span class="k">while</span> <span class="n">j</span> <span class="o">&lt;</span> <span class="n">N</span> <span class="ow">and</span> <span class="n">tuples</span><span class="p">[</span><span class="n">i</span> <span class="p">:</span> <span class="n">j</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="ow">in</span> <span class="n">dictionary</span><span class="p">:</span>
+            <span class="n">j</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="n">dictionary</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">tuples</span><span class="p">[</span><span class="n">i</span> <span class="p">:</span> <span class="n">j</span> <span class="o">+</span> <span class="mi">1</span><span class="p">])</span>
+        <span class="n">i</span> <span class="o">=</span> <span class="n">j</span>  <span class="c1"># Move index to next position</span>
+
+    <span class="n">c</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">dictionary</span><span class="p">)</span>
+    <span class="n">complexity</span> <span class="o">=</span> <span class="n">c</span> <span class="o">*</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">log2</span><span class="p">(</span><span class="n">c</span><span class="p">))</span> <span class="o">/</span> <span class="n">N</span>  <span class="c1"># The +1 is removed for consistency w/ Coutinho</span>
+
+    <span class="k">if</span> <span class="n">return_dictionary</span> <span class="o">==</span> <span class="kc">True</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">complexity</span><span class="p">,</span> <span class="n">dictionary</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">complexity</span></div>
+
+
+
+<div class="viewcode-block" id="lempel_ziv_mutual_information">
+<a class="viewcode-back" href="../../../api/syntropy.discrete.html#syntropy.discrete.lempel_ziv_mutual_information">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">lempel_ziv_mutual_information</span><span class="p">(</span><span class="n">X</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span> <span class="n">Y</span><span class="p">:</span> <span class="nb">list</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Estimates the discrete mutual information rate for two channels X and Y</span>
+<span class="sd">    with the Lempel-Ziv compression algorithm.</span>
+
+<span class="sd">    This measure can be transiently negative, although in the limit it</span>
+<span class="sd">    approximates the discrete information rate.</span>
+
+<span class="sd">    See:</span>
+<span class="sd">        Zozor, S., Ravier, P., &amp; Buttelli, O. (2005).</span>
+<span class="sd">        On Lempel–Ziv complexity for multidimensional data analysis.</span>
+<span class="sd">        Physica A: Statistical Mechanics and Its Applications, 345(1), 285–302.</span>
+<span class="sd">        https://doi.org/10.1016/j.physa.2004.07.025</span>
+
+<span class="sd">        Blanc, J.-L., Schmidt, N., Bonnier, L., Pezard, L., &amp; Lesne, A. (2008).</span>
+<span class="sd">        Quantifying Neural Correlations Using Lempel-Ziv Complexity.</span>
+<span class="sd">        Deuxième conférence française de Neurosciences Computationnelles,</span>
+<span class="sd">        Marseille, France.</span>
+<span class="sd">        https://hal.science/hal-00331599/document</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    X : list</span>
+<span class="sd">        A discrete list. Can contain digits 0-9 and/or</span>
+<span class="sd">        single-character strings (&quot;A&quot;, &quot;a&quot;, &quot;B&quot;, &quot;b&quot;, etc.)..</span>
+<span class="sd">    Y : list</span>
+<span class="sd">        A discrete list. Can contain digits 0-9 and/or</span>
+<span class="sd">        single-character strings (&quot;A&quot;, &quot;a&quot;, &quot;B&quot;, &quot;b&quot;, etc.)..</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    float</span>
+<span class="sd">        The estimated mutual information rate.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">joint</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="p">(</span>
+        <span class="n">lempel_ziv_complexity</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+        <span class="o">+</span> <span class="n">lempel_ziv_complexity</span><span class="p">(</span><span class="n">Y</span><span class="p">)</span>
+        <span class="o">-</span> <span class="n">lempel_ziv_complexity</span><span class="p">(</span><span class="n">joint</span><span class="p">)</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="conditional_lempel_ziv_complexity">
+<a class="viewcode-back" href="../../../api/syntropy.discrete.html#syntropy.discrete.conditional_lempel_ziv_complexity">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">conditional_lempel_ziv_complexity</span><span class="p">(</span><span class="n">X</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span> <span class="n">Y</span><span class="p">:</span> <span class="nb">list</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    The conditional entropy rate estimated with the Lempel-Ziv algorithm.</span>
+
+<span class="sd">    See:</span>
+<span class="sd">        Zozor, S., Ravier, P., &amp; Buttelli, O. (2005).</span>
+<span class="sd">        On Lempel–Ziv complexity for multidimensional data analysis.</span>
+<span class="sd">        Physica A: Statistical Mechanics and Its Applications, 345(1), 285–302.</span>
+<span class="sd">        https://doi.org/10.1016/j.physa.2004.07.025</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    X : list</span>
+<span class="sd">        A discrete list. Can contain digits 0-9 and/or</span>
+<span class="sd">        single-character strings (&quot;A&quot;, &quot;a&quot;, &quot;B&quot;, &quot;b&quot;, etc.).</span>
+<span class="sd">    Y : list</span>
+<span class="sd">        A discrete list. Can contain digits 0-9 and/or</span>
+<span class="sd">        single-character strings (&quot;A&quot;, &quot;a&quot;, &quot;B&quot;, &quot;b&quot;, etc.).</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    float</span>
+<span class="sd">        The estimated conditional entropy rate.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">joint</span><span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="n">lempel_ziv_complexity</span><span class="p">(</span><span class="n">joint</span><span class="p">)</span> <span class="o">-</span> <span class="n">lempel_ziv_complexity</span><span class="p">(</span><span class="n">Y</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="lempel_ziv_total_correlation">
+<a class="viewcode-back" href="../../../api/syntropy.discrete.html#syntropy.discrete.lempel_ziv_total_correlation">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">lempel_ziv_total_correlation</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A straightforward generalization of the mutual information rate given by</span>
+<span class="sd">    Zozor et al., and Blanc et al.,</span>
+
+<span class="sd">    :math:`TC(X) = \\sum_{i=1}^{N} LZC(X_i) - LZC(X)`</span>
+
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    data : np.ndarray</span>
+<span class="sd">        A multi-dimensional discrete array, assumed to be in</span>
+<span class="sd">        channels x time format.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    float</span>
+<span class="sd">        The estimated total correlation rate.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">N0</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">N1</span><span class="p">:</span> <span class="nb">int</span>
+
+    <span class="n">N0</span><span class="p">,</span> <span class="n">N1</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">shape</span>
+
+    <span class="n">sum_marginals</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N0</span><span class="p">):</span>
+        <span class="n">sum_marginals</span> <span class="o">+=</span> <span class="n">lempel_ziv_complexity</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="p">:])</span>
+
+    <span class="n">joint</span> <span class="o">=</span> <span class="p">[</span><span class="nb">tuple</span><span class="p">(</span><span class="n">data</span><span class="p">[:,</span> <span class="n">i</span><span class="p">])</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N1</span><span class="p">)]</span>
+
+    <span class="k">return</span> <span class="n">sum_marginals</span> <span class="o">-</span> <span class="n">lempel_ziv_complexity</span><span class="p">(</span><span class="n">joint</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="cross_lempel_ziv_complexity">
+<a class="viewcode-back" href="../../../api/syntropy.discrete.html#syntropy.discrete.cross_lempel_ziv_complexity">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">cross_lempel_ziv_complexity</span><span class="p">(</span><span class="n">X</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span> <span class="n">Y</span><span class="p">:</span> <span class="nb">list</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Computes the Lempel-Ziv complexity of a string X</span>
+<span class="sd">    using a pre-constructed dictionary optimized on Y. The relative</span>
+<span class="sd">    Lempel-Ziv complexity is the extra patterns that appear in X but</span>
+<span class="sd">    not in the compressed Y.</span>
+
+<span class="sd">    See:</span>
+<span class="sd">        Ziv, J., &amp; Merhav, N. (1993).</span>
+<span class="sd">        A Measure of Relative Entropy between Individual Sequences with</span>
+<span class="sd">        Application to Universal Classification.</span>
+<span class="sd">        Proceedings. IEEE International Symposium on Information Theory, 352–352.</span>
+<span class="sd">        https://doi.org/10.1109/ISIT.1993.748668</span>
+
+<span class="sd">    This code uses the optimized dictionary for Y, rather than searching all</span>
+<span class="sd">    substrings of Y. Using all possible substrings is very impractical for</span>
+<span class="sd">    long time series. As a result, however, it is very sensitive to the</span>
+<span class="sd">    particular temporal ordering of fluctuations in X and Y.</span>
+
+<span class="sd">    Should only be used when X and Y were recorded at the same time, such</span>
+<span class="sd">    as channels in an EEG/fMRI/MEG recording.</span>
+
+<span class="sd">    MATHEMATICAL GARUNTEES GIVEN IN ZIV &amp; MERHAV 1993 ARE NOT PRESERVED</span>
+<span class="sd">    BY THIS METHOD. THIS FUNCTION REMAINS EXPERIMENTAL</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    X : np.ndarray</span>
+<span class="sd">        A discrete array. Can contain digits 0-9 and/or</span>
+<span class="sd">        single-character strings (&quot;A&quot;, &quot;a&quot;, &quot;B&quot;, &quot;b&quot;, etc.).</span>
+<span class="sd">    Y : np.ndarray</span>
+<span class="sd">        A discrete array. Can contain digits 0-9 and/or</span>
+<span class="sd">        single-character strings (&quot;A&quot;, &quot;a&quot;, &quot;B&quot;, &quot;b&quot;, etc.).</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    complexity : int</span>
+<span class="sd">        The Lempel-ziv relative complexity.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">X_tuples</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">((</span><span class="n">i</span><span class="p">,)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">X</span><span class="p">)</span>
+    <span class="n">N_X</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">X_tuples</span><span class="p">)</span>
+
+    <span class="c1"># Step 1: Build LZ dictionary from Y (sequential parsing, no full substring storage)</span>
+    <span class="n">_</span><span class="p">,</span> <span class="n">dictionary_Y</span> <span class="o">=</span> <span class="n">lempel_ziv_complexity</span><span class="p">(</span><span class="n">Y</span><span class="p">,</span> <span class="n">return_dictionary</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="c1"># Step 2: Parse X with dictionary_Y</span>
+    <span class="n">i</span><span class="p">,</span> <span class="n">c</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span>
+    <span class="k">while</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">N_X</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">j</span> <span class="o">=</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span>
+        <span class="k">while</span> <span class="n">j</span> <span class="o">&lt;=</span> <span class="n">N_X</span> <span class="ow">and</span> <span class="n">X_tuples</span><span class="p">[</span><span class="n">i</span> <span class="p">:</span> <span class="n">j</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="ow">in</span> <span class="n">dictionary_Y</span><span class="p">:</span>
+            <span class="n">j</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="n">dictionary_Y</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">X_tuples</span><span class="p">[</span><span class="n">i</span> <span class="p">:</span> <span class="n">j</span> <span class="o">+</span> <span class="mi">1</span><span class="p">])</span>  <span class="c1"># Store new substrings</span>
+        <span class="n">c</span> <span class="o">+=</span> <span class="mi">1</span>  <span class="c1"># A new additions</span>
+        <span class="n">i</span> <span class="o">=</span> <span class="n">j</span>  <span class="c1"># Move forward</span>
+
+    <span class="n">complexity</span> <span class="o">=</span> <span class="n">c</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">log2</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="o">/</span> <span class="n">N_X</span>
+
+    <span class="k">return</span> <span class="n">complexity</span></div>
+
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../index.html">Syntropy</a></h1>
+
+
+
+
+
+
+
+
+
+<search id="searchbox" style="display: none" role="search">
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Search"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script><h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2025, Thomas F. Varley.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 8.2.3</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

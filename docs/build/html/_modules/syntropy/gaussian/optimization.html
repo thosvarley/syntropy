@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>syntropy.gaussian.optimization &#8212; Syntropy 1.0.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/basic.css?v=b08954a9" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/alabaster.css?v=27fed22d" />
+    <script src="../../../_static/documentation_options.js?v=8d563738"></script>
+    <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for syntropy.gaussian.optimization</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python3</span>
+<span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Created on Sun Feb 16 13:01:12 2025</span>
+
+<span class="sd">@author: thosvarley</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">random</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">numpy.typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">NDArray</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.multivariate_mi</span><span class="w"> </span><span class="kn">import</span> <span class="n">o_information</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Callable</span>
+
+
+<div class="viewcode-block" id="neg_o_information">
+<a class="viewcode-back" href="../../../api/syntropy.gaussian.html#syntropy.gaussian.optimization.neg_o_information">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">neg_o_information</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">],</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A utility function for computing the negative of the O-information</span>
+<span class="sd">    for a hill-climbing optimizer.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    x : tuple[NDArray[np.floating], set[int]]</span>
+<span class="sd">        A tuple of the arguments to the O-information function.</span>
+<span class="sd">        The covariance matrix (NDArray) and indices (tuple of ints)</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    float</span>
+<span class="sd">        The negative O-information.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="o">-</span><span class="mi">1</span> <span class="o">*</span> <span class="n">o_information</span><span class="p">(</span><span class="o">*</span><span class="n">x</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="simulated_annealing">
+<a class="viewcode-back" href="../../../api/syntropy.gaussian.html#syntropy.gaussian.optimization.simulated_annealing">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">simulated_annealing</span><span class="p">(</span>
+    <span class="n">cov</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">],</span>
+    <span class="n">function</span><span class="p">:</span> <span class="n">Callable</span><span class="p">,</span>
+    <span class="n">size</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">temperature</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span>
+    <span class="n">cooling_rate</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.999</span><span class="p">,</span>
+    <span class="n">min_temperature</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1e-5</span><span class="p">,</span>
+    <span class="n">iters_per_temperature</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span>
+    <span class="n">convergence_window</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">100</span><span class="p">,</span>
+    <span class="n">convergence_threshold</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1e-6</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">set</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="nb">float</span><span class="p">,</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Implements a simulated annealing algorithm for optimizing</span>
+<span class="sd">    multivariate information measures (O-info, DTC, etc) from</span>
+<span class="sd">    a covariance matrix. Modified from;</span>
+
+<span class="sd">        Varley, T. F., Pope, M., Faskowitz, J., &amp; Sporns, O. (2023).</span>
+<span class="sd">        Multivariate information theory uncovers synergistic subsystems</span>
+<span class="sd">        of the human cerebral cortex.</span>
+<span class="sd">        Communications Biology, 6(1), Article 1.</span>
+<span class="sd">        https://doi.org/10.1038/s42003-023-04843-w</span>
+
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    cov : NDArray[np.floating]</span>
+<span class="sd">        The covariance matrix that defines the full distribution.</span>
+<span class="sd">    function : function</span>
+<span class="sd">        The objective function. Should be taken from the</span>
+<span class="sd">        syntropy.gaussian.multivariate_mi module.</span>
+<span class="sd">    size : int</span>
+<span class="sd">        The size of the ensemble of elements.</span>
+<span class="sd">    temperature : float, optional</span>
+<span class="sd">        The initial temperature to initialize the optimization with.</span>
+<span class="sd">        The default is 1.0.</span>
+<span class="sd">    cooling_rate : float, optional</span>
+<span class="sd">        The rate at which the annealing cools.</span>
+<span class="sd">        Temperature, T, decreases with T(t+1) = T(t)*cooling_rate</span>
+<span class="sd">        The default is 0.999.</span>
+<span class="sd">    min_temperature : float, optional</span>
+<span class="sd">        The stopping temperature. The default is 1e-3.</span>
+<span class="sd">    iters_per_temperature : int, optional</span>
+<span class="sd">        How many times to iterate the annealing algorithim before cooling one step.</span>
+<span class="sd">        The default is 10.</span>
+<span class="sd">    convergence_window : int, optional</span>
+<span class="sd">        How many steps back in time to consider for assessing convergence.</span>
+<span class="sd">        The default is 100.</span>
+<span class="sd">    convergence_threshold : float, optional</span>
+<span class="sd">        The standard deviation of the window below which convergence is said</span>
+<span class="sd">        to have been achieved.. The default is 1e-6.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    set[int]:</span>
+<span class="sd">        The indicies of the optimal set.</span>
+<span class="sd">    float:</span>
+<span class="sd">        The value of the optimal set.</span>
+<span class="sd">    list:</span>
+<span class="sd">        The time series of values.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">assert</span> <span class="n">min_temperature</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;The minimum temperature must be greater than zero.&quot;</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Initializing annealing...&quot;</span><span class="p">)</span>
+
+    <span class="n">num_steps</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">math</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">min_temperature</span> <span class="o">/</span> <span class="n">temperature</span><span class="p">)</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">cooling_rate</span><span class="p">))</span> <span class="o">+</span> <span class="mi">1</span>
+    <span class="p">)</span>
+    
+    <span class="n">chosen_set</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">cov</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">size</span><span class="o">=</span><span class="n">size</span><span class="p">,</span> <span class="n">replace</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span>
+    <span class="n">best_set</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="n">chosen_set</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">available_set</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">cov</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="k">if</span> <span class="n">i</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">chosen_set</span><span class="p">}</span>
+    
+    <span class="n">value</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">function</span><span class="p">((</span><span class="n">cov</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">chosen_set</span><span class="p">)))</span>
+    <span class="n">best_value</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">1</span><span class="o">*</span><span class="n">value</span>
+    <span class="n">values</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">num_steps</span><span class="p">)</span>
+
+    <span class="n">convergence</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+
+    <span class="n">counter</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Annealing...&quot;</span><span class="p">)</span>
+    <span class="k">while</span> <span class="n">temperature</span> <span class="o">&gt;</span> <span class="n">min_temperature</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">iters_per_temperature</span><span class="p">):</span>
+            <span class="c1"># Randomly pick an available element and an chosen element</span>
+            <span class="n">swap</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="nb">tuple</span><span class="p">(</span><span class="n">chosen_set</span><span class="p">)),</span>
+                <span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="nb">tuple</span><span class="p">(</span><span class="n">available_set</span><span class="p">)),</span>
+            <span class="p">)</span>
+
+            <span class="c1"># Swap the elements, respectively</span>
+            <span class="n">chosen_set</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">swap</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="n">available_set</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">swap</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+
+            <span class="n">chosen_set</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">swap</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+            <span class="n">available_set</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">swap</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+
+            <span class="n">new_value</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">function</span><span class="p">((</span><span class="n">cov</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">chosen_set</span><span class="p">)))</span>
+
+            <span class="n">diff</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="p">(</span><span class="n">new_value</span> <span class="o">-</span> <span class="n">value</span><span class="p">)</span> <span class="o">/</span> <span class="nb">abs</span><span class="p">(</span>
+                <span class="n">value</span>
+            <span class="p">)</span>  <span class="c1"># I assume this will never *actually* be 0 exactly.</span>
+
+            <span class="k">if</span> <span class="n">new_value</span> <span class="o">&gt;</span> <span class="n">best_value</span><span class="p">:</span>
+                <span class="n">best_value</span> <span class="o">=</span> <span class="n">new_value</span>
+                <span class="n">best_set</span> <span class="o">=</span> <span class="n">chosen_set</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+            <span class="c1"># If the new sets are more optimal than the old ones</span>
+            <span class="c1"># OR the temperature is high enough to accept a sub-optimal configuraiton</span>
+            <span class="c1"># update the value.</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">diff</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span> <span class="ow">or</span> <span class="n">random</span><span class="o">.</span><span class="n">random</span><span class="p">()</span> <span class="o">&lt;</span> <span class="n">math</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">diff</span> <span class="o">/</span> <span class="n">temperature</span><span class="p">):</span>
+                <span class="n">value</span> <span class="o">=</span> <span class="n">new_value</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">chosen_set</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">swap</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+                <span class="n">available_set</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">swap</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+
+                <span class="n">chosen_set</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">swap</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+                <span class="n">available_set</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">swap</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+
+        <span class="c1"># The saved value is the best value of all iters at a given temperature</span>
+        <span class="n">values</span><span class="p">[</span><span class="n">counter</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+
+        <span class="k">if</span> <span class="n">counter</span> <span class="o">&gt;</span> <span class="n">convergence_window</span><span class="p">:</span>
+            <span class="n">std</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">values</span><span class="p">[</span><span class="n">counter</span> <span class="o">-</span> <span class="n">convergence_window</span> <span class="p">:</span> <span class="n">counter</span><span class="p">])</span>
+            <span class="k">if</span> <span class="n">std</span> <span class="o">&lt;</span> <span class="n">convergence_threshold</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">value</span> <span class="o">&lt;</span> <span class="n">best_value</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;...testing convergence...&quot;</span><span class="p">)</span>
+                    <span class="n">chosen_set</span> <span class="o">=</span> <span class="n">best_set</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+                    <span class="n">available_set</span> <span class="o">=</span> <span class="p">{</span>
+                        <span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">cov</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="k">if</span> <span class="n">i</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">chosen_set</span>
+                    <span class="p">}</span>
+                    <span class="n">value</span> <span class="o">=</span> <span class="n">best_value</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Convergence achieved!&quot;</span><span class="p">)</span>
+                    <span class="n">convergence</span> <span class="o">=</span> <span class="kc">True</span>
+                    <span class="k">break</span>
+
+        <span class="n">temperature</span> <span class="o">*=</span> <span class="n">cooling_rate</span>
+        <span class="n">counter</span> <span class="o">+=</span> <span class="mi">1</span>
+
+    <span class="k">if</span> <span class="n">convergence</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Annealing schedule finished&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;No convergence achieved&quot;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">best_set</span><span class="p">,</span> <span class="n">best_value</span><span class="p">,</span> <span class="n">values</span><span class="p">[:</span><span class="n">counter</span><span class="p">]</span></div>
+
+
+
+<div class="viewcode-block" id="irreducible_synergy">
+<a class="viewcode-back" href="../../../api/syntropy.gaussian.html#syntropy.gaussian.optimization.irreducible_synergy">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">irreducible_synergy</span><span class="p">(</span><span class="n">cov</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">],</span> <span class="n">inputs</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Computes whether it is possible to remove an element from a</span>
+<span class="sd">    synergistic sysem and increase the synergy.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    cov : NDArray[np.floating]</span>
+<span class="sd">        The covariance matrix that defines the distribution.</span>
+<span class="sd">    inputs : tuple[int, ...]</span>
+<span class="sd">        The specific elements to test.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    bool</span>
+<span class="sd">        Returns True if the synergy is irreducible (i.e. there is no element that, when removed, increaes the synergy).</span>
+<span class="sd">        Returns False otherwise.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">value</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">o_information</span><span class="p">(</span><span class="n">cov</span><span class="p">,</span> <span class="n">inputs</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">value</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;This only works for initially synergy-dominated subsets.&quot;</span>
+
+    <span class="n">N</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">inputs</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">):</span>
+        <span class="n">reduced_set</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">inputs</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">)</span> <span class="k">if</span> <span class="n">j</span> <span class="o">!=</span> <span class="n">i</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">o_information</span><span class="p">(</span><span class="n">cov</span><span class="p">,</span> <span class="n">reduced_set</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">value</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+    <span class="k">return</span> <span class="kc">True</span></div>
+
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../index.html">Syntropy</a></h1>
+
+
+
+
+
+
+
+
+
+<search id="searchbox" style="display: none" role="search">
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Search"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script><h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2025, Thomas F. Varley.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 8.2.3</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

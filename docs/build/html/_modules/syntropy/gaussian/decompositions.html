@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>syntropy.gaussian.decompositions &#8212; Syntropy 1.0.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/basic.css?v=b08954a9" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/alabaster.css?v=27fed22d" />
+    <script src="../../../_static/documentation_options.js?v=8d563738"></script>
+    <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for syntropy.gaussian.decompositions</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">COV_NULL</span><span class="p">,</span> <span class="n">mobius_inversion</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">numpy.typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">NDArray</span>
+
+
+<div class="viewcode-block" id="partial_information_decomposition">
+<a class="viewcode-back" href="../../../api/syntropy.gaussian.html#syntropy.gaussian.partial_information_decomposition">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">partial_information_decomposition</span><span class="p">(</span>
+    <span class="n">inputs</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span>
+    <span class="n">target</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span>
+    <span class="n">data</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">],</span>
+    <span class="n">cov</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">]</span> <span class="o">=</span> <span class="n">COV_NULL</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">dict</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    The pointwise and average partial information decomposition</span>
+<span class="sd">    using the Gaussian imin function. See:</span>
+<span class="sd">    </span>
+<span class="sd">    See:</span>
+<span class="sd">        Finn, C., &amp; Lizier, J. T. (2018).</span>
+<span class="sd">        Pointwise Partial Information Decomposition Using the Specificity and Ambiguity Lattices.</span>
+<span class="sd">        Entropy, 20(4), Article 4.</span>
+<span class="sd">        https://doi.org/10.3390/e20040297</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    inputs : tuple[int, ...]</span>
+<span class="sd">        The indices of the input variables.</span>
+<span class="sd">    target : tuple[int, ...]</span>
+<span class="sd">        The indices of the target variable(s).</span>
+<span class="sd">    data : NDArray[np.floating]</span>
+<span class="sd">        The data in channels x time format.</span>
+<span class="sd">    cov : NDArray[np.floating]</span>
+<span class="sd">        The covariance matrix of the data.</span>
+<span class="sd">        The default is COV_NULL.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    ptw : dict</span>
+<span class="sd">        The pointwise PID for every frame in the data.</span>
+<span class="sd">    avg : dict</span>
+<span class="sd">        The average PID for the data</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">cov</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+        <span class="n">cov</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cov</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">ddof</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">assert</span> <span class="n">cov</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="p">(</span>
+            <span class="s2">&quot;The covariance matrix must have the same dimensionality as the data.&quot;</span>
+        <span class="p">)</span>
+
+    <span class="n">N_inputs</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">inputs</span><span class="p">)</span>
+    <span class="n">N_target</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">target</span><span class="p">)</span>
+    <span class="n">joint</span><span class="p">:</span> <span class="nb">tuple</span> <span class="o">=</span> <span class="n">inputs</span> <span class="o">+</span> <span class="n">target</span>
+
+    <span class="n">ptw</span><span class="p">,</span> <span class="n">avg</span> <span class="o">=</span> <span class="n">mobius_inversion</span><span class="p">(</span>
+        <span class="n">decomposition</span><span class="o">=</span><span class="s2">&quot;pid&quot;</span><span class="p">,</span>
+        <span class="n">data</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">((</span><span class="n">data</span><span class="p">[</span><span class="n">inputs</span><span class="p">,</span> <span class="p">:],</span> <span class="n">data</span><span class="p">[</span><span class="n">target</span><span class="p">,</span> <span class="p">:])),</span>
+        <span class="n">inputs</span><span class="o">=</span><span class="nb">tuple</span><span class="p">(</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N_inputs</span><span class="p">)),</span>
+        <span class="n">target</span><span class="o">=</span><span class="nb">tuple</span><span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="n">N_inputs</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N_target</span><span class="p">)),</span>
+        <span class="n">cov</span><span class="o">=</span><span class="n">cov</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ix_</span><span class="p">(</span><span class="n">joint</span><span class="p">,</span> <span class="n">joint</span><span class="p">)],</span>
+    <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">ptw</span><span class="p">,</span> <span class="n">avg</span></div>
+
+
+
+<div class="viewcode-block" id="partial_entropy_decomposition">
+<a class="viewcode-back" href="../../../api/syntropy.gaussian.html#syntropy.gaussian.partial_entropy_decomposition">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">partial_entropy_decomposition</span><span class="p">(</span>
+    <span class="n">inputs</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span>
+    <span class="n">data</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">],</span>
+    <span class="n">cov</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">]</span> <span class="o">=</span> <span class="n">COV_NULL</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">dict</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Computes the partial entropy decomposition of a joint distribution</span>
+<span class="sd">    with up to four elements. Uses the Gaussian hmin estimator. See:</span>
+
+<span class="sd">        Finn, C., &amp; Lizier, J. T. (2020).</span>
+<span class="sd">        Generalised Measures of Multivariate Information Content.</span>
+<span class="sd">        Entropy, 22(2), Article 2.</span>
+<span class="sd">        https://doi.org/10.3390/e22020216</span>
+
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">     inputs : tuple[int, ...]</span>
+<span class="sd">        The indices of the elements to analyze.</span>
+<span class="sd">    data : NDArray[np.floating]</span>
+<span class="sd">        The numpy array, assumed to be in channels x time format.</span>
+<span class="sd">    cov : NDArray[np.floating], optional</span>
+<span class="sd">        The covariance matrix. If none is not provided, it is computed</span>
+<span class="sd">        from the data directly.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    ptw : dict</span>
+<span class="sd">        The dictionary of local values for each partial entropy atom.</span>
+<span class="sd">        The local values are represented by a numpy array of the same</span>
+<span class="sd">        length as the data array.</span>
+<span class="sd">    avg : dict</span>
+<span class="sd">        The dictionary of expected values for each partial entropy atom.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">cov</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+        <span class="n">cov</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cov</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">ddof</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">assert</span> <span class="n">cov</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="p">(</span>
+            <span class="s2">&quot;The covariance matrix must have the same dimensionality as the data.&quot;</span>
+        <span class="p">)</span>
+
+    <span class="n">N_inputs</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">inputs</span><span class="p">)</span>
+
+    <span class="n">ptw</span><span class="p">,</span> <span class="n">avg</span> <span class="o">=</span> <span class="n">mobius_inversion</span><span class="p">(</span>
+        <span class="n">decomposition</span><span class="o">=</span><span class="s2">&quot;ped&quot;</span><span class="p">,</span>
+        <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="n">inputs</span><span class="p">,</span> <span class="p">:],</span>
+        <span class="n">inputs</span><span class="o">=</span><span class="nb">tuple</span><span class="p">(</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N_inputs</span><span class="p">)),</span>
+        <span class="n">cov</span><span class="o">=</span><span class="n">cov</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ix_</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="n">inputs</span><span class="p">)],</span>
+    <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">ptw</span><span class="p">,</span> <span class="n">avg</span></div>
+
+
+
+<div class="viewcode-block" id="generalized_information_decomposition">
+<a class="viewcode-back" href="../../../api/syntropy.gaussian.html#syntropy.gaussian.generalized_information_decomposition">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">generalized_information_decomposition</span><span class="p">(</span>
+    <span class="n">inputs</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span>
+    <span class="n">data</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">],</span>
+    <span class="n">cov_posterior</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">],</span>
+    <span class="n">cov_prior</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">],</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">dict</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Computes the generalized information decomposition from Varley et al.</span>
+<span class="sd">    The GID is a decomposition of the Kullback-Leibler divergence of a</span>
+<span class="sd">    posterior distribution from a prior distribution.</span>
+
+<span class="sd">    The available redundancy function is the Gaussian hmin.</span>
+
+<span class="sd">    See:</span>
+<span class="sd">        Varley, T. F. (2024).</span>
+<span class="sd">        Generalized decomposition of multivariate information.</span>
+<span class="sd">        PLOS ONE, 19(2), e0297128.</span>
+<span class="sd">        https://doi.org/10.1371/journal.pone.0297128</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">     inputs : tuple[int, ...]</span>
+<span class="sd">        The indices of the elements to analyze.</span>
+<span class="sd">    data : NDArray[np.floating]</span>
+<span class="sd">        The numpy array, assumed to be in channels x time format.</span>
+<span class="sd">    cov_posterior : NDArray[np.floating]</span>
+<span class="sd">        The covariance matrix that defines the prior distribution.</span>
+<span class="sd">    cov_prior : NDArray[np.floating]</span>
+<span class="sd">        The covariance matrix that defines the posterior distribution.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    ptw : dict</span>
+<span class="sd">        The dictionary of local values for each partial entropy atom.</span>
+<span class="sd">        The local values are represented by a numpy array of the same</span>
+<span class="sd">        length as the data array.</span>
+<span class="sd">    avg : dict</span>
+<span class="sd">        The dictionary of expected values for each partial entropy atom.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">N_inputs</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">inputs</span><span class="p">)</span>
+
+    <span class="n">ptw_prior</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">mobius_inversion</span><span class="p">(</span>
+        <span class="n">decomposition</span><span class="o">=</span><span class="s2">&quot;ped&quot;</span><span class="p">,</span>
+        <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="n">inputs</span><span class="p">,</span> <span class="p">:],</span>
+        <span class="n">inputs</span><span class="o">=</span><span class="nb">tuple</span><span class="p">(</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N_inputs</span><span class="p">)),</span>
+        <span class="n">cov</span><span class="o">=</span><span class="n">cov_prior</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ix_</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="n">inputs</span><span class="p">)],</span>
+    <span class="p">)</span>
+
+    <span class="n">ptw_posterior</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">mobius_inversion</span><span class="p">(</span>
+        <span class="n">decomposition</span><span class="o">=</span><span class="s2">&quot;ped&quot;</span><span class="p">,</span>
+        <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="n">inputs</span><span class="p">,</span> <span class="p">:],</span>
+        <span class="n">inputs</span><span class="o">=</span><span class="nb">tuple</span><span class="p">(</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N_inputs</span><span class="p">)),</span>
+        <span class="n">cov</span><span class="o">=</span><span class="n">cov_prior</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ix_</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="n">inputs</span><span class="p">)],</span>
+    <span class="p">)</span>
+
+    <span class="n">ptw</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="p">{</span><span class="n">key</span><span class="p">:</span> <span class="n">ptw_prior</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">-</span> <span class="n">ptw_posterior</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">ptw_prior</span><span class="o">.</span><span class="n">keys</span><span class="p">()}</span>
+    <span class="n">avg</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="p">{</span><span class="n">key</span><span class="p">:</span> <span class="n">ptw</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">ptw</span><span class="o">.</span><span class="n">keys</span><span class="p">()}</span>
+
+    <span class="k">return</span> <span class="n">ptw</span><span class="p">,</span> <span class="n">avg</span></div>
+
+
+
+<div class="viewcode-block" id="representational_complexity">
+<a class="viewcode-back" href="../../../api/syntropy.gaussian.html#syntropy.gaussian.representational_complexity">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">representational_complexity</span><span class="p">(</span><span class="n">avg</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">comparator</span><span class="o">=</span><span class="nb">min</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Computes the representational complexity of a given partial information or entropy lattice.</span>
+<span class="sd">    The representational complexity is a measure of how</span>
+<span class="sd">    much partial information atoms of a given degree of synergy</span>
+<span class="sd">    contribute to the overall mutual information or entropy.</span>
+
+<span class="sd">    See:</span>
+<span class="sd">        Ehrlich, D. A., Schneider, A. C., Priesemann, V., Wibral, M., &amp; Makkeh, A. (2023).</span>
+<span class="sd">        A Measure of the Complexity of Neural Representations</span>
+<span class="sd">        based on Partial Information Decomposition.</span>
+<span class="sd">        Transactions on Machine Learning Research.</span>
+<span class="sd">        https://openreview.net/forum?id=R8TU3pfzFr</span>
+
+
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    avg : dict</span>
+<span class="sd">        The dictionary of partial information/entropy atoms.</span>
+<span class="sd">        Returned from any of the above functions.</span>
+<span class="sd">    comparator : function, optional</span>
+<span class="sd">        Whether to consider the minimum complexity of an atom.</span>
+<span class="sd">        or the maximum complexity of an atom.</span>
+<span class="sd">        Options are: min, max, np.min, np.max.</span>
+<span class="sd">        The default is min, following the original work</span>
+<span class="sd">        by Ehrlich et al.,.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    float</span>
+<span class="sd">        The representational complexity.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">assert</span> <span class="n">comparator</span> <span class="ow">in</span> <span class="p">(</span><span class="nb">min</span><span class="p">,</span> <span class="nb">max</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">),</span> <span class="s2">&quot;The comparator must be min or max&quot;</span>
+
+    <span class="n">rc</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span>
+
+    <span class="k">for</span> <span class="n">atom</span> <span class="ow">in</span> <span class="n">avg</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+        <span class="n">rc</span> <span class="o">+=</span> <span class="n">avg</span><span class="p">[</span><span class="n">atom</span><span class="p">]</span> <span class="o">*</span> <span class="n">comparator</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">source</span><span class="p">)</span> <span class="k">for</span> <span class="n">source</span> <span class="ow">in</span> <span class="n">atom</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">rc</span> <span class="o">/</span> <span class="nb">sum</span><span class="p">(</span><span class="n">avg</span><span class="o">.</span><span class="n">values</span><span class="p">())</span></div>
+
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../index.html">Syntropy</a></h1>
+
+
+
+
+
+
+
+
+
+<search id="searchbox" style="display: none" role="search">
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Search"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script><h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2025, Thomas F. Varley.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 8.2.3</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

@@ -1,8 +1,7 @@
 import numpy as np
-from syntropy.gaussian.utils import COV_NULL
-from syntropy.gaussian.shannon import local_differential_entropy
+from .utils import COV_NULL
+from .shannon import local_differential_entropy
 from numpy.typing import NDArray
-
 
 def local_total_correlation(
     data: NDArray[np.floating], cov: NDArray[np.floating], idxs: tuple[int, ...] = (-1,)
@@ -10,26 +9,32 @@ def local_total_correlation(
     """
     The local total correlation.
 
-    See:
-        Scagliarini, T., Marinazzo, D., Guo, Y., Stramaglia, S., & Rosas, F. E. (2022).
-        Quantifying high-order interdependencies on individual patterns via the local O-information:
-            Theory and applications to music analysis.
-        Physical Review Research, 4(1), 013184.
-        https://doi.org/10.1103/PhysRevResearch.4.013184
-
-
     Parameters
     ----------
     data : NDArray[np.floating]
         The data in channels x samples format.
     inptuts: tuple
         The indices of the channels to include.
+    
     Returns
     -------
     NDArray[np.floating]
         The local total correaltion for each frame.
 
+    References
+    ----------
+    Scagliarini, T., Marinazzo, D., Guo, Y., Stramaglia, S., & Rosas, F. E. (2022).
+    Quantifying high-order interdependencies on individual patterns via the local O-information: Theory and applications to music analysis.
+    Physical Review Research, 4(1), 013184.
+    https://doi.org/10.1103/PhysRevResearch.4.013184
+
+    Pope, M., Varley, T. F., Grazia Puxeddu, M., Faskowitz, J., & Sporns, O. (2025). 
+    Time-varying synergy/redundancy dominance in the human cerebral cortex. 
+    Journal of Physics: Complexity, 6(1), 015015. 
+    https://doi.org/10.1088/2632-072X/adbaa9
+
     """
+
     assert cov.shape[0] == data.shape[0], (
         "The data and covariance matrix must have the same dimensionality"
     )
@@ -55,18 +60,8 @@ def total_correlation(
     """
     The expected total correlation.
 
-    :math: TC(X) = \\sum_{i=1}^{N}H(X_i) - H(X)
-
-    See:
-        Watanabe, S. (1960). Information Theoretical Analysis of Multivariate Correlation.
-        IBM Journal of Research and Development, 4(1), Article 1.
-        https://doi.org/10.1147/rd.41.0066
-
-        Pascual-Marqui, R. D., Kochi, K., & Kinoshita, T. (2025).
-        Total/dual correlation/coherence, redundancy/synergy, complexity, and O-information for real and complex valued multivariate data
-        (No. arXiv:2507.08773). arXiv.
-        https://doi.org/10.48550/arXiv.2507.08773
-
+    ..math:: 
+        `TC(X) = \\sum_{i=1}^{N}H(X_i) - H(X)`
 
     Parameters
     ----------
@@ -80,6 +75,23 @@ def total_correlation(
     -------
     float
         The expected total correlation.
+    
+    References
+    ----------
+    Watanabe, S. (1960). Information Theoretical Analysis of Multivariate Correlation.
+    IBM Journal of Research and Development, 4(1), Article 1.
+    https://doi.org/10.1147/rd.41.0066
+    
+    Tononi, G., Sporns, O., & Edelman, G. M. (1994). 
+    A measure for brain complexity: Relating functional segregation and integration in the nervous system. 
+    Proceedings of the National Academy of Sciences, 91(11), Article 11. 
+    https://doi.org/10.1073/pnas.91.11.5033
+
+    Pascual-Marqui, R. D., Kochi, K., & Kinoshita, T. (2025).
+    Total/dual correlation/coherence, redundancy/synergy, complexity, and O-information for real and complex valued multivariate data
+    (No. arXiv:2507.08773). arXiv.
+    https://doi.org/10.48550/arXiv.2507.08773
+
     """
     if idxs[0] == -1:
         _idxs = tuple(i for i in range(cov.shape[0]))
@@ -107,8 +119,8 @@ def local_k_wms(
     A utility function that computes the local generalized form
     of the O-information, S-information, and DTC.
 
-    :math:`k_{WMS}(x) = (N-k)tc(x) - \\sum_{i=1}^{N} tc(x^{-i})`
-
+    .. math:: 
+        k_{WMS}(x) = (N-k)tc(x) - \\sum_{i=1}^{N} tc(x^{-i})
 
     Parameters
     ----------
@@ -152,7 +164,8 @@ def k_wms(k: int, cov: NDArray[np.floating], idxs: tuple[int, ...] = (-1,)) -> f
     A utility function that computes the generalized form
     of the O-information, S-information, and DTC.
 
-    :math:`K_{WMS}(X) = (N-k)TC(X) - \\sum_{i=1}^{N} TC(X^{-i})`
+    .. math:: 
+        K_{WMS}(X) = (N-k)TC(X) - \\sum_{i=1}^{N} TC(X^{-i})
 
     Parameters
     ----------
@@ -182,8 +195,8 @@ def k_wms(k: int, cov: NDArray[np.floating], idxs: tuple[int, ...] = (-1,)) -> f
     sum_parts: float = 0.0
 
     for i in range(N):
-        idxs: tuple[int, ...] = tuple(_idxs[j] for j in range(N) if j != i)
-        sum_parts += total_correlation(cov[idxs, :][:, idxs])
+        idxs_residual: tuple[int, ...] = tuple(_idxs[j] for j in range(N) if j != i)
+        sum_parts += total_correlation(cov[idxs_residual, :][:, idxs_residual])
 
     return whole - sum_parts
 
@@ -195,9 +208,6 @@ def local_s_information(
 ) -> NDArray[np.floating]:
     """
     Compute local S-information using Gaussian estimation.
-
-    :math: `\sigma(x) = tc(x) + dtc(x)`
-    :math: `\sigma(x) = \\sum_{i=1}^{N}i(x_i ; x^{-i})`
 
     Parameters
     ----------
@@ -214,6 +224,7 @@ def local_s_information(
     -------
     NDArray[np.floating].
         The series of local S-information.
+
     """
 
     if cov[0][0] == -1:
@@ -226,21 +237,6 @@ def s_information(cov: NDArray[np.floating], idxs: tuple[int, ...] = (-1,)) -> f
     """
     Compute S-information using Gaussian estimation.
 
-    :math: `\Sigma(X) = TC(X) + DTC(X)`
-    :math: `\Sigma(X) = \\sum_{i=1}^{N}I(X_i ; X^{-i})`
-
-    See:
-        Rosas, F., Mediano, P. A. M., Gastpar, M., & Jensen, H. J. (2019).
-        Quantifying High-order Interdependencies via Multivariate
-            Extensions of the Mutual Information.
-        Physical Review E, 100(3), Article 3.
-        https://doi.org/10.1103/PhysRevE.100.032305
-
-        Varley, T. F., Pope, M., Faskowitz, J., & Sporns, O. (2023).
-        Multivariate information theory uncovers synergistic subsystems of the human cerebral cortex.
-        Communications Biology, 6(1), Article 1.
-        https://doi.org/10.1038/s42003-023-04843-w
-
     Parameters
     ----------
     data : NDArray[np.floating]
@@ -251,10 +247,23 @@ def s_information(cov: NDArray[np.floating], idxs: tuple[int, ...] = (-1,)) -> f
         The specific subset of variables to compute the total correlation of.
         Defaults to computing the TC of the entire covariance matrix.
 
-    Return:
+    Returns:
     -------
     float
         The expected S-information.
+
+    References
+    ----------
+    Rosas, F., Mediano, P. A. M., Gastpar, M., & Jensen, H. J. (2019).
+    Quantifying High-order Interdependencies via Multivariate
+    Extensions of the Mutual Information.
+    Physical Review E, 100(3), Article 3.
+    https://doi.org/10.1103/PhysRevE.100.032305
+
+    Varley, T. F., Pope, M., Faskowitz, J., & Sporns, O. (2023).
+    Multivariate information theory uncovers synergistic subsystems of the human cerebral cortex.
+    Communications Biology, 6(1), Article 1.
+    https://doi.org/10.1038/s42003-023-04843-w
 
     """
 
@@ -267,8 +276,7 @@ def local_dual_total_correlation(
     idxs: tuple[int, ...] = (-1,),
 ) -> NDArray[np.floating]:
     """
-    :math: `dtc(x) = h(x) - \\sum_{i=1}^{N}h(x_i|x^{-i})`
-    :math: `dtc(x) = (N-1)tc(x) + \sum tc(x^-i)`
+    Computes the dual total correlation using Gaussian estimation. 
 
     Parameters
     ----------
@@ -285,6 +293,7 @@ def local_dual_total_correlation(
     -------
     NDArray[np.floating].
         The series of local dual total correlations.
+
     """
 
     if cov[0][0] == -1:
@@ -297,22 +306,8 @@ def dual_total_correlation(
     cov: NDArray[np.floating], idxs: tuple[int, ...] = (-1,)
 ) -> float:
     """
-    :math: `DTC(X) = H(X) - \\sum_{i=1}^{N}H(X_i|X^{-i})`
-    :math: `DTC(X) = (N-1)TC(X) + \sum TC(X^-i)`
-
-    See:
-        Abdallah, S. A., & Plumbley, M. D. (2012).
-        A measure of statistical complexity based on predictive
-            information with application to finite spin systems.
-        Physics Letters A, 376(4), 275–281.
-        https://doi.org/10.1016/j.physleta.2011.10.066
-
-        Rosas, F., Mediano, P. A. M., Gastpar, M., & Jensen, H. J. (2019).
-        Quantifying High-order Interdependencies via Multivariate
-            Extensions of the Mutual Information.
-        Physical Review E, 100(3), Article 3.
-        https://doi.org/10.1103/PhysRevE.100.032305
-
+    Computes the dual total correlation. 
+    
     Parameters
     ----------
     data : NDArray[np.floating]
@@ -328,6 +323,18 @@ def dual_total_correlation(
     float
         The expected dual total correlation.
 
+    References
+    ----------
+    Abdallah, S. A., & Plumbley, M. D. (2012).
+    A measure of statistical complexity based on predictive information with application to finite spin systems.
+    Physics Letters A, 376(4), 275–281.
+    https://doi.org/10.1016/j.physleta.2011.10.066
+
+    Rosas, F., Mediano, P. A. M., Gastpar, M., & Jensen, H. J. (2019).
+    Quantifying High-order Interdependencies via Multivariate Extensions of the Mutual Information.
+    Physical Review E, 100(3), Article 3.
+    https://doi.org/10.1103/PhysRevE.100.032305
+
     """
 
     return k_wms(k=1, cov=cov, idxs=idxs)
@@ -340,19 +347,6 @@ def local_o_information(
 ) -> NDArray[np.floating]:
     """
     Computes the local O-information for each sample using Gaussian estimation.
-
-    :math: `\omega(X) = tc(x) - dtc(x)`
-    :math: `\omega(X) = (2-N)tc(x) + \\sum_{i=1}^{N}tc(x^{-i})`
-    
-    See:
-        Scagliarini, T., Marinazzo, D., Guo, Y., Stramaglia, S., & Rosas, F. E. (2022).
-        Quantifying high-order interdependencies on individual patterns via the local O-information: Theory and applications to music analysis.
-        Physical Review Research, 4(1), 013184.
-        https://doi.org/10.1103/PhysRevResearch.4.013184
-
-        Pope, M., Varley, T. F., Grazia Puxeddu, M., Faskowitz, J., & Sporns, O. (2025).
-        Time-varying synergy/redundancy dominance in the human cerebral cortex. Journal of Physics: Complexity, 6(1), 015015.
-        https://doi.org/10.1088/2632-072X/adbaa9
 
     Parameters
     ----------
@@ -369,6 +363,18 @@ def local_o_information(
     -------
     NDArray[np.floating].
         The series of local O-informations.
+
+    References
+    ----------
+    Scagliarini, T., Marinazzo, D., Guo, Y., Stramaglia, S., & Rosas, F. E. (2022).
+    Quantifying high-order interdependencies on individual patterns via the local O-information: Theory and applications to music analysis.
+    Physical Review Research, 4(1), 013184.
+    https://doi.org/10.1103/PhysRevResearch.4.013184
+
+    Pope, M., Varley, T. F., Grazia Puxeddu, M., Faskowitz, J., & Sporns, O. (2025).
+    Time-varying synergy/redundancy dominance in the human cerebral cortex. Journal of Physics: Complexity, 6(1), 015015.
+    https://doi.org/10.1088/2632-072X/adbaa9
+
     """
 
     return -local_k_wms(k=2, data=data, cov=cov, idxs=idxs)
@@ -377,24 +383,9 @@ def local_o_information(
 def o_information(cov: NDArray[np.floating], idxs: tuple[int, ...] = (-1,)) -> float:
     """
     Compute O-information using Gaussian estimation.
-    
-    :math: `\Omega(X) = TC(X) - DTC(X)`
-    :math: `\Omega(X) = (2-N)TC(X) + \\sum_{i=1}^{N}TC(X^{-i})`
 
     O-information quantifies the balance between redundancy (positive values)
     and synergy (negative values) in multivariate information.
-
-    See:
-        Rosas, F., Mediano, P. A. M., Gastpar, M., & Jensen, H. J. (2019).
-        Quantifying High-order Interdependencies via Multivariate
-        Extensions of the Mutual Information.
-        Physical Review E, 100(3), Article 3.
-        https://doi.org/10.1103/PhysRevE.100.032305
-
-        Varley, T. F., Pope, M., Faskowitz, J., & Sporns, O. (2023).
-        Multivariate information theory uncovers synergistic subsystems of the human cerebral cortex.
-        Communications Biology, 6(1), Article 1.
-        https://doi.org/10.1038/s42003-023-04843-w
 
     Parameters
     ----------
@@ -410,6 +401,18 @@ def o_information(cov: NDArray[np.floating], idxs: tuple[int, ...] = (-1,)) -> f
     float
         The expected O-information.
 
+    References
+    ----------
+    Rosas, F., Mediano, P. A. M., Gastpar, M., & Jensen, H. J. (2019).
+    Quantifying High-order Interdependencies via Multivariate Extensions of the Mutual Information.
+    Physical Review E, 100(3), Article 3.
+    https://doi.org/10.1103/PhysRevE.100.032305
+
+    Varley, T. F., Pope, M., Faskowitz, J., & Sporns, O. (2023).
+    Multivariate information theory uncovers synergistic subsystems of the human cerebral cortex.
+    Communications Biology, 6(1), Article 1.
+    https://doi.org/10.1038/s42003-023-04843-w
+
     """
 
     return -k_wms(k=2, cov=cov, idxs=idxs)
@@ -419,14 +422,6 @@ def tse_complexity(num_samples: int, cov: NDArray[np.floating]) -> float:
     """
     Computes the Tononi-Sporns-Edelman complexity using Gaussian
     estimators.
-
-    See:
-        Tononi, G., Sporns, O., & Edelman, G. M. (1994).
-        A measure for brain complexity: Relating functional segregation and
-            integration in the nervous system.
-        Proceedings of the National Academy of Sciences, 91(11), Article 11.
-        https://doi.org/10.1073/pnas.91.11.5033
-
 
     Parameters
     ----------
@@ -439,6 +434,14 @@ def tse_complexity(num_samples: int, cov: NDArray[np.floating]) -> float:
     -------
     float
         The TSE complexity.
+
+    References
+    ----------
+    Tononi, G., Sporns, O., & Edelman, G. M. (1994).
+    A measure for brain complexity: Relating functional segregation and integration in the nervous system.
+    Proceedings of the National Academy of Sciences, 91(11), Article 11.
+    https://doi.org/10.1073/pnas.91.11.5033
+
     """
 
     N: int = cov.shape[0]  # Number of channels
@@ -472,7 +475,8 @@ def description_complexity(
     cov: NDArray[np.floating], idxs: tuple[int, ...] = (-1,)
 ) -> float:
     """
-    C(X) = DTC(X) / N
+    .. math:: 
+        C(X) = DTC(X) / N 
 
     Parameters
     ----------
@@ -487,6 +491,13 @@ def description_complexity(
     float
         The expected description complexity.
 
+    References
+    ----------
+    Varley, T. F., Pope, M., Faskowitz, J., & Sporns, O. (2023).
+    Multivariate information theory uncovers synergistic subsystems of the human cerebral cortex.
+    Communications Biology, 6(1), Article 1.
+    https://doi.org/10.1038/s42003-023-04843-w
+    
     """
 
     N: float = float(cov.shape[0]) if idxs[0] == -1 else float(len(idxs))
@@ -500,7 +511,6 @@ def local_description_complexity(
     idxs: tuple[int, ...] = (-1,),
 ) -> NDArray[np.floating]:
     """
-    c(x) = dtc(x) / N
 
     Parameters
     ----------

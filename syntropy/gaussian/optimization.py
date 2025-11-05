@@ -10,7 +10,7 @@ import numpy as np
 import random
 import math
 from numpy.typing import NDArray
-from syntropy.gaussian.multivariate_mi import o_information
+from .multivariate_mi import o_information
 from typing import Callable
 
 

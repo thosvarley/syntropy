@@ -1,5 +1,5 @@
 import numpy as np
-from syntropy.discrete.utils import mobius_inversion
+from .utils import mobius_inversion
 
 
 def partial_information_decomposition(
