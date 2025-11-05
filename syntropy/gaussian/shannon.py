@@ -22,7 +22,7 @@ def differential_entropy(
     ----------
     cov : NDArray[np.floating]
         The covariance matrix that defines the distribution.
-    idxs : tuple, optional
+    idxs : tuple[int, ...], optional
         The specific subset of variables to compute the total correlation of.
         Defaults to computing the TC of the entire covariance matrix.
 
