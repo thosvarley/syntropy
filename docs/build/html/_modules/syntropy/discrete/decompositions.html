@@ -33,6 +33,7 @@
   <h1>Source code for syntropy.discrete.decompositions</h1><div class="highlight"><pre>
 <span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">mobius_inversion</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Callable</span>
 
 
 <div class="viewcode-block" id="partial_information_decomposition">
@@ -41,28 +42,19 @@
     <span class="n">redundancy</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">inputs</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">,</span>
     <span class="n">target</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">,</span>
-    <span class="n">joint_distribution</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">tuple</span><span class="p">,</span> <span class="nb">float</span><span class="p">],</span>
+    <span class="n">joint_distribution</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span> <span class="nb">float</span><span class="p">],</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="p">(</span><span class="nb">dict</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Computes the partial information decomposition for up to four input variables</span>
 <span class="sd">    onto one (potentially joint) target variable.</span>
 
-<span class="sd">    The available redundancy functions are i_min from Finn and Lizier</span>
-<span class="sd">    and i_sx from Makkeh et al.. See:</span>
+<span class="sd">    The available redundancy functions are :math:`i_{\\min}` from Finn and Lizier and :math:`i_{sx}` from Makkeh et al..</span>
 
-<span class="sd">        Finn, C., &amp; Lizier, J. T. (2018).</span>
-<span class="sd">        Pointwise Partial Information Decomposition Using</span>
-<span class="sd">        the Specificity and Ambiguity Lattices.</span>
-<span class="sd">        Entropy, 20(4), Article 4.</span>
-<span class="sd">        https://doi.org/10.3390/e20040297</span>
+<span class="sd">    .. math:: </span>
 
-<span class="sd">        Makkeh, A., Gutknecht, A. J., &amp; Wibral, M. (2021).</span>
-<span class="sd">        Introducing a differentiable measure of pointwise</span>
-<span class="sd">        shared information.</span>
-<span class="sd">        Physical Review E, 103(3), 032149.</span>
-<span class="sd">        https://doi.org/10.1103/PhysRevE.103.032149</span>
-
-
+<span class="sd">        i_{\\min}(\\alpha;t) &amp;= \\min h(\\alpha_i) - \min h(\\alpha_i|t) \\\\</span>
+<span class="sd">           i_{sx}(\\alpha;t) &amp;= \\log\\frac{P(t)-P(t\\cap(\\alpha_1\\cup ...\\cup\\alpha_k))}{1-P(\\bar\\alpha_1\\cap ...\\cap\\alpha_N)}</span>
+<span class="sd">    </span>
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    redundancy : str</span>
@@ -87,6 +79,25 @@
 <span class="sd">    avg : dict</span>
 <span class="sd">        The expected value for each partial information atom.</span>
 
+<span class="sd">    References</span>
+<span class="sd">    ----------</span>
+<span class="sd">    Williams, P. L., &amp; Beer, R. D. (2010). </span>
+<span class="sd">    Nonnegative Decomposition of Multivariate Information. </span>
+<span class="sd">    arXiv:1004.2515 [Math-Ph, Physics:Physics, q-Bio]. </span>
+<span class="sd">    http://arxiv.org/abs/1004.2515</span>
+
+<span class="sd">    Finn, C., &amp; Lizier, J. T. (2018).</span>
+<span class="sd">    Pointwise Partial Information Decomposition Using</span>
+<span class="sd">    the Specificity and Ambiguity Lattices.</span>
+<span class="sd">    Entropy, 20(4), Article 4.</span>
+<span class="sd">    https://doi.org/10.3390/e20040297</span>
+
+<span class="sd">    Makkeh, A., Gutknecht, A. J., &amp; Wibral, M. (2021).</span>
+<span class="sd">    Introducing a differentiable measure of pointwise</span>
+<span class="sd">    shared information.</span>
+<span class="sd">    Physical Review E, 103(3), 032149.</span>
+<span class="sd">    https://doi.org/10.1103/PhysRevE.103.032149</span>
+<span class="sd">    </span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">ptw</span><span class="p">,</span> <span class="n">avg</span> <span class="o">=</span> <span class="n">mobius_inversion</span><span class="p">(</span>
@@ -104,27 +115,18 @@
 <div class="viewcode-block" id="partial_entropy_decomposition">
 <a class="viewcode-back" href="../../../api/syntropy.discrete.html#syntropy.discrete.partial_entropy_decomposition">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">partial_entropy_decomposition</span><span class="p">(</span>
-    <span class="n">redundancy</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">joint_distribution</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">tuple</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span>
+    <span class="n">redundancy</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">joint_distribution</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span> <span class="nb">float</span><span class="p">]</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="p">(</span><span class="nb">dict</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Computes the partial entropy decomposition of a joint distribution</span>
 <span class="sd">    with up to four elements.</span>
 
 <span class="sd">    The available redundancy functions are h_min from Finn and Lizier</span>
-<span class="sd">    and h_sx from Varley et al., See:</span>
-
-<span class="sd">        Finn, C., &amp; Lizier, J. T. (2020).</span>
-<span class="sd">        Generalised Measures of Multivariate Information Content.</span>
-<span class="sd">        Entropy, 22(2), Article 2.</span>
-<span class="sd">        https://doi.org/10.3390/e22020216</span>
-
-<span class="sd">        Varley, T. F., Pope, M., Maria Grazia, P., Joshua, F., &amp; Sporns, O. (2023).</span>
-<span class="sd">        Partial entropy decomposition reveals higher-order</span>
-<span class="sd">        information structures in human brain activity.</span>
-<span class="sd">        Proceedings of the National Academy of Sciences,</span>
-<span class="sd">        120(30), e2300888120.</span>
-<span class="sd">        https://doi.org/10.1073/pnas.2300888120</span>
-
+<span class="sd">    and h_sx from Varley et al.,</span>
+<span class="sd">    </span>
+<span class="sd">    .. math:: </span>
+<span class="sd">        h_{\\min}(\\alpha) &amp;= \\min(\\alpha_i) \\\\</span>
+<span class="sd">           h_{sx}(\\alpha) &amp;= \\log\\frac{1}{P(\\alpha_1\\cup ... \\cup\\alpha_N)}</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -144,6 +146,20 @@
 <span class="sd">    avg : dict[tuple, float]</span>
 <span class="sd">        The expected value for each partial entropy atom.</span>
 
+<span class="sd">    References</span>
+<span class="sd">    ----------</span>
+<span class="sd">    Finn, C., &amp; Lizier, J. T. (2020).</span>
+<span class="sd">    Generalised Measures of Multivariate Information Content.</span>
+<span class="sd">    Entropy, 22(2), Article 2.</span>
+<span class="sd">    https://doi.org/10.3390/e22020216</span>
+
+<span class="sd">    Varley, T. F., Pope, M., Maria Grazia, P., Joshua, F., &amp; Sporns, O. (2023).</span>
+<span class="sd">    Partial entropy decomposition reveals higher-order</span>
+<span class="sd">    information structures in human brain activity.</span>
+<span class="sd">    Proceedings of the National Academy of Sciences,</span>
+<span class="sd">    120(30), e2300888120.</span>
+<span class="sd">    https://doi.org/10.1073/pnas.2300888120</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">ptw</span><span class="p">,</span> <span class="n">avg</span> <span class="o">=</span> <span class="n">mobius_inversion</span><span class="p">(</span>
@@ -159,7 +175,9 @@
 <div class="viewcode-block" id="generalized_information_decomposition">
 <a class="viewcode-back" href="../../../api/syntropy.discrete.html#syntropy.discrete.generalized_information_decomposition">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">generalized_information_decomposition</span><span class="p">(</span>
-    <span class="n">redundancy</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">posterior_distribution</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">tuple</span><span class="p">,</span><span class="nb">float</span><span class="p">],</span> <span class="n">prior_distribution</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">tuple</span><span class="p">,</span><span class="nb">float</span><span class="p">]</span>
+    <span class="n">redundancy</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">posterior_distribution</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span> <span class="nb">float</span><span class="p">],</span>
+    <span class="n">prior_distribution</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span> <span class="nb">float</span><span class="p">],</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="p">(</span><span class="nb">dict</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Computes the generalized information decomposition from Varley et al.</span>
@@ -169,13 +187,6 @@
 <span class="sd">    Available redundnacy functions are &quot;hmin&quot; and &quot;hsx&quot;. See</span>
 <span class="sd">    the documentation for the partial_entropy_decomposition() function</span>
 <span class="sd">    for details.</span>
-
-<span class="sd">    See:</span>
-<span class="sd">        Varley, T. F. (2024).</span>
-<span class="sd">        Generalized decomposition of multivariate information.</span>
-<span class="sd">        PLOS ONE, 19(2), e0297128.</span>
-<span class="sd">        https://doi.org/10.1371/journal.pone.0297128</span>
-
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -197,10 +208,19 @@
 <span class="sd">    avg : dict[tuple, float]</span>
 <span class="sd">        The average Kullback-Leibler divergence for each atom.</span>
 
+<span class="sd">    References</span>
+<span class="sd">    ----------</span>
+<span class="sd">    Varley, T. F. (2024).</span>
+<span class="sd">    Generalized decomposition of multivariate information.</span>
+<span class="sd">    PLOS ONE, 19(2), e0297128.</span>
+<span class="sd">    https://doi.org/10.1371/journal.pone.0297128</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">assert</span> <span class="nb">set</span><span class="p">(</span><span class="n">prior_distribution</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span><span class="o">.</span><span class="n">issuperset</span><span class="p">(</span>
         <span class="nb">set</span><span class="p">(</span><span class="n">posterior_distribution</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
-    <span class="p">),</span> <span class="s2">&quot;The support set of the prior must be a superset of the support set of the posterior.&quot;</span>
+    <span class="p">),</span> <span class="p">(</span>
+        <span class="s2">&quot;The support set of the prior must be a superset of the support set of the posterior.&quot;</span>
+    <span class="p">)</span>
     <span class="k">assert</span> <span class="n">redundancy</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">in</span> <span class="p">{</span>
         <span class="s2">&quot;hmin&quot;</span><span class="p">,</span>
         <span class="s2">&quot;hsx&quot;</span><span class="p">,</span>
@@ -239,20 +259,12 @@
 
 <div class="viewcode-block" id="representational_complexity">
 <a class="viewcode-back" href="../../../api/syntropy.discrete.html#syntropy.discrete.representational_complexity">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">representational_complexity</span><span class="p">(</span><span class="n">avg</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">comparator</span><span class="o">=</span><span class="nb">min</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">representational_complexity</span><span class="p">(</span><span class="n">avg</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">comparator</span><span class="p">:</span> <span class="n">Callable</span> <span class="o">=</span> <span class="nb">min</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Computes the representational complexity of a given partial information or entropy lattice.</span>
 <span class="sd">    The representational complexity is a measure of how</span>
 <span class="sd">    much partial information atoms of a given degree of synergy</span>
 <span class="sd">    contribute to the overall mutual information or entropy.</span>
-
-<span class="sd">    See:</span>
-<span class="sd">        Ehrlich, D. A., Schneider, A. C., Priesemann, V., Wibral, M., &amp; Makkeh, A. (2023).</span>
-<span class="sd">        A Measure of the Complexity of Neural Representations</span>
-<span class="sd">        based on Partial Information Decomposition.</span>
-<span class="sd">        Transactions on Machine Learning Research.</span>
-<span class="sd">        https://openreview.net/forum?id=R8TU3pfzFr</span>
-
 
 
 <span class="sd">    Parameters</span>
@@ -271,6 +283,14 @@
 <span class="sd">    -------</span>
 <span class="sd">    float</span>
 <span class="sd">        The representational complexity.</span>
+
+<span class="sd">    References</span>
+<span class="sd">    ----------</span>
+<span class="sd">    Ehrlich, D. A., Schneider, A. C., Priesemann, V., Wibral, M., &amp; Makkeh, A. (2023).</span>
+<span class="sd">    A Measure of the Complexity of Neural Representations</span>
+<span class="sd">    based on Partial Information Decomposition.</span>
+<span class="sd">    Transactions on Machine Learning Research.</span>
+<span class="sd">    https://openreview.net/forum?id=R8TU3pfzFr</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
 

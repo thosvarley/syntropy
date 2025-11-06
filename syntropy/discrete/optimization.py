@@ -4,8 +4,8 @@ from .utils import get_marginal_distribution, reduce_state
 
 
 def constrained_maximum_entropy_distributions(
-    joint_distribution: dict,
-    marginal_constraints: list = [(None,)],
+    joint_distribution: dict[tuple[int, ...], float],
+    marginal_constraints: list[tuple] = [(None,)],
     order: int = -1,
     max_iters: int = 10_000,
     tol: float = 1e-6,

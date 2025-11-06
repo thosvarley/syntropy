@@ -23,7 +23,7 @@ extensions = [
     'sphinx.ext.napoleon',       # Support for NumPy/Google style docstrings
     'sphinx.ext.viewcode',       # Add links to source code
     'sphinx.ext.mathjax',        # Math support
-    'sphinx_autodoc_typehints',  # Type hints in docs
+    #'sphinx_autodoc_typehints',  # Type hints in docs
 ]
 
 templates_path = ['_templates']

@@ -54,13 +54,11 @@
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AlphaSynDist</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Computes the :math:`\\alpha`-synergistic entropy for a joint distribution</span>
-<span class="sd">    for a given value of :math:`\\alpha`. See:</span>
+<span class="sd">    for a given value of :math:`\\alpha`.</span>
 
-<span class="sd">        Varley, T. F. (2024).</span>
-<span class="sd">        A scalable synergy-first backbone decomposition of</span>
-<span class="sd">        higher-order structures in complex systems.</span>
-<span class="sd">        Npj Complexity, 1(1), 1–11.</span>
-<span class="sd">        https://doi.org/10.1038/s44260-024-00011-1</span>
+<span class="sd">    .. math::</span>
+
+<span class="sd">        h^{syn}_{\\alpha}(x) = \\min_{a\\subseteq x, |a|=\\alpha} h(x^{a}|x^{-a})</span>
 
 
 <span class="sd">    Parameters</span>
@@ -79,6 +77,14 @@
 <span class="sd">    dict[tuple, float]</span>
 <span class="sd">        The local alpha-synergy for each state.</span>
 
+<span class="sd">    References</span>
+<span class="sd">    ----------</span>
+<span class="sd">    Varley, T. F. (2024).</span>
+<span class="sd">    A scalable synergy-first backbone decomposition of</span>
+<span class="sd">    higher-order structures in complex systems.</span>
+<span class="sd">    Npj Complexity, 1(1), 1–11.</span>
+<span class="sd">    https://doi.org/10.1038/s44260-024-00011-1</span>
+<span class="sd">    </span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">assert</span> <span class="n">definition</span> <span class="ow">in</span> <span class="p">{</span>
         <span class="s2">&quot;min&quot;</span><span class="p">,</span>
@@ -158,7 +164,7 @@
     <span class="n">definition</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;min&quot;</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PartialSpectra</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Computes the partial entropy spectrum for each state.</span>
+<span class="sd">    Computes the partial synergy for every value of :math:`alpha` (the spectrum) for each local state. </span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -252,7 +258,7 @@
     <span class="n">definition</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;min&quot;</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PartialSpectra</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Computes the local total correlation spectrum for each state.</span>
+<span class="sd">    Computes the local total correlation spectrum for each state using the Kullback-Leibler divergence.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>

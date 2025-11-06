@@ -40,38 +40,39 @@
 <dt class="sig sig-object py" id="syntropy.discrete.co_information">
 <span class="sig-prename descclassname"><span class="pre">syntropy.discrete.</span></span><span class="sig-name descname"><span class="pre">co_information</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">joint_distribution</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/discrete/multivariate_mi.html#co_information"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.discrete.co_information" title="Link to this definition">¶</a></dt>
 <dd><p>Computes the cO-information, the third generalization of bivariate mutual information. Unlike total correlation and dual total correlation, the cO-information can be negative and is difficult to interpret.</p>
-<dl class="simple">
-<dt>See:</dt><dd><p>Bell, A. J. (2003, April).
-The cO-information lattice.
-4th International Symposium on Independent Component Analysis and
-Blind Signal Separation, Nara, Japan.
-<a class="reference external" href="https://www.semanticscholar.org/paper/THE-CO-INFORMATION-LATTICE-Bell/25a0cd8d486d5ffd204485685226f189e6eadd4d">https://www.semanticscholar.org/paper/THE-CO-INFORMATION-LATTICE-Bell/25a0cd8d486d5ffd204485685226f189e6eadd4d</a></p>
-</dd>
-</dl>
+<div class="math notranslate nohighlight">
+\[Co(X) = \sum_{\xi\subseteq X}(-1)^{|\xi|}H(\xi)\]</div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>joint_distribution</strong> (<em>dict</em><em>[</em><em>tuple</em><em>, </em><em>float</em><em>]</em>) – The joint probability distribution.
 Keys are tuples corresponding to the state of each element.
 The valules are the probabilities.</p>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type">(<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>], <code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>)</span></p>
-</dd>
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p><ul class="simple">
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
 <li><p><strong>ptw</strong> (<em>dict[tuple, float]</em>) – The pointwise cO-information.</p></li>
 <li><p><strong>avg</strong> (<em>float</em>) – The average cO-information.</p></li>
 </ul>
 </p>
 </dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>(tuple[dict, float], &lt;class ‘float’&gt;)</p>
+</dd>
 </dl>
+<p class="rubric">References</p>
+<p>Bell, A. J. (2003, April).
+The Co-information lattice.
+4th International Symposium on Independent Component Analysis and
+Blind Signal Separation, Nara, Japan.
+<a class="reference external" href="https://www.semanticscholar.org/paper/THE-CO-INFORMATION-LATTICE-Bell/25a0cd8d486d5ffd204485685226f189e6eadd4d">https://www.semanticscholar.org/paper/THE-CO-INFORMATION-LATTICE-Bell/25a0cd8d486d5ffd204485685226f189e6eadd4d</a></p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="syntropy.discrete.conditional_entropy">
 <span class="sig-prename descclassname"><span class="pre">syntropy.discrete.</span></span><span class="sig-name descname"><span class="pre">conditional_entropy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">idxs_x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idxs_y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">joint_distribution</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/discrete/shannon.html#conditional_entropy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.discrete.conditional_entropy" title="Link to this definition">¶</a></dt>
 <dd><p>Computes the conditional entropy of X given Y.</p>
-<p><span class="math notranslate nohighlight">\(H(X|Y) = H(X,Y) - H(Y)\)</span></p>
+<div class="math notranslate nohighlight">
+\[H(X|Y) = H(X,Y) - H(Y)\]</div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -86,15 +87,15 @@ The valules are the probabilities.</p>
 </p></li>
 </ul>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>]</span></p>
-</dd>
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p><ul class="simple">
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
 <li><p><strong>ptw</strong> (<em>dict</em>) – The pointwise entropy for each state in the joint distribution.</p></li>
 <li><p><strong>avg</strong> (<em>float</em>) – The average entropy</p></li>
 </ul>
 </p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple[dict, float]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -103,7 +104,9 @@ The valules are the probabilities.</p>
 <dt class="sig sig-object py" id="syntropy.discrete.conditional_mutual_information">
 <span class="sig-prename descclassname"><span class="pre">syntropy.discrete.</span></span><span class="sig-name descname"><span class="pre">conditional_mutual_information</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">idxs_x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idxs_y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idxs_z</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">joint_distribution</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/discrete/shannon.html#conditional_mutual_information"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.discrete.conditional_mutual_information" title="Link to this definition">¶</a></dt>
 <dd><p>Computes the mutual information between X and Y condioned on Z.</p>
-<p><span class="math notranslate nohighlight">\(I(X,Y|Z) = H(X|Z) + H(Y|Z) - H(X,Y|Z)\)</span></p>
+<div class="math notranslate nohighlight">
+\[\begin{split}I(X,Y|Z) &amp;= H(X|Z) + H(Y|Z) - H(X,Y|Z) \\
+         &amp;= I(X;Y,Z) - I(X;Z)\end{split}\]</div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -115,15 +118,15 @@ Keys are tuples corresponding to the state of each element.
 The valules are the probabilities.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>]</span></p>
-</dd>
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p><ul class="simple">
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
 <li><p><strong>ptw</strong> (<em>dict</em>) – The pointwise mutual information for each state in the joint distribution.</p></li>
 <li><p><strong>avg</strong> (<em>float</em>) – The average mutual information</p></li>
 </ul>
 </p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple[dict, float]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -133,20 +136,16 @@ The valules are the probabilities.</p></li>
 <span class="sig-prename descclassname"><span class="pre">syntropy.discrete.</span></span><span class="sig-name descname"><span class="pre">connected_information</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">joint_distribution</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">maximum_order</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/discrete/multivariate_mi.html#connected_information"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.discrete.connected_information" title="Link to this definition">¶</a></dt>
 <dd><p>Returns the connected information profile from Schneidman et al.,
 which decomposes the total correlation into contributing parts of
-different orders.</p>
+different orders:</p>
+<div class="math notranslate nohighlight">
+\[TC(X) = \sum_{k=2}^{N}TC^{k}(X)\]</div>
+<p>Where the <cite>k</cite> superscript refers to the maximum-entropy distribution that preserves all marginals of order <cite>k</cite>.</p>
 <p>One of the few measures that can reliably distinguish between the
 JAMES_DYADIC and JAMES_TRIADIC distributions.</p>
-<dl class="simple">
-<dt>See:</dt><dd><p>Schneidman, E., Still, S., Berry, M. J., &amp; Bialek, W. (2003).
-Network Information and Connected Correlations.
-Physical Review Letters, 91(23), 238701.
-<a class="reference external" href="https://doi.org/10.1103/PhysRevLett.91.238701">https://doi.org/10.1103/PhysRevLett.91.238701</a></p>
-</dd>
-</dl>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>joint_distribution</strong> (<em>dict</em><em>[</em><em>tuple</em><em>, </em><em>float</em><em>]</em>) – The joint probability distribution.
+<li><p><strong>joint_distribution</strong> (<em>dict</em><em>[</em><em>tuple</em><em>[</em><em>int</em><em>, </em><em>...</em><em>]</em><em>, </em><em>float</em><em>]</em>) – The joint probability distribution.
 Keys are tuples corresponding to the state of each element.
 The valules are the probabilities.</p></li>
 <li><p><strong>maximum_order</strong> (<em>int</em><em>, </em><em>optional</em>) – The highest order of marginals to sweep.
@@ -160,6 +159,11 @@ The default sweeps all.</p></li>
 <dd class="field-odd"><p>list[float]</p>
 </dd>
 </dl>
+<p class="rubric">References</p>
+<p>Schneidman, E., Still, S., Berry, M. J., &amp; Bialek, W. (2003).
+Network Information and Connected Correlations.
+Physical Review Letters, 91(23), 238701.
+<a class="reference external" href="https://doi.org/10.1103/PhysRevLett.91.238701">https://doi.org/10.1103/PhysRevLett.91.238701</a></p>
 </dd></dl>
 
 <dl class="py function">
@@ -169,14 +173,6 @@ The default sweeps all.</p></li>
 using a pre-constructed dictionary optimized on Y. The relative
 Lempel-Ziv complexity is the extra patterns that appear in X but
 not in the compressed Y.</p>
-<dl class="simple">
-<dt>See:</dt><dd><p>Ziv, J., &amp; Merhav, N. (1993).
-A Measure of Relative Entropy between Individual Sequences with
-Application to Universal Classification.
-Proceedings. IEEE International Symposium on Information Theory, 352–352.
-<a class="reference external" href="https://doi.org/10.1109/ISIT.1993.748668">https://doi.org/10.1109/ISIT.1993.748668</a></p>
-</dd>
-</dl>
 <p>This code uses the optimized dictionary for Y, rather than searching all
 substrings of Y. Using all possible substrings is very impractical for
 long time series. As a result, however, it is very sensitive to the
@@ -201,6 +197,12 @@ single-character strings (“A”, “a”, “B”, “b”, etc.).</p></li>
 <dd class="field-odd"><p>int</p>
 </dd>
 </dl>
+<p class="rubric">References</p>
+<p>Ziv, J., &amp; Merhav, N. (1993).
+A Measure of Relative Entropy between Individual Sequences with
+Application to Universal Classification.
+Proceedings. IEEE International Symposium on Information Theory, 352–352.
+<a class="reference external" href="https://doi.org/10.1109/ISIT.1993.748668">https://doi.org/10.1109/ISIT.1993.748668</a></p>
 </dd></dl>
 
 <dl class="py function">
@@ -210,43 +212,59 @@ single-character strings (“A”, “a”, “B”, “b”, etc.).</p></li>
 heuristic, easy-to-compute approximation of the full TSE-Complexity.
 Later shown by Varley et al., to be directly proportional to
 the dual total correlation.</p>
-<p><span class="math notranslate nohighlight">\(C(X) = DTC(X) / N\)</span></p>
+<div class="math notranslate nohighlight">
+\[C(X) = \frac{DTC(X)}{N}\]</div>
 <p>Where <span class="math notranslate nohighlight">\(N\)</span> is the number of elements in <span class="math notranslate nohighlight">\(X\)</span>.</p>
-<dl class="simple">
-<dt>See:</dt><dd><p>Varley, T. F., Pope, M., Faskowitz, J., &amp; Sporns, O. (2023).
-Multivariate information theory uncovers synergistic subsystems of the human cerebral cortex.
-Communications Biology, 6(1), Article 1.
-<a class="reference external" href="https://doi.org/10.1038/s42003-023-04843-w">https://doi.org/10.1038/s42003-023-04843-w</a></p>
-</dd>
-</dl>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>joint_distribution</strong> (<em>dict</em><em>[</em><em>tuple</em><em>, </em><em>float</em><em>]</em>) – The joint probability distribution.
 Keys are tuples corresponding to the state of each element.
 The valules are the probabilities.</p>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type">(<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>], <code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>)</span></p>
-</dd>
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p><ul class="simple">
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
 <li><p><strong>ptw</strong> (<em>dict[tuple, float]</em>) – The pointwise description complexity.</p></li>
 <li><p><strong>avg</strong> (<em>float</em>) – The average description complexity.</p></li>
 </ul>
 </p>
 </dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>(tuple[dict, float], &lt;class ‘float’&gt;)</p>
+</dd>
 </dl>
+<p class="rubric">References</p>
+<p>Varley, T. F., Pope, M., Faskowitz, J., &amp; Sporns, O. (2023).
+Multivariate information theory uncovers synergistic subsystems of the human cerebral cortex.
+Communications Biology, 6(1), Article 1.
+<a class="reference external" href="https://doi.org/10.1038/s42003-023-04843-w">https://doi.org/10.1038/s42003-023-04843-w</a></p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="syntropy.discrete.dual_total_correlation">
 <span class="sig-prename descclassname"><span class="pre">syntropy.discrete.</span></span><span class="sig-name descname"><span class="pre">dual_total_correlation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">joint_distribution</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/discrete/multivariate_mi.html#dual_total_correlation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.discrete.dual_total_correlation" title="Link to this definition">¶</a></dt>
 <dd><p>Computes the local and expected dual total correlations for the joint distribution.</p>
-<p>The dual total correlation is given alternately by:</p>
-<p><span class="math notranslate nohighlight">\(DTC(X) = H(X) - \sum_{i=1}^{N}H(X_i|X^{-i})\)</span></p>
-<p><span class="math notranslate nohighlight">\(DTC(X) = (N-1)TC(X) - \sum_{i=1}^{N}TC(X^{-i})\)</span></p>
-<dl>
-<dt>See:</dt><dd><p>Abdallah, S. A., &amp; Plumbley, M. D. (2012).
+<div class="math notranslate nohighlight">
+\[\begin{split}DTC(X) &amp;= H(X) - \sum_{i=1}^{N}H(X_i|X^{-i}) \\
+       &amp;= (N-1)\times TC(X) - \sum_{i=1}^{N}TC(X^{-i})\end{split}\]</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>joint_distribution</strong> (<em>dict</em><em>[</em><em>tuple</em><em>, </em><em>float</em><em>]</em>) – The joint probability distribution.
+Keys are tuples corresponding to the state of each element.
+The valules are the probabilities.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>ptw</strong> (<em>dict[tuple, float]</em>) – The pointwise DTC .</p></li>
+<li><p><strong>avg</strong> (<em>float</em>) – The average DTC.</p></li>
+</ul>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>(tuple[dict, float], &lt;class ‘float’&gt;)</p>
+</dd>
+</dl>
+<p class="rubric">References</p>
+<p>Abdallah, S. A., &amp; Plumbley, M. D. (2012).
 A measure of statistical complexity based on predictive information with application to finite spin systems.
 Physics Letters A, 376(4), 275–281.
 <a class="reference external" href="https://doi.org/10.1016/j.physleta.2011.10.066">https://doi.org/10.1016/j.physleta.2011.10.066</a></p>
@@ -254,25 +272,6 @@ Physics Letters A, 376(4), 275–281.
 Quantifying High-order Interdependencies via Multivariate Extensions of the Mutual Information.
 Physical Review E, 100(3), Article 3.
 <a class="reference external" href="https://doi.org/10.1103/PhysRevE.100.032305">https://doi.org/10.1103/PhysRevE.100.032305</a></p>
-</dd>
-</dl>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>joint_distribution</strong> (<em>dict</em><em>[</em><em>tuple</em><em>, </em><em>float</em><em>]</em>) – The joint probability distribution.
-Keys are tuples corresponding to the state of each element.
-The valules are the probabilities.</p>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type">(<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>], <code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>)</span></p>
-</dd>
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p><ul class="simple">
-<li><p><strong>ptw</strong> (<em>dict[tuple, float]</em>) – The pointwise DTC .</p></li>
-<li><p><strong>avg</strong> (<em>float</em>) – The average DTC.</p></li>
-</ul>
-</p>
-</dd>
-</dl>
 </dd></dl>
 
 <dl class="py function">
@@ -284,13 +283,6 @@ posterior distribution from a prior distribution.</p>
 <p>Available redundnacy functions are “hmin” and “hsx”. See
 the documentation for the partial_entropy_decomposition() function
 for details.</p>
-<dl class="simple">
-<dt>See:</dt><dd><p>Varley, T. F. (2024).
-Generalized decomposition of multivariate information.
-PLOS ONE, 19(2), e0297128.
-<a class="reference external" href="https://doi.org/10.1371/journal.pone.0297128">https://doi.org/10.1371/journal.pone.0297128</a></p>
-</dd>
-</dl>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -302,18 +294,23 @@ the supppirt set of the prior distribution.</p></li>
 <li><p><strong>prior_distribution</strong> (<em>dict</em><em>[</em><em>tuple</em><em>, </em><em>float</em><em>]</em>) – The prior distribution.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type">(<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>)</span></p>
-</dd>
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p><ul class="simple">
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
 <li><p><strong>ptw</strong> (<em>dict[tuple, dict]</em>) – A dict of dicts.
 The local Kullback-Leibler divergence for each atom for each state.</p></li>
 <li><p><strong>avg</strong> (<em>dict[tuple, float]</em>) – The average Kullback-Leibler divergence for each atom.</p></li>
 </ul>
 </p>
 </dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>(&lt;class ‘dict’&gt;, &lt;class ‘dict’&gt;)</p>
+</dd>
 </dl>
+<p class="rubric">References</p>
+<p>Varley, T. F. (2024).
+Generalized decomposition of multivariate information.
+PLOS ONE, 19(2), e0297128.
+<a class="reference external" href="https://doi.org/10.1371/journal.pone.0297128">https://doi.org/10.1371/journal.pone.0297128</a></p>
 </dd></dl>
 
 <dl class="py function">
@@ -321,7 +318,8 @@ The local Kullback-Leibler divergence for each atom for each state.</p></li>
 <span class="sig-prename descclassname"><span class="pre">syntropy.discrete.</span></span><span class="sig-name descname"><span class="pre">kullback_leibler_divergence</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">posterior_distribution</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prior_distribution</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/discrete/shannon.html#kullback_leibler_divergence"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.discrete.kullback_leibler_divergence" title="Link to this definition">¶</a></dt>
 <dd><p>Computes the Kullback-Leibler divergence from a prior distribution P(X) and
 and posterior distribution Q(X).</p>
-<p><span class="math notranslate nohighlight">\(D_{KL}(P||Q) = \sum_{x} P(x) \log \frac{P(x)}{Q(x)}\)</span></p>
+<div class="math notranslate nohighlight">
+\[D_{KL}(P||Q) = \sum_{x} P(x) \log \frac{P(x)}{Q(x)}\]</div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -329,15 +327,15 @@ and posterior distribution Q(X).</p>
 <li><p><strong>prior_distribution</strong> (<em>dict</em>) – The joint distribution of the prior distribution Q(X)</p></li>
 </ul>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>]</span></p>
-</dd>
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p><ul class="simple">
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
 <li><p><strong>ptw</strong> (<em>dict</em>) – The pointwise Kullback-Leibler divergence for each state in the joint distribution.</p></li>
 <li><p><strong>avg</strong> (<em>float</em>) – The average Kullback-Leibler divergence.</p></li>
 </ul>
 </p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple[dict, float]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -345,25 +343,12 @@ and posterior distribution Q(X).</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="syntropy.discrete.lempel_ziv_complexity">
 <span class="sig-prename descclassname"><span class="pre">syntropy.discrete.</span></span><span class="sig-name descname"><span class="pre">lempel_ziv_complexity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_dictionary</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/discrete/temporal.html#lempel_ziv_complexity"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.discrete.lempel_ziv_complexity" title="Link to this definition">¶</a></dt>
-<dd><p>Uses the classic Lempel-Ziv compression algorithm to estimate the
-entropy rate of a one-dimensional array. If each element in X is a
-multi-dimensional tuple, then the result is equivalent to the
-joint mutual information rate.</p>
-<p>The extension to multivariate Lempel-Ziv is straightforward and involves representing
-the joint state of each element at time t as a tuple (X(t), Y(t)) and
-treating the two sources as a single joint source.</p>
-<dl>
-<dt>See:</dt><dd><p>Zozor, S., Ravier, P., &amp; Buttelli, O. (2005).
-On Lempel–Ziv complexity for multidimensional data analysis.
-Physica A: Statistical Mechanics and Its Applications, 345(1), 285–302.
-<a class="reference external" href="https://doi.org/10.1016/j.physa.2004.07.025">https://doi.org/10.1016/j.physa.2004.07.025</a></p>
-<p>Blanc, J.-L., Schmidt, N., Bonnier, L., Pezard, L., &amp; Lesne, A. (2008).
-Quantifying Neural Correlations Using Lempel-Ziv Complexity.
-Deuxième conférence française de Neurosciences Computationnelles,
-Marseille, France.
-<a class="reference external" href="https://hal.science/hal-00331599/document">https://hal.science/hal-00331599/document</a></p>
-</dd>
-</dl>
+<dd><p>Uses the classic Lempel-Ziv compression algorithm to estimate the entropy rate of a one-dimensional array with <span class="math notranslate nohighlight">\(N\)</span> samples.
+If each element in X is a multi-dimensional tuple, then the result is equivalent to the joint entropy rate.</p>
+<p>The extension to multivariate Lempel-Ziv is straightforward and involves representing the joint state of each element at time t as a tuple (X(t), Y(t)) and treating the two sources as a single joint source.</p>
+<p>Here, the dictionary length <span class="math notranslate nohighlight">\(|D|\)</span> is normalized:</p>
+<div class="math notranslate nohighlight">
+\[\textnormal{Complexity}(X) = \frac{|D|\log|D|}{N}\]</div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -373,38 +358,40 @@ single-character strings (“A”, “a”, “B”, “b”, etc.)..</p></li>
 <li><p><strong>return_dictionary</strong> (<em>bool</em>)</p></li>
 </ul>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">set</span></code>]</span></p>
-</dd>
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p><ul class="simple">
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
 <li><p><em>float</em> – The estimated Lempel-Ziv complexity.</p></li>
 <li><p><em>set</em> – The dictionary (only returned if return_dictionary == True)</p></li>
 </ul>
 </p>
 </dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float | tuple[float, set]</p>
+</dd>
 </dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="syntropy.discrete.lempel_ziv_mutual_information">
-<span class="sig-prename descclassname"><span class="pre">syntropy.discrete.</span></span><span class="sig-name descname"><span class="pre">lempel_ziv_mutual_information</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Y</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/discrete/temporal.html#lempel_ziv_mutual_information"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.discrete.lempel_ziv_mutual_information" title="Link to this definition">¶</a></dt>
-<dd><p>Estimates the discrete mutual information rate for two channels X and Y
-with the Lempel-Ziv compression algorithm.</p>
-<p>This measure can be transiently negative, although in the limit it
-approximates the discrete information rate.</p>
-<dl>
-<dt>See:</dt><dd><p>Zozor, S., Ravier, P., &amp; Buttelli, O. (2005).
-On Lempel–Ziv complexity for multidimensional data analysis.
-Physica A: Statistical Mechanics and Its Applications, 345(1), 285–302.
-<a class="reference external" href="https://doi.org/10.1016/j.physa.2004.07.025">https://doi.org/10.1016/j.physa.2004.07.025</a></p>
+<p class="rubric">References</p>
+<p>Schartner, M. M., Carhart-Harris, R. L., Barrett, A. B., Seth, A. K., &amp; Muthukumaraswamy, S. D. (2017).
+Increased spontaneous MEG signal diversity for psychoactive doses of ketamine, LSD and psilocybin.
+Scientific Reports, 7, 46421.
+<a class="reference external" href="https://doi.org/10.1038/srep46421">https://doi.org/10.1038/srep46421</a></p>
 <p>Blanc, J.-L., Schmidt, N., Bonnier, L., Pezard, L., &amp; Lesne, A. (2008).
 Quantifying Neural Correlations Using Lempel-Ziv Complexity.
 Deuxième conférence française de Neurosciences Computationnelles,
 Marseille, France.
 <a class="reference external" href="https://hal.science/hal-00331599/document">https://hal.science/hal-00331599/document</a></p>
-</dd>
-</dl>
+<p>Zozor, S., Ravier, P., &amp; Buttelli, O. (2005).
+On Lempel–Ziv complexity for multidimensional data analysis.
+Physica A: Statistical Mechanics and Its Applications, 345(1), 285–302.
+<a class="reference external" href="https://doi.org/10.1016/j.physa.2004.07.025">https://doi.org/10.1016/j.physa.2004.07.025</a></p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="syntropy.discrete.lempel_ziv_mutual_information">
+<span class="sig-prename descclassname"><span class="pre">syntropy.discrete.</span></span><span class="sig-name descname"><span class="pre">lempel_ziv_mutual_information</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Y</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/discrete/temporal.html#lempel_ziv_mutual_information"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.discrete.lempel_ziv_mutual_information" title="Link to this definition">¶</a></dt>
+<dd><p>Estimates the discrete mutual information rate for two channels X and Y with the Lempel-Ziv compression algorithm.
+This measure can be transiently negative, although in the limit it approximates the discrete information rate.</p>
+<div class="math notranslate nohighlight">
+\[I_{LZ}(X;Y) = LZ(X) + LZ(Y) - LZ(X,Y)\]</div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -421,6 +408,16 @@ single-character strings (“A”, “a”, “B”, “b”, etc.)..</p></li>
 <dd class="field-odd"><p>float</p>
 </dd>
 </dl>
+<p class="rubric">References</p>
+<p>Zozor, S., Ravier, P., &amp; Buttelli, O. (2005).
+On Lempel–Ziv complexity for multidimensional data analysis.
+Physica A: Statistical Mechanics and Its Applications, 345(1), 285–302.
+<a class="reference external" href="https://doi.org/10.1016/j.physa.2004.07.025">https://doi.org/10.1016/j.physa.2004.07.025</a></p>
+<p>Blanc, J.-L., Schmidt, N., Bonnier, L., Pezard, L., &amp; Lesne, A. (2008).
+Quantifying Neural Correlations Using Lempel-Ziv Complexity.
+Deuxième conférence française de Neurosciences Computationnelles,
+Marseille, France.
+<a class="reference external" href="https://hal.science/hal-00331599/document">https://hal.science/hal-00331599/document</a></p>
 </dd></dl>
 
 <dl class="py function">
@@ -428,7 +425,8 @@ single-character strings (“A”, “a”, “B”, “b”, etc.)..</p></li>
 <span class="sig-prename descclassname"><span class="pre">syntropy.discrete.</span></span><span class="sig-name descname"><span class="pre">lempel_ziv_total_correlation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/discrete/temporal.html#lempel_ziv_total_correlation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.discrete.lempel_ziv_total_correlation" title="Link to this definition">¶</a></dt>
 <dd><p>A straightforward generalization of the mutual information rate given by
 Zozor et al., and Blanc et al.,</p>
-<p><span class="math notranslate nohighlight">\(TC(X) = \sum_{i=1}^{N} LZC(X_i) - LZC(X)\)</span></p>
+<div class="math notranslate nohighlight">
+\[TC_{LZ}(X) = \sum_{i=1}^{N} LZ(X_i) - LZ(X)\]</div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>data</strong> (<em>np.ndarray</em>) – A multi-dimensional discrete array, assumed to be in
@@ -447,7 +445,11 @@ channels x time format.</p>
 <dt class="sig sig-object py" id="syntropy.discrete.mutual_information">
 <span class="sig-prename descclassname"><span class="pre">syntropy.discrete.</span></span><span class="sig-name descname"><span class="pre">mutual_information</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">idxs_x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idxs_y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">joint_distribution</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/discrete/shannon.html#mutual_information"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.discrete.mutual_information" title="Link to this definition">¶</a></dt>
 <dd><p>Computes the mutual information between X and Y.</p>
-<p><span class="math notranslate nohighlight">\(I(X;Y) = H(X) + H(Y) - H(X,Y)\)</span></p>
+<div class="math notranslate nohighlight">
+\[\begin{split}I(X;Y) &amp;= H(X) + H(Y) - H(X,Y) \\
+       &amp;= H(X) - H(X|Y) \\
+       &amp;= H(Y) - H(Y|X) \\
+       &amp;= H(X,Y) - H(X|Y) - H(Y|X)\end{split}\]</div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -458,15 +460,15 @@ Keys are tuples corresponding to the state of each element.
 The valules are the probabilities.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>]</span></p>
-</dd>
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p><ul class="simple">
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
 <li><p><strong>ptw</strong> (<em>dict</em>) – The pointwise mutual information for each state in the joint distribution.</p></li>
 <li><p><strong>avg</strong> (<em>float</em>) – The average mutual information</p></li>
 </ul>
 </p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple[dict, float]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -474,11 +476,30 @@ The valules are the probabilities.</p></li>
 <dl class="py function">
 <dt class="sig sig-object py" id="syntropy.discrete.o_information">
 <span class="sig-prename descclassname"><span class="pre">syntropy.discrete.</span></span><span class="sig-name descname"><span class="pre">o_information</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">joint_distribution</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/discrete/multivariate_mi.html#o_information"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.discrete.o_information" title="Link to this definition">¶</a></dt>
-<dd><p>Computes the local and expected O-informations for the joint distribution.</p>
-<p><span class="math notranslate nohighlight">\(\Omega(X) = (2-N)TC(X) + \sum_{i=1}^{N}TC(X^{-i})\)</span></p>
-<p><span class="math notranslate nohighlight">\(\Omega(X) = TC(X) - DTC(X)\)</span></p>
-<dl>
-<dt>See:</dt><dd><p>Rosas, F., Mediano, P. A. M., Gastpar, M., &amp; Jensen, H. J. (2019).
+<dd><p>Computes the local and expected O-informations for the joint distribution.
+O-information quantifies the balance between redundancy (positive values) and synergy (negative values) in multivariate information.</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\Omega(X) &amp;= (2-N)TC(X) + \sum_{i=1}^{N}TC(X^{-i}) \\
+           &amp;= TC(X) - DTC(X)\end{split}\]</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>joint_distribution</strong> (<em>dict</em><em>[</em><em>tuple</em><em>, </em><em>float</em><em>]</em>) – The joint probability distribution.
+Keys are tuples corresponding to the state of each element.
+The valules are the probabilities.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>ptw</strong> (<em>dict[tuple, float]</em>) – The pointwise O-information .</p></li>
+<li><p><strong>avg</strong> (<em>float</em>) – The average O-information.</p></li>
+</ul>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>(tuple[dict, float], &lt;class ‘float’&gt;)</p>
+</dd>
+</dl>
+<p class="rubric">References</p>
+<p>Rosas, F., Mediano, P. A. M., Gastpar, M., &amp; Jensen, H. J. (2019).
 Quantifying High-order Interdependencies via Multivariate Extensions of the Mutual Information.
 Physical Review E, 100(3), Article 3.
 <a class="reference external" href="https://doi.org/10.1103/PhysRevE.100.032305">https://doi.org/10.1103/PhysRevE.100.032305</a></p>
@@ -486,25 +507,6 @@ Physical Review E, 100(3), Article 3.
 Multivariate information theory uncovers synergistic subsystems of the human cerebral cortex.
 Communications Biology, 6(1), Article 1.
 <a class="reference external" href="https://doi.org/10.1038/s42003-023-04843-w">https://doi.org/10.1038/s42003-023-04843-w</a></p>
-</dd>
-</dl>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>joint_distribution</strong> (<em>dict</em><em>[</em><em>tuple</em><em>, </em><em>float</em><em>]</em>) – The joint probability distribution.
-Keys are tuples corresponding to the state of each element.
-The valules are the probabilities.</p>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type">(<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>], <code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>)</span></p>
-</dd>
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p><ul class="simple">
-<li><p><strong>ptw</strong> (<em>dict[tuple, float]</em>) – The pointwise O-information .</p></li>
-<li><p><strong>avg</strong> (<em>float</em>) – The average O-information.</p></li>
-</ul>
-</p>
-</dd>
-</dl>
 </dd></dl>
 
 <dl class="py function">
@@ -513,19 +515,10 @@ The valules are the probabilities.</p>
 <dd><p>Computes the partial entropy decomposition of a joint distribution
 with up to four elements.</p>
 <p>The available redundancy functions are h_min from Finn and Lizier
-and h_sx from Varley et al., See:</p>
-<blockquote>
-<div><p>Finn, C., &amp; Lizier, J. T. (2020).
-Generalised Measures of Multivariate Information Content.
-Entropy, 22(2), Article 2.
-<a class="reference external" href="https://doi.org/10.3390/e22020216">https://doi.org/10.3390/e22020216</a></p>
-<p>Varley, T. F., Pope, M., Maria Grazia, P., Joshua, F., &amp; Sporns, O. (2023).
-Partial entropy decomposition reveals higher-order
-information structures in human brain activity.
-Proceedings of the National Academy of Sciences,
-120(30), e2300888120.
-<a class="reference external" href="https://doi.org/10.1073/pnas.2300888120">https://doi.org/10.1073/pnas.2300888120</a></p>
-</div></blockquote>
+and h_sx from Varley et al.,</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}h_{\min}(\alpha) &amp;= \min(\alpha_i) \\
+   h_{sx}(\alpha) &amp;= \log\frac{1}{P(\alpha_1\cup ... \cup\alpha_N)}\end{split}\]</div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -535,11 +528,8 @@ Proceedings of the National Academy of Sciences,
 <li><p><strong>joint_distribution</strong> (<em>dict</em><em>[</em><em>tuple</em><em>,</em><em>float</em><em>]</em>) – The joint distribution object.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type">(<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>)</span></p>
-</dd>
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p><ul class="simple">
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
 <li><p><strong>ptw</strong> (<em>dict[tuple, dict]</em>) – A dictionary of dictionaries,
 The outer dictionary has one key for each joint state.
 Each inner dictionary is the lookup of partial entropy atoms.</p></li>
@@ -547,7 +537,21 @@ Each inner dictionary is the lookup of partial entropy atoms.</p></li>
 </ul>
 </p>
 </dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>(&lt;class ‘dict’&gt;, &lt;class ‘dict’&gt;)</p>
+</dd>
 </dl>
+<p class="rubric">References</p>
+<p>Finn, C., &amp; Lizier, J. T. (2020).
+Generalised Measures of Multivariate Information Content.
+Entropy, 22(2), Article 2.
+<a class="reference external" href="https://doi.org/10.3390/e22020216">https://doi.org/10.3390/e22020216</a></p>
+<p>Varley, T. F., Pope, M., Maria Grazia, P., Joshua, F., &amp; Sporns, O. (2023).
+Partial entropy decomposition reveals higher-order
+information structures in human brain activity.
+Proceedings of the National Academy of Sciences,
+120(30), e2300888120.
+<a class="reference external" href="https://doi.org/10.1073/pnas.2300888120">https://doi.org/10.1073/pnas.2300888120</a></p>
 </dd></dl>
 
 <dl class="py function">
@@ -555,20 +559,10 @@ Each inner dictionary is the lookup of partial entropy atoms.</p></li>
 <span class="sig-prename descclassname"><span class="pre">syntropy.discrete.</span></span><span class="sig-name descname"><span class="pre">partial_information_decomposition</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">redundancy</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inputs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">joint_distribution</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/discrete/decompositions.html#partial_information_decomposition"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.discrete.partial_information_decomposition" title="Link to this definition">¶</a></dt>
 <dd><p>Computes the partial information decomposition for up to four input variables
 onto one (potentially joint) target variable.</p>
-<p>The available redundancy functions are i_min from Finn and Lizier
-and i_sx from Makkeh et al.. See:</p>
-<blockquote>
-<div><p>Finn, C., &amp; Lizier, J. T. (2018).
-Pointwise Partial Information Decomposition Using
-the Specificity and Ambiguity Lattices.
-Entropy, 20(4), Article 4.
-<a class="reference external" href="https://doi.org/10.3390/e20040297">https://doi.org/10.3390/e20040297</a></p>
-<p>Makkeh, A., Gutknecht, A. J., &amp; Wibral, M. (2021).
-Introducing a differentiable measure of pointwise
-shared information.
-Physical Review E, 103(3), 032149.
-<a class="reference external" href="https://doi.org/10.1103/PhysRevE.103.032149">https://doi.org/10.1103/PhysRevE.103.032149</a></p>
-</div></blockquote>
+<p>The available redundancy functions are <span class="math notranslate nohighlight">\(i_{\min}\)</span> from Finn and Lizier and <span class="math notranslate nohighlight">\(i_{sx}\)</span> from Makkeh et al..</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}i_{\min}(\alpha;t) &amp;= \min h(\alpha_i) - \min h(\alpha_i|t) \\
+   i_{sx}(\alpha;t) &amp;= \log\frac{P(t)-P(t\cap(\alpha_1\cup ...\cup\alpha_k))}{1-P(\bar\alpha_1\cap ...\cap\alpha_N)}\end{split}\]</div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -582,11 +576,8 @@ state of all elements</p></li>
 <li><p><strong>joint_distribution</strong> (<em>dict</em><em>[</em><em>tuple</em><em>,</em><em>float</em><em>]</em>) – The joint distribution object.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type">(<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>)</span></p>
-</dd>
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p><ul class="simple">
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
 <li><p><strong>ptw</strong> (<em>dict</em>) – A dictionary of dictionaries,
 The outer dictionary has one key for each joint state.
 Each inner dictionary is the lookup of partial information atoms.</p></li>
@@ -594,7 +585,25 @@ Each inner dictionary is the lookup of partial information atoms.</p></li>
 </ul>
 </p>
 </dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>(&lt;class ‘dict’&gt;, &lt;class ‘dict’&gt;)</p>
+</dd>
 </dl>
+<p class="rubric">References</p>
+<p>Williams, P. L., &amp; Beer, R. D. (2010).
+Nonnegative Decomposition of Multivariate Information.
+arXiv:1004.2515 [Math-Ph, Physics:Physics, q-Bio].
+http://arxiv.org/abs/1004.2515</p>
+<p>Finn, C., &amp; Lizier, J. T. (2018).
+Pointwise Partial Information Decomposition Using
+the Specificity and Ambiguity Lattices.
+Entropy, 20(4), Article 4.
+<a class="reference external" href="https://doi.org/10.3390/e20040297">https://doi.org/10.3390/e20040297</a></p>
+<p>Makkeh, A., Gutknecht, A. J., &amp; Wibral, M. (2021).
+Introducing a differentiable measure of pointwise
+shared information.
+Physical Review E, 103(3), 032149.
+<a class="reference external" href="https://doi.org/10.1103/PhysRevE.103.032149">https://doi.org/10.1103/PhysRevE.103.032149</a></p>
 </dd></dl>
 
 <dl class="py function">
@@ -604,14 +613,6 @@ Each inner dictionary is the lookup of partial information atoms.</p></li>
 The representational complexity is a measure of how
 much partial information atoms of a given degree of synergy
 contribute to the overall mutual information or entropy.</p>
-<dl class="simple">
-<dt>See:</dt><dd><p>Ehrlich, D. A., Schneider, A. C., Priesemann, V., Wibral, M., &amp; Makkeh, A. (2023).
-A Measure of the Complexity of Neural Representations
-based on Partial Information Decomposition.
-Transactions on Machine Learning Research.
-<a class="reference external" href="https://openreview.net/forum?id=R8TU3pfzFr">https://openreview.net/forum?id=R8TU3pfzFr</a></p>
-</dd>
-</dl>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -631,17 +632,41 @@ by Ehrlich et al.,.</p></li>
 <dd class="field-odd"><p>float</p>
 </dd>
 </dl>
+<p class="rubric">References</p>
+<p>Ehrlich, D. A., Schneider, A. C., Priesemann, V., Wibral, M., &amp; Makkeh, A. (2023).
+A Measure of the Complexity of Neural Representations
+based on Partial Information Decomposition.
+Transactions on Machine Learning Research.
+<a class="reference external" href="https://openreview.net/forum?id=R8TU3pfzFr">https://openreview.net/forum?id=R8TU3pfzFr</a></p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="syntropy.discrete.s_information">
 <span class="sig-prename descclassname"><span class="pre">syntropy.discrete.</span></span><span class="sig-name descname"><span class="pre">s_information</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">joint_distribution</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/discrete/multivariate_mi.html#s_information"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.discrete.s_information" title="Link to this definition">¶</a></dt>
 <dd><p>Computes the local and expected S-information for the joint distribution.</p>
-<p>The S-information is equivalant to:</p>
-<p><span class="math notranslate nohighlight">\(\Sigma(X) = \sum_{i=1}^{N}I(X_i;X^{-i})\)</span></p>
-<p><span class="math notranslate nohighlight">\(\Sigma(X) = TC(X) + DTC(X)\)</span></p>
-<dl>
-<dt>See:</dt><dd><p>Rosas, F., Mediano, P. A. M., Gastpar, M., &amp; Jensen, H. J. (2019).
+<div class="math notranslate nohighlight">
+\[\begin{split}\Sigma(X) &amp;= \sum_{i=1}^{N}I(X_i;X^{-i}) \\
+           &amp;= N\times TC(X) - \sum_{i=1}^{N}TC(X^{-i}) \\
+           &amp;= TC(X) + DTC(X)\end{split}\]</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>joint_distribution</strong> (<em>dict</em><em>[</em><em>tuple</em><em>, </em><em>float</em><em>]</em>) – The joint probability distribution.
+Keys are tuples corresponding to the state of each element.
+The valules are the probabilities.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>ptw</strong> (<em>dict[tuple, float]</em>) – The pointwise S-information .</p></li>
+<li><p><strong>avg</strong> (<em>float</em>) – The average S-information.</p></li>
+</ul>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>(tuple[dict, float], &lt;class ‘float’&gt;)</p>
+</dd>
+</dl>
+<p class="rubric">References</p>
+<p>Rosas, F., Mediano, P. A. M., Gastpar, M., &amp; Jensen, H. J. (2019).
 Quantifying High-order Interdependencies via Multivariate Extensions of the Mutual Information.
 Physical Review E, 100(3), Article 3.
 <a class="reference external" href="https://doi.org/10.1103/PhysRevE.100.032305">https://doi.org/10.1103/PhysRevE.100.032305</a></p>
@@ -649,25 +674,6 @@ Physical Review E, 100(3), Article 3.
 Multivariate information theory uncovers synergistic subsystems of the human cerebral cortex.
 Communications Biology, 6(1), Article 1.
 <a class="reference external" href="https://doi.org/10.1038/s42003-023-04843-w">https://doi.org/10.1038/s42003-023-04843-w</a></p>
-</dd>
-</dl>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>joint_distribution</strong> (<em>dict</em><em>[</em><em>tuple</em><em>, </em><em>float</em><em>]</em>) – The joint probability distribution.
-Keys are tuples corresponding to the state of each element.
-The valules are the probabilities.</p>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type">(<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>], <code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>)</span></p>
-</dd>
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p><ul class="simple">
-<li><p><strong>ptw</strong> (<em>dict[tuple, float]</em>) – The pointwise S-information .</p></li>
-<li><p><strong>avg</strong> (<em>float</em>) – The average S-information.</p></li>
-</ul>
-</p>
-</dd>
-</dl>
 </dd></dl>
 
 <dl class="py function">
@@ -675,7 +681,7 @@ The valules are the probabilities.</p>
 <span class="sig-prename descclassname"><span class="pre">syntropy.discrete.</span></span><span class="sig-name descname"><span class="pre">shannon_entropy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">joint_distribution</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/discrete/shannon.html#shannon_entropy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.discrete.shannon_entropy" title="Link to this definition">¶</a></dt>
 <dd><p>Computes the Shannon entropy of the distribution <span class="math notranslate nohighlight">\(P(x)\)</span>.</p>
 <div class="math notranslate nohighlight">
-\[H(X) = -\sum_{x} P(x) \log P(x)\]</div>
+\[H(X) = -\sum_{x\in\mathcal{X}} P(x) \log P(x)\]</div>
 <p>To compute the entropy of a subset of the variables in the joint
 distribution, use the <code class="xref py py-func docutils literal notranslate"><span class="pre">syntropy.discrete.utils.get_marginals()</span></code> function from the utils
 library.</p>
@@ -685,15 +691,15 @@ library.</p>
 Keys are tuples corresponding to the state of each element.
 The valules are the probabilities.</p>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>]</span></p>
-</dd>
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p><ul class="simple">
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
 <li><p><strong>ptw</strong> (<em>dict</em>) – The pointwise entropy for each state in the joint distribution.</p></li>
 <li><p><strong>avg</strong> (<em>float</em>) – The average entropy</p></li>
 </ul>
 </p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple[dict, float]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -702,48 +708,44 @@ The valules are the probabilities.</p>
 <dt class="sig sig-object py" id="syntropy.discrete.total_correlation">
 <span class="sig-prename descclassname"><span class="pre">syntropy.discrete.</span></span><span class="sig-name descname"><span class="pre">total_correlation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">joint_distribution</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/discrete/multivariate_mi.html#total_correlation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.discrete.total_correlation" title="Link to this definition">¶</a></dt>
 <dd><p>Computes the average and pointwise total correlations:</p>
-<p><span class="math notranslate nohighlight">\(TC(X) = D_{KL}(P(X) || \prod_{i=1}^{N}P(X_i)\)</span></p>
-<dl class="simple">
-<dt>See:</dt><dd><p>Watanabe, S. (1960). Information Theoretical Analysis of Multivariate Correlation.
-IBM Journal of Research and Development, 4(1), Article 1.
-<a class="reference external" href="https://doi.org/10.1147/rd.41.0066">https://doi.org/10.1147/rd.41.0066</a></p>
-</dd>
-</dl>
+<div class="math notranslate nohighlight">
+\[\begin{split}TC(X) &amp;= D_{KL}(P(X) || \prod_{i=1}^{N}P(X_i) \\
+      &amp;= \sum_{i=1}^{N}H(X_i) - H(X)\end{split}\]</div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>joint_distribution</strong> (<em>dict</em><em>[</em><em>tuple</em><em>, </em><em>float</em><em>]</em>) – The joint probability distribution.
+<dd class="field-odd"><p><strong>joint_distribution</strong> (<em>dict</em><em>[</em><em>tuple</em><em>[</em><em>int</em><em>, </em><em>...</em><em>]</em><em>]</em><em>, </em><em>float</em><em>]</em>) – The joint probability distribution.
 Keys are tuples corresponding to the state of each element.
 The valules are the probabilities.</p>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type">(<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>], <code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>)</span></p>
-</dd>
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p><ul class="simple">
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
 <li><p><strong>ptw</strong> (<em>dict[tuple, float]</em>) – The pointwise TC .</p></li>
 <li><p><strong>avg</strong> (<em>float</em>) – The average TC.</p></li>
 </ul>
 </p>
 </dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>(tuple[dict, float], &lt;class ‘float’&gt;)</p>
+</dd>
 </dl>
+<p class="rubric">References</p>
+<p>Watanabe, S. (1960). Information Theoretical Analysis of Multivariate Correlation.
+IBM Journal of Research and Development, 4(1), Article 1.
+<a class="reference external" href="https://doi.org/10.1147/rd.41.0066">https://doi.org/10.1147/rd.41.0066</a></p>
+<p>Tononi, G., Sporns, O., &amp; Edelman, G. M. (1994).
+A measure for brain complexity: Relating functional segregation and integration in the nervous system.
+Proceedings of the National Academy of Sciences, 91(11), Article 11.
+<a class="reference external" href="https://doi.org/10.1073/pnas.91.11.5033">https://doi.org/10.1073/pnas.91.11.5033</a></p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="syntropy.discrete.tse_complexity">
 <span class="sig-prename descclassname"><span class="pre">syntropy.discrete.</span></span><span class="sig-name descname"><span class="pre">tse_complexity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">joint_distribution</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_samples</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/discrete/multivariate_mi.html#tse_complexity"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.discrete.tse_complexity" title="Link to this definition">¶</a></dt>
 <dd><p>The Tononi-Sporns-Edelman neural complexity measure, which provides a measure of the balance between integration and segregation across scales.</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}TSE(X) &amp;= \sum_{k=1}^{\lfloor N/2\rfloor} \bigg\langle I(X^{k}_j;X^{-k}_j) \bigg\rangle_{j} \\
+       &amp;= \sum_{k=2}^{N}\bigg[\bigg(\frac{k}{N}\bigg)TC(X) - \langle TC(X^{k}_{j}) \rangle_{j}  \bigg]\end{split}\]</div>
 <p>Runtimes scale very badly with system size (as it requires brute-forcing) all possible bipartitions of the system. If the system is too large, a sub-sampling approach is taken: at each scale, num_samples are drawn from the space of bipartitions.</p>
-<dl>
-<dt>See:</dt><dd><p>Tononi, G., Sporns, O., &amp; Edelman, G. M. (1994).
-A measure for brain complexity: Relating functional segregation and integration in the nervous system.
-Proceedings of the National Academy of Sciences, 91(11), Article 11.
-<a class="reference external" href="https://doi.org/10.1073/pnas.91.11.5033">https://doi.org/10.1073/pnas.91.11.5033</a></p>
-<p>Varley, T. F., Pope, M., Faskowitz, J., &amp; Sporns, O. (2023).
-Multivariate information theory uncovers synergistic subsystems of the human cerebral cortex.
-Communications Biology, 6(1), Article 1.
-<a class="reference external" href="https://doi.org/10.1038/s42003-023-04843-w">https://doi.org/10.1038/s42003-023-04843-w</a></p>
-</dd>
-</dl>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -760,6 +762,15 @@ The valules are the probabilities.</p></li>
 <dd class="field-odd"><p>float</p>
 </dd>
 </dl>
+<p class="rubric">References</p>
+<p>Tononi, G., Sporns, O., &amp; Edelman, G. M. (1994).
+A measure for brain complexity: Relating functional segregation and integration in the nervous system.
+Proceedings of the National Academy of Sciences, 91(11), Article 11.
+<a class="reference external" href="https://doi.org/10.1073/pnas.91.11.5033">https://doi.org/10.1073/pnas.91.11.5033</a></p>
+<p>Varley, T. F., Pope, M., Faskowitz, J., &amp; Sporns, O. (2023).
+Multivariate information theory uncovers synergistic subsystems of the human cerebral cortex.
+Communications Biology, 6(1), Article 1.
+<a class="reference external" href="https://doi.org/10.1038/s42003-023-04843-w">https://doi.org/10.1038/s42003-023-04843-w</a></p>
 </dd></dl>
 
 <section id="submodules">
@@ -771,14 +782,9 @@ The valules are the probabilities.</p></li>
 <dt class="sig sig-object py" id="syntropy.discrete.alpha_synergy.alpha_synergistic_entropy">
 <span class="sig-prename descclassname"><span class="pre">syntropy.discrete.alpha_synergy.</span></span><span class="sig-name descname"><span class="pre">alpha_synergistic_entropy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">joint_distribution</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_samples</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">definition</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'min'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/discrete/alpha_synergy.html#alpha_synergistic_entropy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.discrete.alpha_synergy.alpha_synergistic_entropy" title="Link to this definition">¶</a></dt>
 <dd><p>Computes the <span class="math notranslate nohighlight">\(\alpha\)</span>-synergistic entropy for a joint distribution
-for a given value of <span class="math notranslate nohighlight">\(\alpha\)</span>. See:</p>
-<blockquote>
-<div><p>Varley, T. F. (2024).
-A scalable synergy-first backbone decomposition of
-higher-order structures in complex systems.
-Npj Complexity, 1(1), 1–11.
-<a class="reference external" href="https://doi.org/10.1038/s44260-024-00011-1">https://doi.org/10.1038/s44260-024-00011-1</a></p>
-</div></blockquote>
+for a given value of <span class="math notranslate nohighlight">\(\alpha\)</span>.</p>
+<div class="math notranslate nohighlight">
+\[h^{syn}_{\alpha}(x) = \min_{a\subseteq x, |a|=\alpha} h(x^{a}|x^{-a})\]</div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -795,12 +801,18 @@ Npj Complexity, 1(1), 1–11.
 <dd class="field-odd"><p>dict[tuple, float]</p>
 </dd>
 </dl>
+<p class="rubric">References</p>
+<p>Varley, T. F. (2024).
+A scalable synergy-first backbone decomposition of
+higher-order structures in complex systems.
+Npj Complexity, 1(1), 1–11.
+<a class="reference external" href="https://doi.org/10.1038/s44260-024-00011-1">https://doi.org/10.1038/s44260-024-00011-1</a></p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="syntropy.discrete.alpha_synergy.partial_entropy_spectra">
 <span class="sig-prename descclassname"><span class="pre">syntropy.discrete.alpha_synergy.</span></span><span class="sig-name descname"><span class="pre">partial_entropy_spectra</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">joint_distribution</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_samples</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">definition</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'min'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/discrete/alpha_synergy.html#partial_entropy_spectra"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.discrete.alpha_synergy.partial_entropy_spectra" title="Link to this definition">¶</a></dt>
-<dd><p>Computes the partial entropy spectrum for each state.</p>
+<dd><p>Computes the partial synergy for every value of <span class="math notranslate nohighlight">\(alpha\)</span> (the spectrum) for each local state.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -865,7 +877,7 @@ Can be “min”, “max”, or “avg”. The default is “min”.</p></li>
 <dl class="py function">
 <dt class="sig sig-object py" id="syntropy.discrete.alpha_synergy.partial_total_correlation_spectra">
 <span class="sig-prename descclassname"><span class="pre">syntropy.discrete.alpha_synergy.</span></span><span class="sig-name descname"><span class="pre">partial_total_correlation_spectra</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">joint_distribution</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_samples</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">definition</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'min'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/discrete/alpha_synergy.html#partial_total_correlation_spectra"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.discrete.alpha_synergy.partial_total_correlation_spectra" title="Link to this definition">¶</a></dt>
-<dd><p>Computes the local total correlation spectrum for each state.</p>
+<dd><p>Computes the local total correlation spectrum for each state using the Kullback-Leibler divergence.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -895,13 +907,6 @@ posterior distribution from a prior distribution.</p>
 <p>Available redundnacy functions are “hmin” and “hsx”. See
 the documentation for the partial_entropy_decomposition() function
 for details.</p>
-<dl class="simple">
-<dt>See:</dt><dd><p>Varley, T. F. (2024).
-Generalized decomposition of multivariate information.
-PLOS ONE, 19(2), e0297128.
-<a class="reference external" href="https://doi.org/10.1371/journal.pone.0297128">https://doi.org/10.1371/journal.pone.0297128</a></p>
-</dd>
-</dl>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -913,18 +918,23 @@ the supppirt set of the prior distribution.</p></li>
 <li><p><strong>prior_distribution</strong> (<em>dict</em><em>[</em><em>tuple</em><em>, </em><em>float</em><em>]</em>) – The prior distribution.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type">(<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>)</span></p>
-</dd>
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p><ul class="simple">
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
 <li><p><strong>ptw</strong> (<em>dict[tuple, dict]</em>) – A dict of dicts.
 The local Kullback-Leibler divergence for each atom for each state.</p></li>
 <li><p><strong>avg</strong> (<em>dict[tuple, float]</em>) – The average Kullback-Leibler divergence for each atom.</p></li>
 </ul>
 </p>
 </dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>(&lt;class ‘dict’&gt;, &lt;class ‘dict’&gt;)</p>
+</dd>
 </dl>
+<p class="rubric">References</p>
+<p>Varley, T. F. (2024).
+Generalized decomposition of multivariate information.
+PLOS ONE, 19(2), e0297128.
+<a class="reference external" href="https://doi.org/10.1371/journal.pone.0297128">https://doi.org/10.1371/journal.pone.0297128</a></p>
 </dd></dl>
 
 <dl class="py function">
@@ -933,19 +943,10 @@ The local Kullback-Leibler divergence for each atom for each state.</p></li>
 <dd><p>Computes the partial entropy decomposition of a joint distribution
 with up to four elements.</p>
 <p>The available redundancy functions are h_min from Finn and Lizier
-and h_sx from Varley et al., See:</p>
-<blockquote>
-<div><p>Finn, C., &amp; Lizier, J. T. (2020).
-Generalised Measures of Multivariate Information Content.
-Entropy, 22(2), Article 2.
-<a class="reference external" href="https://doi.org/10.3390/e22020216">https://doi.org/10.3390/e22020216</a></p>
-<p>Varley, T. F., Pope, M., Maria Grazia, P., Joshua, F., &amp; Sporns, O. (2023).
-Partial entropy decomposition reveals higher-order
-information structures in human brain activity.
-Proceedings of the National Academy of Sciences,
-120(30), e2300888120.
-<a class="reference external" href="https://doi.org/10.1073/pnas.2300888120">https://doi.org/10.1073/pnas.2300888120</a></p>
-</div></blockquote>
+and h_sx from Varley et al.,</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}h_{\min}(\alpha) &amp;= \min(\alpha_i) \\
+   h_{sx}(\alpha) &amp;= \log\frac{1}{P(\alpha_1\cup ... \cup\alpha_N)}\end{split}\]</div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -955,11 +956,8 @@ Proceedings of the National Academy of Sciences,
 <li><p><strong>joint_distribution</strong> (<em>dict</em><em>[</em><em>tuple</em><em>,</em><em>float</em><em>]</em>) – The joint distribution object.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type">(<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>)</span></p>
-</dd>
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p><ul class="simple">
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
 <li><p><strong>ptw</strong> (<em>dict[tuple, dict]</em>) – A dictionary of dictionaries,
 The outer dictionary has one key for each joint state.
 Each inner dictionary is the lookup of partial entropy atoms.</p></li>
@@ -967,7 +965,21 @@ Each inner dictionary is the lookup of partial entropy atoms.</p></li>
 </ul>
 </p>
 </dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>(&lt;class ‘dict’&gt;, &lt;class ‘dict’&gt;)</p>
+</dd>
 </dl>
+<p class="rubric">References</p>
+<p>Finn, C., &amp; Lizier, J. T. (2020).
+Generalised Measures of Multivariate Information Content.
+Entropy, 22(2), Article 2.
+<a class="reference external" href="https://doi.org/10.3390/e22020216">https://doi.org/10.3390/e22020216</a></p>
+<p>Varley, T. F., Pope, M., Maria Grazia, P., Joshua, F., &amp; Sporns, O. (2023).
+Partial entropy decomposition reveals higher-order
+information structures in human brain activity.
+Proceedings of the National Academy of Sciences,
+120(30), e2300888120.
+<a class="reference external" href="https://doi.org/10.1073/pnas.2300888120">https://doi.org/10.1073/pnas.2300888120</a></p>
 </dd></dl>
 
 <dl class="py function">
@@ -975,20 +987,10 @@ Each inner dictionary is the lookup of partial entropy atoms.</p></li>
 <span class="sig-prename descclassname"><span class="pre">syntropy.discrete.decompositions.</span></span><span class="sig-name descname"><span class="pre">partial_information_decomposition</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">redundancy</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inputs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">joint_distribution</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/discrete/decompositions.html#partial_information_decomposition"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.discrete.decompositions.partial_information_decomposition" title="Link to this definition">¶</a></dt>
 <dd><p>Computes the partial information decomposition for up to four input variables
 onto one (potentially joint) target variable.</p>
-<p>The available redundancy functions are i_min from Finn and Lizier
-and i_sx from Makkeh et al.. See:</p>
-<blockquote>
-<div><p>Finn, C., &amp; Lizier, J. T. (2018).
-Pointwise Partial Information Decomposition Using
-the Specificity and Ambiguity Lattices.
-Entropy, 20(4), Article 4.
-<a class="reference external" href="https://doi.org/10.3390/e20040297">https://doi.org/10.3390/e20040297</a></p>
-<p>Makkeh, A., Gutknecht, A. J., &amp; Wibral, M. (2021).
-Introducing a differentiable measure of pointwise
-shared information.
-Physical Review E, 103(3), 032149.
-<a class="reference external" href="https://doi.org/10.1103/PhysRevE.103.032149">https://doi.org/10.1103/PhysRevE.103.032149</a></p>
-</div></blockquote>
+<p>The available redundancy functions are <span class="math notranslate nohighlight">\(i_{\min}\)</span> from Finn and Lizier and <span class="math notranslate nohighlight">\(i_{sx}\)</span> from Makkeh et al..</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}i_{\min}(\alpha;t) &amp;= \min h(\alpha_i) - \min h(\alpha_i|t) \\
+   i_{sx}(\alpha;t) &amp;= \log\frac{P(t)-P(t\cap(\alpha_1\cup ...\cup\alpha_k))}{1-P(\bar\alpha_1\cap ...\cap\alpha_N)}\end{split}\]</div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -1002,11 +1004,8 @@ state of all elements</p></li>
 <li><p><strong>joint_distribution</strong> (<em>dict</em><em>[</em><em>tuple</em><em>,</em><em>float</em><em>]</em>) – The joint distribution object.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type">(<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>)</span></p>
-</dd>
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p><ul class="simple">
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
 <li><p><strong>ptw</strong> (<em>dict</em>) – A dictionary of dictionaries,
 The outer dictionary has one key for each joint state.
 Each inner dictionary is the lookup of partial information atoms.</p></li>
@@ -1014,7 +1013,25 @@ Each inner dictionary is the lookup of partial information atoms.</p></li>
 </ul>
 </p>
 </dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>(&lt;class ‘dict’&gt;, &lt;class ‘dict’&gt;)</p>
+</dd>
 </dl>
+<p class="rubric">References</p>
+<p>Williams, P. L., &amp; Beer, R. D. (2010).
+Nonnegative Decomposition of Multivariate Information.
+arXiv:1004.2515 [Math-Ph, Physics:Physics, q-Bio].
+http://arxiv.org/abs/1004.2515</p>
+<p>Finn, C., &amp; Lizier, J. T. (2018).
+Pointwise Partial Information Decomposition Using
+the Specificity and Ambiguity Lattices.
+Entropy, 20(4), Article 4.
+<a class="reference external" href="https://doi.org/10.3390/e20040297">https://doi.org/10.3390/e20040297</a></p>
+<p>Makkeh, A., Gutknecht, A. J., &amp; Wibral, M. (2021).
+Introducing a differentiable measure of pointwise
+shared information.
+Physical Review E, 103(3), 032149.
+<a class="reference external" href="https://doi.org/10.1103/PhysRevE.103.032149">https://doi.org/10.1103/PhysRevE.103.032149</a></p>
 </dd></dl>
 
 <dl class="py function">
@@ -1024,14 +1041,6 @@ Each inner dictionary is the lookup of partial information atoms.</p></li>
 The representational complexity is a measure of how
 much partial information atoms of a given degree of synergy
 contribute to the overall mutual information or entropy.</p>
-<dl class="simple">
-<dt>See:</dt><dd><p>Ehrlich, D. A., Schneider, A. C., Priesemann, V., Wibral, M., &amp; Makkeh, A. (2023).
-A Measure of the Complexity of Neural Representations
-based on Partial Information Decomposition.
-Transactions on Machine Learning Research.
-<a class="reference external" href="https://openreview.net/forum?id=R8TU3pfzFr">https://openreview.net/forum?id=R8TU3pfzFr</a></p>
-</dd>
-</dl>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -1051,6 +1060,12 @@ by Ehrlich et al.,.</p></li>
 <dd class="field-odd"><p>float</p>
 </dd>
 </dl>
+<p class="rubric">References</p>
+<p>Ehrlich, D. A., Schneider, A. C., Priesemann, V., Wibral, M., &amp; Makkeh, A. (2023).
+A Measure of the Complexity of Neural Representations
+based on Partial Information Decomposition.
+Transactions on Machine Learning Research.
+<a class="reference external" href="https://openreview.net/forum?id=R8TU3pfzFr">https://openreview.net/forum?id=R8TU3pfzFr</a></p>
 </dd></dl>
 
 </section>
@@ -1063,31 +1078,31 @@ by Ehrlich et al.,.</p></li>
 <dt class="sig sig-object py" id="syntropy.discrete.multivariate_mi.co_information">
 <span class="sig-prename descclassname"><span class="pre">syntropy.discrete.multivariate_mi.</span></span><span class="sig-name descname"><span class="pre">co_information</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">joint_distribution</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/discrete/multivariate_mi.html#co_information"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.discrete.multivariate_mi.co_information" title="Link to this definition">¶</a></dt>
 <dd><p>Computes the cO-information, the third generalization of bivariate mutual information. Unlike total correlation and dual total correlation, the cO-information can be negative and is difficult to interpret.</p>
-<dl class="simple">
-<dt>See:</dt><dd><p>Bell, A. J. (2003, April).
-The cO-information lattice.
-4th International Symposium on Independent Component Analysis and
-Blind Signal Separation, Nara, Japan.
-<a class="reference external" href="https://www.semanticscholar.org/paper/THE-CO-INFORMATION-LATTICE-Bell/25a0cd8d486d5ffd204485685226f189e6eadd4d">https://www.semanticscholar.org/paper/THE-CO-INFORMATION-LATTICE-Bell/25a0cd8d486d5ffd204485685226f189e6eadd4d</a></p>
-</dd>
-</dl>
+<div class="math notranslate nohighlight">
+\[Co(X) = \sum_{\xi\subseteq X}(-1)^{|\xi|}H(\xi)\]</div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>joint_distribution</strong> (<em>dict</em><em>[</em><em>tuple</em><em>, </em><em>float</em><em>]</em>) – The joint probability distribution.
 Keys are tuples corresponding to the state of each element.
 The valules are the probabilities.</p>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type">(<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>], <code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>)</span></p>
-</dd>
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p><ul class="simple">
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
 <li><p><strong>ptw</strong> (<em>dict[tuple, float]</em>) – The pointwise cO-information.</p></li>
 <li><p><strong>avg</strong> (<em>float</em>) – The average cO-information.</p></li>
 </ul>
 </p>
 </dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>(tuple[dict, float], &lt;class ‘float’&gt;)</p>
+</dd>
 </dl>
+<p class="rubric">References</p>
+<p>Bell, A. J. (2003, April).
+The Co-information lattice.
+4th International Symposium on Independent Component Analysis and
+Blind Signal Separation, Nara, Japan.
+<a class="reference external" href="https://www.semanticscholar.org/paper/THE-CO-INFORMATION-LATTICE-Bell/25a0cd8d486d5ffd204485685226f189e6eadd4d">https://www.semanticscholar.org/paper/THE-CO-INFORMATION-LATTICE-Bell/25a0cd8d486d5ffd204485685226f189e6eadd4d</a></p>
 </dd></dl>
 
 <dl class="py function">
@@ -1095,20 +1110,16 @@ The valules are the probabilities.</p>
 <span class="sig-prename descclassname"><span class="pre">syntropy.discrete.multivariate_mi.</span></span><span class="sig-name descname"><span class="pre">connected_information</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">joint_distribution</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">maximum_order</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/discrete/multivariate_mi.html#connected_information"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.discrete.multivariate_mi.connected_information" title="Link to this definition">¶</a></dt>
 <dd><p>Returns the connected information profile from Schneidman et al.,
 which decomposes the total correlation into contributing parts of
-different orders.</p>
+different orders:</p>
+<div class="math notranslate nohighlight">
+\[TC(X) = \sum_{k=2}^{N}TC^{k}(X)\]</div>
+<p>Where the <cite>k</cite> superscript refers to the maximum-entropy distribution that preserves all marginals of order <cite>k</cite>.</p>
 <p>One of the few measures that can reliably distinguish between the
 JAMES_DYADIC and JAMES_TRIADIC distributions.</p>
-<dl class="simple">
-<dt>See:</dt><dd><p>Schneidman, E., Still, S., Berry, M. J., &amp; Bialek, W. (2003).
-Network Information and Connected Correlations.
-Physical Review Letters, 91(23), 238701.
-<a class="reference external" href="https://doi.org/10.1103/PhysRevLett.91.238701">https://doi.org/10.1103/PhysRevLett.91.238701</a></p>
-</dd>
-</dl>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>joint_distribution</strong> (<em>dict</em><em>[</em><em>tuple</em><em>, </em><em>float</em><em>]</em>) – The joint probability distribution.
+<li><p><strong>joint_distribution</strong> (<em>dict</em><em>[</em><em>tuple</em><em>[</em><em>int</em><em>, </em><em>...</em><em>]</em><em>, </em><em>float</em><em>]</em>) – The joint probability distribution.
 Keys are tuples corresponding to the state of each element.
 The valules are the probabilities.</p></li>
 <li><p><strong>maximum_order</strong> (<em>int</em><em>, </em><em>optional</em>) – The highest order of marginals to sweep.
@@ -1122,6 +1133,11 @@ The default sweeps all.</p></li>
 <dd class="field-odd"><p>list[float]</p>
 </dd>
 </dl>
+<p class="rubric">References</p>
+<p>Schneidman, E., Still, S., Berry, M. J., &amp; Bialek, W. (2003).
+Network Information and Connected Correlations.
+Physical Review Letters, 91(23), 238701.
+<a class="reference external" href="https://doi.org/10.1103/PhysRevLett.91.238701">https://doi.org/10.1103/PhysRevLett.91.238701</a></p>
 </dd></dl>
 
 <dl class="py function">
@@ -1131,43 +1147,59 @@ The default sweeps all.</p></li>
 heuristic, easy-to-compute approximation of the full TSE-Complexity.
 Later shown by Varley et al., to be directly proportional to
 the dual total correlation.</p>
-<p><span class="math notranslate nohighlight">\(C(X) = DTC(X) / N\)</span></p>
+<div class="math notranslate nohighlight">
+\[C(X) = \frac{DTC(X)}{N}\]</div>
 <p>Where <span class="math notranslate nohighlight">\(N\)</span> is the number of elements in <span class="math notranslate nohighlight">\(X\)</span>.</p>
-<dl class="simple">
-<dt>See:</dt><dd><p>Varley, T. F., Pope, M., Faskowitz, J., &amp; Sporns, O. (2023).
-Multivariate information theory uncovers synergistic subsystems of the human cerebral cortex.
-Communications Biology, 6(1), Article 1.
-<a class="reference external" href="https://doi.org/10.1038/s42003-023-04843-w">https://doi.org/10.1038/s42003-023-04843-w</a></p>
-</dd>
-</dl>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>joint_distribution</strong> (<em>dict</em><em>[</em><em>tuple</em><em>, </em><em>float</em><em>]</em>) – The joint probability distribution.
 Keys are tuples corresponding to the state of each element.
 The valules are the probabilities.</p>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type">(<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>], <code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>)</span></p>
-</dd>
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p><ul class="simple">
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
 <li><p><strong>ptw</strong> (<em>dict[tuple, float]</em>) – The pointwise description complexity.</p></li>
 <li><p><strong>avg</strong> (<em>float</em>) – The average description complexity.</p></li>
 </ul>
 </p>
 </dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>(tuple[dict, float], &lt;class ‘float’&gt;)</p>
+</dd>
 </dl>
+<p class="rubric">References</p>
+<p>Varley, T. F., Pope, M., Faskowitz, J., &amp; Sporns, O. (2023).
+Multivariate information theory uncovers synergistic subsystems of the human cerebral cortex.
+Communications Biology, 6(1), Article 1.
+<a class="reference external" href="https://doi.org/10.1038/s42003-023-04843-w">https://doi.org/10.1038/s42003-023-04843-w</a></p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="syntropy.discrete.multivariate_mi.dual_total_correlation">
 <span class="sig-prename descclassname"><span class="pre">syntropy.discrete.multivariate_mi.</span></span><span class="sig-name descname"><span class="pre">dual_total_correlation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">joint_distribution</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/discrete/multivariate_mi.html#dual_total_correlation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.discrete.multivariate_mi.dual_total_correlation" title="Link to this definition">¶</a></dt>
 <dd><p>Computes the local and expected dual total correlations for the joint distribution.</p>
-<p>The dual total correlation is given alternately by:</p>
-<p><span class="math notranslate nohighlight">\(DTC(X) = H(X) - \sum_{i=1}^{N}H(X_i|X^{-i})\)</span></p>
-<p><span class="math notranslate nohighlight">\(DTC(X) = (N-1)TC(X) - \sum_{i=1}^{N}TC(X^{-i})\)</span></p>
-<dl>
-<dt>See:</dt><dd><p>Abdallah, S. A., &amp; Plumbley, M. D. (2012).
+<div class="math notranslate nohighlight">
+\[\begin{split}DTC(X) &amp;= H(X) - \sum_{i=1}^{N}H(X_i|X^{-i}) \\
+       &amp;= (N-1)\times TC(X) - \sum_{i=1}^{N}TC(X^{-i})\end{split}\]</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>joint_distribution</strong> (<em>dict</em><em>[</em><em>tuple</em><em>, </em><em>float</em><em>]</em>) – The joint probability distribution.
+Keys are tuples corresponding to the state of each element.
+The valules are the probabilities.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>ptw</strong> (<em>dict[tuple, float]</em>) – The pointwise DTC .</p></li>
+<li><p><strong>avg</strong> (<em>float</em>) – The average DTC.</p></li>
+</ul>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>(tuple[dict, float], &lt;class ‘float’&gt;)</p>
+</dd>
+</dl>
+<p class="rubric">References</p>
+<p>Abdallah, S. A., &amp; Plumbley, M. D. (2012).
 A measure of statistical complexity based on predictive information with application to finite spin systems.
 Physics Letters A, 376(4), 275–281.
 <a class="reference external" href="https://doi.org/10.1016/j.physleta.2011.10.066">https://doi.org/10.1016/j.physleta.2011.10.066</a></p>
@@ -1175,69 +1207,68 @@ Physics Letters A, 376(4), 275–281.
 Quantifying High-order Interdependencies via Multivariate Extensions of the Mutual Information.
 Physical Review E, 100(3), Article 3.
 <a class="reference external" href="https://doi.org/10.1103/PhysRevE.100.032305">https://doi.org/10.1103/PhysRevE.100.032305</a></p>
-</dd>
-</dl>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>joint_distribution</strong> (<em>dict</em><em>[</em><em>tuple</em><em>, </em><em>float</em><em>]</em>) – The joint probability distribution.
-Keys are tuples corresponding to the state of each element.
-The valules are the probabilities.</p>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type">(<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>], <code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>)</span></p>
-</dd>
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p><ul class="simple">
-<li><p><strong>ptw</strong> (<em>dict[tuple, float]</em>) – The pointwise DTC .</p></li>
-<li><p><strong>avg</strong> (<em>float</em>) – The average DTC.</p></li>
-</ul>
-</p>
-</dd>
-</dl>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="syntropy.discrete.multivariate_mi.k_wms">
 <span class="sig-prename descclassname"><span class="pre">syntropy.discrete.multivariate_mi.</span></span><span class="sig-name descname"><span class="pre">k_wms</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">k</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">joint_distribution</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/discrete/multivariate_mi.html#k_wms"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.discrete.multivariate_mi.k_wms" title="Link to this definition">¶</a></dt>
 <dd><p>S-information, DTC, and negative O-information can all be written in a general form:</p>
-<p><span class="math notranslate nohighlight">\(WMS^{k}(X) = (N-k)TC(X) - \sum_{i=1}^{N}TC(X^{-i})\)</span></p>
-<dl class="simple">
-<dt>See:</dt><dd><p>Varley, T. F., Pope, M., Faskowitz, J., &amp; Sporns, O. (2023).
-Multivariate information theory uncovers synergistic subsystems of the human cerebral cortex.
-Communications Biology, 6(1), Article 1.
-<a class="reference external" href="https://doi.org/10.1038/s42003-023-04843-w">https://doi.org/10.1038/s42003-023-04843-w</a></p>
-</dd>
-</dl>
+<div class="math notranslate nohighlight">
+\[WMS^{k}(X) = (N-k)TC(X) - \sum_{i=1}^{N}TC(X^{-i})\]</div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>k</strong> (<em>int</em>) – DESCRIPTION.</p></li>
-<li><p><strong>joint_distribution</strong> (<em>dict</em><em>[</em><em>tuple</em><em>, </em><em>float</em><em>]</em>) – The joint probability distribution.
+<li><p><strong>k</strong> (<em>int</em>) – The scale parameter</p></li>
+<li><p><strong>joint_distribution</strong> (<em>dict</em><em>[</em><em>tuple</em><em>[</em><em>int</em><em>, </em><em>...</em><em>]</em><em>, </em><em>float</em><em>]</em>) – The joint probability distribution.
 Keys are tuples corresponding to the state of each element.
 The valules are the probabilities.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type">(<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>], <code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>)</span></p>
-</dd>
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p><ul class="simple">
-<li><p><strong>ptw</strong> (<em>dict[tuple, float]</em>) – The pointwise w-WMS .</p></li>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>ptw</strong> (<em>dict[tuple[int, …], float]</em>) – The pointwise w-WMS .</p></li>
 <li><p><strong>avg</strong> (<em>float</em>) – The average k-WMS.</p></li>
 </ul>
 </p>
 </dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>(tuple[dict, float], &lt;class ‘float’&gt;)</p>
+</dd>
 </dl>
+<p class="rubric">References</p>
+<p>Varley, T. F., Pope, M., Faskowitz, J., &amp; Sporns, O. (2023).
+Multivariate information theory uncovers synergistic subsystems of the human cerebral cortex.
+Communications Biology, 6(1), Article 1.
+<a class="reference external" href="https://doi.org/10.1038/s42003-023-04843-w">https://doi.org/10.1038/s42003-023-04843-w</a></p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="syntropy.discrete.multivariate_mi.o_information">
 <span class="sig-prename descclassname"><span class="pre">syntropy.discrete.multivariate_mi.</span></span><span class="sig-name descname"><span class="pre">o_information</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">joint_distribution</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/discrete/multivariate_mi.html#o_information"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.discrete.multivariate_mi.o_information" title="Link to this definition">¶</a></dt>
-<dd><p>Computes the local and expected O-informations for the joint distribution.</p>
-<p><span class="math notranslate nohighlight">\(\Omega(X) = (2-N)TC(X) + \sum_{i=1}^{N}TC(X^{-i})\)</span></p>
-<p><span class="math notranslate nohighlight">\(\Omega(X) = TC(X) - DTC(X)\)</span></p>
-<dl>
-<dt>See:</dt><dd><p>Rosas, F., Mediano, P. A. M., Gastpar, M., &amp; Jensen, H. J. (2019).
+<dd><p>Computes the local and expected O-informations for the joint distribution.
+O-information quantifies the balance between redundancy (positive values) and synergy (negative values) in multivariate information.</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\Omega(X) &amp;= (2-N)TC(X) + \sum_{i=1}^{N}TC(X^{-i}) \\
+           &amp;= TC(X) - DTC(X)\end{split}\]</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>joint_distribution</strong> (<em>dict</em><em>[</em><em>tuple</em><em>, </em><em>float</em><em>]</em>) – The joint probability distribution.
+Keys are tuples corresponding to the state of each element.
+The valules are the probabilities.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>ptw</strong> (<em>dict[tuple, float]</em>) – The pointwise O-information .</p></li>
+<li><p><strong>avg</strong> (<em>float</em>) – The average O-information.</p></li>
+</ul>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>(tuple[dict, float], &lt;class ‘float’&gt;)</p>
+</dd>
+</dl>
+<p class="rubric">References</p>
+<p>Rosas, F., Mediano, P. A. M., Gastpar, M., &amp; Jensen, H. J. (2019).
 Quantifying High-order Interdependencies via Multivariate Extensions of the Mutual Information.
 Physical Review E, 100(3), Article 3.
 <a class="reference external" href="https://doi.org/10.1103/PhysRevE.100.032305">https://doi.org/10.1103/PhysRevE.100.032305</a></p>
@@ -1245,36 +1276,35 @@ Physical Review E, 100(3), Article 3.
 Multivariate information theory uncovers synergistic subsystems of the human cerebral cortex.
 Communications Biology, 6(1), Article 1.
 <a class="reference external" href="https://doi.org/10.1038/s42003-023-04843-w">https://doi.org/10.1038/s42003-023-04843-w</a></p>
-</dd>
-</dl>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>joint_distribution</strong> (<em>dict</em><em>[</em><em>tuple</em><em>, </em><em>float</em><em>]</em>) – The joint probability distribution.
-Keys are tuples corresponding to the state of each element.
-The valules are the probabilities.</p>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type">(<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>], <code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>)</span></p>
-</dd>
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p><ul class="simple">
-<li><p><strong>ptw</strong> (<em>dict[tuple, float]</em>) – The pointwise O-information .</p></li>
-<li><p><strong>avg</strong> (<em>float</em>) – The average O-information.</p></li>
-</ul>
-</p>
-</dd>
-</dl>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="syntropy.discrete.multivariate_mi.s_information">
 <span class="sig-prename descclassname"><span class="pre">syntropy.discrete.multivariate_mi.</span></span><span class="sig-name descname"><span class="pre">s_information</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">joint_distribution</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/discrete/multivariate_mi.html#s_information"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.discrete.multivariate_mi.s_information" title="Link to this definition">¶</a></dt>
 <dd><p>Computes the local and expected S-information for the joint distribution.</p>
-<p>The S-information is equivalant to:</p>
-<p><span class="math notranslate nohighlight">\(\Sigma(X) = \sum_{i=1}^{N}I(X_i;X^{-i})\)</span></p>
-<p><span class="math notranslate nohighlight">\(\Sigma(X) = TC(X) + DTC(X)\)</span></p>
-<dl>
-<dt>See:</dt><dd><p>Rosas, F., Mediano, P. A. M., Gastpar, M., &amp; Jensen, H. J. (2019).
+<div class="math notranslate nohighlight">
+\[\begin{split}\Sigma(X) &amp;= \sum_{i=1}^{N}I(X_i;X^{-i}) \\
+           &amp;= N\times TC(X) - \sum_{i=1}^{N}TC(X^{-i}) \\
+           &amp;= TC(X) + DTC(X)\end{split}\]</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>joint_distribution</strong> (<em>dict</em><em>[</em><em>tuple</em><em>, </em><em>float</em><em>]</em>) – The joint probability distribution.
+Keys are tuples corresponding to the state of each element.
+The valules are the probabilities.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>ptw</strong> (<em>dict[tuple, float]</em>) – The pointwise S-information .</p></li>
+<li><p><strong>avg</strong> (<em>float</em>) – The average S-information.</p></li>
+</ul>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>(tuple[dict, float], &lt;class ‘float’&gt;)</p>
+</dd>
+</dl>
+<p class="rubric">References</p>
+<p>Rosas, F., Mediano, P. A. M., Gastpar, M., &amp; Jensen, H. J. (2019).
 Quantifying High-order Interdependencies via Multivariate Extensions of the Mutual Information.
 Physical Review E, 100(3), Article 3.
 <a class="reference external" href="https://doi.org/10.1103/PhysRevE.100.032305">https://doi.org/10.1103/PhysRevE.100.032305</a></p>
@@ -1282,73 +1312,50 @@ Physical Review E, 100(3), Article 3.
 Multivariate information theory uncovers synergistic subsystems of the human cerebral cortex.
 Communications Biology, 6(1), Article 1.
 <a class="reference external" href="https://doi.org/10.1038/s42003-023-04843-w">https://doi.org/10.1038/s42003-023-04843-w</a></p>
-</dd>
-</dl>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>joint_distribution</strong> (<em>dict</em><em>[</em><em>tuple</em><em>, </em><em>float</em><em>]</em>) – The joint probability distribution.
-Keys are tuples corresponding to the state of each element.
-The valules are the probabilities.</p>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type">(<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>], <code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>)</span></p>
-</dd>
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p><ul class="simple">
-<li><p><strong>ptw</strong> (<em>dict[tuple, float]</em>) – The pointwise S-information .</p></li>
-<li><p><strong>avg</strong> (<em>float</em>) – The average S-information.</p></li>
-</ul>
-</p>
-</dd>
-</dl>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="syntropy.discrete.multivariate_mi.total_correlation">
 <span class="sig-prename descclassname"><span class="pre">syntropy.discrete.multivariate_mi.</span></span><span class="sig-name descname"><span class="pre">total_correlation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">joint_distribution</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/discrete/multivariate_mi.html#total_correlation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.discrete.multivariate_mi.total_correlation" title="Link to this definition">¶</a></dt>
 <dd><p>Computes the average and pointwise total correlations:</p>
-<p><span class="math notranslate nohighlight">\(TC(X) = D_{KL}(P(X) || \prod_{i=1}^{N}P(X_i)\)</span></p>
-<dl class="simple">
-<dt>See:</dt><dd><p>Watanabe, S. (1960). Information Theoretical Analysis of Multivariate Correlation.
-IBM Journal of Research and Development, 4(1), Article 1.
-<a class="reference external" href="https://doi.org/10.1147/rd.41.0066">https://doi.org/10.1147/rd.41.0066</a></p>
-</dd>
-</dl>
+<div class="math notranslate nohighlight">
+\[\begin{split}TC(X) &amp;= D_{KL}(P(X) || \prod_{i=1}^{N}P(X_i) \\
+      &amp;= \sum_{i=1}^{N}H(X_i) - H(X)\end{split}\]</div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>joint_distribution</strong> (<em>dict</em><em>[</em><em>tuple</em><em>, </em><em>float</em><em>]</em>) – The joint probability distribution.
+<dd class="field-odd"><p><strong>joint_distribution</strong> (<em>dict</em><em>[</em><em>tuple</em><em>[</em><em>int</em><em>, </em><em>...</em><em>]</em><em>]</em><em>, </em><em>float</em><em>]</em>) – The joint probability distribution.
 Keys are tuples corresponding to the state of each element.
 The valules are the probabilities.</p>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type">(<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>], <code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>)</span></p>
-</dd>
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p><ul class="simple">
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
 <li><p><strong>ptw</strong> (<em>dict[tuple, float]</em>) – The pointwise TC .</p></li>
 <li><p><strong>avg</strong> (<em>float</em>) – The average TC.</p></li>
 </ul>
 </p>
 </dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>(tuple[dict, float], &lt;class ‘float’&gt;)</p>
+</dd>
 </dl>
+<p class="rubric">References</p>
+<p>Watanabe, S. (1960). Information Theoretical Analysis of Multivariate Correlation.
+IBM Journal of Research and Development, 4(1), Article 1.
+<a class="reference external" href="https://doi.org/10.1147/rd.41.0066">https://doi.org/10.1147/rd.41.0066</a></p>
+<p>Tononi, G., Sporns, O., &amp; Edelman, G. M. (1994).
+A measure for brain complexity: Relating functional segregation and integration in the nervous system.
+Proceedings of the National Academy of Sciences, 91(11), Article 11.
+<a class="reference external" href="https://doi.org/10.1073/pnas.91.11.5033">https://doi.org/10.1073/pnas.91.11.5033</a></p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="syntropy.discrete.multivariate_mi.tse_complexity">
 <span class="sig-prename descclassname"><span class="pre">syntropy.discrete.multivariate_mi.</span></span><span class="sig-name descname"><span class="pre">tse_complexity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">joint_distribution</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_samples</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/discrete/multivariate_mi.html#tse_complexity"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.discrete.multivariate_mi.tse_complexity" title="Link to this definition">¶</a></dt>
 <dd><p>The Tononi-Sporns-Edelman neural complexity measure, which provides a measure of the balance between integration and segregation across scales.</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}TSE(X) &amp;= \sum_{k=1}^{\lfloor N/2\rfloor} \bigg\langle I(X^{k}_j;X^{-k}_j) \bigg\rangle_{j} \\
+       &amp;= \sum_{k=2}^{N}\bigg[\bigg(\frac{k}{N}\bigg)TC(X) - \langle TC(X^{k}_{j}) \rangle_{j}  \bigg]\end{split}\]</div>
 <p>Runtimes scale very badly with system size (as it requires brute-forcing) all possible bipartitions of the system. If the system is too large, a sub-sampling approach is taken: at each scale, num_samples are drawn from the space of bipartitions.</p>
-<dl>
-<dt>See:</dt><dd><p>Tononi, G., Sporns, O., &amp; Edelman, G. M. (1994).
-A measure for brain complexity: Relating functional segregation and integration in the nervous system.
-Proceedings of the National Academy of Sciences, 91(11), Article 11.
-<a class="reference external" href="https://doi.org/10.1073/pnas.91.11.5033">https://doi.org/10.1073/pnas.91.11.5033</a></p>
-<p>Varley, T. F., Pope, M., Faskowitz, J., &amp; Sporns, O. (2023).
-Multivariate information theory uncovers synergistic subsystems of the human cerebral cortex.
-Communications Biology, 6(1), Article 1.
-<a class="reference external" href="https://doi.org/10.1038/s42003-023-04843-w">https://doi.org/10.1038/s42003-023-04843-w</a></p>
-</dd>
-</dl>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -1365,6 +1372,15 @@ The valules are the probabilities.</p></li>
 <dd class="field-odd"><p>float</p>
 </dd>
 </dl>
+<p class="rubric">References</p>
+<p>Tononi, G., Sporns, O., &amp; Edelman, G. M. (1994).
+A measure for brain complexity: Relating functional segregation and integration in the nervous system.
+Proceedings of the National Academy of Sciences, 91(11), Article 11.
+<a class="reference external" href="https://doi.org/10.1073/pnas.91.11.5033">https://doi.org/10.1073/pnas.91.11.5033</a></p>
+<p>Varley, T. F., Pope, M., Faskowitz, J., &amp; Sporns, O. (2023).
+Multivariate information theory uncovers synergistic subsystems of the human cerebral cortex.
+Communications Biology, 6(1), Article 1.
+<a class="reference external" href="https://doi.org/10.1038/s42003-023-04843-w">https://doi.org/10.1038/s42003-023-04843-w</a></p>
 </dd></dl>
 
 </section>
@@ -1405,7 +1421,8 @@ The default is 1e-6.</p></li>
 <dt class="sig sig-object py" id="syntropy.discrete.shannon.conditional_entropy">
 <span class="sig-prename descclassname"><span class="pre">syntropy.discrete.shannon.</span></span><span class="sig-name descname"><span class="pre">conditional_entropy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">idxs_x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idxs_y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">joint_distribution</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/discrete/shannon.html#conditional_entropy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.discrete.shannon.conditional_entropy" title="Link to this definition">¶</a></dt>
 <dd><p>Computes the conditional entropy of X given Y.</p>
-<p><span class="math notranslate nohighlight">\(H(X|Y) = H(X,Y) - H(Y)\)</span></p>
+<div class="math notranslate nohighlight">
+\[H(X|Y) = H(X,Y) - H(Y)\]</div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -1420,15 +1437,15 @@ The valules are the probabilities.</p>
 </p></li>
 </ul>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>]</span></p>
-</dd>
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p><ul class="simple">
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
 <li><p><strong>ptw</strong> (<em>dict</em>) – The pointwise entropy for each state in the joint distribution.</p></li>
 <li><p><strong>avg</strong> (<em>float</em>) – The average entropy</p></li>
 </ul>
 </p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple[dict, float]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1437,7 +1454,9 @@ The valules are the probabilities.</p>
 <dt class="sig sig-object py" id="syntropy.discrete.shannon.conditional_mutual_information">
 <span class="sig-prename descclassname"><span class="pre">syntropy.discrete.shannon.</span></span><span class="sig-name descname"><span class="pre">conditional_mutual_information</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">idxs_x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idxs_y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idxs_z</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">joint_distribution</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/discrete/shannon.html#conditional_mutual_information"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.discrete.shannon.conditional_mutual_information" title="Link to this definition">¶</a></dt>
 <dd><p>Computes the mutual information between X and Y condioned on Z.</p>
-<p><span class="math notranslate nohighlight">\(I(X,Y|Z) = H(X|Z) + H(Y|Z) - H(X,Y|Z)\)</span></p>
+<div class="math notranslate nohighlight">
+\[\begin{split}I(X,Y|Z) &amp;= H(X|Z) + H(Y|Z) - H(X,Y|Z) \\
+         &amp;= I(X;Y,Z) - I(X;Z)\end{split}\]</div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -1449,15 +1468,15 @@ Keys are tuples corresponding to the state of each element.
 The valules are the probabilities.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>]</span></p>
-</dd>
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p><ul class="simple">
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
 <li><p><strong>ptw</strong> (<em>dict</em>) – The pointwise mutual information for each state in the joint distribution.</p></li>
 <li><p><strong>avg</strong> (<em>float</em>) – The average mutual information</p></li>
 </ul>
 </p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple[dict, float]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1467,7 +1486,8 @@ The valules are the probabilities.</p></li>
 <span class="sig-prename descclassname"><span class="pre">syntropy.discrete.shannon.</span></span><span class="sig-name descname"><span class="pre">kullback_leibler_divergence</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">posterior_distribution</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prior_distribution</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/discrete/shannon.html#kullback_leibler_divergence"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.discrete.shannon.kullback_leibler_divergence" title="Link to this definition">¶</a></dt>
 <dd><p>Computes the Kullback-Leibler divergence from a prior distribution P(X) and
 and posterior distribution Q(X).</p>
-<p><span class="math notranslate nohighlight">\(D_{KL}(P||Q) = \sum_{x} P(x) \log \frac{P(x)}{Q(x)}\)</span></p>
+<div class="math notranslate nohighlight">
+\[D_{KL}(P||Q) = \sum_{x} P(x) \log \frac{P(x)}{Q(x)}\]</div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -1475,15 +1495,15 @@ and posterior distribution Q(X).</p>
 <li><p><strong>prior_distribution</strong> (<em>dict</em>) – The joint distribution of the prior distribution Q(X)</p></li>
 </ul>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>]</span></p>
-</dd>
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p><ul class="simple">
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
 <li><p><strong>ptw</strong> (<em>dict</em>) – The pointwise Kullback-Leibler divergence for each state in the joint distribution.</p></li>
 <li><p><strong>avg</strong> (<em>float</em>) – The average Kullback-Leibler divergence.</p></li>
 </ul>
 </p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple[dict, float]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1492,7 +1512,11 @@ and posterior distribution Q(X).</p>
 <dt class="sig sig-object py" id="syntropy.discrete.shannon.mutual_information">
 <span class="sig-prename descclassname"><span class="pre">syntropy.discrete.shannon.</span></span><span class="sig-name descname"><span class="pre">mutual_information</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">idxs_x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idxs_y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">joint_distribution</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/discrete/shannon.html#mutual_information"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.discrete.shannon.mutual_information" title="Link to this definition">¶</a></dt>
 <dd><p>Computes the mutual information between X and Y.</p>
-<p><span class="math notranslate nohighlight">\(I(X;Y) = H(X) + H(Y) - H(X,Y)\)</span></p>
+<div class="math notranslate nohighlight">
+\[\begin{split}I(X;Y) &amp;= H(X) + H(Y) - H(X,Y) \\
+       &amp;= H(X) - H(X|Y) \\
+       &amp;= H(Y) - H(Y|X) \\
+       &amp;= H(X,Y) - H(X|Y) - H(Y|X)\end{split}\]</div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -1503,15 +1527,15 @@ Keys are tuples corresponding to the state of each element.
 The valules are the probabilities.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>]</span></p>
-</dd>
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p><ul class="simple">
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
 <li><p><strong>ptw</strong> (<em>dict</em>) – The pointwise mutual information for each state in the joint distribution.</p></li>
 <li><p><strong>avg</strong> (<em>float</em>) – The average mutual information</p></li>
 </ul>
 </p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple[dict, float]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1521,7 +1545,7 @@ The valules are the probabilities.</p></li>
 <span class="sig-prename descclassname"><span class="pre">syntropy.discrete.shannon.</span></span><span class="sig-name descname"><span class="pre">shannon_entropy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">joint_distribution</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/discrete/shannon.html#shannon_entropy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.discrete.shannon.shannon_entropy" title="Link to this definition">¶</a></dt>
 <dd><p>Computes the Shannon entropy of the distribution <span class="math notranslate nohighlight">\(P(x)\)</span>.</p>
 <div class="math notranslate nohighlight">
-\[H(X) = -\sum_{x} P(x) \log P(x)\]</div>
+\[H(X) = -\sum_{x\in\mathcal{X}} P(x) \log P(x)\]</div>
 <p>To compute the entropy of a subset of the variables in the joint
 distribution, use the <code class="xref py py-func docutils literal notranslate"><span class="pre">syntropy.discrete.utils.get_marginals()</span></code> function from the utils
 library.</p>
@@ -1531,15 +1555,15 @@ library.</p>
 Keys are tuples corresponding to the state of each element.
 The valules are the probabilities.</p>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>]</span></p>
-</dd>
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p><ul class="simple">
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
 <li><p><strong>ptw</strong> (<em>dict</em>) – The pointwise entropy for each state in the joint distribution.</p></li>
 <li><p><strong>avg</strong> (<em>float</em>) – The average entropy</p></li>
 </ul>
 </p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple[dict, float]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1551,13 +1575,8 @@ The valules are the probabilities.</p>
 <dt class="sig sig-object py" id="syntropy.discrete.temporal.conditional_lempel_ziv_complexity">
 <span class="sig-prename descclassname"><span class="pre">syntropy.discrete.temporal.</span></span><span class="sig-name descname"><span class="pre">conditional_lempel_ziv_complexity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Y</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/discrete/temporal.html#conditional_lempel_ziv_complexity"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.discrete.temporal.conditional_lempel_ziv_complexity" title="Link to this definition">¶</a></dt>
 <dd><p>The conditional entropy rate estimated with the Lempel-Ziv algorithm.</p>
-<dl class="simple">
-<dt>See:</dt><dd><p>Zozor, S., Ravier, P., &amp; Buttelli, O. (2005).
-On Lempel–Ziv complexity for multidimensional data analysis.
-Physica A: Statistical Mechanics and Its Applications, 345(1), 285–302.
-<a class="reference external" href="https://doi.org/10.1016/j.physa.2004.07.025">https://doi.org/10.1016/j.physa.2004.07.025</a></p>
-</dd>
-</dl>
+<div class="math notranslate nohighlight">
+\[LZ(X|Y) = LZ(X,Y) - LZ(Y)\]</div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -1574,6 +1593,11 @@ single-character strings (“A”, “a”, “B”, “b”, etc.).</p></li>
 <dd class="field-odd"><p>float</p>
 </dd>
 </dl>
+<p class="rubric">References</p>
+<p>Zozor, S., Ravier, P., &amp; Buttelli, O. (2005).
+On Lempel–Ziv complexity for multidimensional data analysis.
+Physica A: Statistical Mechanics and Its Applications, 345(1), 285–302.
+<a class="reference external" href="https://doi.org/10.1016/j.physa.2004.07.025">https://doi.org/10.1016/j.physa.2004.07.025</a></p>
 </dd></dl>
 
 <dl class="py function">
@@ -1583,14 +1607,6 @@ single-character strings (“A”, “a”, “B”, “b”, etc.).</p></li>
 using a pre-constructed dictionary optimized on Y. The relative
 Lempel-Ziv complexity is the extra patterns that appear in X but
 not in the compressed Y.</p>
-<dl class="simple">
-<dt>See:</dt><dd><p>Ziv, J., &amp; Merhav, N. (1993).
-A Measure of Relative Entropy between Individual Sequences with
-Application to Universal Classification.
-Proceedings. IEEE International Symposium on Information Theory, 352–352.
-<a class="reference external" href="https://doi.org/10.1109/ISIT.1993.748668">https://doi.org/10.1109/ISIT.1993.748668</a></p>
-</dd>
-</dl>
 <p>This code uses the optimized dictionary for Y, rather than searching all
 substrings of Y. Using all possible substrings is very impractical for
 long time series. As a result, however, it is very sensitive to the
@@ -1615,30 +1631,23 @@ single-character strings (“A”, “a”, “B”, “b”, etc.).</p></li>
 <dd class="field-odd"><p>int</p>
 </dd>
 </dl>
+<p class="rubric">References</p>
+<p>Ziv, J., &amp; Merhav, N. (1993).
+A Measure of Relative Entropy between Individual Sequences with
+Application to Universal Classification.
+Proceedings. IEEE International Symposium on Information Theory, 352–352.
+<a class="reference external" href="https://doi.org/10.1109/ISIT.1993.748668">https://doi.org/10.1109/ISIT.1993.748668</a></p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="syntropy.discrete.temporal.lempel_ziv_complexity">
 <span class="sig-prename descclassname"><span class="pre">syntropy.discrete.temporal.</span></span><span class="sig-name descname"><span class="pre">lempel_ziv_complexity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_dictionary</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/discrete/temporal.html#lempel_ziv_complexity"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.discrete.temporal.lempel_ziv_complexity" title="Link to this definition">¶</a></dt>
-<dd><p>Uses the classic Lempel-Ziv compression algorithm to estimate the
-entropy rate of a one-dimensional array. If each element in X is a
-multi-dimensional tuple, then the result is equivalent to the
-joint mutual information rate.</p>
-<p>The extension to multivariate Lempel-Ziv is straightforward and involves representing
-the joint state of each element at time t as a tuple (X(t), Y(t)) and
-treating the two sources as a single joint source.</p>
-<dl>
-<dt>See:</dt><dd><p>Zozor, S., Ravier, P., &amp; Buttelli, O. (2005).
-On Lempel–Ziv complexity for multidimensional data analysis.
-Physica A: Statistical Mechanics and Its Applications, 345(1), 285–302.
-<a class="reference external" href="https://doi.org/10.1016/j.physa.2004.07.025">https://doi.org/10.1016/j.physa.2004.07.025</a></p>
-<p>Blanc, J.-L., Schmidt, N., Bonnier, L., Pezard, L., &amp; Lesne, A. (2008).
-Quantifying Neural Correlations Using Lempel-Ziv Complexity.
-Deuxième conférence française de Neurosciences Computationnelles,
-Marseille, France.
-<a class="reference external" href="https://hal.science/hal-00331599/document">https://hal.science/hal-00331599/document</a></p>
-</dd>
-</dl>
+<dd><p>Uses the classic Lempel-Ziv compression algorithm to estimate the entropy rate of a one-dimensional array with <span class="math notranslate nohighlight">\(N\)</span> samples.
+If each element in X is a multi-dimensional tuple, then the result is equivalent to the joint entropy rate.</p>
+<p>The extension to multivariate Lempel-Ziv is straightforward and involves representing the joint state of each element at time t as a tuple (X(t), Y(t)) and treating the two sources as a single joint source.</p>
+<p>Here, the dictionary length <span class="math notranslate nohighlight">\(|D|\)</span> is normalized:</p>
+<div class="math notranslate nohighlight">
+\[\textnormal{Complexity}(X) = \frac{|D|\log|D|}{N}\]</div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -1648,38 +1657,40 @@ single-character strings (“A”, “a”, “B”, “b”, etc.)..</p></li>
 <li><p><strong>return_dictionary</strong> (<em>bool</em>)</p></li>
 </ul>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">set</span></code>]</span></p>
-</dd>
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p><ul class="simple">
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
 <li><p><em>float</em> – The estimated Lempel-Ziv complexity.</p></li>
 <li><p><em>set</em> – The dictionary (only returned if return_dictionary == True)</p></li>
 </ul>
 </p>
 </dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float | tuple[float, set]</p>
+</dd>
 </dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="syntropy.discrete.temporal.lempel_ziv_mutual_information">
-<span class="sig-prename descclassname"><span class="pre">syntropy.discrete.temporal.</span></span><span class="sig-name descname"><span class="pre">lempel_ziv_mutual_information</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Y</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/discrete/temporal.html#lempel_ziv_mutual_information"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.discrete.temporal.lempel_ziv_mutual_information" title="Link to this definition">¶</a></dt>
-<dd><p>Estimates the discrete mutual information rate for two channels X and Y
-with the Lempel-Ziv compression algorithm.</p>
-<p>This measure can be transiently negative, although in the limit it
-approximates the discrete information rate.</p>
-<dl>
-<dt>See:</dt><dd><p>Zozor, S., Ravier, P., &amp; Buttelli, O. (2005).
-On Lempel–Ziv complexity for multidimensional data analysis.
-Physica A: Statistical Mechanics and Its Applications, 345(1), 285–302.
-<a class="reference external" href="https://doi.org/10.1016/j.physa.2004.07.025">https://doi.org/10.1016/j.physa.2004.07.025</a></p>
+<p class="rubric">References</p>
+<p>Schartner, M. M., Carhart-Harris, R. L., Barrett, A. B., Seth, A. K., &amp; Muthukumaraswamy, S. D. (2017).
+Increased spontaneous MEG signal diversity for psychoactive doses of ketamine, LSD and psilocybin.
+Scientific Reports, 7, 46421.
+<a class="reference external" href="https://doi.org/10.1038/srep46421">https://doi.org/10.1038/srep46421</a></p>
 <p>Blanc, J.-L., Schmidt, N., Bonnier, L., Pezard, L., &amp; Lesne, A. (2008).
 Quantifying Neural Correlations Using Lempel-Ziv Complexity.
 Deuxième conférence française de Neurosciences Computationnelles,
 Marseille, France.
 <a class="reference external" href="https://hal.science/hal-00331599/document">https://hal.science/hal-00331599/document</a></p>
-</dd>
-</dl>
+<p>Zozor, S., Ravier, P., &amp; Buttelli, O. (2005).
+On Lempel–Ziv complexity for multidimensional data analysis.
+Physica A: Statistical Mechanics and Its Applications, 345(1), 285–302.
+<a class="reference external" href="https://doi.org/10.1016/j.physa.2004.07.025">https://doi.org/10.1016/j.physa.2004.07.025</a></p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="syntropy.discrete.temporal.lempel_ziv_mutual_information">
+<span class="sig-prename descclassname"><span class="pre">syntropy.discrete.temporal.</span></span><span class="sig-name descname"><span class="pre">lempel_ziv_mutual_information</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Y</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/discrete/temporal.html#lempel_ziv_mutual_information"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.discrete.temporal.lempel_ziv_mutual_information" title="Link to this definition">¶</a></dt>
+<dd><p>Estimates the discrete mutual information rate for two channels X and Y with the Lempel-Ziv compression algorithm.
+This measure can be transiently negative, although in the limit it approximates the discrete information rate.</p>
+<div class="math notranslate nohighlight">
+\[I_{LZ}(X;Y) = LZ(X) + LZ(Y) - LZ(X,Y)\]</div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -1696,6 +1707,16 @@ single-character strings (“A”, “a”, “B”, “b”, etc.)..</p></li>
 <dd class="field-odd"><p>float</p>
 </dd>
 </dl>
+<p class="rubric">References</p>
+<p>Zozor, S., Ravier, P., &amp; Buttelli, O. (2005).
+On Lempel–Ziv complexity for multidimensional data analysis.
+Physica A: Statistical Mechanics and Its Applications, 345(1), 285–302.
+<a class="reference external" href="https://doi.org/10.1016/j.physa.2004.07.025">https://doi.org/10.1016/j.physa.2004.07.025</a></p>
+<p>Blanc, J.-L., Schmidt, N., Bonnier, L., Pezard, L., &amp; Lesne, A. (2008).
+Quantifying Neural Correlations Using Lempel-Ziv Complexity.
+Deuxième conférence française de Neurosciences Computationnelles,
+Marseille, France.
+<a class="reference external" href="https://hal.science/hal-00331599/document">https://hal.science/hal-00331599/document</a></p>
 </dd></dl>
 
 <dl class="py function">
@@ -1703,7 +1724,8 @@ single-character strings (“A”, “a”, “B”, “b”, etc.)..</p></li>
 <span class="sig-prename descclassname"><span class="pre">syntropy.discrete.temporal.</span></span><span class="sig-name descname"><span class="pre">lempel_ziv_total_correlation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/discrete/temporal.html#lempel_ziv_total_correlation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.discrete.temporal.lempel_ziv_total_correlation" title="Link to this definition">¶</a></dt>
 <dd><p>A straightforward generalization of the mutual information rate given by
 Zozor et al., and Blanc et al.,</p>
-<p><span class="math notranslate nohighlight">\(TC(X) = \sum_{i=1}^{N} LZC(X_i) - LZC(X)\)</span></p>
+<div class="math notranslate nohighlight">
+\[TC_{LZ}(X) = \sum_{i=1}^{N} LZ(X_i) - LZ(X)\]</div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>data</strong> (<em>np.ndarray</em>) – A multi-dimensional discrete array, assumed to be in

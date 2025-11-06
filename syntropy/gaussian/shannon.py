@@ -19,6 +19,20 @@ def differential_entropy(
     distribution parameterized by a covariance matrix using a
     Gaussian estimator.
 
+    The differential entropy is given by:
+
+    .. math::
+
+        H(X) = \\int dx P(x)\\log P(x)
+
+    And if :math:`X` is drawn from a k-dimensional Gaussian, it is equal to
+
+    .. math::
+
+        H(X) = \\frac{k}{2}\\log 2\\pi\\textnormal{e} + \\frac{1}{2}\\log|\\Sigma|
+
+    Where :math:`|\\Sigma|` is the determinant of the covariance matrix.
+
     Parameters
     ----------
     cov : NDArray[np.floating]
@@ -49,6 +63,14 @@ def local_differential_entropy(
 ) -> NDArray[np.floating]:
     """
     Computes the framewise differential entropy for a set of variables.
+
+    .. math::
+        h(x) = -\\log P(x)
+
+    For data drawn from a k-dimensional Gaussian
+
+    .. math::
+        P(x) = (2\\pi)^{-k/2}|\\Sigma|^{-1/2}\\textnormal{e}^{\\frac{-(x - \\mu)^\\mathrm{T} \\Sigma^{-1}(x - \\mu)}{2}}
 
     Parameters
     ----------
@@ -86,7 +108,10 @@ def conditional_entropy(
     cov: NDArray[np.floating],
 ) -> float:
     """
-    Computes the conditional entropy of X given Y.
+    Computes the conditional entropy of X given Y using Gaussian estimation.
+    
+    .. math::
+        H(X|Y) = H(X,Y) - H(Y)
 
     Parameters
     ----------
@@ -119,7 +144,11 @@ def local_conditional_entropy(
     cov: NDArray[np.floating] = COV_NULL,
 ) -> NDArray[np.floating]:
     """
-    Computes the local condition entropy for every sample in data.
+    Computes the local condition entropy for every sample in data using Gaussian estimation.
+
+    .. math::
+    
+        h(x|y) = h(x,y) - h(y)
 
     Parameters
     ----------
@@ -153,8 +182,23 @@ def mutual_information(
     idxs_x: tuple[int, ...], idxs_y: tuple[int, ...], cov: NDArray[np.floating]
 ) -> float:
     """
-    Computes the mutual information between the idxs_x and the idxs_y.
-    Note that the mutual information is symmetric in its arguments.
+    Computes the mutual information between two (potentially multivariate) sets of elements.
+    
+    .. math:: 
+        I(X;Y) &= H(X) + H(Y) - H(X,Y) \\\\
+               &= H(X) - H(X|Y) \\\\
+               &= H(Y) - H(Y|X) \\\\
+               &= H(X,Y) - H(X|Y) - H(Y|X)
+    
+    For Gaussian random variables:
+
+    .. math:: 
+        I(X;Y) = \\frac{1}{2}\\log\\frac{|\\Sigma_{X}||\\Sigma_{Y}|}{|\Sigma_{XY}|}
+
+    In the particular case where :math:`X` and :math:`Y` are univariate, the mutual information can be computed directly from the Pearson correlation coefficient :math:`r`: 
+
+    .. math::
+        I(X;Y) = \\frac{-\\log(1-r^{2})}{2}
 
     Parameters
     ----------
@@ -202,8 +246,14 @@ def local_mutual_information(
     cov: NDArray[np.floating] = COV_NULL,
 ) -> NDArray[np.floating]:
     """
-    Computes the local mutual information between X and Y for every sample in data.
+    Computes the local mutual information between X and Y for every sample in data using Gaussian estimation.
     Note that the local mutual information can be negative.
+    
+    .. math::
+        i(x;y) &= h(x) + h(y) - h(x,y) \\\\
+               &= \\log\\frac{p(x|y)}{p(x)} \\\\
+               &= \\log\\frac{p(y|x)}{p(y)} \\\\
+               &= \\log\\frac{p(x,y)}{p(x)p(y)} \\\\
 
     Parameters
     ----------
@@ -250,6 +300,10 @@ def conditional_mutual_information(
     """
     Computes the expected mutual information between a set of variables X
     and Y, conditional on a third set Z.
+    
+    .. math:: 
+        I(X,Y|Z) &= H(X|Z) + H(Y|Z) - H(X,Y|Z) \\\\
+                 &= I(X;Y,Z) - I(X;Z)
 
     Parameters
     ----------
@@ -287,8 +341,11 @@ def local_conditional_mutual_information(
     """
     Computes the local conditional mutual information between
     two sets of variables X and Y, conditional on another set Z.
-
-    Returns a numpy array with one value for every sample.
+    
+    .. math:: 
+    
+        i(x,y|z) &= h(x|z) + h(y|z) - h(x,y|z) \\\\
+                 &= i(x;y,z) - i(x;z)
 
     Parameters
     ----------
@@ -324,8 +381,11 @@ def kullback_leibler_divergence(
     cov_posterior: NDArray[np.floating], cov_prior: NDArray[np.floating]
 ) -> float:
     """
-    Computes the Gaussian Kullback-Leibler divergence between
-    two multivariate Gaussians parameterized by covariance matrices.
+    Computes the Gaussian Kullback-Leibler divergence between two :math:`k`-dimensional multivariate Gaussians parameterized by covariance matrices.
+
+    .. math::
+
+        D_{KL}(\\mathcal{N}_0 || \\mathcal{N}_1) = \\frac{1}{2}[ \\operatorname{tr}(\\Sigma_{1}^{-1}\\Sigma_{0}) - k + (\\mu_1 - \\mu_0)^\\mathsf{T} \\Sigma_{1}^{-1}(\\mu_1 - \\mu_0) + \\log\\frac{|\\Sigma_{1}|}{|\\Sigma_{0}|}]
 
     Parameters
     ----------
@@ -360,14 +420,12 @@ def local_kullback_leibler_divergence(
     """
     Computes the local Kullback-Leibler divergence between the
     posterior and the prior for every sample in the data.
+    The local KL divergence is a rarely used measure.
+    
+    .. math::
 
-    The local KL divergence is a rarely used measure, for details, see:
-
-    Varley, T. F. (2024).
-    Generalized decomposition of multivariate information.
-    PLOS ONE, 19(2), e0297128.
-    https://doi.org/10.1371/journal.pone.0297128
-
+        d_{kl}^{P||Q}(x) = h^{Q}(x) - h^{P}(x)
+    
     Parameters
     ----------
     cov_posterior : NDArray[np.floating]
@@ -379,8 +437,15 @@ def local_kullback_leibler_divergence(
 
     Returns
     -------
-    NDArray[np.floating].
+    NDArray[np.floating]
         The local Kullback-Leibler divergence.
+
+    References
+    ----------
+    Varley, T. F. (2024).
+    Generalized decomposition of multivariate information.
+    PLOS ONE, 19(2), e0297128.
+    https://doi.org/10.1371/journal.pone.0297128
 
     """
 

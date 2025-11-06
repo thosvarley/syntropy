@@ -7,7 +7,10 @@ def local_total_correlation(
     data: NDArray[np.floating], cov: NDArray[np.floating], idxs: tuple[int, ...] = (-1,)
 ) -> NDArray[np.floating]:
     """
-    The local total correlation.
+    The local total correlation. Note that this measure can be negative.
+
+    .. math:: 
+        tc(x) = \\sum_{i=1}^{N}h(x_i) - h(x)
 
     Parameters
     ----------
@@ -60,8 +63,17 @@ def total_correlation(
     """
     The expected total correlation.
 
-    ..math:: 
-        `TC(X) = \\sum_{i=1}^{N}H(X_i) - H(X)`
+    .. math::
+
+        TC(X) &= D_{KL}(P(X) || \\prod_{i=1}^{N}P(X_i) \\\\
+              &= \\sum_{i=1}^{N}H(X_i) - H(X)
+
+    For Gaussian random variables, the estimator is:
+
+        .. math::
+            \\hat{TC}(X) = \\frac{-\log R}{2}
+
+    Where :math:`R` is the Pearson correlation matrix.
 
     Parameters
     ----------
@@ -161,11 +173,11 @@ def local_k_wms(
 
 def k_wms(k: int, cov: NDArray[np.floating], idxs: tuple[int, ...] = (-1,)) -> float:
     """
-    A utility function that computes the generalized form
-    of the O-information, S-information, and DTC.
+    S-information, DTC, and negative O-information can all be written in a general form:
 
-    .. math:: 
-        K_{WMS}(X) = (N-k)TC(X) - \\sum_{i=1}^{N} TC(X^{-i})
+    .. math::
+
+        WMS^{k}(X) = (N-k)TC(X) - \\sum_{i=1}^{N}TC(X^{-i})
 
     Parameters
     ----------
@@ -208,6 +220,11 @@ def local_s_information(
 ) -> NDArray[np.floating]:
     """
     Compute local S-information using Gaussian estimation.
+    
+    .. math::
+        \\sigma(X) &= \\sum_{i=1}^{N}i(x_i;x^{-i}) \\\\
+                   &= N\\times tc(x) - \\sum_{i=1}^{N}tc(x^{-i}) \\\\
+                   &= tc(x) + dtc(x)
 
     Parameters
     ----------
@@ -237,6 +254,12 @@ def s_information(cov: NDArray[np.floating], idxs: tuple[int, ...] = (-1,)) -> f
     """
     Compute S-information using Gaussian estimation.
 
+    .. math:: 
+
+        \\Sigma(X) &= \\sum_{i=1}^{N}I(X_i;X^{-i}) \\\\
+                   &= N\\times TC(X) - \\sum_{i=1}^{N}TC(X^{-i}) \\\\
+                   &= TC(X) + DTC(X)
+    
     Parameters
     ----------
     data : NDArray[np.floating]
@@ -276,7 +299,12 @@ def local_dual_total_correlation(
     idxs: tuple[int, ...] = (-1,),
 ) -> NDArray[np.floating]:
     """
-    Computes the dual total correlation using Gaussian estimation. 
+    Computes the dual total correlation using Gaussian estimation. Note that this measure can be negative.
+    
+    .. math:: 
+
+        dtc(x) &= h(x) - \\sum_{i=1}^{N}h(x_i|x^{-i}) \\\\
+               &= (N-1)\\times tc(x) - \\sum_{i=1}^{N}tc(x^{-i})
 
     Parameters
     ----------
@@ -306,7 +334,12 @@ def dual_total_correlation(
     cov: NDArray[np.floating], idxs: tuple[int, ...] = (-1,)
 ) -> float:
     """
-    Computes the dual total correlation. 
+    Computes the dual total correlation using Gaussian estimation.
+
+    .. math:: 
+
+        DTC(X) &= H(X) - \\sum_{i=1}^{N}H(X_i|X^{-i}) \\\\
+               &= (N-1)\\times TC(X) - \\sum_{i=1}^{N}TC(X^{-i})
     
     Parameters
     ----------
@@ -348,6 +381,11 @@ def local_o_information(
     """
     Computes the local O-information for each sample using Gaussian estimation.
 
+    .. math::
+
+        \\omega(x) &= (2-N)tc(x) + \\sum_{i=1}^{N}tc(x^{-i}) \\\\
+                   &= tc(x) - dtc(x)
+    
     Parameters
     ----------
     data : NDArray[np.floating]
@@ -383,9 +421,12 @@ def local_o_information(
 def o_information(cov: NDArray[np.floating], idxs: tuple[int, ...] = (-1,)) -> float:
     """
     Compute O-information using Gaussian estimation.
+    O-information quantifies the balance between redundancy (positive values) and synergy (negative values) in multivariate information.
+    
+    .. math::
 
-    O-information quantifies the balance between redundancy (positive values)
-    and synergy (negative values) in multivariate information.
+        \\Omega(X) &= (2-N)TC(X) + \\sum_{i=1}^{N}TC(X^{-i}) \\\\
+                   &= TC(X) - DTC(X)
 
     Parameters
     ----------
@@ -422,6 +463,13 @@ def tse_complexity(num_samples: int, cov: NDArray[np.floating]) -> float:
     """
     Computes the Tononi-Sporns-Edelman complexity using Gaussian
     estimators.
+    
+    .. math::
+
+        TSE(X) &= \\sum_{k=1}^{\\lfloor N/2\\rfloor} \\bigg\\langle I(X^{k}_j;X^{-k}_j) \\bigg\\rangle_{j} \\\\
+               &= \\sum_{k=2}^{N}\\bigg[\\bigg(\\frac{k}{N}\\bigg)TC(X) - \\langle TC(X^{k}_{j}) \\rangle_{j}  \\bigg] 
+
+    Runtimes scale very badly with system size (as it requires brute-forcing) all possible bipartitions of the system. If the system is too large, a sub-sampling approach is taken: at each scale, num_samples are drawn from the space of bipartitions.
 
     Parameters
     ----------
@@ -476,7 +524,7 @@ def description_complexity(
 ) -> float:
     """
     .. math:: 
-        C(X) = DTC(X) / N 
+        C(X) = \\frac{DTC(X)}{N} 
 
     Parameters
     ----------
@@ -511,6 +559,11 @@ def local_description_complexity(
     idxs: tuple[int, ...] = (-1,),
 ) -> NDArray[np.floating]:
     """
+
+    Computes the local description complexity for each sample using Gaussian estimation.
+
+    .. math::
+        c(x) = \\frac{dtc(x)}/N
 
     Parameters
     ----------

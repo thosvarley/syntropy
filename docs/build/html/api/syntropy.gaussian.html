@@ -40,8 +40,10 @@
 <p>&#64;author: thosvarley</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="syntropy.gaussian.conditional_entropy">
-<span class="sig-prename descclassname"><span class="pre">syntropy.gaussian.</span></span><span class="sig-name descname"><span class="pre">conditional_entropy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">idxs_x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idxs_y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cov</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">array([[-1.]])</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/gaussian/shannon.html#conditional_entropy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.gaussian.conditional_entropy" title="Link to this definition">¶</a></dt>
-<dd><p>Computes the conditional entropy of X given Y.</p>
+<span class="sig-prename descclassname"><span class="pre">syntropy.gaussian.</span></span><span class="sig-name descname"><span class="pre">conditional_entropy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">idxs_x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idxs_y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cov</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/gaussian/shannon.html#conditional_entropy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.gaussian.conditional_entropy" title="Link to this definition">¶</a></dt>
+<dd><p>Computes the conditional entropy of X given Y using Gaussian estimation.</p>
+<div class="math notranslate nohighlight">
+\[H(X|Y) = H(X,Y) - H(Y)\]</div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -62,6 +64,9 @@ If none is provided, it is computed from the data object.</p></li>
 <span class="sig-prename descclassname"><span class="pre">syntropy.gaussian.</span></span><span class="sig-name descname"><span class="pre">conditional_mutual_information</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">idxs_x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idxs_y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idxs_z</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cov</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/gaussian/shannon.html#conditional_mutual_information"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.gaussian.conditional_mutual_information" title="Link to this definition">¶</a></dt>
 <dd><p>Computes the expected mutual information between a set of variables X
 and Y, conditional on a third set Z.</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}I(X,Y|Z) &amp;= H(X|Z) + H(Y|Z) - H(X,Y|Z) \\
+         &amp;= I(X;Y,Z) - I(X;Z)\end{split}\]</div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -81,7 +86,7 @@ and Y, conditional on a third set Z.</p>
 <dt class="sig sig-object py" id="syntropy.gaussian.description_complexity">
 <span class="sig-prename descclassname"><span class="pre">syntropy.gaussian.</span></span><span class="sig-name descname"><span class="pre">description_complexity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cov</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idxs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(-1,)</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/gaussian/multivariate_mi.html#description_complexity"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.gaussian.description_complexity" title="Link to this definition">¶</a></dt>
 <dd><div class="math notranslate nohighlight">
-\[C(X) = DTC(X) / N\]</div>
+\[C(X) = \frac{DTC(X)}{N}\]</div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -110,6 +115,13 @@ Communications Biology, 6(1), Article 1.
 <dd><p>Computes the expected differential entropy of a multivariate
 distribution parameterized by a covariance matrix using a
 Gaussian estimator.</p>
+<p>The differential entropy is given by:</p>
+<div class="math notranslate nohighlight">
+\[H(X) = \int dx P(x)\log P(x)\]</div>
+<p>And if <span class="math notranslate nohighlight">\(X\)</span> is drawn from a k-dimensional Gaussian, it is equal to</p>
+<div class="math notranslate nohighlight">
+\[H(X) = \frac{k}{2}\log 2\pi\textnormal{e} + \frac{1}{2}\log|\Sigma|\]</div>
+<p>Where <span class="math notranslate nohighlight">\(|\Sigma|\)</span> is the determinant of the covariance matrix.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -128,7 +140,8 @@ Defaults to computing the TC of the entire covariance matrix.</p></li>
 <dt class="sig sig-object py" id="syntropy.gaussian.differential_entropy_rate">
 <span class="sig-prename descclassname"><span class="pre">syntropy.gaussian.</span></span><span class="sig-name descname"><span class="pre">differential_entropy_rate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">idxs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nperseg</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1024</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/gaussian/temporal.html#differential_entropy_rate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.gaussian.differential_entropy_rate" title="Link to this definition">¶</a></dt>
 <dd><p>Computes the differential entropy rate of a potentially multivariate stochastic process.</p>
-<p><span class="math notranslate nohighlight">\(H(X)=\frac{1}{4\pi} \int_{-\pi}^{\pi} \log \left( (2\pi e)^N |S_X(\omega)| \right) \, d\omega\)</span></p>
+<div class="math notranslate nohighlight">
+\[H(X)=\frac{1}{4\pi} \int_{-\pi}^{\pi} \log \left( (2\pi e)^N |S_X(\omega)| \right) \, d\omega\]</div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -141,15 +154,15 @@ Passed to the various scipy.signal functions that compute the spectral analyses.
 The default is 1024</p></li>
 </ul>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">...</span></code>], <code class="xref py py-class docutils literal notranslate"><span class="pre">dtype</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">floating</span></code>]], <code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>]</span></p>
-</dd>
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p><ul class="simple">
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
 <li><p><em>NDArray[np.floating]</em> – The local entropies for each frequency band.</p></li>
 <li><p><em>float</em> – The average entropy across the whole spectrum.</p></li>
 </ul>
 </p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple[<em>ndarray</em>[tuple[int, …], <em>dtype</em>[<em>floating</em>]], float]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -157,7 +170,10 @@ The default is 1024</p></li>
 <dl class="py function">
 <dt class="sig sig-object py" id="syntropy.gaussian.dual_total_correlation">
 <span class="sig-prename descclassname"><span class="pre">syntropy.gaussian.</span></span><span class="sig-name descname"><span class="pre">dual_total_correlation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cov</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idxs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(-1,)</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/gaussian/multivariate_mi.html#dual_total_correlation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.gaussian.dual_total_correlation" title="Link to this definition">¶</a></dt>
-<dd><p>Computes the dual total correlation.</p>
+<dd><p>Computes the dual total correlation using Gaussian estimation.</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}DTC(X) &amp;= H(X) - \sum_{i=1}^{N}H(X_i|X^{-i}) \\
+       &amp;= (N-1)\times TC(X) - \sum_{i=1}^{N}TC(X^{-i})\end{split}\]</div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -190,20 +206,11 @@ Physical Review E, 100(3), Article 3.
 <span class="sig-prename descclassname"><span class="pre">syntropy.gaussian.</span></span><span class="sig-name descname"><span class="pre">dual_total_correlation_rate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">idxs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nperseg</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1024</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/gaussian/temporal.html#dual_total_correlation_rate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.gaussian.dual_total_correlation_rate" title="Link to this definition">¶</a></dt>
 <dd><p>A straightforward extension of the dual total correlation rate from the total correlation rate.</p>
 <p>The dual total correlation is given alternately by:</p>
-<p><span class="math notranslate nohighlight">\(DTC(X) = H(X) - \sum_{i=1}^{N}H(X_i|X^{-i})\)</span></p>
-<p><span class="math notranslate nohighlight">\(DTC(X) = (N-1)TC(X) - \sum_{i=1}^{N}TC(X^{-i})\)</span></p>
+<div class="math notranslate nohighlight">
+\[DTC(X) = H(X) - \sum_{i=1}^{N}H(X_i|X^{-i})\]</div>
+<div class="math notranslate nohighlight">
+\[DTC(X) = (N-1)TC(X) - \sum_{i=1}^{N}TC(X^{-i})\]</div>
 <p>WARNING: As far as I know this rate idea has never been formally explored before. It should work fine as a natural generalization of the MI, but it hasn’t even been published or peer reviewed.</p>
-<dl>
-<dt>See:</dt><dd><p>Abdallah, S. A., &amp; Plumbley, M. D. (2012).
-A measure of statistical complexity based on predictive information with application to finite spin systems.
-Physics Letters A, 376(4), 275–281.
-<a class="reference external" href="https://doi.org/10.1016/j.physleta.2011.10.066">https://doi.org/10.1016/j.physleta.2011.10.066</a></p>
-<p>Rosas, F., Mediano, P. A. M., Gastpar, M., &amp; Jensen, H. J. (2019).
-Quantifying High-order Interdependencies via Multivariate Extensions of the Mutual Information.
-Physical Review E, 100(3), Article 3.
-<a class="reference external" href="https://doi.org/10.1103/PhysRevE.100.032305">https://doi.org/10.1103/PhysRevE.100.032305</a></p>
-</dd>
-</dl>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -217,17 +224,26 @@ The default is 1024</p></li>
 <li><p><strong>verbose</strong> (<em>bool</em>)</p></li>
 </ul>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">...</span></code>], <code class="xref py py-class docutils literal notranslate"><span class="pre">dtype</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">floating</span></code>]], <code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>]</span></p>
-</dd>
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p><ul class="simple">
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
 <li><p><em>NDArray[np.floating]</em> – The local dual total correlation rate for each frequency band.</p></li>
 <li><p><em>float</em> – The average dual total correlation across the whole spectrum.</p></li>
 </ul>
 </p>
 </dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple[<em>ndarray</em>[tuple[int, …], <em>dtype</em>[<em>floating</em>]], float]</p>
+</dd>
 </dl>
+<p class="rubric">References</p>
+<p>Abdallah, S. A., &amp; Plumbley, M. D. (2012).
+A measure of statistical complexity based on predictive information with application to finite spin systems.
+Physics Letters A, 376(4), 275–281.
+<a class="reference external" href="https://doi.org/10.1016/j.physleta.2011.10.066">https://doi.org/10.1016/j.physleta.2011.10.066</a></p>
+<p>Rosas, F., Mediano, P. A. M., Gastpar, M., &amp; Jensen, H. J. (2019).
+Quantifying High-order Interdependencies via Multivariate Extensions of the Mutual Information.
+Physical Review E, 100(3), Article 3.
+<a class="reference external" href="https://doi.org/10.1103/PhysRevE.100.032305">https://doi.org/10.1103/PhysRevE.100.032305</a></p>
 </dd></dl>
 
 <dl class="py function">
@@ -266,11 +282,8 @@ PLOS ONE, 19(2), e0297128.
 </dd>
 </dl>
 <dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>]</span></p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p><ul class="simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><ul class="simple">
 <li><p><strong>ptw</strong> (<em>dict</em>) – The dictionary of local values for each partial entropy atom.
 The local values are represented by a numpy array of the same
 length as the data array.</p></li>
@@ -278,13 +291,16 @@ length as the data array.</p></li>
 </ul>
 </p>
 </dd>
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
+<dt class="field-even">Parameters<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
 <li><p><strong>inputs</strong> (<em>tuple</em><em>[</em><em>int</em><em>, </em><em>...</em><em>]</em>)</p></li>
 <li><p><strong>data</strong> (<em>ndarray</em><em>[</em><em>tuple</em><em>[</em><em>int</em><em>, </em><em>...</em><em>]</em><em>, </em><em>dtype</em><em>[</em><em>floating</em><em>]</em><em>]</em>)</p></li>
 <li><p><strong>cov_posterior</strong> (<em>ndarray</em><em>[</em><em>tuple</em><em>[</em><em>int</em><em>, </em><em>...</em><em>]</em><em>, </em><em>dtype</em><em>[</em><em>floating</em><em>]</em><em>]</em>)</p></li>
 <li><p><strong>cov_prior</strong> (<em>ndarray</em><em>[</em><em>tuple</em><em>[</em><em>int</em><em>, </em><em>...</em><em>]</em><em>, </em><em>dtype</em><em>[</em><em>floating</em><em>]</em><em>]</em>)</p></li>
 </ul>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple[dict, dict]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -292,8 +308,9 @@ length as the data array.</p></li>
 <dl class="py function">
 <dt class="sig sig-object py" id="syntropy.gaussian.kullback_leibler_divergence">
 <span class="sig-prename descclassname"><span class="pre">syntropy.gaussian.</span></span><span class="sig-name descname"><span class="pre">kullback_leibler_divergence</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cov_posterior</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cov_prior</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/gaussian/shannon.html#kullback_leibler_divergence"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.gaussian.kullback_leibler_divergence" title="Link to this definition">¶</a></dt>
-<dd><p>Computes the Gaussian Kullback-Leibler divergence between
-two multivariate Gaussians parameterized by covariance matrices.</p>
+<dd><p>Computes the Gaussian Kullback-Leibler divergence between two <span class="math notranslate nohighlight">\(k\)</span>-dimensional multivariate Gaussians parameterized by covariance matrices.</p>
+<div class="math notranslate nohighlight">
+\[D_{KL}(\mathcal{N}_0 || \mathcal{N}_1) = \frac{1}{2}[ \operatorname{tr}(\Sigma_{1}^{-1}\Sigma_{0}) - k + (\mu_1 - \mu_0)^\mathsf{T} \Sigma_{1}^{-1}(\mu_1 - \mu_0) + \log\frac{|\Sigma_{1}|}{|\Sigma_{0}|}]\]</div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -310,7 +327,9 @@ two multivariate Gaussians parameterized by covariance matrices.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="syntropy.gaussian.local_conditional_entropy">
 <span class="sig-prename descclassname"><span class="pre">syntropy.gaussian.</span></span><span class="sig-name descname"><span class="pre">local_conditional_entropy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">idxs_x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idxs_y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cov</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">array([[-1.]])</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/gaussian/shannon.html#local_conditional_entropy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.gaussian.local_conditional_entropy" title="Link to this definition">¶</a></dt>
-<dd><p>Computes the local condition entropy for every sample in data.</p>
+<dd><p>Computes the local condition entropy for every sample in data using Gaussian estimation.</p>
+<div class="math notranslate nohighlight">
+\[h(x|y) = h(x,y) - h(y)\]</div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -332,7 +351,9 @@ If none is provided, it is computed from the data object.</p></li>
 <span class="sig-prename descclassname"><span class="pre">syntropy.gaussian.</span></span><span class="sig-name descname"><span class="pre">local_conditional_mutual_information</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">idxs_x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idxs_y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idxs_z</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cov</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">array([[-1.]])</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/gaussian/shannon.html#local_conditional_mutual_information"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.gaussian.local_conditional_mutual_information" title="Link to this definition">¶</a></dt>
 <dd><p>Computes the local conditional mutual information between
 two sets of variables X and Y, conditional on another set Z.</p>
-<p>Returns a numpy array with one value for every sample.</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}i(x,y|z) &amp;= h(x|z) + h(y|z) - h(x,y|z) \\
+         &amp;= i(x;y,z) - i(x;z)\end{split}\]</div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -354,6 +375,11 @@ If none is provided, it is computed from the data object.</p></li>
 <dt class="sig sig-object py" id="syntropy.gaussian.local_differential_entropy">
 <span class="sig-prename descclassname"><span class="pre">syntropy.gaussian.</span></span><span class="sig-name descname"><span class="pre">local_differential_entropy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cov</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">array([[-1.]])</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/gaussian/shannon.html#local_differential_entropy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.gaussian.local_differential_entropy" title="Link to this definition">¶</a></dt>
 <dd><p>Computes the framewise differential entropy for a set of variables.</p>
+<div class="math notranslate nohighlight">
+\[h(x) = -\log P(x)\]</div>
+<p>For data drawn from a k-dimensional Gaussian</p>
+<div class="math notranslate nohighlight">
+\[P(x) = (2\pi)^{-k/2}|\Sigma|^{-1/2}\textnormal{e}^{\frac{-(x - \mu)^\mathrm{T} \Sigma^{-1}(x - \mu)}{2}}\]</div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -373,8 +399,11 @@ If none is provided, it is computed from the data object.</p></li>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="syntropy.gaussian.local_dual_total_correlation">
-<span class="sig-prename descclassname"><span class="pre">syntropy.gaussian.</span></span><span class="sig-name descname"><span class="pre">local_dual_total_correlation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cov</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">array([[-1]])</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idxs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(-1,)</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/gaussian/multivariate_mi.html#local_dual_total_correlation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.gaussian.local_dual_total_correlation" title="Link to this definition">¶</a></dt>
-<dd><p>Computes the dual total correlation using Gaussian estimation.</p>
+<span class="sig-prename descclassname"><span class="pre">syntropy.gaussian.</span></span><span class="sig-name descname"><span class="pre">local_dual_total_correlation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cov</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">array([[-1.]])</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idxs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(-1,)</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/gaussian/multivariate_mi.html#local_dual_total_correlation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.gaussian.local_dual_total_correlation" title="Link to this definition">¶</a></dt>
+<dd><p>Computes the dual total correlation using Gaussian estimation. Note that this measure can be negative.</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}dtc(x) &amp;= h(x) - \sum_{i=1}^{N}h(x_i|x^{-i}) \\
+       &amp;= (N-1)\times tc(x) - \sum_{i=1}^{N}tc(x^{-i})\end{split}\]</div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -398,12 +427,10 @@ Defaults to computing the TC of the entire covariance matrix.</p></li>
 <dt class="sig sig-object py" id="syntropy.gaussian.local_kullback_leibler_divergence">
 <span class="sig-prename descclassname"><span class="pre">syntropy.gaussian.</span></span><span class="sig-name descname"><span class="pre">local_kullback_leibler_divergence</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cov_posterior</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cov_prior</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/gaussian/shannon.html#local_kullback_leibler_divergence"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.gaussian.local_kullback_leibler_divergence" title="Link to this definition">¶</a></dt>
 <dd><p>Computes the local Kullback-Leibler divergence between the
-posterior and the prior for every sample in the data.</p>
-<p>The local KL divergence is a rarely used measure, for details, see:</p>
-<p>Varley, T. F. (2024).
-Generalized decomposition of multivariate information.
-PLOS ONE, 19(2), e0297128.
-<a class="reference external" href="https://doi.org/10.1371/journal.pone.0297128">https://doi.org/10.1371/journal.pone.0297128</a></p>
+posterior and the prior for every sample in the data.
+The local KL divergence is a rarely used measure.</p>
+<div class="math notranslate nohighlight">
+\[d_{kl}^{P||Q}(x) = h^{Q}(x) - h^{P}(x)\]</div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -416,16 +443,26 @@ PLOS ONE, 19(2), e0297128.
 <dd class="field-even"><p>The local Kullback-Leibler divergence.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>NDArray[np.floating].</p>
+<dd class="field-odd"><p>NDArray[np.floating]</p>
 </dd>
 </dl>
+<p class="rubric">References</p>
+<p>Varley, T. F. (2024).
+Generalized decomposition of multivariate information.
+PLOS ONE, 19(2), e0297128.
+<a class="reference external" href="https://doi.org/10.1371/journal.pone.0297128">https://doi.org/10.1371/journal.pone.0297128</a></p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="syntropy.gaussian.local_mutual_information">
 <span class="sig-prename descclassname"><span class="pre">syntropy.gaussian.</span></span><span class="sig-name descname"><span class="pre">local_mutual_information</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">idxs_x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idxs_y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cov</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">array([[-1.]])</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/gaussian/shannon.html#local_mutual_information"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.gaussian.local_mutual_information" title="Link to this definition">¶</a></dt>
-<dd><p>Computes the local mutual information between X and Y for every sample in data.
+<dd><p>Computes the local mutual information between X and Y for every sample in data using Gaussian estimation.
 Note that the local mutual information can be negative.</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}i(x;y) &amp;= h(x) + h(y) - h(x,y) \\
+       &amp;= \log\frac{p(x|y)}{p(x)} \\
+       &amp;= \log\frac{p(y|x)}{p(y)} \\
+       &amp;= \log\frac{p(x,y)}{p(x)p(y)} \\\end{split}\]</div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -437,18 +474,18 @@ If none is provided, it is computed from the data object.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">...</span></code>], <code class="xref py py-class docutils literal notranslate"><span class="pre">dtype</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">floating</span></code>]]</span></p>
-</dd>
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>NDArray[np.floating]</p>
+<dd class="field-even"><p>NDArray[np.floating]</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="syntropy.gaussian.local_o_information">
-<span class="sig-prename descclassname"><span class="pre">syntropy.gaussian.</span></span><span class="sig-name descname"><span class="pre">local_o_information</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cov</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">array([[-1]])</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idxs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(-1,)</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/gaussian/multivariate_mi.html#local_o_information"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.gaussian.local_o_information" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">syntropy.gaussian.</span></span><span class="sig-name descname"><span class="pre">local_o_information</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cov</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">array([[-1.]])</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idxs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(-1,)</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/gaussian/multivariate_mi.html#local_o_information"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.gaussian.local_o_information" title="Link to this definition">¶</a></dt>
 <dd><p>Computes the local O-information for each sample using Gaussian estimation.</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\omega(x) &amp;= (2-N)tc(x) + \sum_{i=1}^{N}tc(x^{-i}) \\
+           &amp;= tc(x) - dtc(x)\end{split}\]</div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -478,8 +515,12 @@ Time-varying synergy/redundancy dominance in the human cerebral cortex. Journal 
 
 <dl class="py function">
 <dt class="sig sig-object py" id="syntropy.gaussian.local_s_information">
-<span class="sig-prename descclassname"><span class="pre">syntropy.gaussian.</span></span><span class="sig-name descname"><span class="pre">local_s_information</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cov</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">array([[-1]])</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idxs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(-1,)</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/gaussian/multivariate_mi.html#local_s_information"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.gaussian.local_s_information" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">syntropy.gaussian.</span></span><span class="sig-name descname"><span class="pre">local_s_information</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cov</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">array([[-1.]])</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idxs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(-1,)</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/gaussian/multivariate_mi.html#local_s_information"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.gaussian.local_s_information" title="Link to this definition">¶</a></dt>
 <dd><p>Compute local S-information using Gaussian estimation.</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\sigma(X) &amp;= \sum_{i=1}^{N}i(x_i;x^{-i}) \\
+           &amp;= N\times tc(x) - \sum_{i=1}^{N}tc(x^{-i}) \\
+           &amp;= tc(x) + dtc(x)\end{split}\]</div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -502,7 +543,9 @@ Defaults to computing the TC of the entire covariance matrix.</p></li>
 <dl class="py function">
 <dt class="sig sig-object py" id="syntropy.gaussian.local_total_correlation">
 <span class="sig-prename descclassname"><span class="pre">syntropy.gaussian.</span></span><span class="sig-name descname"><span class="pre">local_total_correlation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cov</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idxs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(-1,)</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/gaussian/multivariate_mi.html#local_total_correlation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.gaussian.local_total_correlation" title="Link to this definition">¶</a></dt>
-<dd><p>The local total correlation.</p>
+<dd><p>The local total correlation. Note that this measure can be negative.</p>
+<div class="math notranslate nohighlight">
+\[tc(x) = \sum_{i=1}^{N}h(x_i) - h(x)\]</div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -533,8 +576,18 @@ Journal of Physics: Complexity, 6(1), 015015.
 <dl class="py function">
 <dt class="sig sig-object py" id="syntropy.gaussian.mutual_information">
 <span class="sig-prename descclassname"><span class="pre">syntropy.gaussian.</span></span><span class="sig-name descname"><span class="pre">mutual_information</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">idxs_x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idxs_y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cov</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/gaussian/shannon.html#mutual_information"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.gaussian.mutual_information" title="Link to this definition">¶</a></dt>
-<dd><p>Computes the mutual information between the idxs_x and the idxs_y.
-Note that the mutual information is symmetric in its arguments.</p>
+<dd><p>Computes the mutual information between two (potentially multivariate) sets of elements.</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}I(X;Y) &amp;= H(X) + H(Y) - H(X,Y) \\
+       &amp;= H(X) - H(X|Y) \\
+       &amp;= H(Y) - H(Y|X) \\
+       &amp;= H(X,Y) - H(X|Y) - H(Y|X)\end{split}\]</div>
+<p>For Gaussian random variables:</p>
+<div class="math notranslate nohighlight">
+\[I(X;Y) = \frac{1}{2}\log\frac{|\Sigma_{X}||\Sigma_{Y}|}{|\Sigma_{XY}|}\]</div>
+<p>In the particular case where <span class="math notranslate nohighlight">\(X\)</span> and <span class="math notranslate nohighlight">\(Y\)</span> are univariate, the mutual information can be computed directly from the Pearson correlation coefficient <span class="math notranslate nohighlight">\(r\)</span>:</p>
+<div class="math notranslate nohighlight">
+\[I(X;Y) = \frac{-\log(1-r^{2})}{2}\]</div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -553,15 +606,8 @@ Note that the mutual information is symmetric in its arguments.</p>
 <dt class="sig sig-object py" id="syntropy.gaussian.mutual_information_rate">
 <span class="sig-prename descclassname"><span class="pre">syntropy.gaussian.</span></span><span class="sig-name descname"><span class="pre">mutual_information_rate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">idxs_x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idxs_y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nperseg</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1024</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/gaussian/temporal.html#mutual_information_rate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.gaussian.mutual_information_rate" title="Link to this definition">¶</a></dt>
 <dd><p>Computes the mutual information rate between two (potentially multivariate) Gaussian processes.</p>
-<p><span class="math notranslate nohighlight">\(I(X; Y) = \frac{1}{4\pi} \int_{-\pi}^{\pi} \log \left( \frac{  |S_X(\omega)||S_Y(\omega)| }{ |S_{XY}(\omega)| } \right) d\omega\)</span></p>
-<p>See:</p>
-<p>Faes, L., Sparacino, L., Mijatovic, G., Antonacci, Y., Ricci, L., Marinazzo, D., &amp; Stramaglia, S. (2025).
-Partial Information Rate Decomposition (No. arXiv:2502.04550). arXiv.
-https://doi.org/10.48550/arXiv.2502.04550</p>
-<p>Faes, L., Pernice, R., Mijatovic, G., Antonacci, Y., Krohova, J. C., Javorka, M., &amp; Porta, A. (2021).
-Information decomposition in the frequency domain: A new framework to study cardiovascular and cardiorespiratory oscillations.
-Philosophical Transactions of the Royal Society A: Mathematical, Physical and Engineering Sciences, 379(2212), 20200250.
-<a class="reference external" href="https://doi.org/10.1098/rsta.2020.0250">https://doi.org/10.1098/rsta.2020.0250</a></p>
+<div class="math notranslate nohighlight">
+\[I(X; Y) = \frac{1}{4\pi} \int_{-\pi}^{\pi} \log \left( \frac{  |S_X(\omega)||S_Y(\omega)| }{ |S_{XY}(\omega)| } \right) d\omega\]</div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -575,25 +621,35 @@ Passed to the various scipy.signal functions that compute the spectral analyses.
 The default is 1024</p></li>
 </ul>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">...</span></code>], <code class="xref py py-class docutils literal notranslate"><span class="pre">dtype</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">floating</span></code>]], <code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>]</span></p>
-</dd>
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p><ul class="simple">
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
 <li><p><em>NDArray[np.floating]</em> – The local mutual informations for each frequency band.</p></li>
 <li><p><em>float</em> – The average mutual information across the whole spectrum.</p></li>
 </ul>
 </p>
 </dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple[<em>ndarray</em>[tuple[int, …], <em>dtype</em>[<em>floating</em>]], float]</p>
+</dd>
 </dl>
+<p class="rubric">References</p>
+<p>Faes, L., Sparacino, L., Mijatovic, G., Antonacci, Y., Ricci, L., Marinazzo, D., &amp; Stramaglia, S. (2025).
+Partial Information Rate Decomposition (No. arXiv:2502.04550). arXiv.
+https://doi.org/10.48550/arXiv.2502.04550</p>
+<p>Faes, L., Pernice, R., Mijatovic, G., Antonacci, Y., Krohova, J. C., Javorka, M., &amp; Porta, A. (2021).
+Information decomposition in the frequency domain: A new framework to study cardiovascular and cardiorespiratory oscillations.
+Philosophical Transactions of the Royal Society A: Mathematical, Physical and Engineering Sciences, 379(2212), 20200250.
+<a class="reference external" href="https://doi.org/10.1098/rsta.2020.0250">https://doi.org/10.1098/rsta.2020.0250</a></p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="syntropy.gaussian.o_information">
 <span class="sig-prename descclassname"><span class="pre">syntropy.gaussian.</span></span><span class="sig-name descname"><span class="pre">o_information</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cov</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idxs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(-1,)</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/gaussian/multivariate_mi.html#o_information"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.gaussian.o_information" title="Link to this definition">¶</a></dt>
-<dd><p>Compute O-information using Gaussian estimation.</p>
-<p>O-information quantifies the balance between redundancy (positive values)
-and synergy (negative values) in multivariate information.</p>
+<dd><p>Compute O-information using Gaussian estimation.
+O-information quantifies the balance between redundancy (positive values) and synergy (negative values) in multivariate information.</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\Omega(X) &amp;= (2-N)TC(X) + \sum_{i=1}^{N}TC(X^{-i}) \\
+           &amp;= TC(X) - DTC(X)\end{split}\]</div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -625,20 +681,11 @@ Communications Biology, 6(1), Article 1.
 <dt class="sig sig-object py" id="syntropy.gaussian.o_information_rate">
 <span class="sig-prename descclassname"><span class="pre">syntropy.gaussian.</span></span><span class="sig-name descname"><span class="pre">o_information_rate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">idxs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nperseg</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1024</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/gaussian/temporal.html#o_information_rate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.gaussian.o_information_rate" title="Link to this definition">¶</a></dt>
 <dd><p>A straightforward extension of the O-information rate from the total correlation rate.</p>
-<p><span class="math notranslate nohighlight">\(\Omega(X) = (2-N)TC(X) + \sum_{i=1}^{N}TC(X^{-i})\)</span></p>
-<p><span class="math notranslate nohighlight">\(\Omega(X) = TC(X) - DTC(X)\)</span></p>
+<div class="math notranslate nohighlight">
+\[\Omega(X) = (2-N)TC(X) + \sum_{i=1}^{N}TC(X^{-i})\]</div>
+<div class="math notranslate nohighlight">
+\[\Omega(X) = TC(X) - DTC(X)\]</div>
 <p>WARNING: As far as I know this rate idea has never been formally explored before. It should work fine as a natural generalization of the MI, but it hasn’t even been published or peer reviewed.</p>
-<dl>
-<dt>See:</dt><dd><p>Rosas, F., Mediano, P. A. M., Gastpar, M., &amp; Jensen, H. J. (2019).
-Quantifying High-order Interdependencies via Multivariate Extensions of the Mutual Information.
-Physical Review E, 100(3), Article 3.
-<a class="reference external" href="https://doi.org/10.1103/PhysRevE.100.032305">https://doi.org/10.1103/PhysRevE.100.032305</a></p>
-<p>Varley, T. F., Pope, M., Faskowitz, J., &amp; Sporns, O. (2023).
-Multivariate information theory uncovers synergistic subsystems of the human cerebral cortex.
-Communications Biology, 6(1), Article 1.
-<a class="reference external" href="https://doi.org/10.1038/s42003-023-04843-w">https://doi.org/10.1038/s42003-023-04843-w</a></p>
-</dd>
-</dl>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -652,22 +699,31 @@ The default is 1024</p></li>
 <li><p><strong>verbose</strong> (<em>bool</em>)</p></li>
 </ul>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">...</span></code>], <code class="xref py py-class docutils literal notranslate"><span class="pre">dtype</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">floating</span></code>]], <code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>]</span></p>
-</dd>
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p><ul class="simple">
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
 <li><p><em>NDArray[np.floating]</em> – The local O-information rate for each frequency band.</p></li>
 <li><p><em>float</em> – The average O-information across the whole spectrum.</p></li>
 </ul>
 </p>
 </dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple[<em>ndarray</em>[tuple[int, …], <em>dtype</em>[<em>floating</em>]], float]</p>
+</dd>
 </dl>
+<p class="rubric">References</p>
+<p>Rosas, F., Mediano, P. A. M., Gastpar, M., &amp; Jensen, H. J. (2019).
+Quantifying High-order Interdependencies via Multivariate Extensions of the Mutual Information.
+Physical Review E, 100(3), Article 3.
+<a class="reference external" href="https://doi.org/10.1103/PhysRevE.100.032305">https://doi.org/10.1103/PhysRevE.100.032305</a></p>
+<p>Varley, T. F., Pope, M., Faskowitz, J., &amp; Sporns, O. (2023).
+Multivariate information theory uncovers synergistic subsystems of the human cerebral cortex.
+Communications Biology, 6(1), Article 1.
+<a class="reference external" href="https://doi.org/10.1038/s42003-023-04843-w">https://doi.org/10.1038/s42003-023-04843-w</a></p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="syntropy.gaussian.partial_entropy_decomposition">
-<span class="sig-prename descclassname"><span class="pre">syntropy.gaussian.</span></span><span class="sig-name descname"><span class="pre">partial_entropy_decomposition</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inputs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cov</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">array([[-1]])</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/gaussian/decompositions.html#partial_entropy_decomposition"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.gaussian.partial_entropy_decomposition" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">syntropy.gaussian.</span></span><span class="sig-name descname"><span class="pre">partial_entropy_decomposition</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inputs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cov</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">array([[-1.]])</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/gaussian/decompositions.html#partial_entropy_decomposition"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.gaussian.partial_entropy_decomposition" title="Link to this definition">¶</a></dt>
 <dd><p>Computes the partial entropy decomposition of a joint distribution
 with up to four elements. Uses the Gaussian hmin estimator. See:</p>
 <blockquote>
@@ -696,11 +752,8 @@ from the data directly.</p>
 </dd>
 </dl>
 <dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>]</span></p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p><ul class="simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><ul class="simple">
 <li><p><strong>ptw</strong> (<em>dict</em>) – The dictionary of local values for each partial entropy atom.
 The local values are represented by a numpy array of the same
 length as the data array.</p></li>
@@ -708,19 +761,22 @@ length as the data array.</p></li>
 </ul>
 </p>
 </dd>
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
+<dt class="field-even">Parameters<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
 <li><p><strong>inputs</strong> (<em>tuple</em><em>[</em><em>int</em><em>, </em><em>...</em><em>]</em>)</p></li>
 <li><p><strong>data</strong> (<em>ndarray</em><em>[</em><em>tuple</em><em>[</em><em>int</em><em>, </em><em>...</em><em>]</em><em>, </em><em>dtype</em><em>[</em><em>floating</em><em>]</em><em>]</em>)</p></li>
 <li><p><strong>cov</strong> (<em>ndarray</em><em>[</em><em>tuple</em><em>[</em><em>int</em><em>, </em><em>...</em><em>]</em><em>, </em><em>dtype</em><em>[</em><em>floating</em><em>]</em><em>]</em>)</p></li>
 </ul>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple[dict, dict]</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="syntropy.gaussian.partial_information_decomposition">
-<span class="sig-prename descclassname"><span class="pre">syntropy.gaussian.</span></span><span class="sig-name descname"><span class="pre">partial_information_decomposition</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inputs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cov</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">array([[-1]])</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/gaussian/decompositions.html#partial_information_decomposition"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.gaussian.partial_information_decomposition" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">syntropy.gaussian.</span></span><span class="sig-name descname"><span class="pre">partial_information_decomposition</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inputs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cov</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">array([[-1.]])</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/gaussian/decompositions.html#partial_information_decomposition"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.gaussian.partial_information_decomposition" title="Link to this definition">¶</a></dt>
 <dd><p>The pointwise and average partial information decomposition
 using the Gaussian imin function. See:</p>
 <dl class="simple">
@@ -740,15 +796,15 @@ Entropy, 20(4), Article 4.
 The default is COV_NULL.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>]</span></p>
-</dd>
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p><ul class="simple">
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
 <li><p><strong>ptw</strong> (<em>dict</em>) – The pointwise PID for every frame in the data.</p></li>
 <li><p><strong>avg</strong> (<em>dict</em>) – The average PID for the data</p></li>
 </ul>
 </p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple[dict, dict]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -793,6 +849,10 @@ by Ehrlich et al.,.</p></li>
 <dt class="sig sig-object py" id="syntropy.gaussian.s_information">
 <span class="sig-prename descclassname"><span class="pre">syntropy.gaussian.</span></span><span class="sig-name descname"><span class="pre">s_information</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cov</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idxs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(-1,)</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/gaussian/multivariate_mi.html#s_information"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.gaussian.s_information" title="Link to this definition">¶</a></dt>
 <dd><p>Compute S-information using Gaussian estimation.</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\Sigma(X) &amp;= \sum_{i=1}^{N}I(X_i;X^{-i}) \\
+           &amp;= N\times TC(X) - \sum_{i=1}^{N}TC(X^{-i}) \\
+           &amp;= TC(X) + DTC(X)\end{split}\]</div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -806,7 +866,7 @@ Defaults to computing the TC of the entire covariance matrix.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></span></p>
+<dd class="field-even"><p>float</p>
 </dd>
 </dl>
 <p class="rubric">References</p>
@@ -826,20 +886,11 @@ Communications Biology, 6(1), Article 1.
 <span class="sig-prename descclassname"><span class="pre">syntropy.gaussian.</span></span><span class="sig-name descname"><span class="pre">s_information_rate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">idxs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nperseg</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1024</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/gaussian/temporal.html#s_information_rate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.gaussian.s_information_rate" title="Link to this definition">¶</a></dt>
 <dd><p>A straightforward extension of the S-information rate from the total correlation rate.</p>
 <p>The S-information is equivalant to:</p>
-<p><span class="math notranslate nohighlight">\(\Sigma(X) = \sum_{i=1}^{N}I(X_i;X^{-i})\)</span></p>
-<p><span class="math notranslate nohighlight">\(\Sigma(X) = TC(X) + DTC(X)\)</span></p>
+<div class="math notranslate nohighlight">
+\[\Sigma(X) = \sum_{i=1}^{N}I(X_i;X^{-i})\]</div>
+<div class="math notranslate nohighlight">
+\[\Sigma(X) = TC(X) + DTC(X)\]</div>
 <p>WARNING: As far as I know this rate idea has never been formally explored before. It should work fine as a natural generalization of the MI, but it hasn’t even been published or peer reviewed.</p>
-<dl>
-<dt>See:</dt><dd><p>Rosas, F., Mediano, P. A. M., Gastpar, M., &amp; Jensen, H. J. (2019).
-Quantifying High-order Interdependencies via Multivariate Extensions of the Mutual Information.
-Physical Review E, 100(3), Article 3.
-<a class="reference external" href="https://doi.org/10.1103/PhysRevE.100.032305">https://doi.org/10.1103/PhysRevE.100.032305</a></p>
-<p>Varley, T. F., Pope, M., Faskowitz, J., &amp; Sporns, O. (2023).
-Multivariate information theory uncovers synergistic subsystems of the human cerebral cortex.
-Communications Biology, 6(1), Article 1.
-<a class="reference external" href="https://doi.org/10.1038/s42003-023-04843-w">https://doi.org/10.1038/s42003-023-04843-w</a></p>
-</dd>
-</dl>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -853,27 +904,41 @@ The default is 1024</p></li>
 <li><p><strong>verbose</strong> (<em>bool</em>)</p></li>
 </ul>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">...</span></code>], <code class="xref py py-class docutils literal notranslate"><span class="pre">dtype</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">floating</span></code>]], <code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>]</span></p>
-</dd>
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p><ul class="simple">
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
 <li><p><em>NDArray[np.floating]</em> – The local S-information rate for each frequency band.</p></li>
 <li><p><em>float</em> – The average S-information across the whole spectrum.</p></li>
 </ul>
 </p>
 </dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple[<em>ndarray</em>[tuple[int, …], <em>dtype</em>[<em>floating</em>]], float]</p>
+</dd>
 </dl>
+<p class="rubric">References</p>
+<p>Rosas, F., Mediano, P. A. M., Gastpar, M., &amp; Jensen, H. J. (2019).
+Quantifying High-order Interdependencies via Multivariate Extensions of the Mutual Information.
+Physical Review E, 100(3), Article 3.
+<a class="reference external" href="https://doi.org/10.1103/PhysRevE.100.032305">https://doi.org/10.1103/PhysRevE.100.032305</a></p>
+<p>Varley, T. F., Pope, M., Faskowitz, J., &amp; Sporns, O. (2023).
+Multivariate information theory uncovers synergistic subsystems of the human cerebral cortex.
+Communications Biology, 6(1), Article 1.
+<a class="reference external" href="https://doi.org/10.1038/s42003-023-04843-w">https://doi.org/10.1038/s42003-023-04843-w</a></p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="syntropy.gaussian.total_correlation">
 <span class="sig-prename descclassname"><span class="pre">syntropy.gaussian.</span></span><span class="sig-name descname"><span class="pre">total_correlation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cov</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idxs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(-1,)</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/gaussian/multivariate_mi.html#total_correlation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.gaussian.total_correlation" title="Link to this definition">¶</a></dt>
 <dd><p>The expected total correlation.</p>
-<dl class="simple">
-<dt>..math::</dt><dd><p><cite>TC(X) = sum_{i=1}^{N}H(X_i) - H(X)</cite></p>
-</dd>
-</dl>
+<div class="math notranslate nohighlight">
+\[\begin{split}TC(X) &amp;= D_{KL}(P(X) || \prod_{i=1}^{N}P(X_i) \\
+      &amp;= \sum_{i=1}^{N}H(X_i) - H(X)\end{split}\]</div>
+<p>For Gaussian random variables, the estimator is:</p>
+<blockquote>
+<div><div class="math notranslate nohighlight">
+\[\hat{TC}(X) = \frac{-\log R}{2}\]</div>
+</div></blockquote>
+<p>Where <span class="math notranslate nohighlight">\(R\)</span> is the Pearson correlation matrix.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -907,7 +972,8 @@ https://doi.org/10.48550/arXiv.2507.08773</p>
 <dt class="sig sig-object py" id="syntropy.gaussian.total_correlation_rate">
 <span class="sig-prename descclassname"><span class="pre">syntropy.gaussian.</span></span><span class="sig-name descname"><span class="pre">total_correlation_rate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">idxs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nperseg</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1024</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/gaussian/temporal.html#total_correlation_rate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.gaussian.total_correlation_rate" title="Link to this definition">¶</a></dt>
 <dd><p>A straightforward extension of the mutual information rate to the total correlation.</p>
-<p><span class="math notranslate nohighlight">\(TC(X,Y,\ldots,Z) = \frac{1}{4\pi} \int_{-\pi}^{\pi} \log \left( \frac{  |S_X(\omega)||S_Y(\omega)|\ldots|S_Z(\omega)| }{ |S_{XY\ldots Z}(\omega)| } \right) d\omega\)</span></p>
+<div class="math notranslate nohighlight">
+\[TC(X,Y,\ldots,Z) = \frac{1}{4\pi} \int_{-\pi}^{\pi} \log \left( \frac{  |S_X(\omega)||S_Y(\omega)|\ldots|S_Z(\omega)| }{ |S_{XY\ldots Z}(\omega)| } \right) d\omega\]</div>
 <p>WARNING: As far as I know this TC rate idea has never been formally explored before. It should work fine as a natural generalization of the MI, but it hasn’t ever been published or peer reviewed.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -921,15 +987,15 @@ Passed to the various scipy.signal functions that compute the spectral analyses.
 The default is 1024</p></li>
 </ul>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">...</span></code>], <code class="xref py py-class docutils literal notranslate"><span class="pre">dtype</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">floating</span></code>]], <code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>]</span></p>
-</dd>
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p><ul class="simple">
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
 <li><p><em>NDArray[np.floating]</em> – The local total correlation  for each frequency band.</p></li>
 <li><p><em>float</em> – The average total correlation across the whole spectrum.</p></li>
 </ul>
 </p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple[<em>ndarray</em>[tuple[int, …], <em>dtype</em>[<em>floating</em>]], float]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -939,6 +1005,10 @@ The default is 1024</p></li>
 <span class="sig-prename descclassname"><span class="pre">syntropy.gaussian.</span></span><span class="sig-name descname"><span class="pre">tse_complexity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_samples</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cov</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/gaussian/multivariate_mi.html#tse_complexity"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.gaussian.tse_complexity" title="Link to this definition">¶</a></dt>
 <dd><p>Computes the Tononi-Sporns-Edelman complexity using Gaussian
 estimators.</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}TSE(X) &amp;= \sum_{k=1}^{\lfloor N/2\rfloor} \bigg\langle I(X^{k}_j;X^{-k}_j) \bigg\rangle_{j} \\
+       &amp;= \sum_{k=2}^{N}\bigg[\bigg(\frac{k}{N}\bigg)TC(X) - \langle TC(X^{k}_{j}) \rangle_{j}  \bigg]\end{split}\]</div>
+<p>Runtimes scale very badly with system size (as it requires brute-forcing) all possible bipartitions of the system. If the system is too large, a sub-sampling approach is taken: at each scale, num_samples are drawn from the space of bipartitions.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -1001,11 +1071,8 @@ PLOS ONE, 19(2), e0297128.
 </dd>
 </dl>
 <dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>]</span></p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p><ul class="simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><ul class="simple">
 <li><p><strong>ptw</strong> (<em>dict</em>) – The dictionary of local values for each partial entropy atom.
 The local values are represented by a numpy array of the same
 length as the data array.</p></li>
@@ -1013,20 +1080,23 @@ length as the data array.</p></li>
 </ul>
 </p>
 </dd>
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
+<dt class="field-even">Parameters<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
 <li><p><strong>inputs</strong> (<em>tuple</em><em>[</em><em>int</em><em>, </em><em>...</em><em>]</em>)</p></li>
 <li><p><strong>data</strong> (<em>ndarray</em><em>[</em><em>tuple</em><em>[</em><em>int</em><em>, </em><em>...</em><em>]</em><em>, </em><em>dtype</em><em>[</em><em>floating</em><em>]</em><em>]</em>)</p></li>
 <li><p><strong>cov_posterior</strong> (<em>ndarray</em><em>[</em><em>tuple</em><em>[</em><em>int</em><em>, </em><em>...</em><em>]</em><em>, </em><em>dtype</em><em>[</em><em>floating</em><em>]</em><em>]</em>)</p></li>
 <li><p><strong>cov_prior</strong> (<em>ndarray</em><em>[</em><em>tuple</em><em>[</em><em>int</em><em>, </em><em>...</em><em>]</em><em>, </em><em>dtype</em><em>[</em><em>floating</em><em>]</em><em>]</em>)</p></li>
 </ul>
 </dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple[dict, dict]</p>
+</dd>
 </dl>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="syntropy.gaussian.decompositions.partial_entropy_decomposition">
-<span class="sig-prename descclassname"><span class="pre">syntropy.gaussian.decompositions.</span></span><span class="sig-name descname"><span class="pre">partial_entropy_decomposition</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inputs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cov</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">array([[-1]])</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/gaussian/decompositions.html#partial_entropy_decomposition"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.gaussian.decompositions.partial_entropy_decomposition" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">syntropy.gaussian.decompositions.</span></span><span class="sig-name descname"><span class="pre">partial_entropy_decomposition</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inputs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cov</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">array([[-1.]])</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/gaussian/decompositions.html#partial_entropy_decomposition"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.gaussian.decompositions.partial_entropy_decomposition" title="Link to this definition">¶</a></dt>
 <dd><p>Computes the partial entropy decomposition of a joint distribution
 with up to four elements. Uses the Gaussian hmin estimator. See:</p>
 <blockquote>
@@ -1055,11 +1125,8 @@ from the data directly.</p>
 </dd>
 </dl>
 <dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>]</span></p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p><ul class="simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><ul class="simple">
 <li><p><strong>ptw</strong> (<em>dict</em>) – The dictionary of local values for each partial entropy atom.
 The local values are represented by a numpy array of the same
 length as the data array.</p></li>
@@ -1067,19 +1134,22 @@ length as the data array.</p></li>
 </ul>
 </p>
 </dd>
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
+<dt class="field-even">Parameters<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
 <li><p><strong>inputs</strong> (<em>tuple</em><em>[</em><em>int</em><em>, </em><em>...</em><em>]</em>)</p></li>
 <li><p><strong>data</strong> (<em>ndarray</em><em>[</em><em>tuple</em><em>[</em><em>int</em><em>, </em><em>...</em><em>]</em><em>, </em><em>dtype</em><em>[</em><em>floating</em><em>]</em><em>]</em>)</p></li>
 <li><p><strong>cov</strong> (<em>ndarray</em><em>[</em><em>tuple</em><em>[</em><em>int</em><em>, </em><em>...</em><em>]</em><em>, </em><em>dtype</em><em>[</em><em>floating</em><em>]</em><em>]</em>)</p></li>
 </ul>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple[dict, dict]</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="syntropy.gaussian.decompositions.partial_information_decomposition">
-<span class="sig-prename descclassname"><span class="pre">syntropy.gaussian.decompositions.</span></span><span class="sig-name descname"><span class="pre">partial_information_decomposition</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inputs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cov</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">array([[-1]])</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/gaussian/decompositions.html#partial_information_decomposition"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.gaussian.decompositions.partial_information_decomposition" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">syntropy.gaussian.decompositions.</span></span><span class="sig-name descname"><span class="pre">partial_information_decomposition</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inputs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cov</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">array([[-1.]])</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/gaussian/decompositions.html#partial_information_decomposition"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.gaussian.decompositions.partial_information_decomposition" title="Link to this definition">¶</a></dt>
 <dd><p>The pointwise and average partial information decomposition
 using the Gaussian imin function. See:</p>
 <dl class="simple">
@@ -1099,15 +1169,15 @@ Entropy, 20(4), Article 4.
 The default is COV_NULL.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>]</span></p>
-</dd>
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p><ul class="simple">
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
 <li><p><strong>ptw</strong> (<em>dict</em>) – The pointwise PID for every frame in the data.</p></li>
 <li><p><strong>avg</strong> (<em>dict</em>) – The average PID for the data</p></li>
 </ul>
 </p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple[dict, dict]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1155,7 +1225,7 @@ by Ehrlich et al.,.</p></li>
 <dt class="sig sig-object py" id="syntropy.gaussian.multivariate_mi.description_complexity">
 <span class="sig-prename descclassname"><span class="pre">syntropy.gaussian.multivariate_mi.</span></span><span class="sig-name descname"><span class="pre">description_complexity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cov</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idxs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(-1,)</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/gaussian/multivariate_mi.html#description_complexity"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.gaussian.multivariate_mi.description_complexity" title="Link to this definition">¶</a></dt>
 <dd><div class="math notranslate nohighlight">
-\[C(X) = DTC(X) / N\]</div>
+\[C(X) = \frac{DTC(X)}{N}\]</div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -1181,7 +1251,10 @@ Communications Biology, 6(1), Article 1.
 <dl class="py function">
 <dt class="sig sig-object py" id="syntropy.gaussian.multivariate_mi.dual_total_correlation">
 <span class="sig-prename descclassname"><span class="pre">syntropy.gaussian.multivariate_mi.</span></span><span class="sig-name descname"><span class="pre">dual_total_correlation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cov</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idxs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(-1,)</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/gaussian/multivariate_mi.html#dual_total_correlation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.gaussian.multivariate_mi.dual_total_correlation" title="Link to this definition">¶</a></dt>
-<dd><p>Computes the dual total correlation.</p>
+<dd><p>Computes the dual total correlation using Gaussian estimation.</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}DTC(X) &amp;= H(X) - \sum_{i=1}^{N}H(X_i|X^{-i}) \\
+       &amp;= (N-1)\times TC(X) - \sum_{i=1}^{N}TC(X^{-i})\end{split}\]</div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -1212,10 +1285,9 @@ Physical Review E, 100(3), Article 3.
 <dl class="py function">
 <dt class="sig sig-object py" id="syntropy.gaussian.multivariate_mi.k_wms">
 <span class="sig-prename descclassname"><span class="pre">syntropy.gaussian.multivariate_mi.</span></span><span class="sig-name descname"><span class="pre">k_wms</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">k</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cov</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idxs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(-1,)</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/gaussian/multivariate_mi.html#k_wms"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.gaussian.multivariate_mi.k_wms" title="Link to this definition">¶</a></dt>
-<dd><p>A utility function that computes the generalized form
-of the O-information, S-information, and DTC.</p>
+<dd><p>S-information, DTC, and negative O-information can all be written in a general form:</p>
 <div class="math notranslate nohighlight">
-\[K_{WMS}(X) = (N-k)TC(X) - \sum_{i=1}^{N} TC(X^{-i})\]</div>
+\[WMS^{k}(X) = (N-k)TC(X) - \sum_{i=1}^{N}TC(X^{-i})\]</div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -1234,8 +1306,11 @@ Defaults to computing the TC of the entire covariance matrix.</p></li>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="syntropy.gaussian.multivariate_mi.local_description_complexity">
-<span class="sig-prename descclassname"><span class="pre">syntropy.gaussian.multivariate_mi.</span></span><span class="sig-name descname"><span class="pre">local_description_complexity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cov</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">array([[-1]])</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idxs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(-1,)</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/gaussian/multivariate_mi.html#local_description_complexity"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.gaussian.multivariate_mi.local_description_complexity" title="Link to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
+<span class="sig-prename descclassname"><span class="pre">syntropy.gaussian.multivariate_mi.</span></span><span class="sig-name descname"><span class="pre">local_description_complexity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cov</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">array([[-1.]])</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idxs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(-1,)</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/gaussian/multivariate_mi.html#local_description_complexity"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.gaussian.multivariate_mi.local_description_complexity" title="Link to this definition">¶</a></dt>
+<dd><p>Computes the local description complexity for each sample using Gaussian estimation.</p>
+<div class="math notranslate nohighlight">
+\[c(x) = \frac{dtc(x)}/N\]</div>
+<dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>data</strong> (<em>NDArray</em><em>[</em><em>np.floating</em><em>]</em>) – The data in channels x time format.</p></li>
@@ -1256,8 +1331,11 @@ Defaults to computing the TC of the entire covariance matrix.</p></li>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="syntropy.gaussian.multivariate_mi.local_dual_total_correlation">
-<span class="sig-prename descclassname"><span class="pre">syntropy.gaussian.multivariate_mi.</span></span><span class="sig-name descname"><span class="pre">local_dual_total_correlation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cov</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">array([[-1]])</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idxs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(-1,)</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/gaussian/multivariate_mi.html#local_dual_total_correlation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.gaussian.multivariate_mi.local_dual_total_correlation" title="Link to this definition">¶</a></dt>
-<dd><p>Computes the dual total correlation using Gaussian estimation.</p>
+<span class="sig-prename descclassname"><span class="pre">syntropy.gaussian.multivariate_mi.</span></span><span class="sig-name descname"><span class="pre">local_dual_total_correlation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cov</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">array([[-1.]])</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idxs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(-1,)</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/gaussian/multivariate_mi.html#local_dual_total_correlation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.gaussian.multivariate_mi.local_dual_total_correlation" title="Link to this definition">¶</a></dt>
+<dd><p>Computes the dual total correlation using Gaussian estimation. Note that this measure can be negative.</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}dtc(x) &amp;= h(x) - \sum_{i=1}^{N}h(x_i|x^{-i}) \\
+       &amp;= (N-1)\times tc(x) - \sum_{i=1}^{N}tc(x^{-i})\end{split}\]</div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -1307,8 +1385,11 @@ Defaults to computing the TC of the entire covariance matrix.</p></li>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="syntropy.gaussian.multivariate_mi.local_o_information">
-<span class="sig-prename descclassname"><span class="pre">syntropy.gaussian.multivariate_mi.</span></span><span class="sig-name descname"><span class="pre">local_o_information</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cov</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">array([[-1]])</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idxs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(-1,)</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/gaussian/multivariate_mi.html#local_o_information"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.gaussian.multivariate_mi.local_o_information" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">syntropy.gaussian.multivariate_mi.</span></span><span class="sig-name descname"><span class="pre">local_o_information</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cov</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">array([[-1.]])</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idxs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(-1,)</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/gaussian/multivariate_mi.html#local_o_information"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.gaussian.multivariate_mi.local_o_information" title="Link to this definition">¶</a></dt>
 <dd><p>Computes the local O-information for each sample using Gaussian estimation.</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\omega(x) &amp;= (2-N)tc(x) + \sum_{i=1}^{N}tc(x^{-i}) \\
+           &amp;= tc(x) - dtc(x)\end{split}\]</div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -1338,8 +1419,12 @@ Time-varying synergy/redundancy dominance in the human cerebral cortex. Journal 
 
 <dl class="py function">
 <dt class="sig sig-object py" id="syntropy.gaussian.multivariate_mi.local_s_information">
-<span class="sig-prename descclassname"><span class="pre">syntropy.gaussian.multivariate_mi.</span></span><span class="sig-name descname"><span class="pre">local_s_information</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cov</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">array([[-1]])</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idxs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(-1,)</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/gaussian/multivariate_mi.html#local_s_information"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.gaussian.multivariate_mi.local_s_information" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">syntropy.gaussian.multivariate_mi.</span></span><span class="sig-name descname"><span class="pre">local_s_information</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cov</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">array([[-1.]])</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idxs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(-1,)</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/gaussian/multivariate_mi.html#local_s_information"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.gaussian.multivariate_mi.local_s_information" title="Link to this definition">¶</a></dt>
 <dd><p>Compute local S-information using Gaussian estimation.</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\sigma(X) &amp;= \sum_{i=1}^{N}i(x_i;x^{-i}) \\
+           &amp;= N\times tc(x) - \sum_{i=1}^{N}tc(x^{-i}) \\
+           &amp;= tc(x) + dtc(x)\end{split}\]</div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -1362,7 +1447,9 @@ Defaults to computing the TC of the entire covariance matrix.</p></li>
 <dl class="py function">
 <dt class="sig sig-object py" id="syntropy.gaussian.multivariate_mi.local_total_correlation">
 <span class="sig-prename descclassname"><span class="pre">syntropy.gaussian.multivariate_mi.</span></span><span class="sig-name descname"><span class="pre">local_total_correlation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cov</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idxs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(-1,)</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/gaussian/multivariate_mi.html#local_total_correlation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.gaussian.multivariate_mi.local_total_correlation" title="Link to this definition">¶</a></dt>
-<dd><p>The local total correlation.</p>
+<dd><p>The local total correlation. Note that this measure can be negative.</p>
+<div class="math notranslate nohighlight">
+\[tc(x) = \sum_{i=1}^{N}h(x_i) - h(x)\]</div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -1393,9 +1480,11 @@ Journal of Physics: Complexity, 6(1), 015015.
 <dl class="py function">
 <dt class="sig sig-object py" id="syntropy.gaussian.multivariate_mi.o_information">
 <span class="sig-prename descclassname"><span class="pre">syntropy.gaussian.multivariate_mi.</span></span><span class="sig-name descname"><span class="pre">o_information</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cov</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idxs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(-1,)</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/gaussian/multivariate_mi.html#o_information"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.gaussian.multivariate_mi.o_information" title="Link to this definition">¶</a></dt>
-<dd><p>Compute O-information using Gaussian estimation.</p>
-<p>O-information quantifies the balance between redundancy (positive values)
-and synergy (negative values) in multivariate information.</p>
+<dd><p>Compute O-information using Gaussian estimation.
+O-information quantifies the balance between redundancy (positive values) and synergy (negative values) in multivariate information.</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\Omega(X) &amp;= (2-N)TC(X) + \sum_{i=1}^{N}TC(X^{-i}) \\
+           &amp;= TC(X) - DTC(X)\end{split}\]</div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -1427,6 +1516,10 @@ Communications Biology, 6(1), Article 1.
 <dt class="sig sig-object py" id="syntropy.gaussian.multivariate_mi.s_information">
 <span class="sig-prename descclassname"><span class="pre">syntropy.gaussian.multivariate_mi.</span></span><span class="sig-name descname"><span class="pre">s_information</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cov</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idxs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(-1,)</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/gaussian/multivariate_mi.html#s_information"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.gaussian.multivariate_mi.s_information" title="Link to this definition">¶</a></dt>
 <dd><p>Compute S-information using Gaussian estimation.</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\Sigma(X) &amp;= \sum_{i=1}^{N}I(X_i;X^{-i}) \\
+           &amp;= N\times TC(X) - \sum_{i=1}^{N}TC(X^{-i}) \\
+           &amp;= TC(X) + DTC(X)\end{split}\]</div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -1440,7 +1533,7 @@ Defaults to computing the TC of the entire covariance matrix.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></span></p>
+<dd class="field-even"><p>float</p>
 </dd>
 </dl>
 <p class="rubric">References</p>
@@ -1459,10 +1552,15 @@ Communications Biology, 6(1), Article 1.
 <dt class="sig sig-object py" id="syntropy.gaussian.multivariate_mi.total_correlation">
 <span class="sig-prename descclassname"><span class="pre">syntropy.gaussian.multivariate_mi.</span></span><span class="sig-name descname"><span class="pre">total_correlation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cov</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idxs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(-1,)</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/gaussian/multivariate_mi.html#total_correlation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.gaussian.multivariate_mi.total_correlation" title="Link to this definition">¶</a></dt>
 <dd><p>The expected total correlation.</p>
-<dl class="simple">
-<dt>..math::</dt><dd><p><cite>TC(X) = sum_{i=1}^{N}H(X_i) - H(X)</cite></p>
-</dd>
-</dl>
+<div class="math notranslate nohighlight">
+\[\begin{split}TC(X) &amp;= D_{KL}(P(X) || \prod_{i=1}^{N}P(X_i) \\
+      &amp;= \sum_{i=1}^{N}H(X_i) - H(X)\end{split}\]</div>
+<p>For Gaussian random variables, the estimator is:</p>
+<blockquote>
+<div><div class="math notranslate nohighlight">
+\[\hat{TC}(X) = \frac{-\log R}{2}\]</div>
+</div></blockquote>
+<p>Where <span class="math notranslate nohighlight">\(R\)</span> is the Pearson correlation matrix.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -1497,6 +1595,10 @@ https://doi.org/10.48550/arXiv.2507.08773</p>
 <span class="sig-prename descclassname"><span class="pre">syntropy.gaussian.multivariate_mi.</span></span><span class="sig-name descname"><span class="pre">tse_complexity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_samples</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cov</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/gaussian/multivariate_mi.html#tse_complexity"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.gaussian.multivariate_mi.tse_complexity" title="Link to this definition">¶</a></dt>
 <dd><p>Computes the Tononi-Sporns-Edelman complexity using Gaussian
 estimators.</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}TSE(X) &amp;= \sum_{k=1}^{\lfloor N/2\rfloor} \bigg\langle I(X^{k}_j;X^{-k}_j) \bigg\rangle_{j} \\
+       &amp;= \sum_{k=2}^{N}\bigg[\bigg(\frac{k}{N}\bigg)TC(X) - \langle TC(X^{k}_{j}) \rangle_{j}  \bigg]\end{split}\]</div>
+<p>Runtimes scale very badly with system size (as it requires brute-forcing) all possible bipartitions of the system. If the system is too large, a sub-sampling approach is taken: at each scale, num_samples are drawn from the space of bipartitions.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -1598,16 +1700,16 @@ The default is 100.</p></li>
 to have been achieved.. The default is 1e-6.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">set</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>], <code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">...</span></code>], <code class="xref py py-class docutils literal notranslate"><span class="pre">dtype</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">floating</span></code>]]]</span></p>
-</dd>
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p><ul class="simple">
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
 <li><p><em>set[int]</em> – The indicies of the optimal set.</p></li>
 <li><p><em>float</em> – The value of the optimal set.</p></li>
 <li><p><em>list</em> – The time series of values.</p></li>
 </ul>
 </p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple[set[int], float, <em>ndarray</em>[tuple[int, …], <em>dtype</em>[<em>floating</em>]]]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1617,8 +1719,10 @@ to have been achieved.. The default is 1e-6.</p></li>
 <span id="syntropy-gaussian-shannon-module"></span><h2>syntropy.gaussian.shannon module<a class="headerlink" href="#module-syntropy.gaussian.shannon" title="Link to this heading">¶</a></h2>
 <dl class="py function">
 <dt class="sig sig-object py" id="syntropy.gaussian.shannon.conditional_entropy">
-<span class="sig-prename descclassname"><span class="pre">syntropy.gaussian.shannon.</span></span><span class="sig-name descname"><span class="pre">conditional_entropy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">idxs_x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idxs_y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cov</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">array([[-1.]])</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/gaussian/shannon.html#conditional_entropy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.gaussian.shannon.conditional_entropy" title="Link to this definition">¶</a></dt>
-<dd><p>Computes the conditional entropy of X given Y.</p>
+<span class="sig-prename descclassname"><span class="pre">syntropy.gaussian.shannon.</span></span><span class="sig-name descname"><span class="pre">conditional_entropy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">idxs_x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idxs_y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cov</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/gaussian/shannon.html#conditional_entropy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.gaussian.shannon.conditional_entropy" title="Link to this definition">¶</a></dt>
+<dd><p>Computes the conditional entropy of X given Y using Gaussian estimation.</p>
+<div class="math notranslate nohighlight">
+\[H(X|Y) = H(X,Y) - H(Y)\]</div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -1639,6 +1743,9 @@ If none is provided, it is computed from the data object.</p></li>
 <span class="sig-prename descclassname"><span class="pre">syntropy.gaussian.shannon.</span></span><span class="sig-name descname"><span class="pre">conditional_mutual_information</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">idxs_x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idxs_y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idxs_z</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cov</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/gaussian/shannon.html#conditional_mutual_information"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.gaussian.shannon.conditional_mutual_information" title="Link to this definition">¶</a></dt>
 <dd><p>Computes the expected mutual information between a set of variables X
 and Y, conditional on a third set Z.</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}I(X,Y|Z) &amp;= H(X|Z) + H(Y|Z) - H(X,Y|Z) \\
+         &amp;= I(X;Y,Z) - I(X;Z)\end{split}\]</div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -1660,6 +1767,13 @@ and Y, conditional on a third set Z.</p>
 <dd><p>Computes the expected differential entropy of a multivariate
 distribution parameterized by a covariance matrix using a
 Gaussian estimator.</p>
+<p>The differential entropy is given by:</p>
+<div class="math notranslate nohighlight">
+\[H(X) = \int dx P(x)\log P(x)\]</div>
+<p>And if <span class="math notranslate nohighlight">\(X\)</span> is drawn from a k-dimensional Gaussian, it is equal to</p>
+<div class="math notranslate nohighlight">
+\[H(X) = \frac{k}{2}\log 2\pi\textnormal{e} + \frac{1}{2}\log|\Sigma|\]</div>
+<p>Where <span class="math notranslate nohighlight">\(|\Sigma|\)</span> is the determinant of the covariance matrix.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -1677,8 +1791,9 @@ Defaults to computing the TC of the entire covariance matrix.</p></li>
 <dl class="py function">
 <dt class="sig sig-object py" id="syntropy.gaussian.shannon.kullback_leibler_divergence">
 <span class="sig-prename descclassname"><span class="pre">syntropy.gaussian.shannon.</span></span><span class="sig-name descname"><span class="pre">kullback_leibler_divergence</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cov_posterior</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cov_prior</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/gaussian/shannon.html#kullback_leibler_divergence"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.gaussian.shannon.kullback_leibler_divergence" title="Link to this definition">¶</a></dt>
-<dd><p>Computes the Gaussian Kullback-Leibler divergence between
-two multivariate Gaussians parameterized by covariance matrices.</p>
+<dd><p>Computes the Gaussian Kullback-Leibler divergence between two <span class="math notranslate nohighlight">\(k\)</span>-dimensional multivariate Gaussians parameterized by covariance matrices.</p>
+<div class="math notranslate nohighlight">
+\[D_{KL}(\mathcal{N}_0 || \mathcal{N}_1) = \frac{1}{2}[ \operatorname{tr}(\Sigma_{1}^{-1}\Sigma_{0}) - k + (\mu_1 - \mu_0)^\mathsf{T} \Sigma_{1}^{-1}(\mu_1 - \mu_0) + \log\frac{|\Sigma_{1}|}{|\Sigma_{0}|}]\]</div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -1695,7 +1810,9 @@ two multivariate Gaussians parameterized by covariance matrices.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="syntropy.gaussian.shannon.local_conditional_entropy">
 <span class="sig-prename descclassname"><span class="pre">syntropy.gaussian.shannon.</span></span><span class="sig-name descname"><span class="pre">local_conditional_entropy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">idxs_x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idxs_y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cov</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">array([[-1.]])</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/gaussian/shannon.html#local_conditional_entropy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.gaussian.shannon.local_conditional_entropy" title="Link to this definition">¶</a></dt>
-<dd><p>Computes the local condition entropy for every sample in data.</p>
+<dd><p>Computes the local condition entropy for every sample in data using Gaussian estimation.</p>
+<div class="math notranslate nohighlight">
+\[h(x|y) = h(x,y) - h(y)\]</div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -1717,7 +1834,9 @@ If none is provided, it is computed from the data object.</p></li>
 <span class="sig-prename descclassname"><span class="pre">syntropy.gaussian.shannon.</span></span><span class="sig-name descname"><span class="pre">local_conditional_mutual_information</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">idxs_x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idxs_y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idxs_z</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cov</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">array([[-1.]])</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/gaussian/shannon.html#local_conditional_mutual_information"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.gaussian.shannon.local_conditional_mutual_information" title="Link to this definition">¶</a></dt>
 <dd><p>Computes the local conditional mutual information between
 two sets of variables X and Y, conditional on another set Z.</p>
-<p>Returns a numpy array with one value for every sample.</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}i(x,y|z) &amp;= h(x|z) + h(y|z) - h(x,y|z) \\
+         &amp;= i(x;y,z) - i(x;z)\end{split}\]</div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -1739,6 +1858,11 @@ If none is provided, it is computed from the data object.</p></li>
 <dt class="sig sig-object py" id="syntropy.gaussian.shannon.local_differential_entropy">
 <span class="sig-prename descclassname"><span class="pre">syntropy.gaussian.shannon.</span></span><span class="sig-name descname"><span class="pre">local_differential_entropy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cov</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">array([[-1.]])</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/gaussian/shannon.html#local_differential_entropy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.gaussian.shannon.local_differential_entropy" title="Link to this definition">¶</a></dt>
 <dd><p>Computes the framewise differential entropy for a set of variables.</p>
+<div class="math notranslate nohighlight">
+\[h(x) = -\log P(x)\]</div>
+<p>For data drawn from a k-dimensional Gaussian</p>
+<div class="math notranslate nohighlight">
+\[P(x) = (2\pi)^{-k/2}|\Sigma|^{-1/2}\textnormal{e}^{\frac{-(x - \mu)^\mathrm{T} \Sigma^{-1}(x - \mu)}{2}}\]</div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -1760,12 +1884,10 @@ If none is provided, it is computed from the data object.</p></li>
 <dt class="sig sig-object py" id="syntropy.gaussian.shannon.local_kullback_leibler_divergence">
 <span class="sig-prename descclassname"><span class="pre">syntropy.gaussian.shannon.</span></span><span class="sig-name descname"><span class="pre">local_kullback_leibler_divergence</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cov_posterior</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cov_prior</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/gaussian/shannon.html#local_kullback_leibler_divergence"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.gaussian.shannon.local_kullback_leibler_divergence" title="Link to this definition">¶</a></dt>
 <dd><p>Computes the local Kullback-Leibler divergence between the
-posterior and the prior for every sample in the data.</p>
-<p>The local KL divergence is a rarely used measure, for details, see:</p>
-<p>Varley, T. F. (2024).
-Generalized decomposition of multivariate information.
-PLOS ONE, 19(2), e0297128.
-<a class="reference external" href="https://doi.org/10.1371/journal.pone.0297128">https://doi.org/10.1371/journal.pone.0297128</a></p>
+posterior and the prior for every sample in the data.
+The local KL divergence is a rarely used measure.</p>
+<div class="math notranslate nohighlight">
+\[d_{kl}^{P||Q}(x) = h^{Q}(x) - h^{P}(x)\]</div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -1778,16 +1900,26 @@ PLOS ONE, 19(2), e0297128.
 <dd class="field-even"><p>The local Kullback-Leibler divergence.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>NDArray[np.floating].</p>
+<dd class="field-odd"><p>NDArray[np.floating]</p>
 </dd>
 </dl>
+<p class="rubric">References</p>
+<p>Varley, T. F. (2024).
+Generalized decomposition of multivariate information.
+PLOS ONE, 19(2), e0297128.
+<a class="reference external" href="https://doi.org/10.1371/journal.pone.0297128">https://doi.org/10.1371/journal.pone.0297128</a></p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="syntropy.gaussian.shannon.local_mutual_information">
 <span class="sig-prename descclassname"><span class="pre">syntropy.gaussian.shannon.</span></span><span class="sig-name descname"><span class="pre">local_mutual_information</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">idxs_x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idxs_y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cov</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">array([[-1.]])</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/gaussian/shannon.html#local_mutual_information"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.gaussian.shannon.local_mutual_information" title="Link to this definition">¶</a></dt>
-<dd><p>Computes the local mutual information between X and Y for every sample in data.
+<dd><p>Computes the local mutual information between X and Y for every sample in data using Gaussian estimation.
 Note that the local mutual information can be negative.</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}i(x;y) &amp;= h(x) + h(y) - h(x,y) \\
+       &amp;= \log\frac{p(x|y)}{p(x)} \\
+       &amp;= \log\frac{p(y|x)}{p(y)} \\
+       &amp;= \log\frac{p(x,y)}{p(x)p(y)} \\\end{split}\]</div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -1799,10 +1931,7 @@ If none is provided, it is computed from the data object.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">...</span></code>], <code class="xref py py-class docutils literal notranslate"><span class="pre">dtype</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">floating</span></code>]]</span></p>
-</dd>
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>NDArray[np.floating]</p>
+<dd class="field-even"><p>NDArray[np.floating]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1810,8 +1939,18 @@ If none is provided, it is computed from the data object.</p></li>
 <dl class="py function">
 <dt class="sig sig-object py" id="syntropy.gaussian.shannon.mutual_information">
 <span class="sig-prename descclassname"><span class="pre">syntropy.gaussian.shannon.</span></span><span class="sig-name descname"><span class="pre">mutual_information</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">idxs_x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idxs_y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cov</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/gaussian/shannon.html#mutual_information"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.gaussian.shannon.mutual_information" title="Link to this definition">¶</a></dt>
-<dd><p>Computes the mutual information between the idxs_x and the idxs_y.
-Note that the mutual information is symmetric in its arguments.</p>
+<dd><p>Computes the mutual information between two (potentially multivariate) sets of elements.</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}I(X;Y) &amp;= H(X) + H(Y) - H(X,Y) \\
+       &amp;= H(X) - H(X|Y) \\
+       &amp;= H(Y) - H(Y|X) \\
+       &amp;= H(X,Y) - H(X|Y) - H(Y|X)\end{split}\]</div>
+<p>For Gaussian random variables:</p>
+<div class="math notranslate nohighlight">
+\[I(X;Y) = \frac{1}{2}\log\frac{|\Sigma_{X}||\Sigma_{Y}|}{|\Sigma_{XY}|}\]</div>
+<p>In the particular case where <span class="math notranslate nohighlight">\(X\)</span> and <span class="math notranslate nohighlight">\(Y\)</span> are univariate, the mutual information can be computed directly from the Pearson correlation coefficient <span class="math notranslate nohighlight">\(r\)</span>:</p>
+<div class="math notranslate nohighlight">
+\[I(X;Y) = \frac{-\log(1-r^{2})}{2}\]</div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -1851,7 +1990,8 @@ Note that the mutual information is symmetric in its arguments.</p>
 <dt class="sig sig-object py" id="syntropy.gaussian.temporal.differential_entropy_rate">
 <span class="sig-prename descclassname"><span class="pre">syntropy.gaussian.temporal.</span></span><span class="sig-name descname"><span class="pre">differential_entropy_rate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">idxs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nperseg</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1024</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/gaussian/temporal.html#differential_entropy_rate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.gaussian.temporal.differential_entropy_rate" title="Link to this definition">¶</a></dt>
 <dd><p>Computes the differential entropy rate of a potentially multivariate stochastic process.</p>
-<p><span class="math notranslate nohighlight">\(H(X)=\frac{1}{4\pi} \int_{-\pi}^{\pi} \log \left( (2\pi e)^N |S_X(\omega)| \right) \, d\omega\)</span></p>
+<div class="math notranslate nohighlight">
+\[H(X)=\frac{1}{4\pi} \int_{-\pi}^{\pi} \log \left( (2\pi e)^N |S_X(\omega)| \right) \, d\omega\]</div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -1864,15 +2004,15 @@ Passed to the various scipy.signal functions that compute the spectral analyses.
 The default is 1024</p></li>
 </ul>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">...</span></code>], <code class="xref py py-class docutils literal notranslate"><span class="pre">dtype</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">floating</span></code>]], <code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>]</span></p>
-</dd>
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p><ul class="simple">
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
 <li><p><em>NDArray[np.floating]</em> – The local entropies for each frequency band.</p></li>
 <li><p><em>float</em> – The average entropy across the whole spectrum.</p></li>
 </ul>
 </p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple[<em>ndarray</em>[tuple[int, …], <em>dtype</em>[<em>floating</em>]], float]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1882,20 +2022,11 @@ The default is 1024</p></li>
 <span class="sig-prename descclassname"><span class="pre">syntropy.gaussian.temporal.</span></span><span class="sig-name descname"><span class="pre">dual_total_correlation_rate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">idxs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nperseg</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1024</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/gaussian/temporal.html#dual_total_correlation_rate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.gaussian.temporal.dual_total_correlation_rate" title="Link to this definition">¶</a></dt>
 <dd><p>A straightforward extension of the dual total correlation rate from the total correlation rate.</p>
 <p>The dual total correlation is given alternately by:</p>
-<p><span class="math notranslate nohighlight">\(DTC(X) = H(X) - \sum_{i=1}^{N}H(X_i|X^{-i})\)</span></p>
-<p><span class="math notranslate nohighlight">\(DTC(X) = (N-1)TC(X) - \sum_{i=1}^{N}TC(X^{-i})\)</span></p>
+<div class="math notranslate nohighlight">
+\[DTC(X) = H(X) - \sum_{i=1}^{N}H(X_i|X^{-i})\]</div>
+<div class="math notranslate nohighlight">
+\[DTC(X) = (N-1)TC(X) - \sum_{i=1}^{N}TC(X^{-i})\]</div>
 <p>WARNING: As far as I know this rate idea has never been formally explored before. It should work fine as a natural generalization of the MI, but it hasn’t even been published or peer reviewed.</p>
-<dl>
-<dt>See:</dt><dd><p>Abdallah, S. A., &amp; Plumbley, M. D. (2012).
-A measure of statistical complexity based on predictive information with application to finite spin systems.
-Physics Letters A, 376(4), 275–281.
-<a class="reference external" href="https://doi.org/10.1016/j.physleta.2011.10.066">https://doi.org/10.1016/j.physleta.2011.10.066</a></p>
-<p>Rosas, F., Mediano, P. A. M., Gastpar, M., &amp; Jensen, H. J. (2019).
-Quantifying High-order Interdependencies via Multivariate Extensions of the Mutual Information.
-Physical Review E, 100(3), Article 3.
-<a class="reference external" href="https://doi.org/10.1103/PhysRevE.100.032305">https://doi.org/10.1103/PhysRevE.100.032305</a></p>
-</dd>
-</dl>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -1909,17 +2040,26 @@ The default is 1024</p></li>
 <li><p><strong>verbose</strong> (<em>bool</em>)</p></li>
 </ul>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">...</span></code>], <code class="xref py py-class docutils literal notranslate"><span class="pre">dtype</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">floating</span></code>]], <code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>]</span></p>
-</dd>
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p><ul class="simple">
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
 <li><p><em>NDArray[np.floating]</em> – The local dual total correlation rate for each frequency band.</p></li>
 <li><p><em>float</em> – The average dual total correlation across the whole spectrum.</p></li>
 </ul>
 </p>
 </dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple[<em>ndarray</em>[tuple[int, …], <em>dtype</em>[<em>floating</em>]], float]</p>
+</dd>
 </dl>
+<p class="rubric">References</p>
+<p>Abdallah, S. A., &amp; Plumbley, M. D. (2012).
+A measure of statistical complexity based on predictive information with application to finite spin systems.
+Physics Letters A, 376(4), 275–281.
+<a class="reference external" href="https://doi.org/10.1016/j.physleta.2011.10.066">https://doi.org/10.1016/j.physleta.2011.10.066</a></p>
+<p>Rosas, F., Mediano, P. A. M., Gastpar, M., &amp; Jensen, H. J. (2019).
+Quantifying High-order Interdependencies via Multivariate Extensions of the Mutual Information.
+Physical Review E, 100(3), Article 3.
+<a class="reference external" href="https://doi.org/10.1103/PhysRevE.100.032305">https://doi.org/10.1103/PhysRevE.100.032305</a></p>
 </dd></dl>
 
 <dl class="py function">
@@ -1927,14 +2067,8 @@ The default is 1024</p></li>
 <span class="sig-prename descclassname"><span class="pre">syntropy.gaussian.temporal.</span></span><span class="sig-name descname"><span class="pre">k_wms_rate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">idxs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nperseg</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1024</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/gaussian/temporal.html#k_wms_rate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.gaussian.temporal.k_wms_rate" title="Link to this definition">¶</a></dt>
 <dd><p>A straightforward extension of the total correlation rate to the K whole-minus-sum rate.</p>
 <p>Recall that S-information, DTC, and negative O-information can all be written in a general form:</p>
-<p><span class="math notranslate nohighlight">\(WMS^{k}(X) = (N-k)TC(X) - \sum_{i=1}^{N}TC(X^{-i})\)</span></p>
-<dl class="simple">
-<dt>See:</dt><dd><p>Varley, T. F., Pope, M., Faskowitz, J., &amp; Sporns, O. (2023).
-Multivariate information theory uncovers synergistic subsystems of the human cerebral cortex.
-Communications Biology, 6(1), Article 1.
-<a class="reference external" href="https://doi.org/10.1038/s42003-023-04843-w">https://doi.org/10.1038/s42003-023-04843-w</a></p>
-</dd>
-</dl>
+<div class="math notranslate nohighlight">
+\[WMS^{k}(X) = (N-k)TC(X) - \sum_{i=1}^{N}TC(X^{-i})\]</div>
 <p>WARNING: As far as I know this rate idea has never been formally explored before. It should work fine as a natural generalization of the MI, but it hasn’t even been published or peer reviewed.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -1950,32 +2084,30 @@ The default is 1024</p></li>
 <li><p><strong>verbose</strong> (<em>bool</em>)</p></li>
 </ul>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">...</span></code>], <code class="xref py py-class docutils literal notranslate"><span class="pre">dtype</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">floating</span></code>]], <code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>]</span></p>
-</dd>
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p><ul class="simple">
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
 <li><p><em>NDArray[np.floating]</em> – The local k_wms rate for each frequency band.</p></li>
 <li><p><em>float</em> – The average k_wms across the whole spectrum.</p></li>
 </ul>
 </p>
 </dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple[<em>ndarray</em>[tuple[int, …], <em>dtype</em>[<em>floating</em>]], float]</p>
+</dd>
 </dl>
+<p class="rubric">References</p>
+<p>Varley, T. F., Pope, M., Faskowitz, J., &amp; Sporns, O. (2023).
+Multivariate information theory uncovers synergistic subsystems of the human cerebral cortex.
+Communications Biology, 6(1), Article 1.
+<a class="reference external" href="https://doi.org/10.1038/s42003-023-04843-w">https://doi.org/10.1038/s42003-023-04843-w</a></p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="syntropy.gaussian.temporal.mutual_information_rate">
 <span class="sig-prename descclassname"><span class="pre">syntropy.gaussian.temporal.</span></span><span class="sig-name descname"><span class="pre">mutual_information_rate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">idxs_x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idxs_y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nperseg</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1024</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/gaussian/temporal.html#mutual_information_rate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.gaussian.temporal.mutual_information_rate" title="Link to this definition">¶</a></dt>
 <dd><p>Computes the mutual information rate between two (potentially multivariate) Gaussian processes.</p>
-<p><span class="math notranslate nohighlight">\(I(X; Y) = \frac{1}{4\pi} \int_{-\pi}^{\pi} \log \left( \frac{  |S_X(\omega)||S_Y(\omega)| }{ |S_{XY}(\omega)| } \right) d\omega\)</span></p>
-<p>See:</p>
-<p>Faes, L., Sparacino, L., Mijatovic, G., Antonacci, Y., Ricci, L., Marinazzo, D., &amp; Stramaglia, S. (2025).
-Partial Information Rate Decomposition (No. arXiv:2502.04550). arXiv.
-https://doi.org/10.48550/arXiv.2502.04550</p>
-<p>Faes, L., Pernice, R., Mijatovic, G., Antonacci, Y., Krohova, J. C., Javorka, M., &amp; Porta, A. (2021).
-Information decomposition in the frequency domain: A new framework to study cardiovascular and cardiorespiratory oscillations.
-Philosophical Transactions of the Royal Society A: Mathematical, Physical and Engineering Sciences, 379(2212), 20200250.
-<a class="reference external" href="https://doi.org/10.1098/rsta.2020.0250">https://doi.org/10.1098/rsta.2020.0250</a></p>
+<div class="math notranslate nohighlight">
+\[I(X; Y) = \frac{1}{4\pi} \int_{-\pi}^{\pi} \log \left( \frac{  |S_X(\omega)||S_Y(\omega)| }{ |S_{XY}(\omega)| } \right) d\omega\]</div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -1989,37 +2121,36 @@ Passed to the various scipy.signal functions that compute the spectral analyses.
 The default is 1024</p></li>
 </ul>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">...</span></code>], <code class="xref py py-class docutils literal notranslate"><span class="pre">dtype</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">floating</span></code>]], <code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>]</span></p>
-</dd>
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p><ul class="simple">
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
 <li><p><em>NDArray[np.floating]</em> – The local mutual informations for each frequency band.</p></li>
 <li><p><em>float</em> – The average mutual information across the whole spectrum.</p></li>
 </ul>
 </p>
 </dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple[<em>ndarray</em>[tuple[int, …], <em>dtype</em>[<em>floating</em>]], float]</p>
+</dd>
 </dl>
+<p class="rubric">References</p>
+<p>Faes, L., Sparacino, L., Mijatovic, G., Antonacci, Y., Ricci, L., Marinazzo, D., &amp; Stramaglia, S. (2025).
+Partial Information Rate Decomposition (No. arXiv:2502.04550). arXiv.
+https://doi.org/10.48550/arXiv.2502.04550</p>
+<p>Faes, L., Pernice, R., Mijatovic, G., Antonacci, Y., Krohova, J. C., Javorka, M., &amp; Porta, A. (2021).
+Information decomposition in the frequency domain: A new framework to study cardiovascular and cardiorespiratory oscillations.
+Philosophical Transactions of the Royal Society A: Mathematical, Physical and Engineering Sciences, 379(2212), 20200250.
+<a class="reference external" href="https://doi.org/10.1098/rsta.2020.0250">https://doi.org/10.1098/rsta.2020.0250</a></p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="syntropy.gaussian.temporal.o_information_rate">
 <span class="sig-prename descclassname"><span class="pre">syntropy.gaussian.temporal.</span></span><span class="sig-name descname"><span class="pre">o_information_rate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">idxs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nperseg</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1024</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/gaussian/temporal.html#o_information_rate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.gaussian.temporal.o_information_rate" title="Link to this definition">¶</a></dt>
 <dd><p>A straightforward extension of the O-information rate from the total correlation rate.</p>
-<p><span class="math notranslate nohighlight">\(\Omega(X) = (2-N)TC(X) + \sum_{i=1}^{N}TC(X^{-i})\)</span></p>
-<p><span class="math notranslate nohighlight">\(\Omega(X) = TC(X) - DTC(X)\)</span></p>
+<div class="math notranslate nohighlight">
+\[\Omega(X) = (2-N)TC(X) + \sum_{i=1}^{N}TC(X^{-i})\]</div>
+<div class="math notranslate nohighlight">
+\[\Omega(X) = TC(X) - DTC(X)\]</div>
 <p>WARNING: As far as I know this rate idea has never been formally explored before. It should work fine as a natural generalization of the MI, but it hasn’t even been published or peer reviewed.</p>
-<dl>
-<dt>See:</dt><dd><p>Rosas, F., Mediano, P. A. M., Gastpar, M., &amp; Jensen, H. J. (2019).
-Quantifying High-order Interdependencies via Multivariate Extensions of the Mutual Information.
-Physical Review E, 100(3), Article 3.
-<a class="reference external" href="https://doi.org/10.1103/PhysRevE.100.032305">https://doi.org/10.1103/PhysRevE.100.032305</a></p>
-<p>Varley, T. F., Pope, M., Faskowitz, J., &amp; Sporns, O. (2023).
-Multivariate information theory uncovers synergistic subsystems of the human cerebral cortex.
-Communications Biology, 6(1), Article 1.
-<a class="reference external" href="https://doi.org/10.1038/s42003-023-04843-w">https://doi.org/10.1038/s42003-023-04843-w</a></p>
-</dd>
-</dl>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -2033,17 +2164,26 @@ The default is 1024</p></li>
 <li><p><strong>verbose</strong> (<em>bool</em>)</p></li>
 </ul>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">...</span></code>], <code class="xref py py-class docutils literal notranslate"><span class="pre">dtype</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">floating</span></code>]], <code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>]</span></p>
-</dd>
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p><ul class="simple">
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
 <li><p><em>NDArray[np.floating]</em> – The local O-information rate for each frequency band.</p></li>
 <li><p><em>float</em> – The average O-information across the whole spectrum.</p></li>
 </ul>
 </p>
 </dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple[<em>ndarray</em>[tuple[int, …], <em>dtype</em>[<em>floating</em>]], float]</p>
+</dd>
 </dl>
+<p class="rubric">References</p>
+<p>Rosas, F., Mediano, P. A. M., Gastpar, M., &amp; Jensen, H. J. (2019).
+Quantifying High-order Interdependencies via Multivariate Extensions of the Mutual Information.
+Physical Review E, 100(3), Article 3.
+<a class="reference external" href="https://doi.org/10.1103/PhysRevE.100.032305">https://doi.org/10.1103/PhysRevE.100.032305</a></p>
+<p>Varley, T. F., Pope, M., Faskowitz, J., &amp; Sporns, O. (2023).
+Multivariate information theory uncovers synergistic subsystems of the human cerebral cortex.
+Communications Biology, 6(1), Article 1.
+<a class="reference external" href="https://doi.org/10.1038/s42003-023-04843-w">https://doi.org/10.1038/s42003-023-04843-w</a></p>
 </dd></dl>
 
 <dl class="py function">
@@ -2051,20 +2191,11 @@ The default is 1024</p></li>
 <span class="sig-prename descclassname"><span class="pre">syntropy.gaussian.temporal.</span></span><span class="sig-name descname"><span class="pre">s_information_rate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">idxs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nperseg</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1024</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/gaussian/temporal.html#s_information_rate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.gaussian.temporal.s_information_rate" title="Link to this definition">¶</a></dt>
 <dd><p>A straightforward extension of the S-information rate from the total correlation rate.</p>
 <p>The S-information is equivalant to:</p>
-<p><span class="math notranslate nohighlight">\(\Sigma(X) = \sum_{i=1}^{N}I(X_i;X^{-i})\)</span></p>
-<p><span class="math notranslate nohighlight">\(\Sigma(X) = TC(X) + DTC(X)\)</span></p>
+<div class="math notranslate nohighlight">
+\[\Sigma(X) = \sum_{i=1}^{N}I(X_i;X^{-i})\]</div>
+<div class="math notranslate nohighlight">
+\[\Sigma(X) = TC(X) + DTC(X)\]</div>
 <p>WARNING: As far as I know this rate idea has never been formally explored before. It should work fine as a natural generalization of the MI, but it hasn’t even been published or peer reviewed.</p>
-<dl>
-<dt>See:</dt><dd><p>Rosas, F., Mediano, P. A. M., Gastpar, M., &amp; Jensen, H. J. (2019).
-Quantifying High-order Interdependencies via Multivariate Extensions of the Mutual Information.
-Physical Review E, 100(3), Article 3.
-<a class="reference external" href="https://doi.org/10.1103/PhysRevE.100.032305">https://doi.org/10.1103/PhysRevE.100.032305</a></p>
-<p>Varley, T. F., Pope, M., Faskowitz, J., &amp; Sporns, O. (2023).
-Multivariate information theory uncovers synergistic subsystems of the human cerebral cortex.
-Communications Biology, 6(1), Article 1.
-<a class="reference external" href="https://doi.org/10.1038/s42003-023-04843-w">https://doi.org/10.1038/s42003-023-04843-w</a></p>
-</dd>
-</dl>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -2078,24 +2209,34 @@ The default is 1024</p></li>
 <li><p><strong>verbose</strong> (<em>bool</em>)</p></li>
 </ul>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">...</span></code>], <code class="xref py py-class docutils literal notranslate"><span class="pre">dtype</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">floating</span></code>]], <code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>]</span></p>
-</dd>
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p><ul class="simple">
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
 <li><p><em>NDArray[np.floating]</em> – The local S-information rate for each frequency band.</p></li>
 <li><p><em>float</em> – The average S-information across the whole spectrum.</p></li>
 </ul>
 </p>
 </dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple[<em>ndarray</em>[tuple[int, …], <em>dtype</em>[<em>floating</em>]], float]</p>
+</dd>
 </dl>
+<p class="rubric">References</p>
+<p>Rosas, F., Mediano, P. A. M., Gastpar, M., &amp; Jensen, H. J. (2019).
+Quantifying High-order Interdependencies via Multivariate Extensions of the Mutual Information.
+Physical Review E, 100(3), Article 3.
+<a class="reference external" href="https://doi.org/10.1103/PhysRevE.100.032305">https://doi.org/10.1103/PhysRevE.100.032305</a></p>
+<p>Varley, T. F., Pope, M., Faskowitz, J., &amp; Sporns, O. (2023).
+Multivariate information theory uncovers synergistic subsystems of the human cerebral cortex.
+Communications Biology, 6(1), Article 1.
+<a class="reference external" href="https://doi.org/10.1038/s42003-023-04843-w">https://doi.org/10.1038/s42003-023-04843-w</a></p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="syntropy.gaussian.temporal.total_correlation_rate">
 <span class="sig-prename descclassname"><span class="pre">syntropy.gaussian.temporal.</span></span><span class="sig-name descname"><span class="pre">total_correlation_rate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">idxs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nperseg</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1024</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/gaussian/temporal.html#total_correlation_rate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.gaussian.temporal.total_correlation_rate" title="Link to this definition">¶</a></dt>
 <dd><p>A straightforward extension of the mutual information rate to the total correlation.</p>
-<p><span class="math notranslate nohighlight">\(TC(X,Y,\ldots,Z) = \frac{1}{4\pi} \int_{-\pi}^{\pi} \log \left( \frac{  |S_X(\omega)||S_Y(\omega)|\ldots|S_Z(\omega)| }{ |S_{XY\ldots Z}(\omega)| } \right) d\omega\)</span></p>
+<div class="math notranslate nohighlight">
+\[TC(X,Y,\ldots,Z) = \frac{1}{4\pi} \int_{-\pi}^{\pi} \log \left( \frac{  |S_X(\omega)||S_Y(\omega)|\ldots|S_Z(\omega)| }{ |S_{XY\ldots Z}(\omega)| } \right) d\omega\]</div>
 <p>WARNING: As far as I know this TC rate idea has never been formally explored before. It should work fine as a natural generalization of the MI, but it hasn’t ever been published or peer reviewed.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -2109,15 +2250,15 @@ Passed to the various scipy.signal functions that compute the spectral analyses.
 The default is 1024</p></li>
 </ul>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">...</span></code>], <code class="xref py py-class docutils literal notranslate"><span class="pre">dtype</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">floating</span></code>]], <code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>]</span></p>
-</dd>
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p><ul class="simple">
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
 <li><p><em>NDArray[np.floating]</em> – The local total correlation  for each frequency band.</p></li>
 <li><p><em>float</em> – The average total correlation across the whole spectrum.</p></li>
 </ul>
 </p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple[<em>ndarray</em>[tuple[int, …], <em>dtype</em>[<em>floating</em>]], float]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -2125,6 +2266,22 @@ The default is 1024</p></li>
 </section>
 <section id="module-syntropy.gaussian.utils">
 <span id="syntropy-gaussian-utils-module"></span><h2>syntropy.gaussian.utils module<a class="headerlink" href="#module-syntropy.gaussian.utils" title="Link to this heading">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="syntropy.gaussian.utils.check_cov">
+<span class="sig-prename descclassname"><span class="pre">syntropy.gaussian.utils.</span></span><span class="sig-name descname"><span class="pre">check_cov</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cov</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/gaussian/utils.html#check_cov"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.gaussian.utils.check_cov" title="Link to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>cov</strong> (<em>ndarray</em><em>[</em><em>tuple</em><em>[</em><em>int</em><em>, </em><em>...</em><em>]</em><em>, </em><em>dtype</em><em>[</em><em>floating</em><em>]</em><em>]</em>)</p></li>
+<li><p><strong>data</strong> (<em>ndarray</em><em>[</em><em>tuple</em><em>[</em><em>int</em><em>, </em><em>...</em><em>]</em><em>, </em><em>dtype</em><em>[</em><em>floating</em><em>]</em><em>]</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>ndarray</em>[tuple[int, …], <em>dtype</em>[<em>floating</em>]]</p>
+</dd>
+</dl>
+</dd></dl>
+
 <dl class="py function">
 <dt class="sig sig-object py" id="syntropy.gaussian.utils.correlation_to_mutual_information">
 <span class="sig-prename descclassname"><span class="pre">syntropy.gaussian.utils.</span></span><span class="sig-name descname"><span class="pre">correlation_to_mutual_information</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cov</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/gaussian/utils.html#correlation_to_mutual_information"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.gaussian.utils.correlation_to_mutual_information" title="Link to this definition">¶</a></dt>
@@ -2136,20 +2293,20 @@ information matrix based on the identity:</p>
 and unit variance.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>cov</strong> (<em>np.ndarray</em>) – A covariance matrix.</p>
+<dd class="field-odd"><p><strong>cov</strong> (<em>NDArray</em><em>[</em><em>np.floating</em><em>]</em>) – A covariance matrix.</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>The equivalent mutual information matrix.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>np.ndarray</p>
+<dd class="field-odd"><p>NDArray[np.floating]</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="syntropy.gaussian.utils.hmin_differential_redundancy">
-<span class="sig-prename descclassname"><span class="pre">syntropy.gaussian.utils.</span></span><span class="sig-name descname"><span class="pre">hmin_differential_redundancy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">atom</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sources</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cov</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">array([[-1]])</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/gaussian/utils.html#hmin_differential_redundancy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.gaussian.utils.hmin_differential_redundancy" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">syntropy.gaussian.utils.</span></span><span class="sig-name descname"><span class="pre">hmin_differential_redundancy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">atom</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sources</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cov</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">array([[-1.]])</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/gaussian/utils.html#hmin_differential_redundancy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.gaussian.utils.hmin_differential_redundancy" title="Link to this definition">¶</a></dt>
 <dd><p>For a collection of sources <span class="math notranslate nohighlight">\(\alpha=\{a_1, a_2, \ldots, a_k\}\)</span>, computes
 the redundnat entropy shared by all sources as:</p>
 <p><span class="math notranslate nohighlight">\(h_{\cap}^{min}(\alpha) = \min_{i}(a_{i})\)</span></p>
@@ -2165,22 +2322,22 @@ Entropy, 22(2), Article 2.
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>atom</strong> (<em>tuple</em>) – The partial information atom. In the form <span class="math notranslate nohighlight">\(((a_1,),(a_2,)\ldots)\)</span>.</p></li>
 <li><p><strong>sources</strong> (<em>dict</em>) – The pre-computed collection of sources.</p></li>
-<li><p><strong>data</strong> (<em>np.ndarray</em>) – The data, assumed to be in sources x samples format.</p></li>
-<li><p><strong>cov</strong> (<em>ndarray</em>)</p></li>
+<li><p><strong>data</strong> (<em>NDArray</em><em>[</em><em>np.floating</em><em>]</em>) – The data, assumed to be in sources x samples format.</p></li>
+<li><p><strong>cov</strong> (<em>ndarray</em><em>[</em><em>tuple</em><em>[</em><em>int</em><em>, </em><em>...</em><em>]</em><em>, </em><em>dtype</em><em>[</em><em>floating</em><em>]</em><em>]</em>)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>The local redundancies for each sample.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>np.ndarray</p>
+<dd class="field-odd"><p>NDArray[np.floating]</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="syntropy.gaussian.utils.imin_differential_redundancy">
-<span class="sig-prename descclassname"><span class="pre">syntropy.gaussian.utils.</span></span><span class="sig-name descname"><span class="pre">imin_differential_redundancy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">atom</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sources</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inputs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cov</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">array([[-1]])</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/gaussian/utils.html#imin_differential_redundancy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.gaussian.utils.imin_differential_redundancy" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">syntropy.gaussian.utils.</span></span><span class="sig-name descname"><span class="pre">imin_differential_redundancy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">atom</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sources</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inputs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cov</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">array([[-1.]])</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/gaussian/utils.html#imin_differential_redundancy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.gaussian.utils.imin_differential_redundancy" title="Link to this definition">¶</a></dt>
 <dd><p>Computes the differential redundnacy between a partial information atom <span class="math notranslate nohighlight">\(\alpha=\{a_i,\ldots,a_k\}\)</span> and a (potentially multivariate) target. Uses a Gaussian estimator for the local entropies.</p>
 <p><span class="math notranslate nohighlight">\(i_{\cap}^{min}(\alpha;t) = \min_{i}h(a_i) - \min_{i}h(a_i|t)\)</span></p>
 <p>This is NOT the I_min from Williams and Beer - it is the local redundancy function from Finn and Lizier.</p>
@@ -2199,30 +2356,30 @@ Entropy, 20(4), Article 4.
 <li><p><strong>sources</strong> (<em>dict</em>) – The pre-computed collection of sources.</p></li>
 <li><p><strong>inputs</strong> (<em>tuple</em>) – The indicies of the inputs - one index per element of the tuple.</p></li>
 <li><p><strong>target</strong> (<em>tuple</em>) – The (potentially multivariate) indices of the collective target.</p></li>
-<li><p><strong>data</strong> (<em>np.ndarray</em>) – The data, assumed to be in channels x samples format.</p></li>
-<li><p><strong>cov</strong> (<em>ndarray</em>)</p></li>
+<li><p><strong>data</strong> (<em>NDArray</em><em>[</em><em>np.floating</em><em>]</em>) – The data, assumed to be in channels x samples format.</p></li>
+<li><p><strong>cov</strong> (<em>ndarray</em><em>[</em><em>tuple</em><em>[</em><em>int</em><em>, </em><em>...</em><em>]</em><em>, </em><em>dtype</em><em>[</em><em>floating</em><em>]</em><em>]</em>)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>The local differnetial redundancy for each frame.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>np.ndarray</p>
+<dd class="field-odd"><p>NDArray[np.floating]</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="syntropy.gaussian.utils.local_precompute_sources">
-<span class="sig-prename descclassname"><span class="pre">syntropy.gaussian.utils.</span></span><span class="sig-name descname"><span class="pre">local_precompute_sources</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cov</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">array([[-1]])</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/gaussian/utils.html#local_precompute_sources"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.gaussian.utils.local_precompute_sources" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">syntropy.gaussian.utils.</span></span><span class="sig-name descname"><span class="pre">local_precompute_sources</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cov</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">array([[-1.]])</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/gaussian/utils.html#local_precompute_sources"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.gaussian.utils.local_precompute_sources" title="Link to this definition">¶</a></dt>
 <dd><p>A utility function that pre-computes the local entropies
 of every subset of the data. This speeds up the PID/GID/PED
 by orders of magnitude.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>data</strong> (<em>np.ndarray</em>) – The data in channels x samples format.</p></li>
-<li><p><strong>cov</strong> (<em>np.ndarray</em><em>, </em><em>optional</em>) – The covariance matrix of the data.
+<li><p><strong>data</strong> (<em>NDArray</em><em>[</em><em>np.floating</em><em>]</em>) – The data in channels x samples format.</p></li>
+<li><p><strong>cov</strong> (<em>NDArray</em><em>[</em><em>np.floating</em><em>]</em><em>, </em><em>optional</em>) – The covariance matrix of the data.
 The default is COV_NULL.</p></li>
 </ul>
 </dd>
@@ -2239,12 +2396,13 @@ The default is COV_NULL.</p></li>
 <dt class="sig sig-object py" id="syntropy.gaussian.utils.make_powerset">
 <span class="sig-prename descclassname"><span class="pre">syntropy.gaussian.utils.</span></span><span class="sig-name descname"><span class="pre">make_powerset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">iterable</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/gaussian/utils.html#make_powerset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.gaussian.utils.make_powerset" title="Link to this definition">¶</a></dt>
 <dd><p>Computes the powerset of a collection of elements.</p>
-<p><span class="math notranslate nohighlight">\(\mathcal{P}(\{X_1,X_2,X_3\}) \to (\{\}, \{X_1\}, \{X_2\}, \{X_3\}, \{X_1,X_2\}, \{X_1,X_3\}, \{X_1,X_2,X_3\} )\)</span></p>
+<div class="math notranslate nohighlight">
+\[\mathcal{P}(\{X_1,X_2,X_3\}) \to (\{\}, \{X_1\}, \{X_2\}, \{X_3\}, \{X_1,X_2\}, \{X_1,X_3\}, \{X_1,X_2,X_3\} )\]</div>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="syntropy.gaussian.utils.mobius_inversion">
-<span class="sig-prename descclassname"><span class="pre">syntropy.gaussian.utils.</span></span><span class="sig-name descname"><span class="pre">mobius_inversion</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">decomposition</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inputs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(None,)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cov</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">array([[-1]])</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/gaussian/utils.html#mobius_inversion"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.gaussian.utils.mobius_inversion" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">syntropy.gaussian.utils.</span></span><span class="sig-name descname"><span class="pre">mobius_inversion</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">decomposition</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inputs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(None,)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cov</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">array([[-1.]])</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/gaussian/utils.html#mobius_inversion"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.gaussian.utils.mobius_inversion" title="Link to this definition">¶</a></dt>
 <dd><p>Computes the Mobius inversion on a lattice, given a redundancy function.</p>
 <dl class="simple">
 <dt>See:</dt><dd><p>Williams, P. L., &amp; Beer, R. D. (2010).
@@ -2257,24 +2415,24 @@ http://arxiv.org/abs/1004.2515</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>decomposition</strong> (<em>str</em>) – Whehter to do a PID or PED. Options: “pid”, “ped”.</p></li>
-<li><p><strong>data</strong> (<em>np.ndarray</em>) – The data, assumed to be in channels x samples format.</p></li>
+<li><p><strong>data</strong> (<em>NDArray</em><em>[</em><em>np.floating</em><em>]</em>) – The data, assumed to be in channels x samples format.</p></li>
 <li><p><strong>inputs</strong> (<em>tuple</em>) – The variables to be decomposed.</p></li>
 <li><p><strong>target</strong> (<em>tuple</em><em>, </em><em>optional</em>) – If doing a PID, the indices of the target.
 If doing a PED, leave false.
 The default is (None,).</p></li>
-<li><p><strong>cov</strong> (<em>np.ndarray</em><em>, </em><em>optional</em>) – The covariance matrix that defines the multivairate distribution.
+<li><p><strong>cov</strong> (<em>NDArray</em><em>[</em><em>np.floating</em><em>]</em><em>, </em><em>optional</em>) – The covariance matrix that defines the multivairate distribution.
 If left empty, it is computed from the data. The default is COV_NULL.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>]</span></p>
-</dd>
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p><ul class="simple">
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
 <li><p><strong>ptw</strong> (<em>dict</em>) – The pointwise values of each atom in the decomposition for each sample.</p></li>
 <li><p><strong>avg</strong> (<em>dict</em>) – The expected values of each atom in the decomposition.</p></li>
 </ul>
 </p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple[dict, dict]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -2284,11 +2442,11 @@ If left empty, it is computed from the data. The default is COV_NULL.</p></li>
 <span class="sig-prename descclassname"><span class="pre">syntropy.gaussian.utils.</span></span><span class="sig-name descname"><span class="pre">unpack_atom</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">atom</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/gaussian/utils.html#unpack_atom"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.gaussian.utils.unpack_atom" title="Link to this definition">¶</a></dt>
 <dd><p>A utitlity function to unpack tuples.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">set</span></code></span></p>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>atom</strong> (<em>tuple</em>)</p>
 </dd>
-<dt class="field-even">Parameters<span class="colon">:</span></dt>
-<dd class="field-even"><p><strong>atom</strong> (<em>tuple</em>)</p>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>set</p>
 </dd>
 </dl>
 </dd></dl>

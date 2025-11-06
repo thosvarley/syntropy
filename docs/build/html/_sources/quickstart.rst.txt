@@ -120,3 +120,6 @@ Once again, the `lmi` object is a Numpy array, while mi is a floating point valu
 
 Neural estimators
 -----------------
+
+The neural estimators use the PyTorch package to represent data.
+

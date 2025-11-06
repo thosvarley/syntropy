@@ -95,7 +95,8 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Computes the differential entropy rate of a potentially multivariate stochastic process.</span>
 
-<span class="sd">    :math:`H(X)=\\frac{1}{4\\pi} \int_{-\\pi}^{\\pi} \\log \\left( (2\\pi e)^N |S_X(\\omega)| \\right) \\, d\\omega`</span>
+<span class="sd">    .. math::</span>
+<span class="sd">        H(X)=\\frac{1}{4\\pi} \int_{-\\pi}^{\\pi} \\log \\left( (2\\pi e)^N |S_X(\\omega)| \\right) \\, d\\omega</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -144,18 +145,8 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Computes the mutual information rate between two (potentially multivariate) Gaussian processes.</span>
 
-<span class="sd">    :math:`I(X; Y) = \\frac{1}{4\\pi} \\int_{-\\pi}^{\\pi} \\log \\left( \\frac{  |S_X(\\omega)||S_Y(\\omega)| }{ |S_{XY}(\\omega)| } \\right) d\\omega`</span>
-
-<span class="sd">    See:</span>
-
-<span class="sd">    Faes, L., Sparacino, L., Mijatovic, G., Antonacci, Y., Ricci, L., Marinazzo, D., &amp; Stramaglia, S. (2025).</span>
-<span class="sd">    Partial Information Rate Decomposition (No. arXiv:2502.04550). arXiv.</span>
-<span class="sd">    https://doi.org/10.48550/arXiv.2502.04550</span>
-
-<span class="sd">    Faes, L., Pernice, R., Mijatovic, G., Antonacci, Y., Krohova, J. C., Javorka, M., &amp; Porta, A. (2021).</span>
-<span class="sd">    Information decomposition in the frequency domain: A new framework to study cardiovascular and cardiorespiratory oscillations.</span>
-<span class="sd">    Philosophical Transactions of the Royal Society A: Mathematical, Physical and Engineering Sciences, 379(2212), 20200250.</span>
-<span class="sd">    https://doi.org/10.1098/rsta.2020.0250</span>
+<span class="sd">    .. math:: </span>
+<span class="sd">        I(X; Y) = \\frac{1}{4\\pi} \\int_{-\\pi}^{\\pi} \\log \\left( \\frac{  |S_X(\\omega)||S_Y(\\omega)| }{ |S_{XY}(\\omega)| } \\right) d\\omega</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -179,6 +170,18 @@
 <span class="sd">        The local mutual informations for each frequency band.</span>
 <span class="sd">    float</span>
 <span class="sd">        The average mutual information across the whole spectrum.</span>
+<span class="sd">    </span>
+<span class="sd">    References</span>
+<span class="sd">    ----------</span>
+<span class="sd">    Faes, L., Sparacino, L., Mijatovic, G., Antonacci, Y., Ricci, L., Marinazzo, D., &amp; Stramaglia, S. (2025).</span>
+<span class="sd">    Partial Information Rate Decomposition (No. arXiv:2502.04550). arXiv.</span>
+<span class="sd">    https://doi.org/10.48550/arXiv.2502.04550</span>
+
+<span class="sd">    Faes, L., Pernice, R., Mijatovic, G., Antonacci, Y., Krohova, J. C., Javorka, M., &amp; Porta, A. (2021).</span>
+<span class="sd">    Information decomposition in the frequency domain: A new framework to study cardiovascular and cardiorespiratory oscillations.</span>
+<span class="sd">    Philosophical Transactions of the Royal Society A: Mathematical, Physical and Engineering Sciences, 379(2212), 20200250.</span>
+<span class="sd">    https://doi.org/10.1098/rsta.2020.0250</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">Nx</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">idxs_x</span><span class="p">)</span>
     <span class="n">Ny</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">idxs_y</span><span class="p">)</span>
@@ -216,7 +219,8 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A straightforward extension of the mutual information rate to the total correlation.</span>
 
-<span class="sd">    :math:`TC(X,Y,\\ldots,Z) = \\frac{1}{4\\pi} \\int_{-\\pi}^{\\pi} \\log \\left( \\frac{  |S_X(\\omega)||S_Y(\\omega)|\\ldots|S_Z(\\omega)| }{ |S_{XY\\ldots Z}(\\omega)| } \\right) d\\omega`</span>
+<span class="sd">    .. math:: </span>
+<span class="sd">        TC(X,Y,\\ldots,Z) = \\frac{1}{4\\pi} \\int_{-\\pi}^{\\pi} \\log \\left( \\frac{  |S_X(\\omega)||S_Y(\\omega)|\\ldots|S_Z(\\omega)| }{ |S_{XY\\ldots Z}(\\omega)| } \\right) d\\omega</span>
 
 <span class="sd">    WARNING: As far as I know this TC rate idea has never been formally explored before. It should work fine as a natural generalization of the MI, but it hasn&#39;t ever been published or peer reviewed.</span>
 
@@ -270,14 +274,8 @@
 
 <span class="sd">    Recall that S-information, DTC, and negative O-information can all be written in a general form:</span>
 
-<span class="sd">    :math:`WMS^{k}(X) = (N-k)TC(X) - \\sum_{i=1}^{N}TC(X^{-i})`</span>
-
-<span class="sd">    See:</span>
-<span class="sd">        Varley, T. F., Pope, M., Faskowitz, J., &amp; Sporns, O. (2023).</span>
-<span class="sd">        Multivariate information theory uncovers synergistic subsystems of the human cerebral cortex.</span>
-<span class="sd">        Communications Biology, 6(1), Article 1.</span>
-<span class="sd">        https://doi.org/10.1038/s42003-023-04843-w</span>
-
+<span class="sd">    .. math:: </span>
+<span class="sd">        WMS^{k}(X) = (N-k)TC(X) - \\sum_{i=1}^{N}TC(X^{-i})</span>
 
 <span class="sd">    WARNING: As far as I know this rate idea has never been formally explored before. It should work fine as a natural generalization of the MI, but it hasn&#39;t even been published or peer reviewed.</span>
 
@@ -301,17 +299,26 @@
 <span class="sd">        The local k_wms rate for each frequency band.</span>
 <span class="sd">    float</span>
 <span class="sd">        The average k_wms across the whole spectrum.</span>
+<span class="sd">    </span>
+<span class="sd">    References</span>
+<span class="sd">    ----------</span>
+<span class="sd">    Varley, T. F., Pope, M., Faskowitz, J., &amp; Sporns, O. (2023).</span>
+<span class="sd">    Multivariate information theory uncovers synergistic subsystems of the human cerebral cortex.</span>
+<span class="sd">    Communications Biology, 6(1), Article 1.</span>
+<span class="sd">    https://doi.org/10.1038/s42003-023-04843-w</span>
+<span class="sd">    </span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    
     <span class="n">N0</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">idxs</span><span class="p">)</span>
     <span class="n">ptw_whole</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">]</span>
-    <span class="n">avg_whole</span><span class="p">:</span> <span class="nb">float</span> 
-    
+    <span class="n">avg_whole</span><span class="p">:</span> <span class="nb">float</span>
+
     <span class="n">ptw_whole</span><span class="p">,</span> <span class="n">avg_whole</span> <span class="o">=</span> <span class="n">total_correlation_rate</span><span class="p">(</span>
         <span class="n">idxs</span><span class="o">=</span><span class="n">idxs</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">fs</span><span class="o">=</span><span class="n">fs</span><span class="p">,</span> <span class="n">nperseg</span><span class="o">=</span><span class="n">nperseg</span>
     <span class="p">)</span>
 
-    <span class="n">ptw_whole</span> <span class="o">*=</span> <span class="p">(</span><span class="n">N0</span> <span class="o">-</span> <span class="n">k</span><span class="p">)</span>
-    <span class="n">avg_whole</span> <span class="o">*=</span> <span class="p">(</span><span class="n">N0</span> <span class="o">-</span> <span class="n">k</span><span class="p">)</span>
+    <span class="n">ptw_whole</span> <span class="o">*=</span> <span class="n">N0</span> <span class="o">-</span> <span class="n">k</span>
+    <span class="n">avg_whole</span> <span class="o">*=</span> <span class="n">N0</span> <span class="o">-</span> <span class="n">k</span>
 
     <span class="n">ptw_sum_parts</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">ptw_whole</span><span class="p">)</span>
     <span class="n">avg_sum_parts</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span>
@@ -347,22 +354,13 @@
 
 <span class="sd">    The S-information is equivalant to:</span>
 
-<span class="sd">    :math:`\\Sigma(X) = \\sum_{i=1}^{N}I(X_i;X^{-i})`</span>
+<span class="sd">    .. math:: </span>
+<span class="sd">        \\Sigma(X) = \\sum_{i=1}^{N}I(X_i;X^{-i})</span>
 
-<span class="sd">    :math:`\\Sigma(X) = TC(X) + DTC(X)`</span>
+<span class="sd">    .. math:: </span>
+<span class="sd">        \\Sigma(X) = TC(X) + DTC(X)</span>
 
 <span class="sd">    WARNING: As far as I know this rate idea has never been formally explored before. It should work fine as a natural generalization of the MI, but it hasn&#39;t even been published or peer reviewed.</span>
-
-<span class="sd">    See:</span>
-<span class="sd">        Rosas, F., Mediano, P. A. M., Gastpar, M., &amp; Jensen, H. J. (2019).</span>
-<span class="sd">        Quantifying High-order Interdependencies via Multivariate Extensions of the Mutual Information.</span>
-<span class="sd">        Physical Review E, 100(3), Article 3.</span>
-<span class="sd">        https://doi.org/10.1103/PhysRevE.100.032305</span>
-
-<span class="sd">        Varley, T. F., Pope, M., Faskowitz, J., &amp; Sporns, O. (2023).</span>
-<span class="sd">        Multivariate information theory uncovers synergistic subsystems of the human cerebral cortex.</span>
-<span class="sd">        Communications Biology, 6(1), Article 1.</span>
-<span class="sd">        https://doi.org/10.1038/s42003-023-04843-w</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -384,6 +382,19 @@
 <span class="sd">        The local S-information rate for each frequency band.</span>
 <span class="sd">    float</span>
 <span class="sd">        The average S-information across the whole spectrum.</span>
+<span class="sd">    </span>
+<span class="sd">    References</span>
+<span class="sd">    ----------</span>
+<span class="sd">    Rosas, F., Mediano, P. A. M., Gastpar, M., &amp; Jensen, H. J. (2019).</span>
+<span class="sd">    Quantifying High-order Interdependencies via Multivariate Extensions of the Mutual Information.</span>
+<span class="sd">    Physical Review E, 100(3), Article 3.</span>
+<span class="sd">    https://doi.org/10.1103/PhysRevE.100.032305</span>
+
+<span class="sd">    Varley, T. F., Pope, M., Faskowitz, J., &amp; Sporns, O. (2023).</span>
+<span class="sd">    Multivariate information theory uncovers synergistic subsystems of the human cerebral cortex.</span>
+<span class="sd">    Communications Biology, 6(1), Article 1.</span>
+<span class="sd">    https://doi.org/10.1038/s42003-023-04843-w</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">ptw_s</span><span class="p">,</span> <span class="n">avg_s</span> <span class="o">=</span> <span class="n">k_wms_rate</span><span class="p">(</span>
@@ -407,23 +418,13 @@
 
 <span class="sd">    The dual total correlation is given alternately by:</span>
 
-<span class="sd">    :math:`DTC(X) = H(X) - \\sum_{i=1}^{N}H(X_i|X^{-i})`</span>
+<span class="sd">    .. math:: </span>
+<span class="sd">        DTC(X) = H(X) - \\sum_{i=1}^{N}H(X_i|X^{-i})</span>
 
-<span class="sd">    :math:`DTC(X) = (N-1)TC(X) - \\sum_{i=1}^{N}TC(X^{-i})`</span>
+<span class="sd">    .. math:: </span>
+<span class="sd">        DTC(X) = (N-1)TC(X) - \\sum_{i=1}^{N}TC(X^{-i})</span>
 
 <span class="sd">    WARNING: As far as I know this rate idea has never been formally explored before. It should work fine as a natural generalization of the MI, but it hasn&#39;t even been published or peer reviewed.</span>
-
-<span class="sd">    See:</span>
-<span class="sd">        Abdallah, S. A., &amp; Plumbley, M. D. (2012).</span>
-<span class="sd">        A measure of statistical complexity based on predictive information with application to finite spin systems.</span>
-<span class="sd">        Physics Letters A, 376(4), 275–281.</span>
-<span class="sd">        https://doi.org/10.1016/j.physleta.2011.10.066</span>
-
-<span class="sd">        Rosas, F., Mediano, P. A. M., Gastpar, M., &amp; Jensen, H. J. (2019).</span>
-<span class="sd">        Quantifying High-order Interdependencies via Multivariate Extensions of the Mutual Information.</span>
-<span class="sd">        Physical Review E, 100(3), Article 3.</span>
-<span class="sd">        https://doi.org/10.1103/PhysRevE.100.032305</span>
-
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -445,6 +446,19 @@
 <span class="sd">        The local dual total correlation rate for each frequency band.</span>
 <span class="sd">    float</span>
 <span class="sd">        The average dual total correlation across the whole spectrum.</span>
+<span class="sd">    </span>
+<span class="sd">    References</span>
+<span class="sd">    ----------</span>
+<span class="sd">    Abdallah, S. A., &amp; Plumbley, M. D. (2012).</span>
+<span class="sd">    A measure of statistical complexity based on predictive information with application to finite spin systems.</span>
+<span class="sd">    Physics Letters A, 376(4), 275–281.</span>
+<span class="sd">    https://doi.org/10.1016/j.physleta.2011.10.066</span>
+
+<span class="sd">    Rosas, F., Mediano, P. A. M., Gastpar, M., &amp; Jensen, H. J. (2019).</span>
+<span class="sd">    Quantifying High-order Interdependencies via Multivariate Extensions of the Mutual Information.</span>
+<span class="sd">    Physical Review E, 100(3), Article 3.</span>
+<span class="sd">    https://doi.org/10.1103/PhysRevE.100.032305</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">ptw_dtc</span><span class="p">,</span> <span class="n">avg_dtc</span> <span class="o">=</span> <span class="n">k_wms_rate</span><span class="p">(</span>
@@ -466,22 +480,13 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A straightforward extension of the O-information rate from the total correlation rate.</span>
 
-<span class="sd">    :math:`\\Omega(X) = (2-N)TC(X) + \\sum_{i=1}^{N}TC(X^{-i})`</span>
+<span class="sd">    .. math::   </span>
+<span class="sd">        \\Omega(X) = (2-N)TC(X) + \\sum_{i=1}^{N}TC(X^{-i}) </span>
 
-<span class="sd">    :math:`\\Omega(X) = TC(X) - DTC(X)`</span>
+<span class="sd">    .. math:: </span>
+<span class="sd">        \\Omega(X) = TC(X) - DTC(X)</span>
 
 <span class="sd">    WARNING: As far as I know this rate idea has never been formally explored before. It should work fine as a natural generalization of the MI, but it hasn&#39;t even been published or peer reviewed.</span>
-
-<span class="sd">    See:</span>
-<span class="sd">        Rosas, F., Mediano, P. A. M., Gastpar, M., &amp; Jensen, H. J. (2019).</span>
-<span class="sd">        Quantifying High-order Interdependencies via Multivariate Extensions of the Mutual Information.</span>
-<span class="sd">        Physical Review E, 100(3), Article 3.</span>
-<span class="sd">        https://doi.org/10.1103/PhysRevE.100.032305</span>
-
-<span class="sd">        Varley, T. F., Pope, M., Faskowitz, J., &amp; Sporns, O. (2023).</span>
-<span class="sd">        Multivariate information theory uncovers synergistic subsystems of the human cerebral cortex.</span>
-<span class="sd">        Communications Biology, 6(1), Article 1.</span>
-<span class="sd">        https://doi.org/10.1038/s42003-023-04843-w</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -503,6 +508,19 @@
 <span class="sd">        The local O-information rate for each frequency band.</span>
 <span class="sd">    float</span>
 <span class="sd">        The average O-information across the whole spectrum.</span>
+<span class="sd">    </span>
+<span class="sd">    References</span>
+<span class="sd">    ----------</span>
+<span class="sd">    Rosas, F., Mediano, P. A. M., Gastpar, M., &amp; Jensen, H. J. (2019).</span>
+<span class="sd">    Quantifying High-order Interdependencies via Multivariate Extensions of the Mutual Information.</span>
+<span class="sd">    Physical Review E, 100(3), Article 3.</span>
+<span class="sd">    https://doi.org/10.1103/PhysRevE.100.032305</span>
+
+<span class="sd">    Varley, T. F., Pope, M., Faskowitz, J., &amp; Sporns, O. (2023).</span>
+<span class="sd">    Multivariate information theory uncovers synergistic subsystems of the human cerebral cortex.</span>
+<span class="sd">    Communications Biology, 6(1), Article 1.</span>
+<span class="sd">    https://doi.org/10.1038/s42003-023-04843-w</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">ptw_o</span><span class="p">,</span> <span class="n">avg_o</span> <span class="o">=</span> <span class="n">k_wms_rate</span><span class="p">(</span>
