@@ -1,25 +1,27 @@
 import numpy as np
 import networkx as nx
 import itertools as it
+from numpy.typing import NDArray
 
 from ..lattices import LATTICE_2, LATTICE_3, LATTICE_4
 
-BOTTOM_2: tuple = ((0,), (1,))
-BOTTOM_3: tuple = ((0,), (1,), (2,))
-BOTTOM_4: tuple = ((0,), (1,), (2,), (3,))
+Atom = tuple[tuple[int, ...], ...]
+BOTTOM_2: Atom = ((0,), (1,))
+BOTTOM_3: Atom = ((0,), (1,), (2,))
+BOTTOM_4: Atom = ((0,), (1,), (2,), (3,))
 
 PATHS_2: dict = nx.shortest_paths.shortest_path_length(
     LATTICE_2, source=None, target=BOTTOM_2
 )
-LAYERS_2: dict = {
+LAYERS_2: dict[int, int] = {
     val: {key for key in PATHS_2.keys() if PATHS_2[key] == val}
     for val in set(PATHS_2.values())
 }
 
-PATHS_3: dict = nx.shortest_paths.shortest_path_length(
+PATHS_3: dict[int, int] = nx.shortest_paths.shortest_path_length(
     LATTICE_3, source=None, target=BOTTOM_3
 )
-LAYERS_3: dict = {
+LAYERS_3: dict[int, int] = {
     val: {key for key in PATHS_3.keys() if PATHS_3[key] == val}
     for val in set(PATHS_3.values())
 }
@@ -35,6 +37,17 @@ LAYERS_4: dict = {
 COV_NULL = np.array([[-1]])
 
 # %% LIBRARY
+
+
+def check_cov(
+    cov: NDArray[np.floating], data: NDArray[np.floating]
+) -> NDArray[np.floating]:
+    if cov[0, 0] == -1:
+        cov_ = np.cov(data, ddof=0.0)
+    else:
+        cov_ = cov.copy()
+
+    return cov_
 
 
 def make_powerset(iterable):
@@ -60,7 +73,7 @@ def unpack_atom(atom: tuple) -> set:
     return varset
 
 
-def local_precompute_sources(data: np.ndarray, cov: np.ndarray = COV_NULL):
+def local_precompute_sources(data: NDArray[np.floating], cov: NDArray[np.floating] = COV_NULL):
     """
     A utility function that pre-computes the local entropies
     of every subset of the data. This speeds up the PID/GID/PED
@@ -147,7 +160,7 @@ def imin_differential_redundancy(
     Computes the differential redundnacy between a partial information atom :math:`\\alpha=\\{a_i,\\ldots,a_k\\}` and a (potentially multivariate) target. Uses a Gaussian estimator for the local entropies.
 
     :math:`i_{\\cap}^{min}(\\alpha;t) = \\min_{i}h(a_i) - \\min_{i}h(a_i|t)`
-    
+
     This is NOT the I_min from Williams and Beer - it is the local redundancy function from Finn and Lizier.
 
     See:
@@ -191,7 +204,6 @@ def imin_differential_redundancy(
     for (
         source
     ) in atom:  # All atom idxs need to be transformed into source variable idxs.
-
         # Atom idx to source variable idx conversion.
         # Most of the time this is redundnat, but in case someone tries to call
         # the redundancy function directly from a big time series array, this

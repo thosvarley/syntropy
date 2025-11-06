@@ -15,6 +15,8 @@
     <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="syntropy.knn package" href="syntropy.knn.html" />
+    <link rel="prev" title="syntropy.discrete package" href="syntropy.discrete.html" />
    
   <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
   
@@ -212,6 +214,7 @@ The default is 1.</p></li>
 <li><p><strong>nperseg</strong> (<em>int</em>) – The number of samples to include in each segment.
 Passed to the various scipy.signal functions that compute the spectral analyses.
 The default is 1024</p></li>
+<li><p><strong>verbose</strong> (<em>bool</em>)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
@@ -243,7 +246,15 @@ PLOS ONE, 19(2), e0297128.
 </dl>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>inputs</strong> (<em>tuple</em><em>[</em><em>int</em><em>, </em><em>...</em><em>]</em>) – The indices of the elements to analyze.</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>inputs</strong> (<em>tuple</em><em>[</em><em>int</em><em>, </em><em>...</em><em>]</em>) – The indices of the elements to analyze.</p></li>
+<li><p><strong>data</strong> (<em>ndarray</em><em>[</em><em>tuple</em><em>[</em><em>int</em><em>, </em><em>...</em><em>]</em><em>, </em><em>dtype</em><em>[</em><em>floating</em><em>]</em><em>]</em>)</p></li>
+<li><p><strong>cov_posterior</strong> (<em>ndarray</em><em>[</em><em>tuple</em><em>[</em><em>int</em><em>, </em><em>...</em><em>]</em><em>, </em><em>dtype</em><em>[</em><em>floating</em><em>]</em><em>]</em>)</p></li>
+<li><p><strong>cov_prior</strong> (<em>ndarray</em><em>[</em><em>tuple</em><em>[</em><em>int</em><em>, </em><em>...</em><em>]</em><em>, </em><em>dtype</em><em>[</em><em>floating</em><em>]</em><em>]</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>tuple[dict, dict]</p>
 </dd>
 </dl>
 <dl class="simple">
@@ -266,6 +277,14 @@ length as the data array.</p></li>
 <li><p><strong>avg</strong> (<em>dict</em>) – The dictionary of expected values for each partial entropy atom.</p></li>
 </ul>
 </p>
+</dd>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>inputs</strong> (<em>tuple</em><em>[</em><em>int</em><em>, </em><em>...</em><em>]</em>)</p></li>
+<li><p><strong>data</strong> (<em>ndarray</em><em>[</em><em>tuple</em><em>[</em><em>int</em><em>, </em><em>...</em><em>]</em><em>, </em><em>dtype</em><em>[</em><em>floating</em><em>]</em><em>]</em>)</p></li>
+<li><p><strong>cov_posterior</strong> (<em>ndarray</em><em>[</em><em>tuple</em><em>[</em><em>int</em><em>, </em><em>...</em><em>]</em><em>, </em><em>dtype</em><em>[</em><em>floating</em><em>]</em><em>]</em>)</p></li>
+<li><p><strong>cov_prior</strong> (<em>ndarray</em><em>[</em><em>tuple</em><em>[</em><em>int</em><em>, </em><em>...</em><em>]</em><em>, </em><em>dtype</em><em>[</em><em>floating</em><em>]</em><em>]</em>)</p></li>
+</ul>
 </dd>
 </dl>
 </dd></dl>
@@ -489,6 +508,8 @@ Defaults to computing the TC of the entire covariance matrix.</p></li>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>data</strong> (<em>NDArray</em><em>[</em><em>np.floating</em><em>]</em>) – The data in channels x samples format.</p></li>
 <li><p><strong>inptuts</strong> (<em>tuple</em>) – The indices of the channels to include.</p></li>
+<li><p><strong>cov</strong> (<em>ndarray</em><em>[</em><em>tuple</em><em>[</em><em>int</em><em>, </em><em>...</em><em>]</em><em>, </em><em>dtype</em><em>[</em><em>floating</em><em>]</em><em>]</em>)</p></li>
+<li><p><strong>idxs</strong> (<em>tuple</em><em>[</em><em>int</em><em>, </em><em>...</em><em>]</em>)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -628,6 +649,7 @@ The default is 1.</p></li>
 <li><p><strong>nperseg</strong> (<em>int</em>) – The number of samples to include in each segment.
 Passed to the various scipy.signal functions that compute the spectral analyses.
 The default is 1024</p></li>
+<li><p><strong>verbose</strong> (<em>bool</em>)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
@@ -656,7 +678,14 @@ Entropy, 22(2), Article 2.
 </div></blockquote>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>inputs</strong> (<em>tuple</em><em>[</em><em>int</em><em>, </em><em>...</em><em>]</em>) – The indices of the elements to analyze.</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>inputs</strong> (<em>tuple</em><em>[</em><em>int</em><em>, </em><em>...</em><em>]</em>) – The indices of the elements to analyze.</p></li>
+<li><p><strong>data</strong> (<em>ndarray</em><em>[</em><em>tuple</em><em>[</em><em>int</em><em>, </em><em>...</em><em>]</em><em>, </em><em>dtype</em><em>[</em><em>floating</em><em>]</em><em>]</em>)</p></li>
+<li><p><strong>cov</strong> (<em>ndarray</em><em>[</em><em>tuple</em><em>[</em><em>int</em><em>, </em><em>...</em><em>]</em><em>, </em><em>dtype</em><em>[</em><em>floating</em><em>]</em><em>]</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>tuple[dict, dict]</p>
 </dd>
 </dl>
 <dl class="simple">
@@ -678,6 +707,13 @@ length as the data array.</p></li>
 <li><p><strong>avg</strong> (<em>dict</em>) – The dictionary of expected values for each partial entropy atom.</p></li>
 </ul>
 </p>
+</dd>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>inputs</strong> (<em>tuple</em><em>[</em><em>int</em><em>, </em><em>...</em><em>]</em>)</p></li>
+<li><p><strong>data</strong> (<em>ndarray</em><em>[</em><em>tuple</em><em>[</em><em>int</em><em>, </em><em>...</em><em>]</em><em>, </em><em>dtype</em><em>[</em><em>floating</em><em>]</em><em>]</em>)</p></li>
+<li><p><strong>cov</strong> (<em>ndarray</em><em>[</em><em>tuple</em><em>[</em><em>int</em><em>, </em><em>...</em><em>]</em><em>, </em><em>dtype</em><em>[</em><em>floating</em><em>]</em><em>]</em>)</p></li>
+</ul>
 </dd>
 </dl>
 </dd></dl>
@@ -814,6 +850,7 @@ The default is 1.</p></li>
 <li><p><strong>nperseg</strong> (<em>int</em>) – The number of samples to include in each segment.
 Passed to the various scipy.signal functions that compute the spectral analyses.
 The default is 1024</p></li>
+<li><p><strong>verbose</strong> (<em>bool</em>)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
@@ -944,7 +981,15 @@ PLOS ONE, 19(2), e0297128.
 </dl>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>inputs</strong> (<em>tuple</em><em>[</em><em>int</em><em>, </em><em>...</em><em>]</em>) – The indices of the elements to analyze.</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>inputs</strong> (<em>tuple</em><em>[</em><em>int</em><em>, </em><em>...</em><em>]</em>) – The indices of the elements to analyze.</p></li>
+<li><p><strong>data</strong> (<em>ndarray</em><em>[</em><em>tuple</em><em>[</em><em>int</em><em>, </em><em>...</em><em>]</em><em>, </em><em>dtype</em><em>[</em><em>floating</em><em>]</em><em>]</em>)</p></li>
+<li><p><strong>cov_posterior</strong> (<em>ndarray</em><em>[</em><em>tuple</em><em>[</em><em>int</em><em>, </em><em>...</em><em>]</em><em>, </em><em>dtype</em><em>[</em><em>floating</em><em>]</em><em>]</em>)</p></li>
+<li><p><strong>cov_prior</strong> (<em>ndarray</em><em>[</em><em>tuple</em><em>[</em><em>int</em><em>, </em><em>...</em><em>]</em><em>, </em><em>dtype</em><em>[</em><em>floating</em><em>]</em><em>]</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>tuple[dict, dict]</p>
 </dd>
 </dl>
 <dl class="simple">
@@ -968,6 +1013,14 @@ length as the data array.</p></li>
 </ul>
 </p>
 </dd>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>inputs</strong> (<em>tuple</em><em>[</em><em>int</em><em>, </em><em>...</em><em>]</em>)</p></li>
+<li><p><strong>data</strong> (<em>ndarray</em><em>[</em><em>tuple</em><em>[</em><em>int</em><em>, </em><em>...</em><em>]</em><em>, </em><em>dtype</em><em>[</em><em>floating</em><em>]</em><em>]</em>)</p></li>
+<li><p><strong>cov_posterior</strong> (<em>ndarray</em><em>[</em><em>tuple</em><em>[</em><em>int</em><em>, </em><em>...</em><em>]</em><em>, </em><em>dtype</em><em>[</em><em>floating</em><em>]</em><em>]</em>)</p></li>
+<li><p><strong>cov_prior</strong> (<em>ndarray</em><em>[</em><em>tuple</em><em>[</em><em>int</em><em>, </em><em>...</em><em>]</em><em>, </em><em>dtype</em><em>[</em><em>floating</em><em>]</em><em>]</em>)</p></li>
+</ul>
+</dd>
 </dl>
 </dd></dl>
 
@@ -984,7 +1037,14 @@ Entropy, 22(2), Article 2.
 </div></blockquote>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>inputs</strong> (<em>tuple</em><em>[</em><em>int</em><em>, </em><em>...</em><em>]</em>) – The indices of the elements to analyze.</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>inputs</strong> (<em>tuple</em><em>[</em><em>int</em><em>, </em><em>...</em><em>]</em>) – The indices of the elements to analyze.</p></li>
+<li><p><strong>data</strong> (<em>ndarray</em><em>[</em><em>tuple</em><em>[</em><em>int</em><em>, </em><em>...</em><em>]</em><em>, </em><em>dtype</em><em>[</em><em>floating</em><em>]</em><em>]</em>)</p></li>
+<li><p><strong>cov</strong> (<em>ndarray</em><em>[</em><em>tuple</em><em>[</em><em>int</em><em>, </em><em>...</em><em>]</em><em>, </em><em>dtype</em><em>[</em><em>floating</em><em>]</em><em>]</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>tuple[dict, dict]</p>
 </dd>
 </dl>
 <dl class="simple">
@@ -1006,6 +1066,13 @@ length as the data array.</p></li>
 <li><p><strong>avg</strong> (<em>dict</em>) – The dictionary of expected values for each partial entropy atom.</p></li>
 </ul>
 </p>
+</dd>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>inputs</strong> (<em>tuple</em><em>[</em><em>int</em><em>, </em><em>...</em><em>]</em>)</p></li>
+<li><p><strong>data</strong> (<em>ndarray</em><em>[</em><em>tuple</em><em>[</em><em>int</em><em>, </em><em>...</em><em>]</em><em>, </em><em>dtype</em><em>[</em><em>floating</em><em>]</em><em>]</em>)</p></li>
+<li><p><strong>cov</strong> (<em>ndarray</em><em>[</em><em>tuple</em><em>[</em><em>int</em><em>, </em><em>...</em><em>]</em><em>, </em><em>dtype</em><em>[</em><em>floating</em><em>]</em><em>]</em>)</p></li>
+</ul>
 </dd>
 </dl>
 </dd></dl>
@@ -1301,6 +1368,8 @@ Defaults to computing the TC of the entire covariance matrix.</p></li>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>data</strong> (<em>NDArray</em><em>[</em><em>np.floating</em><em>]</em>) – The data in channels x samples format.</p></li>
 <li><p><strong>inptuts</strong> (<em>tuple</em>) – The indices of the channels to include.</p></li>
+<li><p><strong>cov</strong> (<em>ndarray</em><em>[</em><em>tuple</em><em>[</em><em>int</em><em>, </em><em>...</em><em>]</em><em>, </em><em>dtype</em><em>[</em><em>floating</em><em>]</em><em>]</em>)</p></li>
+<li><p><strong>idxs</strong> (<em>tuple</em><em>[</em><em>int</em><em>, </em><em>...</em><em>]</em>)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -1837,6 +1906,7 @@ The default is 1.</p></li>
 <li><p><strong>nperseg</strong> (<em>int</em>) – The number of samples to include in each segment.
 Passed to the various scipy.signal functions that compute the spectral analyses.
 The default is 1024</p></li>
+<li><p><strong>verbose</strong> (<em>bool</em>)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
@@ -1876,6 +1946,8 @@ The default is 1.</p></li>
 <li><p><strong>nperseg</strong> (<em>int</em>) – The number of samples to include in each segment.
 Passed to the various scipy.signal functions that compute the spectral analyses.
 The default is 1024</p></li>
+<li><p><strong>k</strong> (<em>int</em>)</p></li>
+<li><p><strong>verbose</strong> (<em>bool</em>)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
@@ -1958,6 +2030,7 @@ The default is 1.</p></li>
 <li><p><strong>nperseg</strong> (<em>int</em>) – The number of samples to include in each segment.
 Passed to the various scipy.signal functions that compute the spectral analyses.
 The default is 1024</p></li>
+<li><p><strong>verbose</strong> (<em>bool</em>)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
@@ -2002,6 +2075,7 @@ The default is 1.</p></li>
 <li><p><strong>nperseg</strong> (<em>int</em>) – The number of samples to include in each segment.
 Passed to the various scipy.signal functions that compute the spectral analyses.
 The default is 1024</p></li>
+<li><p><strong>verbose</strong> (<em>bool</em>)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
@@ -2092,6 +2166,7 @@ Entropy, 22(2), Article 2.
 <li><p><strong>atom</strong> (<em>tuple</em>) – The partial information atom. In the form <span class="math notranslate nohighlight">\(((a_1,),(a_2,)\ldots)\)</span>.</p></li>
 <li><p><strong>sources</strong> (<em>dict</em>) – The pre-computed collection of sources.</p></li>
 <li><p><strong>data</strong> (<em>np.ndarray</em>) – The data, assumed to be in sources x samples format.</p></li>
+<li><p><strong>cov</strong> (<em>ndarray</em>)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -2125,6 +2200,7 @@ Entropy, 20(4), Article 4.
 <li><p><strong>inputs</strong> (<em>tuple</em>) – The indicies of the inputs - one index per element of the tuple.</p></li>
 <li><p><strong>target</strong> (<em>tuple</em>) – The (potentially multivariate) indices of the collective target.</p></li>
 <li><p><strong>data</strong> (<em>np.ndarray</em>) – The data, assumed to be in channels x samples format.</p></li>
+<li><p><strong>cov</strong> (<em>ndarray</em>)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -2211,6 +2287,9 @@ If left empty, it is computed from the data. The default is COV_NULL.</p></li>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">set</span></code></span></p>
 </dd>
+<dt class="field-even">Parameters<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>atom</strong> (<em>tuple</em>)</p>
+</dd>
 </dl>
 </dd></dl>
 
@@ -2243,11 +2322,63 @@ If left empty, it is computed from the data. The default is COV_NULL.</p></li>
     </div>
 </search>
 <script>document.getElementById('searchbox').style.display = "block"</script><h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Getting Started:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quickstart Guide</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API Reference:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="syntropy.discrete.html">syntropy.discrete package</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">syntropy.gaussian package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#syntropy.gaussian.conditional_entropy"><code class="docutils literal notranslate"><span class="pre">conditional_entropy()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#syntropy.gaussian.conditional_mutual_information"><code class="docutils literal notranslate"><span class="pre">conditional_mutual_information()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#syntropy.gaussian.description_complexity"><code class="docutils literal notranslate"><span class="pre">description_complexity()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#syntropy.gaussian.differential_entropy"><code class="docutils literal notranslate"><span class="pre">differential_entropy()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#syntropy.gaussian.differential_entropy_rate"><code class="docutils literal notranslate"><span class="pre">differential_entropy_rate()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#syntropy.gaussian.dual_total_correlation"><code class="docutils literal notranslate"><span class="pre">dual_total_correlation()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#syntropy.gaussian.dual_total_correlation_rate"><code class="docutils literal notranslate"><span class="pre">dual_total_correlation_rate()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#syntropy.gaussian.generalized_information_decomposition"><code class="docutils literal notranslate"><span class="pre">generalized_information_decomposition()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#syntropy.gaussian.kullback_leibler_divergence"><code class="docutils literal notranslate"><span class="pre">kullback_leibler_divergence()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#syntropy.gaussian.local_conditional_entropy"><code class="docutils literal notranslate"><span class="pre">local_conditional_entropy()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#syntropy.gaussian.local_conditional_mutual_information"><code class="docutils literal notranslate"><span class="pre">local_conditional_mutual_information()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#syntropy.gaussian.local_differential_entropy"><code class="docutils literal notranslate"><span class="pre">local_differential_entropy()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#syntropy.gaussian.local_dual_total_correlation"><code class="docutils literal notranslate"><span class="pre">local_dual_total_correlation()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#syntropy.gaussian.local_kullback_leibler_divergence"><code class="docutils literal notranslate"><span class="pre">local_kullback_leibler_divergence()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#syntropy.gaussian.local_mutual_information"><code class="docutils literal notranslate"><span class="pre">local_mutual_information()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#syntropy.gaussian.local_o_information"><code class="docutils literal notranslate"><span class="pre">local_o_information()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#syntropy.gaussian.local_s_information"><code class="docutils literal notranslate"><span class="pre">local_s_information()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#syntropy.gaussian.local_total_correlation"><code class="docutils literal notranslate"><span class="pre">local_total_correlation()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#syntropy.gaussian.mutual_information"><code class="docutils literal notranslate"><span class="pre">mutual_information()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#syntropy.gaussian.mutual_information_rate"><code class="docutils literal notranslate"><span class="pre">mutual_information_rate()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#syntropy.gaussian.o_information"><code class="docutils literal notranslate"><span class="pre">o_information()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#syntropy.gaussian.o_information_rate"><code class="docutils literal notranslate"><span class="pre">o_information_rate()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#syntropy.gaussian.partial_entropy_decomposition"><code class="docutils literal notranslate"><span class="pre">partial_entropy_decomposition()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#syntropy.gaussian.partial_information_decomposition"><code class="docutils literal notranslate"><span class="pre">partial_information_decomposition()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#syntropy.gaussian.representational_complexity"><code class="docutils literal notranslate"><span class="pre">representational_complexity()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#syntropy.gaussian.s_information"><code class="docutils literal notranslate"><span class="pre">s_information()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#syntropy.gaussian.s_information_rate"><code class="docutils literal notranslate"><span class="pre">s_information_rate()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#syntropy.gaussian.total_correlation"><code class="docutils literal notranslate"><span class="pre">total_correlation()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#syntropy.gaussian.total_correlation_rate"><code class="docutils literal notranslate"><span class="pre">total_correlation_rate()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#syntropy.gaussian.tse_complexity"><code class="docutils literal notranslate"><span class="pre">tse_complexity()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-syntropy.gaussian.decompositions">syntropy.gaussian.decompositions module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-syntropy.gaussian.multivariate_mi">syntropy.gaussian.multivariate_mi module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-syntropy.gaussian.optimization">syntropy.gaussian.optimization module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-syntropy.gaussian.shannon">syntropy.gaussian.shannon module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-syntropy.gaussian.temporal">syntropy.gaussian.temporal module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-syntropy.gaussian.utils">syntropy.gaussian.utils module</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="syntropy.knn.html">syntropy.knn package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="syntropy.neural.html">syntropy.neural package</a></li>
+</ul>
 
 <div class="relations">
 <h3>Related Topics</h3>
 <ul>
   <li><a href="../index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="syntropy.discrete.html" title="previous chapter">syntropy.discrete package</a></li>
+      <li>Next: <a href="syntropy.knn.html" title="next chapter">syntropy.knn package</a></li>
   </ul></li>
 </ul>
 </div>

@@ -15,6 +15,8 @@
     <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="syntropy.gaussian package" href="syntropy.gaussian.html" />
+    <link rel="prev" title="Quickstart Guide" href="../quickstart.html" />
    
   <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
   
@@ -368,6 +370,7 @@ Marseille, France.
 <li><p><strong>X</strong> (<em>list</em>) – A discrete array. Can contain digits 0-9 and/or
 single-character strings (“A”, “a”, “B”, “b”, etc.)..</p></li>
 <li><p><strong>return_substrings</strong> (<em>bool</em><em>, </em><em>optional</em>) – DESCRIPTION. The default is False.</p></li>
+<li><p><strong>return_dictionary</strong> (<em>bool</em>)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
@@ -1642,6 +1645,7 @@ Marseille, France.
 <li><p><strong>X</strong> (<em>list</em>) – A discrete array. Can contain digits 0-9 and/or
 single-character strings (“A”, “a”, “B”, “b”, etc.)..</p></li>
 <li><p><strong>return_substrings</strong> (<em>bool</em><em>, </em><em>optional</em>) – DESCRIPTION. The default is False.</p></li>
+<li><p><strong>return_dictionary</strong> (<em>bool</em>)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
@@ -2071,11 +2075,56 @@ elements indexed in the source variable.</p>
     </div>
 </search>
 <script>document.getElementById('searchbox').style.display = "block"</script><h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Getting Started:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quickstart Guide</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API Reference:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">syntropy.discrete package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#syntropy.discrete.co_information"><code class="docutils literal notranslate"><span class="pre">co_information()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#syntropy.discrete.conditional_entropy"><code class="docutils literal notranslate"><span class="pre">conditional_entropy()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#syntropy.discrete.conditional_mutual_information"><code class="docutils literal notranslate"><span class="pre">conditional_mutual_information()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#syntropy.discrete.connected_information"><code class="docutils literal notranslate"><span class="pre">connected_information()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#syntropy.discrete.cross_lempel_ziv_complexity"><code class="docutils literal notranslate"><span class="pre">cross_lempel_ziv_complexity()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#syntropy.discrete.description_complexity"><code class="docutils literal notranslate"><span class="pre">description_complexity()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#syntropy.discrete.dual_total_correlation"><code class="docutils literal notranslate"><span class="pre">dual_total_correlation()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#syntropy.discrete.generalized_information_decomposition"><code class="docutils literal notranslate"><span class="pre">generalized_information_decomposition()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#syntropy.discrete.kullback_leibler_divergence"><code class="docutils literal notranslate"><span class="pre">kullback_leibler_divergence()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#syntropy.discrete.lempel_ziv_complexity"><code class="docutils literal notranslate"><span class="pre">lempel_ziv_complexity()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#syntropy.discrete.lempel_ziv_mutual_information"><code class="docutils literal notranslate"><span class="pre">lempel_ziv_mutual_information()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#syntropy.discrete.lempel_ziv_total_correlation"><code class="docutils literal notranslate"><span class="pre">lempel_ziv_total_correlation()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#syntropy.discrete.mutual_information"><code class="docutils literal notranslate"><span class="pre">mutual_information()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#syntropy.discrete.o_information"><code class="docutils literal notranslate"><span class="pre">o_information()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#syntropy.discrete.partial_entropy_decomposition"><code class="docutils literal notranslate"><span class="pre">partial_entropy_decomposition()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#syntropy.discrete.partial_information_decomposition"><code class="docutils literal notranslate"><span class="pre">partial_information_decomposition()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#syntropy.discrete.representational_complexity"><code class="docutils literal notranslate"><span class="pre">representational_complexity()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#syntropy.discrete.s_information"><code class="docutils literal notranslate"><span class="pre">s_information()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#syntropy.discrete.shannon_entropy"><code class="docutils literal notranslate"><span class="pre">shannon_entropy()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#syntropy.discrete.total_correlation"><code class="docutils literal notranslate"><span class="pre">total_correlation()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#syntropy.discrete.tse_complexity"><code class="docutils literal notranslate"><span class="pre">tse_complexity()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-syntropy.discrete.alpha_synergy">syntropy.discrete.alpha_synergy module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-syntropy.discrete.decompositions">syntropy.discrete.decompositions module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-syntropy.discrete.distributions">syntropy.discrete.distributions module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-syntropy.discrete.multivariate_mi">syntropy.discrete.multivariate_mi module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-syntropy.discrete.optimization">syntropy.discrete.optimization module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-syntropy.discrete.shannon">syntropy.discrete.shannon module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-syntropy.discrete.temporal">syntropy.discrete.temporal module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-syntropy.discrete.utils">syntropy.discrete.utils module</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="syntropy.gaussian.html">syntropy.gaussian package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="syntropy.knn.html">syntropy.knn package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="syntropy.neural.html">syntropy.neural package</a></li>
+</ul>
 
 <div class="relations">
 <h3>Related Topics</h3>
 <ul>
   <li><a href="../index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="../quickstart.html" title="previous chapter">Quickstart Guide</a></li>
+      <li>Next: <a href="syntropy.gaussian.html" title="next chapter">syntropy.gaussian package</a></li>
   </ul></li>
 </ul>
 </div>

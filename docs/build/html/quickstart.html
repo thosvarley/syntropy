@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="./">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Quickstart Guide &#8212; Syntropy 1.0.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="_static/basic.css?v=b08954a9" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=27fed22d" />
+    <script src="_static/documentation_options.js?v=8d563738"></script>
+    <script src="_static/doctools.js?v=9bcbadda"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="syntropy.discrete package" href="api/syntropy.discrete.html" />
+    <link rel="prev" title="Syntropy documentation" href="index.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="quickstart-guide">
+<h1>Quickstart Guide<a class="headerlink" href="#quickstart-guide" title="Link to this heading">¶</a></h1>
+<p>This guide will walk you through the basics of the different classes of estimators and how to use them.</p>
+<section id="discrete-estimators">
+<h2>Discrete estimators<a class="headerlink" href="#discrete-estimators" title="Link to this heading">¶</a></h2>
+<p>The basic form of the discrete estimators is a Python dictionary, which represents the joint probability distribution over some set of elements.
+The keys are tuples (which can be intergers, strings, tuples, anything), and the values are the probabilities.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># An example AND distribution</span>
+<span class="n">joint_distribution</span> <span class="o">=</span> <span class="p">{</span>
+     <span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span> <span class="p">:</span> <span class="mi">1</span><span class="o">/</span><span class="mi">4</span><span class="p">,</span>
+     <span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span> <span class="p">:</span> <span class="mi">1</span><span class="o">/</span><span class="mi">4</span><span class="p">,</span>
+     <span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span> <span class="p">:</span> <span class="mi">1</span><span class="o">/</span><span class="mi">4</span><span class="p">,</span>
+     <span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span> <span class="p">:</span> <span class="mi">1</span><span class="o">/</span><span class="mi">4</span><span class="p">,</span>
+     <span class="p">}</span>
+</pre></div>
+</div>
+<p>The discrete estimators generally take in indices, represented as tuples of integers that give in the indices of the subsets of elements being considered, and return two values: a dictionary of the pointwise (local) measures, and the expected values.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">syntropy.discrete</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+     <span class="n">conditional_entropy</span><span class="p">,</span>
+     <span class="n">mutual_information</span>
+     <span class="p">)</span>
+
+<span class="n">lce</span><span class="p">,</span> <span class="n">ce</span> <span class="o">=</span> <span class="n">conditional_entropy</span><span class="p">(</span>
+     <span class="n">idxs_x</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,),</span>
+     <span class="n">idxs_y</span> <span class="o">=</span> <span class="p">(</span><span class="mi">2</span><span class="p">,),</span>
+     <span class="n">joint_distribution</span> <span class="o">=</span> <span class="n">joint_distribution</span>
+     <span class="p">)</span>
+<span class="n">lmi</span><span class="p">,</span> <span class="n">mi</span> <span class="o">=</span> <span class="n">mutual_information</span><span class="p">(</span>
+     <span class="n">idxs_x</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">),</span>
+     <span class="n">idxs_y</span> <span class="o">=</span> <span class="p">(</span><span class="mi">2</span><span class="p">,),</span>
+     <span class="n">joint_distribution</span> <span class="o">=</span> <span class="n">joint_distribution</span>
+     <span class="p">)</span>
+</pre></div>
+</div>
+<p>The pointwise dictionary keys are a tuple of tuples, indicating the states of all elements in <cite>idxs_x</cite> and <cite>idxs_y</cite> respectively.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">lce</span> <span class="o">=</span> <span class="p">{</span>
+     <span class="p">((</span><span class="mi">1</span><span class="p">,),(</span><span class="mi">0</span><span class="p">,))</span> <span class="p">:</span> <span class="mf">1.585</span><span class="p">,</span>
+     <span class="p">((</span><span class="mi">1</span><span class="p">,),(</span><span class="mi">1</span><span class="p">,))</span> <span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+     <span class="p">((</span><span class="mi">0</span><span class="p">,),(</span><span class="mi">0</span><span class="p">,))</span> <span class="p">:</span> <span class="mf">0.585</span>
+     <span class="p">}</span>
+
+<span class="n">lmi</span> <span class="o">=</span> <span class="p">{</span>
+     <span class="p">((</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,)):</span> <span class="mf">0.415</span><span class="p">,</span>
+     <span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,)):</span> <span class="mf">0.415</span><span class="p">,</span>
+     <span class="p">((</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,)):</span> <span class="mf">2.0</span><span class="p">),</span>
+     <span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,)):</span> <span class="mf">0.415</span>
+     <span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="gaussian-estimators">
+<h2>Gaussian estimators<a class="headerlink" href="#gaussian-estimators" title="Link to this heading">¶</a></h2>
+<p>The Gaussian estimators are computed from continuous, multidimensional numpy arrays.
+Unlike the discrete and KNN estimators, there are separate functions for expected and local measures - this was done because, in my cases, expected values can be computed from the covariance matrix directly, which is much more efficient than vectorized local computation</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">syntropy.gaussian</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+     <span class="n">mutual_information</span><span class="p">,</span>
+     <span class="n">local_mutual_information</span>
+     <span class="p">)</span>
+
+<span class="n">num_samples</span> <span class="o">=</span> <span class="mi">100_000</span>
+<span class="n">rand</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="n">num_samples</span><span class="p">)</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">3</span><span class="p">,</span> <span class="n">num_samples</span><span class="p">))</span>
+<span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">,:]</span> <span class="o">=</span> <span class="n">rand</span>
+<span class="n">data</span><span class="p">[</span><span class="mi">1</span><span class="p">,:]</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">,:]</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="mf">0.5</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="n">num_samples</span><span class="p">)</span>
+<span class="n">data</span><span class="p">[</span><span class="mi">2</span><span class="p">,:]</span> <span class="o">=</span> <span class="o">-</span><span class="mf">0.3</span> <span class="o">*</span> <span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">,:]</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="o">-</span><span class="mf">0.3</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="n">num_samples</span><span class="p">)</span>
+
+<span class="n">cov</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cov</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">ddof</span><span class="o">=</span><span class="mf">0.0</span><span class="p">)</span>
+<span class="n">mi</span> <span class="o">=</span> <span class="n">mutual_information</span><span class="p">(</span>
+     <span class="n">idxs_x</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">),</span>
+     <span class="n">idxs_y</span> <span class="o">=</span> <span class="p">(</span><span class="mi">2</span><span class="p">,),</span>
+     <span class="n">cov</span> <span class="o">=</span> <span class="n">cov</span>
+     <span class="p">)</span>
+<span class="n">lmi</span> <span class="o">=</span> <span class="n">local_mutual_information</span><span class="p">(</span>
+     <span class="n">idxs_x</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">),</span>
+     <span class="n">idxs_y</span> <span class="o">=</span> <span class="p">(</span><span class="mi">2</span><span class="p">,),</span>
+     <span class="n">data</span> <span class="o">=</span> <span class="n">data</span>
+     <span class="p">)</span>
+</pre></div>
+</div>
+<p>The average mutual information is a floating point value, while the local mutual information is a 1-dimensional Numpy array, with one cell for each sample</p>
+</section>
+<section id="knn-estimators">
+<h2>KNN estimators<a class="headerlink" href="#knn-estimators" title="Link to this heading">¶</a></h2>
+<p>K-nearest neighbors estimators behave similarly to the local Gaussian estimators: they take in the full, multidimensional dataset, and given a <cite>k</cite> value, returns both the local and average values.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">syntropy.knn</span><span class="w"> </span><span class="kn">import</span> <span class="n">mutual_information</span>
+
+<span class="c1"># Using the same data as above.</span>
+<span class="n">num_samples</span> <span class="o">=</span> <span class="mi">10_000</span>
+<span class="n">rand</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="n">num_samples</span><span class="p">)</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">3</span><span class="p">,</span> <span class="n">num_samples</span><span class="p">))</span>
+<span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">,:]</span> <span class="o">=</span> <span class="n">rand</span>
+<span class="n">data</span><span class="p">[</span><span class="mi">1</span><span class="p">,:]</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">,:]</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="mf">0.5</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="n">num_samples</span><span class="p">)</span>
+<span class="n">data</span><span class="p">[</span><span class="mi">2</span><span class="p">,:]</span> <span class="o">=</span> <span class="o">-</span><span class="mf">0.3</span> <span class="o">*</span> <span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">,:]</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="o">-</span><span class="mf">0.3</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="n">num_samples</span><span class="p">)</span>
+
+<span class="n">lmi</span><span class="p">,</span> <span class="n">mi</span> <span class="o">=</span> <span class="n">mutual_information</span><span class="p">(</span>
+     <span class="n">idxs_x</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">),</span>
+     <span class="n">idxs_y</span> <span class="o">=</span> <span class="p">(</span><span class="mi">2</span><span class="p">,),</span>
+     <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="p">,</span>
+     <span class="n">k</span><span class="o">=</span><span class="n">k</span><span class="p">,</span>
+     <span class="n">algorithm</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>Once again, the <cite>lmi</cite> object is a Numpy array, while mi is a floating point value</p>
+</section>
+<section id="neural-estimators">
+<h2>Neural estimators<a class="headerlink" href="#neural-estimators" title="Link to this heading">¶</a></h2>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">Syntropy</a></h1>
+
+
+
+
+
+
+
+
+
+<search id="searchbox" style="display: none" role="search">
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Search"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script><h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Getting Started:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Quickstart Guide</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#discrete-estimators">Discrete estimators</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#gaussian-estimators">Gaussian estimators</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#knn-estimators">KNN estimators</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#neural-estimators">Neural estimators</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API Reference:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="api/syntropy.discrete.html">syntropy.discrete package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/syntropy.gaussian.html">syntropy.gaussian package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/syntropy.knn.html">syntropy.knn package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/syntropy.neural.html">syntropy.neural package</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="index.html" title="previous chapter">Syntropy documentation</a></li>
+      <li>Next: <a href="api/syntropy.discrete.html" title="next chapter">syntropy.discrete package</a></li>
+  </ul></li>
+</ul>
+</div>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2025, Thomas F. Varley.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 8.2.3</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
+      
+      |
+      <a href="_sources/quickstart.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
