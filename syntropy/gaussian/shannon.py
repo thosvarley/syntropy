@@ -1,6 +1,7 @@
 import numpy as np
 import scipy.stats as stats
 from numpy.typing import NDArray
+from .utils import check_cov
 
 H_SINGLE: float = np.log(np.sqrt(2.0 * np.pi * np.e))
 LN_TWO_PI_E: float = np.log(2.0 * np.pi * np.e)
@@ -39,7 +40,7 @@ def differential_entropy(
             return H_SINGLE
         else:
             return stats.multivariate_normal(
-                cov=cov[idxs, :][:, idxs], allow_singular=True
+                cov=cov[np.ix_(idxs, idxs)], allow_singular=True
             ).entropy()
 
 
@@ -65,19 +66,16 @@ def local_differential_entropy(
     """
     N: int = data.shape[0]
 
-    if cov[0][0] == -1:
-        cov = 1 * np.cov(data, ddof=0.0)
-    else:
-        cov = 1 * cov
+    cov_: NDArray[np.floating] = check_cov(cov, data)
 
     if N == 1:
         return -stats.norm.logpdf(
-            x=data, loc=data.mean(), scale=data.std(), allow_singular=True
+            x=data, loc=data.mean(), scale=data.std()
         )
     else:
         return -(
             stats.multivariate_normal.logpdf(
-                x=data.T, mean=data.mean(axis=-1), cov=cov, allow_singular=True
+                x=data.T, mean=data.mean(axis=-1), cov=cov_, allow_singular=True
             )
         )
 
@@ -141,10 +139,12 @@ def local_conditional_entropy(
 
     """
 
-    joint = idxs_x + idxs_y
+    cov_: NDArray[np.floating] = check_cov(cov, data)
 
-    h_y = local_differential_entropy(data[idxs_y, :], cov[np.ix_(idxs_y, idxs_y)])
-    h_joint = local_differential_entropy(data[joint, :], cov[np.ix_(joint, joint)])
+    joint: tuple[int, ...] = idxs_x + idxs_y
+
+    h_y = local_differential_entropy(data[idxs_y, :], cov_[np.ix_(idxs_y, idxs_y)])
+    h_joint = local_differential_entropy(data[joint, :], cov_[np.ix_(joint, joint)])
 
     return h_joint - h_y
 
@@ -223,20 +223,20 @@ def local_mutual_information(
 
     """
 
-    if cov[0][0] == -1:
-        cov = np.cov(data, ddof=0.0)
+    cov_: NDArray[np.floating] = check_cov(cov, data)
 
     joint: tuple[int, ...] = idxs_x + idxs_y
 
     h_x: NDArray[np.floating] = local_differential_entropy(
-        data[idxs_x, :], cov[np.ix_(idxs_x, idxs_x)]
+        data = data[idxs_x, :], cov = cov_[np.ix_(idxs_x, idxs_x)]
     )
     h_y: NDArray[np.floating] = local_differential_entropy(
-        data[idxs_y, :], cov[np.ix_(idxs_y, idxs_y)]
+        data = data[idxs_y, :], cov = cov_[np.ix_(idxs_y, idxs_y)]
     )
     h_joint: NDArray[np.floating] = local_differential_entropy(
-        data[joint, :], cov[np.ix_(joint, joint)]
+        data = data[joint, :], cov = cov_[np.ix_(joint, joint)]
     )
+    print("woo")
 
     return h_x + h_y - h_joint
 
@@ -309,14 +309,13 @@ def local_conditional_mutual_information(
     NDArray[np.floating]
 
     """
-    if cov[0][0] == -1:
-        cov = np.cov(data, ddof=0.0)
+    cov_: NDArray[np.floating] = check_cov(cov, data)
 
-    joint = idxs_x + idxs_y
+    joint: tuple[int, ...] = idxs_x + idxs_y
 
-    h_x_z = local_conditional_entropy(idxs_x, idxs_z, data, cov)
-    h_y_z = local_conditional_entropy(idxs_y, idxs_z, data, cov)
-    h_xy_z = local_conditional_entropy(joint, idxs_z, data, cov)
+    h_x_z = local_conditional_entropy(idxs_x, idxs_z, data=data, cov=cov_)
+    h_y_z = local_conditional_entropy(idxs_y, idxs_z, data=data, cov=cov_)
+    h_xy_z = local_conditional_entropy(joint, idxs_z, data=data, cov=cov_)
 
     return h_x_z + h_y_z - h_xy_z
 
@@ -385,7 +384,7 @@ def local_kullback_leibler_divergence(
 
     """
 
-    h_posterior = local_differential_entropy(data, cov_posterior)
-    h_prior = local_differential_entropy(data, cov_prior)
+    h_posterior: NDArray[np.floating] = local_differential_entropy(data, cov_posterior)
+    h_prior: NDArray[np.floating] = local_differential_entropy(data, cov_prior)
 
     return h_prior - h_posterior
