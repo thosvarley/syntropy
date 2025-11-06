@@ -83,7 +83,7 @@ def local_differential_entropy(
 def conditional_entropy(
     idxs_x: tuple[int, ...],
     idxs_y: tuple[int, ...],
-    cov: NDArray[np.floating] = COV_NULL,
+    cov: NDArray[np.floating],
 ) -> float:
     """
     Computes the conditional entropy of X given Y.
@@ -104,10 +104,10 @@ def conditional_entropy(
 
     """
 
-    joint = idxs_x + idxs_y
+    joint: tuple[int, ...] = idxs_x + idxs_y
 
-    h_joint = differential_entropy(cov, joint)
-    h_y = differential_entropy(cov, idxs_y)
+    h_joint: float = differential_entropy(cov, joint)
+    h_y: float = differential_entropy(cov, idxs_y)
 
     return h_joint - h_y
 
@@ -270,9 +270,9 @@ def conditional_mutual_information(
 
     joint: tuple[int, ...] = idxs_x + idxs_y
 
-    h_x_z = conditional_entropy(idxs_x, idxs_z, cov)
-    h_y_z = conditional_entropy(idxs_y, idxs_z, cov)
-    h_xy_z = conditional_entropy(joint, idxs_z, cov)
+    h_x_z: float = conditional_entropy(idxs_x, idxs_z, cov)
+    h_y_z: float = conditional_entropy(idxs_y, idxs_z, cov)
+    h_xy_z: float = conditional_entropy(joint, idxs_z, cov)
 
     return h_x_z + h_y_z - h_xy_z
 

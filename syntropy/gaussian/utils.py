@@ -34,7 +34,7 @@ LAYERS_4: dict = {
     for val in set(PATHS_4.values())
 }
 
-COV_NULL = np.array([[-1]])
+COV_NULL: NDArray[np.floating] = np.array([[-1.0]])
 
 # %% LIBRARY
 
@@ -54,7 +54,8 @@ def make_powerset(iterable):
     """
     Computes the powerset of a collection of elements.
 
-    :math:`\\mathcal{P}(\\{X_1,X_2,X_3\\}) \\to (\\{\\}, \\{X_1\\}, \\{X_2\\}, \\{X_3\\}, \\{X_1,X_2\\}, \\{X_1,X_3\\}, \\{X_1,X_2,X_3\\} )`
+    .. math:: 
+        \\mathcal{P}(\\{X_1,X_2,X_3\\}) \\to (\\{\\}, \\{X_1\\}, \\{X_2\\}, \\{X_3\\}, \\{X_1,X_2\\}, \\{X_1,X_3\\}, \\{X_1,X_2,X_3\\} )
 
     """
     xs: list = list(iterable)
@@ -81,9 +82,9 @@ def local_precompute_sources(data: NDArray[np.floating], cov: NDArray[np.floatin
 
     Parameters
     ----------
-    data : np.ndarray
+    data : NDArray[np.floating]
         The data in channels x samples format.
-    cov : np.ndarray, optional
+    cov : NDArray[np.floating], optional
         The covariance matrix of the data.
         The default is COV_NULL.
 
@@ -108,8 +109,8 @@ def local_precompute_sources(data: NDArray[np.floating], cov: NDArray[np.floatin
 
 
 def hmin_differential_redundancy(
-    atom: tuple, sources: dict, data: np.ndarray, cov: np.ndarray = COV_NULL
-) -> np.ndarray:
+    atom: tuple, sources: dict, data: NDArray[np.floating], cov: NDArray[np.floating] = COV_NULL
+) -> NDArray[np.floating]:
     """
     For a collection of sources :math:`\\alpha=\\{a_1, a_2, \\ldots, a_k\\}`, computes
     the redundnat entropy shared by all sources as:
@@ -128,17 +129,17 @@ def hmin_differential_redundancy(
         The partial information atom. In the form :math:`((a_1,),(a_2,)\\ldots)`.
     sources : dict
         The pre-computed collection of sources.
-    data : np.ndarray
+    data : NDArray[np.floating]
         The data, assumed to be in sources x samples format.
 
     Returns
     -------
-    np.ndarray
+    NDArray[np.floating]
         The local redundancies for each sample.
 
 
     """
-    h_min: np.ndarray = np.repeat(np.inf, data.shape[1])
+    h_min: NDArray[np.floating] = np.repeat(np.inf, data.shape[1])
     source: tuple = tuple()
 
     for source in atom:
@@ -153,9 +154,9 @@ def imin_differential_redundancy(
     sources: dict,
     inputs: tuple,
     target: tuple,
-    data: np.ndarray,
-    cov: np.ndarray = COV_NULL,
-) -> np.ndarray:
+    data: NDArray[np.floating],
+    cov: NDArray[np.floating] = COV_NULL,
+) -> NDArray[np.floating]:
     """
     Computes the differential redundnacy between a partial information atom :math:`\\alpha=\\{a_i,\\ldots,a_k\\}` and a (potentially multivariate) target. Uses a Gaussian estimator for the local entropies.
 
@@ -180,12 +181,12 @@ def imin_differential_redundancy(
         The indicies of the inputs - one index per element of the tuple.
     target : tuple
         The (potentially multivariate) indices of the collective target.
-    data : np.ndarray
+    data : NDArray[np.floating]
         The data, assumed to be in channels x samples format.
 
     Returns
     -------
-    np.ndarray
+    NDArray[np.floating]
         The local differnetial redundancy for each frame.
 
     """
@@ -193,10 +194,10 @@ def imin_differential_redundancy(
     if cov[0][0] == -1:
         cov = np.cov(data, ddof=0)
 
-    i_plus: np.ndarray = np.repeat(np.inf, data.shape[1])
-    i_minus: np.ndarray = np.repeat(np.inf, data.shape[1])
+    i_plus: NDArray[np.floating] = np.repeat(np.inf, data.shape[1])
+    i_minus: NDArray[np.floating] = np.repeat(np.inf, data.shape[1])
 
-    h_target: np.ndarray = sources[
+    h_target: NDArray[np.floating] = sources[
         target
     ]  # No need to transform it. It is the variable idx.
 
@@ -211,26 +212,26 @@ def imin_differential_redundancy(
         source_inputs: tuple = tuple(inputs[x] for x in source)
         joint_inputs: tuple = tuple(sorted(source_inputs + target))
 
-        h_joint: np.ndarray = sources[joint_inputs]
+        h_joint: NDArray[np.floating] = sources[joint_inputs]
 
-        h_conditional: np.ndarray = h_joint - h_target
+        h_conditional: NDArray[np.floating] = h_joint - h_target
 
         # i+ = min(h(source))
         i_plus = np.minimum(i_plus, sources[source_inputs])
         # i- = min(h(source|target))
         i_minus = np.minimum(i_minus, h_conditional)
 
-    i_min: np.ndarray = i_plus - i_minus
+    i_min: NDArray[np.floating] = i_plus - i_minus
 
     return i_min
 
 
 def mobius_inversion(
     decomposition: str,
-    data: np.ndarray,
+    data: NDArray[np.floating],
     inputs: tuple,
     target: tuple = (None,),
-    cov: np.ndarray = COV_NULL,
+    cov: NDArray[np.floating] = COV_NULL,
 ) -> tuple[dict, dict]:
     """
     Computes the Mobius inversion on a lattice, given a redundancy function.
@@ -245,7 +246,7 @@ def mobius_inversion(
     ----------
     decomposition : str
         Whehter to do a PID or PED. Options: "pid", "ped".
-    data : np.ndarray
+    data : NDArray[np.floating]
         The data, assumed to be in channels x samples format.
     inputs : tuple
         The variables to be decomposed.
@@ -253,7 +254,7 @@ def mobius_inversion(
         If doing a PID, the indices of the target.
         If doing a PED, leave false.
         The default is (None,).
-    cov : np.ndarray, optional
+    cov : NDArray[np.floating], optional
         The covariance matrix that defines the multivairate distribution.
         If left empty, it is computed from the data. The default is COV_NULL.
 
@@ -329,7 +330,7 @@ def mobius_inversion(
     return (ptw, avg)
 
 
-def correlation_to_mutual_information(cov: np.ndarray) -> np.ndarray:
+def correlation_to_mutual_information(cov: NDArray[np.floating]) -> NDArray[np.floating]:
     """
     Converts a Pearson correlation matrix to a Guassian mutual
     information matrix based on the identity:
@@ -343,12 +344,12 @@ def correlation_to_mutual_information(cov: np.ndarray) -> np.ndarray:
 
     Parameters
     ----------
-    cov : np.ndarray
+    cov : NDArray[np.floating]
         A covariance matrix.
 
     Returns
     -------
-    np.ndarray
+    NDArray[np.floating]
         The equivalent mutual information matrix.
 
     """
