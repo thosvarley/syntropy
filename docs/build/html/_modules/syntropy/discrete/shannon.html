@@ -45,7 +45,7 @@
 <span class="sd">    Computes the Shannon entropy of the distribution :math:`P(x)`.</span>
 
 <span class="sd">    .. math::</span>
-<span class="sd">        H(X) = -\\sum_{x} P(x) \\log P(x)</span>
+<span class="sd">        H(X) = -\\sum_{x\\in\\mathcal{X}} P(x) \\log P(x)</span>
 
 <span class="sd">    To compute the entropy of a subset of the variables in the joint</span>
 <span class="sd">    distribution, use the :func:`syntropy.discrete.utils.get_marginals` function from the utils</span>
@@ -86,7 +86,8 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Computes the conditional entropy of X given Y.</span>
 
-<span class="sd">    :math:`H(X|Y) = H(X,Y) - H(Y)`</span>
+<span class="sd">    .. math::</span>
+<span class="sd">        H(X|Y) = H(X,Y) - H(Y)</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -141,7 +142,11 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Computes the mutual information between X and Y.</span>
 
-<span class="sd">    :math:`I(X;Y) = H(X) + H(Y) - H(X,Y)`</span>
+<span class="sd">    .. math:: </span>
+<span class="sd">        I(X;Y) &amp;= H(X) + H(Y) - H(X,Y) \\\\</span>
+<span class="sd">               &amp;= H(X) - H(X|Y) \\\\</span>
+<span class="sd">               &amp;= H(Y) - H(Y|X) \\\\</span>
+<span class="sd">               &amp;= H(X,Y) - H(X|Y) - H(Y|X)</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -198,7 +203,9 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Computes the mutual information between X and Y condioned on Z.</span>
 
-<span class="sd">    :math:`I(X,Y|Z) = H(X|Z) + H(Y|Z) - H(X,Y|Z)`</span>
+<span class="sd">    .. math:: </span>
+<span class="sd">        I(X,Y|Z) &amp;= H(X|Z) + H(Y|Z) - H(X,Y|Z) \\\\</span>
+<span class="sd">                 &amp;= I(X;Y,Z) - I(X;Z)</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -255,7 +262,8 @@
 <span class="sd">    Computes the Kullback-Leibler divergence from a prior distribution P(X) and</span>
 <span class="sd">    and posterior distribution Q(X).</span>
 
-<span class="sd">    :math:`D_{KL}(P||Q) = \\sum_{x} P(x) \\log \\frac{P(x)}{Q(x)}`</span>
+<span class="sd">    .. math:: </span>
+<span class="sd">        D_{KL}(P||Q) = \\sum_{x} P(x) \\log \\frac{P(x)}{Q(x)}</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>

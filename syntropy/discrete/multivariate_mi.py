@@ -13,20 +13,18 @@ from .optimization import constrained_maximum_entropy_distributions
 binom_lookup = {N: {k: comb(N, k, exact=True) for k in range(N)} for N in range(16)}
 
 
-def total_correlation(joint_distribution) -> (tuple[dict, float], float):
+def total_correlation(joint_distribution: dict[tuple[int, ...], float]) -> (tuple[dict, float], float):
     """
     Computes the average and pointwise total correlations:
 
-    :math:`TC(X) = D_{KL}(P(X) || \\prod_{i=1}^{N}P(X_i)`
+    .. math::
 
-    See:
-        Watanabe, S. (1960). Information Theoretical Analysis of Multivariate Correlation.
-        IBM Journal of Research and Development, 4(1), Article 1.
-        https://doi.org/10.1147/rd.41.0066
+        TC(X) &= D_{KL}(P(X) || \\prod_{i=1}^{N}P(X_i) \\\\
+              &= \\sum_{i=1}^{N}H(X_i) - H(X)
 
     Parameters
     ----------
-    joint_distribution : dict[tuple, float]
+    joint_distribution : dict[tuple[int, ...]], float]
         The joint probability distribution.
         Keys are tuples corresponding to the state of each element.
         The valules are the probabilities.
@@ -37,6 +35,18 @@ def total_correlation(joint_distribution) -> (tuple[dict, float], float):
         The pointwise TC .
     avg : float
         The average TC.
+    
+    References
+    ----------
+    Watanabe, S. (1960). Information Theoretical Analysis of Multivariate Correlation.
+    IBM Journal of Research and Development, 4(1), Article 1.
+    https://doi.org/10.1147/rd.41.0066
+
+    Tononi, G., Sporns, O., & Edelman, G. M. (1994). 
+    A measure for brain complexity: Relating functional segregation and integration in the nervous system. 
+    Proceedings of the National Academy of Sciences, 91(11), Article 11. 
+    https://doi.org/10.1073/pnas.91.11.5033
+    
     """
 
     maxent_distribution = constrained_maximum_entropy_distributions(
@@ -48,37 +58,40 @@ def total_correlation(joint_distribution) -> (tuple[dict, float], float):
     return ptw, avg
 
 
-def k_wms(k: int, joint_distribution: dict[tuple, float]) -> (tuple[dict, float], float):
+def k_wms(k: int, joint_distribution: dict[tuple[int, ...], float]) -> (tuple[dict, float], float):
     """
     S-information, DTC, and negative O-information can all be written in a general form:
 
-    :math:`WMS^{k}(X) = (N-k)TC(X) - \\sum_{i=1}^{N}TC(X^{-i})`
+    .. math::
 
-    See:
-        Varley, T. F., Pope, M., Faskowitz, J., & Sporns, O. (2023).
-        Multivariate information theory uncovers synergistic subsystems of the human cerebral cortex.
-        Communications Biology, 6(1), Article 1.
-        https://doi.org/10.1038/s42003-023-04843-w
+        WMS^{k}(X) = (N-k)TC(X) - \\sum_{i=1}^{N}TC(X^{-i})
 
     Parameters
     ----------
     k : int
-        DESCRIPTION.
-    joint_distribution : dict[tuple, float]
+        The scale parameter
+    joint_distribution : dict[tuple[int, ...], float]
         The joint probability distribution.
         Keys are tuples corresponding to the state of each element.
         The valules are the probabilities.
 
     Returns
     -------
-    ptw : dict[tuple, float]
+    ptw : dict[tuple[int, ...], float]
         The pointwise w-WMS .
     avg : float
         The average k-WMS.
 
+    References
+    ----------
+    Varley, T. F., Pope, M., Faskowitz, J., & Sporns, O. (2023).
+    Multivariate information theory uncovers synergistic subsystems of the human cerebral cortex.
+    Communications Biology, 6(1), Article 1.
+    https://doi.org/10.1038/s42003-023-04843-w
+
     """
 
-    states: list = list(joint_distribution.keys())
+    states: list[tuple[int,...]] = list(joint_distribution.keys())
     N: int = len(states[0])
 
     ptw_tc: dict
@@ -116,27 +129,16 @@ def k_wms(k: int, joint_distribution: dict[tuple, float]) -> (tuple[dict, float]
     return ptw, avg
 
 
-def s_information(joint_distribution: dict[tuple, float]) -> (tuple[dict, float], float):
+def s_information(joint_distribution: dict[tuple[int, ...], float]) -> (tuple[dict, float], float):
     """
     Computes the local and expected S-information for the joint distribution.
 
-    The S-information is equivalant to:
+    .. math:: 
 
-    :math:`\\Sigma(X) = \\sum_{i=1}^{N}I(X_i;X^{-i})`
+        \\Sigma(X) &= \\sum_{i=1}^{N}I(X_i;X^{-i}) \\\\
+                   &= N\\times TC(X) - \\sum_{i=1}^{N}TC(X^{-i}) \\\\
+                   &= TC(X) + DTC(X)
         
-    :math:`\\Sigma(X) = TC(X) + DTC(X)`
-
-    See:
-        Rosas, F., Mediano, P. A. M., Gastpar, M., & Jensen, H. J. (2019).
-        Quantifying High-order Interdependencies via Multivariate Extensions of the Mutual Information.
-        Physical Review E, 100(3), Article 3.
-        https://doi.org/10.1103/PhysRevE.100.032305
-
-        Varley, T. F., Pope, M., Faskowitz, J., & Sporns, O. (2023).
-        Multivariate information theory uncovers synergistic subsystems of the human cerebral cortex.
-        Communications Biology, 6(1), Article 1.
-        https://doi.org/10.1038/s42003-023-04843-w
-
     Parameters
     ----------
     joint_distribution : dict[tuple, float]
@@ -151,6 +153,18 @@ def s_information(joint_distribution: dict[tuple, float]) -> (tuple[dict, float]
     avg : float
         The average S-information.
 
+    References
+    ----------
+    Rosas, F., Mediano, P. A. M., Gastpar, M., & Jensen, H. J. (2019).
+    Quantifying High-order Interdependencies via Multivariate Extensions of the Mutual Information.
+    Physical Review E, 100(3), Article 3.
+    https://doi.org/10.1103/PhysRevE.100.032305
+
+    Varley, T. F., Pope, M., Faskowitz, J., & Sporns, O. (2023).
+    Multivariate information theory uncovers synergistic subsystems of the human cerebral cortex.
+    Communications Biology, 6(1), Article 1.
+    https://doi.org/10.1038/s42003-023-04843-w
+
     """
 
     ptw: dict
@@ -160,26 +174,14 @@ def s_information(joint_distribution: dict[tuple, float]) -> (tuple[dict, float]
     return ptw, avg
 
 
-def dual_total_correlation(joint_distribution: dict[tuple, float]) -> (tuple[dict, float], float):
+def dual_total_correlation(joint_distribution: dict[tuple[int, ...], float]) -> (tuple[dict, float], float):
     """
     Computes the local and expected dual total correlations for the joint distribution.
 
-    The dual total correlation is given alternately by:
+    .. math:: 
 
-    :math:`DTC(X) = H(X) - \\sum_{i=1}^{N}H(X_i|X^{-i})`
-        
-    :math:`DTC(X) = (N-1)TC(X) - \\sum_{i=1}^{N}TC(X^{-i})`
-
-    See:
-        Abdallah, S. A., & Plumbley, M. D. (2012).
-        A measure of statistical complexity based on predictive information with application to finite spin systems.
-        Physics Letters A, 376(4), 275–281.
-        https://doi.org/10.1016/j.physleta.2011.10.066
-
-        Rosas, F., Mediano, P. A. M., Gastpar, M., & Jensen, H. J. (2019).
-        Quantifying High-order Interdependencies via Multivariate Extensions of the Mutual Information.
-        Physical Review E, 100(3), Article 3.
-        https://doi.org/10.1103/PhysRevE.100.032305
+        DTC(X) &= H(X) - \\sum_{i=1}^{N}H(X_i|X^{-i}) \\\\
+               &= (N-1)\\times TC(X) - \\sum_{i=1}^{N}TC(X^{-i})
 
     Parameters
     ----------
@@ -195,6 +197,18 @@ def dual_total_correlation(joint_distribution: dict[tuple, float]) -> (tuple[dic
     avg : float
         The average DTC.
 
+    References
+    ----------
+    Abdallah, S. A., & Plumbley, M. D. (2012).
+    A measure of statistical complexity based on predictive information with application to finite spin systems.
+    Physics Letters A, 376(4), 275–281.
+    https://doi.org/10.1016/j.physleta.2011.10.066
+
+    Rosas, F., Mediano, P. A. M., Gastpar, M., & Jensen, H. J. (2019).
+    Quantifying High-order Interdependencies via Multivariate Extensions of the Mutual Information.
+    Physical Review E, 100(3), Article 3.
+    https://doi.org/10.1103/PhysRevE.100.032305
+
     """
     ptw: dict
     avg: float
@@ -203,25 +217,15 @@ def dual_total_correlation(joint_distribution: dict[tuple, float]) -> (tuple[dic
     return ptw, avg
 
 
-def o_information(joint_distribution: dict[tuple, float]) -> (tuple[dict, float], float):
+def o_information(joint_distribution: dict[tuple[int, ...], float]) -> (tuple[dict, float], float):
     """
     Computes the local and expected O-informations for the joint distribution.
+    O-information quantifies the balance between redundancy (positive values) and synergy (negative values) in multivariate information.
 
-    :math:`\\Omega(X) = (2-N)TC(X) + \\sum_{i=1}^{N}TC(X^{-i})`
-    
-    :math:`\\Omega(X) = TC(X) - DTC(X)`
+    .. math::
 
-    See:
-        Rosas, F., Mediano, P. A. M., Gastpar, M., & Jensen, H. J. (2019).
-        Quantifying High-order Interdependencies via Multivariate Extensions of the Mutual Information.
-        Physical Review E, 100(3), Article 3.
-        https://doi.org/10.1103/PhysRevE.100.032305
-
-        Varley, T. F., Pope, M., Faskowitz, J., & Sporns, O. (2023).
-        Multivariate information theory uncovers synergistic subsystems of the human cerebral cortex.
-        Communications Biology, 6(1), Article 1.
-        https://doi.org/10.1038/s42003-023-04843-w
-
+        \\Omega(X) &= (2-N)TC(X) + \\sum_{i=1}^{N}TC(X^{-i}) \\\\
+                   &= TC(X) - DTC(X)
 
     Parameters
     ----------
@@ -236,6 +240,18 @@ def o_information(joint_distribution: dict[tuple, float]) -> (tuple[dict, float]
         The pointwise O-information .
     avg : float
         The average O-information.
+    
+    References
+    ----------
+    Rosas, F., Mediano, P. A. M., Gastpar, M., & Jensen, H. J. (2019).
+    Quantifying High-order Interdependencies via Multivariate Extensions of the Mutual Information.
+    Physical Review E, 100(3), Article 3.
+    https://doi.org/10.1103/PhysRevE.100.032305
+
+    Varley, T. F., Pope, M., Faskowitz, J., & Sporns, O. (2023).
+    Multivariate information theory uncovers synergistic subsystems of the human cerebral cortex.
+    Communications Biology, 6(1), Article 1.
+    https://doi.org/10.1038/s42003-023-04843-w
 
     """
 
@@ -246,17 +262,12 @@ def o_information(joint_distribution: dict[tuple, float]) -> (tuple[dict, float]
     return {state: -ptw[state] for state in ptw.keys()}, -avg
 
 
-def co_information(joint_distribution: dict[tuple, float]) -> (tuple[dict, float], float):
+def co_information(joint_distribution: dict[tuple[int, ...], float]) -> (tuple[dict, float], float):
     """
     Computes the cO-information, the third generalization of bivariate mutual information. Unlike total correlation and dual total correlation, the cO-information can be negative and is difficult to interpret.
-
-    See:
-        Bell, A. J. (2003, April).
-        The cO-information lattice.
-        4th International Symposium on Independent Component Analysis and
-        Blind Signal Separation, Nara, Japan.
-        https://www.semanticscholar.org/paper/THE-CO-INFORMATION-LATTICE-Bell/25a0cd8d486d5ffd204485685226f189e6eadd4d
-
+    
+    .. math:: 
+        Co(X) = \\sum_{\\xi\\subseteq X}(-1)^{|\\xi|}H(\\xi)
 
     Parameters
     ----------
@@ -271,6 +282,14 @@ def co_information(joint_distribution: dict[tuple, float]) -> (tuple[dict, float
         The pointwise cO-information.
     avg : float
         The average cO-information.
+
+    References
+    ----------
+    Bell, A. J. (2003, April).
+    The Co-information lattice.
+    4th International Symposium on Independent Component Analysis and
+    Blind Signal Separation, Nara, Japan.
+    https://www.semanticscholar.org/paper/THE-CO-INFORMATION-LATTICE-Bell/25a0cd8d486d5ffd204485685226f189e6eadd4d
 
     """
 
@@ -295,22 +314,16 @@ def co_information(joint_distribution: dict[tuple, float]) -> (tuple[dict, float
     return ptw, avg
 
 
-def tse_complexity(joint_distribution: dict[tuple, float], num_samples) -> float:
+def tse_complexity(joint_distribution: dict[tuple[int, ...], float], num_samples) -> float:
     """
     The Tononi-Sporns-Edelman neural complexity measure, which provides a measure of the balance between integration and segregation across scales.
 
+    .. math::
+
+        TSE(X) &= \\sum_{k=1}^{\\lfloor N/2\\rfloor} \\bigg\\langle I(X^{k}_j;X^{-k}_j) \\bigg\\rangle_{j} \\\\
+               &= \\sum_{k=2}^{N}\\bigg[\\bigg(\\frac{k}{N}\\bigg)TC(X) - \\langle TC(X^{k}_{j}) \\rangle_{j}  \\bigg] 
+
     Runtimes scale very badly with system size (as it requires brute-forcing) all possible bipartitions of the system. If the system is too large, a sub-sampling approach is taken: at each scale, num_samples are drawn from the space of bipartitions.
-
-    See:
-        Tononi, G., Sporns, O., & Edelman, G. M. (1994).
-        A measure for brain complexity: Relating functional segregation and integration in the nervous system.
-        Proceedings of the National Academy of Sciences, 91(11), Article 11.
-        https://doi.org/10.1073/pnas.91.11.5033
-
-        Varley, T. F., Pope, M., Faskowitz, J., & Sporns, O. (2023).
-        Multivariate information theory uncovers synergistic subsystems of the human cerebral cortex.
-        Communications Biology, 6(1), Article 1.
-        https://doi.org/10.1038/s42003-023-04843-w
 
     Parameters
     ----------
@@ -325,6 +338,18 @@ def tse_complexity(joint_distribution: dict[tuple, float], num_samples) -> float
     -------
     float
         The TSE complexity. No local complexity is computed. .
+
+    References
+    ----------
+    Tononi, G., Sporns, O., & Edelman, G. M. (1994).
+    A measure for brain complexity: Relating functional segregation and integration in the nervous system.
+    Proceedings of the National Academy of Sciences, 91(11), Article 11.
+    https://doi.org/10.1073/pnas.91.11.5033
+
+    Varley, T. F., Pope, M., Faskowitz, J., & Sporns, O. (2023).
+    Multivariate information theory uncovers synergistic subsystems of the human cerebral cortex.
+    Communications Biology, 6(1), Article 1.
+    https://doi.org/10.1038/s42003-023-04843-w
 
     """
     N: int = len(list(joint_distribution.keys())[0])
@@ -365,23 +390,19 @@ def tse_complexity(joint_distribution: dict[tuple, float], num_samples) -> float
     return (null_tcs - exp_tcs).sum()
 
 
-def description_complexity(joint_distribution: dict[tuple, float]) -> (tuple[dict, float], float):
+def description_complexity(joint_distribution: dict[tuple[int, ...], float]) -> (tuple[dict, float], float):
     """
     The description complexity was proposed by Tononi and Sporns as a
     heuristic, easy-to-compute approximation of the full TSE-Complexity.
     Later shown by Varley et al., to be directly proportional to
     the dual total correlation.
 
-    :math:`C(X) = DTC(X) / N`
+    .. math:: 
+        
+        C(X) = \\frac{DTC(X)}{N}
+
 
     Where :math:`N` is the number of elements in :math:`X`.
-
-    See:
-        Varley, T. F., Pope, M., Faskowitz, J., & Sporns, O. (2023).
-        Multivariate information theory uncovers synergistic subsystems of the human cerebral cortex.
-        Communications Biology, 6(1), Article 1.
-        https://doi.org/10.1038/s42003-023-04843-w
-
 
     Parameters
     ----------
@@ -396,6 +417,14 @@ def description_complexity(joint_distribution: dict[tuple, float]) -> (tuple[dic
         The pointwise description complexity.
     avg : float
         The average description complexity.
+    
+    References
+    ----------
+    Varley, T. F., Pope, M., Faskowitz, J., & Sporns, O. (2023).
+    Multivariate information theory uncovers synergistic subsystems of the human cerebral cortex.
+    Communications Biology, 6(1), Article 1.
+    https://doi.org/10.1038/s42003-023-04843-w
+
     """
 
     N = float(len(list(joint_distribution.keys())[0]))
@@ -410,25 +439,23 @@ def description_complexity(joint_distribution: dict[tuple, float]) -> (tuple[dic
     return ptw, avg
 
 
-def connected_information(joint_distribution: dict[tuple, float], maximum_order: int = -1) -> list[float]:
+def connected_information(joint_distribution: dict[tuple[int, ...], float], maximum_order: int = -1) -> list[float]:
     """
     Returns the connected information profile from Schneidman et al.,
     which decomposes the total correlation into contributing parts of
-    different orders.
+    different orders:
+    
+    .. math:: 
+        TC(X) = \\sum_{k=2}^{N}TC^{k}(X) 
+
+    Where the `k` superscript refers to the maximum-entropy distribution that preserves all marginals of order `k`.
 
     One of the few measures that can reliably distinguish between the
     JAMES_DYADIC and JAMES_TRIADIC distributions.
 
-    See:
-        Schneidman, E., Still, S., Berry, M. J., & Bialek, W. (2003).
-        Network Information and Connected Correlations.
-        Physical Review Letters, 91(23), 238701.
-        https://doi.org/10.1103/PhysRevLett.91.238701
-
-
     Parameters
     ----------
-    joint_distribution : dict[tuple, float]
+    joint_distribution : dict[tuple[int, ...], float]
         The joint probability distribution.
         Keys are tuples corresponding to the state of each element.
         The valules are the probabilities.
@@ -441,11 +468,18 @@ def connected_information(joint_distribution: dict[tuple, float], maximum_order:
     list[float]
         The connected information profile.
 
+    References
+    ----------
+    Schneidman, E., Still, S., Berry, M. J., & Bialek, W. (2003).
+    Network Information and Connected Correlations.
+    Physical Review Letters, 91(23), 238701.
+    https://doi.org/10.1103/PhysRevLett.91.238701
+
     """
 
     N: int = len(list(joint_distribution.keys())[0])
     profile: list = []
-    maxent = constrained_maximum_entropy_distributions(joint_distribution, order=1)
+    maxent: dict[tuple[int,...], float] = constrained_maximum_entropy_distributions(joint_distribution, order=1)
 
     profile.append(shannon_entropy(maxent)[1])
     print(shannon_entropy(maxent)[1])

@@ -50,15 +50,15 @@
 <li><p><strong>idxs</strong> (<em>tuple</em><em>[</em><em>int</em><em>, </em><em>...</em><em>]</em>) – Indices of variables to use (-1 means all)</p></li>
 </ul>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">...</span></code>], <code class="xref py py-class docutils literal notranslate"><span class="pre">dtype</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">floating</span></code>]], <code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>]</span></p>
-</dd>
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p><ul class="simple">
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
 <li><p><em>NDArray[np.floating]</em> – The local differential entropy for each sample.</p></li>
 <li><p><em>float</em> – The expected differential entropy over all samples</p></li>
 </ul>
 </p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple[<em>ndarray</em>[tuple[int, …], <em>dtype</em>[<em>floating</em>]], float]</p>
 </dd>
 </dl>
 <p class="rubric">References</p>
@@ -85,15 +85,15 @@ Code adapted from JIDT
 <li><p><strong>idxs</strong> (<em>tuple</em><em>[</em><em>int</em><em>, </em><em>...</em><em>]</em>) – Indices of variables to use (-1 means all)</p></li>
 </ul>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">...</span></code>], <code class="xref py py-class docutils literal notranslate"><span class="pre">dtype</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">floating</span></code>]], <code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>]</span></p>
-</dd>
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p><ul class="simple">
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
 <li><p><em>NDArray[np.floating</em> – The local dual total correlation for each sample.</p></li>
 <li><p><em>float</em> – The expected dual total correlation over all samples</p></li>
 </ul>
 </p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple[<em>ndarray</em>[tuple[int, …], <em>dtype</em>[<em>floating</em>]], float]</p>
 </dd>
 </dl>
 <p class="rubric">References</p>
@@ -131,15 +131,15 @@ Physical Review E, 100(3), Article 3.
 Defaults to 1</p></li>
 </ul>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">...</span></code>], <code class="xref py py-class docutils literal notranslate"><span class="pre">dtype</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">floating</span></code>]], <code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>]</span></p>
-</dd>
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p><ul class="simple">
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
 <li><p><em>NDArray[np.floating</em> – The local mutual information for each sample.</p></li>
 <li><p><em>float</em> – The expected mutual information over all samples</p></li>
 </ul>
 </p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple[<em>ndarray</em>[tuple[int, …], <em>dtype</em>[<em>floating</em>]], float]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -160,15 +160,15 @@ and synergy (negative values) in multivariate information.</p>
 <li><p><strong>idxs</strong> (<em>tuple</em><em>[</em><em>int</em><em>, </em><em>...</em><em>]</em>) – Indices of variables to use (-1 means all)</p></li>
 </ul>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">...</span></code>], <code class="xref py py-class docutils literal notranslate"><span class="pre">dtype</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">floating</span></code>]], <code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>]</span></p>
-</dd>
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p><ul class="simple">
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
 <li><p><em>NDArray[np.floating</em> – The local O-information for each sample.</p></li>
 <li><p><em>float</em> – The expected O-information over all samples</p></li>
 </ul>
 </p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple[<em>ndarray</em>[tuple[int, …], <em>dtype</em>[<em>floating</em>]], float]</p>
 </dd>
 </dl>
 <p class="rubric">References</p>
@@ -197,15 +197,15 @@ Code adapted from JIDT
 <li><p><strong>idxs</strong> (<em>tuple</em><em>[</em><em>int</em><em>, </em><em>...</em><em>]</em>) – Indices of variables to use (-1 means all)</p></li>
 </ul>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">...</span></code>], <code class="xref py py-class docutils literal notranslate"><span class="pre">dtype</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">floating</span></code>]], <code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>]</span></p>
-</dd>
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p><ul class="simple">
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
 <li><p><em>NDArray[np.floating</em> – The local S-information for each sample.</p></li>
 <li><p><em>float</em> – The expected S-information over all samples</p></li>
 </ul>
 </p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple[<em>ndarray</em>[tuple[int, …], <em>dtype</em>[<em>floating</em>]], float]</p>
 </dd>
 </dl>
 <p class="rubric">References</p>
@@ -247,23 +247,23 @@ Defaults to 1</p></li>
 </dl>
 </div>
 <dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">...</span></code>], <code class="xref py py-class docutils literal notranslate"><span class="pre">dtype</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">floating</span></code>]], <code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>]</span></p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p><ul class="simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><ul class="simple">
 <li><p><em>NDArray[np.floating</em> – The local total correlation for each sample.</p></li>
 <li><p><em>float</em> – The expected total correlation over all samples</p></li>
 </ul>
 </p>
 </dd>
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
+<dt class="field-even">Parameters<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
 <li><p><strong>data</strong> (<em>ndarray</em><em>[</em><em>tuple</em><em>[</em><em>int</em><em>, </em><em>...</em><em>]</em><em>, </em><em>dtype</em><em>[</em><em>floating</em><em>]</em><em>]</em>)</p></li>
 <li><p><strong>k</strong> (<em>int</em>)</p></li>
 <li><p><strong>idxs</strong> (<em>tuple</em><em>[</em><em>int</em><em>, </em><em>...</em><em>]</em>)</p></li>
 <li><p><strong>algorithm</strong> (<em>int</em>)</p></li>
 </ul>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple[<em>ndarray</em>[tuple[int, …], <em>dtype</em>[<em>floating</em>]], float]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -287,15 +287,15 @@ Code adapted from JIDT
 <li><p><strong>idxs</strong> (<em>tuple</em><em>[</em><em>int</em><em>, </em><em>...</em><em>]</em>) – Indices of variables to use (-1 means all)</p></li>
 </ul>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">...</span></code>], <code class="xref py py-class docutils literal notranslate"><span class="pre">dtype</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">floating</span></code>]], <code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>]</span></p>
-</dd>
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p><ul class="simple">
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
 <li><p><em>NDArray[np.floating</em> – The local dual total correlation for each sample.</p></li>
 <li><p><em>float</em> – The expected dual total correlation over all samples</p></li>
 </ul>
 </p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple[<em>ndarray</em>[tuple[int, …], <em>dtype</em>[<em>floating</em>]], float]</p>
 </dd>
 </dl>
 <p class="rubric">References</p>
@@ -325,15 +325,15 @@ and synergy (negative values) in multivariate information.</p>
 <li><p><strong>idxs</strong> (<em>tuple</em><em>[</em><em>int</em><em>, </em><em>...</em><em>]</em>) – Indices of variables to use (-1 means all)</p></li>
 </ul>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">...</span></code>], <code class="xref py py-class docutils literal notranslate"><span class="pre">dtype</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">floating</span></code>]], <code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>]</span></p>
-</dd>
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p><ul class="simple">
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
 <li><p><em>NDArray[np.floating</em> – The local O-information for each sample.</p></li>
 <li><p><em>float</em> – The expected O-information over all samples</p></li>
 </ul>
 </p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple[<em>ndarray</em>[tuple[int, …], <em>dtype</em>[<em>floating</em>]], float]</p>
 </dd>
 </dl>
 <p class="rubric">References</p>
@@ -362,15 +362,15 @@ Code adapted from JIDT
 <li><p><strong>idxs</strong> (<em>tuple</em><em>[</em><em>int</em><em>, </em><em>...</em><em>]</em>) – Indices of variables to use (-1 means all)</p></li>
 </ul>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">...</span></code>], <code class="xref py py-class docutils literal notranslate"><span class="pre">dtype</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">floating</span></code>]], <code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>]</span></p>
-</dd>
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p><ul class="simple">
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
 <li><p><em>NDArray[np.floating</em> – The local S-information for each sample.</p></li>
 <li><p><em>float</em> – The expected S-information over all samples</p></li>
 </ul>
 </p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple[<em>ndarray</em>[tuple[int, …], <em>dtype</em>[<em>floating</em>]], float]</p>
 </dd>
 </dl>
 <p class="rubric">References</p>
@@ -412,23 +412,23 @@ Defaults to 1</p></li>
 </dl>
 </div>
 <dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">...</span></code>], <code class="xref py py-class docutils literal notranslate"><span class="pre">dtype</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">floating</span></code>]], <code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>]</span></p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p><ul class="simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><ul class="simple">
 <li><p><em>NDArray[np.floating</em> – The local total correlation for each sample.</p></li>
 <li><p><em>float</em> – The expected total correlation over all samples</p></li>
 </ul>
 </p>
 </dd>
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
+<dt class="field-even">Parameters<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
 <li><p><strong>data</strong> (<em>ndarray</em><em>[</em><em>tuple</em><em>[</em><em>int</em><em>, </em><em>...</em><em>]</em><em>, </em><em>dtype</em><em>[</em><em>floating</em><em>]</em><em>]</em>)</p></li>
 <li><p><strong>k</strong> (<em>int</em>)</p></li>
 <li><p><strong>idxs</strong> (<em>tuple</em><em>[</em><em>int</em><em>, </em><em>...</em><em>]</em>)</p></li>
 <li><p><strong>algorithm</strong> (<em>int</em>)</p></li>
 </ul>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple[<em>ndarray</em>[tuple[int, …], <em>dtype</em>[<em>floating</em>]], float]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -447,15 +447,15 @@ Defaults to 1</p></li>
 <li><p><strong>idxs</strong> (<em>tuple</em><em>[</em><em>int</em><em>, </em><em>...</em><em>]</em>) – Indices of variables to use (-1 means all)</p></li>
 </ul>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">...</span></code>], <code class="xref py py-class docutils literal notranslate"><span class="pre">dtype</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">floating</span></code>]], <code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>]</span></p>
-</dd>
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p><ul class="simple">
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
 <li><p><em>NDArray[np.floating</em> – The local total correlation for each sample.</p></li>
 <li><p><em>float</em> – The expected total correlation over all samples</p></li>
 </ul>
 </p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple[<em>ndarray</em>[tuple[int, …], <em>dtype</em>[<em>floating</em>]], float]</p>
 </dd>
 </dl>
 <p class="rubric">References</p>
@@ -483,15 +483,15 @@ IBM Journal of Research and Development, 4(1), Article 1.
 <li><p><strong>idxs</strong> (<em>tuple</em><em>[</em><em>int</em><em>, </em><em>...</em><em>]</em>) – Indices of variables to use (-1 means all)</p></li>
 </ul>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">...</span></code>], <code class="xref py py-class docutils literal notranslate"><span class="pre">dtype</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">floating</span></code>]], <code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>]</span></p>
-</dd>
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p><ul class="simple">
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
 <li><p><em>NDArray[np.floating</em> – The local total correlation for each sample.</p></li>
 <li><p><em>float</em> – The expected total correlation over all samples</p></li>
 </ul>
 </p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple[<em>ndarray</em>[tuple[int, …], <em>dtype</em>[<em>floating</em>]], float]</p>
 </dd>
 </dl>
 <p class="rubric">References</p>
@@ -522,15 +522,15 @@ IBM Journal of Research and Development, 4(1), Article 1.
 <li><p><strong>idxs</strong> (<em>tuple</em><em>[</em><em>int</em><em>, </em><em>...</em><em>]</em>) – Indices of variables to use (-1 means all)</p></li>
 </ul>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">...</span></code>], <code class="xref py py-class docutils literal notranslate"><span class="pre">dtype</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">floating</span></code>]], <code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>]</span></p>
-</dd>
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p><ul class="simple">
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
 <li><p><em>NDArray[np.floating]</em> – The local differential entropy for each sample.</p></li>
 <li><p><em>float</em> – The expected differential entropy over all samples</p></li>
 </ul>
 </p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple[<em>ndarray</em>[tuple[int, …], <em>dtype</em>[<em>floating</em>]], float]</p>
 </dd>
 </dl>
 <p class="rubric">References</p>
@@ -567,15 +567,15 @@ Problems of Information Transmission, 23(2), 9.</p>
 Defaults to 1</p></li>
 </ul>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">...</span></code>], <code class="xref py py-class docutils literal notranslate"><span class="pre">dtype</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">floating</span></code>]], <code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>]</span></p>
-</dd>
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p><ul class="simple">
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
 <li><p><em>NDArray[np.floating</em> – The local mutual information for each sample.</p></li>
 <li><p><em>float</em> – The expected mutual information over all samples</p></li>
 </ul>
 </p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple[<em>ndarray</em>[tuple[int, …], <em>dtype</em>[<em>floating</em>]], float]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -596,15 +596,15 @@ using the first algorithm presented in Kraskov et. al., (2004)</p>
 <li><p><strong>data</strong> (<em>NDArray</em><em>[</em><em>np.floating</em><em>]</em>) – Numpy array of shape (n_variables, n_samples)</p></li>
 </ul>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">...</span></code>], <code class="xref py py-class docutils literal notranslate"><span class="pre">dtype</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">floating</span></code>]], <code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>]</span></p>
-</dd>
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p><ul class="simple">
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
 <li><p><em>NDArray[np.floating</em> – The local mutual information for each sample.</p></li>
 <li><p><em>float</em> – The expected mutual information over all samples</p></li>
 </ul>
 </p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple[<em>ndarray</em>[tuple[int, …], <em>dtype</em>[<em>floating</em>]], float]</p>
 </dd>
 </dl>
 <p class="rubric">References</p>
@@ -630,15 +630,15 @@ using the second algorithm presented in Kraskove et. al., (2004).</p>
 <li><p><strong>data</strong> (<em>NDArray</em><em>[</em><em>np.floating</em><em>]</em>) – Numpy array of shape (n_variables, n_samples)</p></li>
 </ul>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">...</span></code>], <code class="xref py py-class docutils literal notranslate"><span class="pre">dtype</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">floating</span></code>]], <code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>]</span></p>
-</dd>
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p><ul class="simple">
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
 <li><p><em>NDArray[np.floating</em> – The local mutual information for each sample.</p></li>
 <li><p><em>float</em> – The expected mutual information over all samples</p></li>
 </ul>
 </p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple[<em>ndarray</em>[tuple[int, …], <em>dtype</em>[<em>floating</em>]], float]</p>
 </dd>
 </dl>
 <p class="rubric">References</p>
@@ -662,16 +662,16 @@ Physical Review E, 69(6), 066138.
 <li><p><strong>k</strong> (<em>int</em>) – Number of nearest neighbors</p></li>
 </ul>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">cKDTree</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">...</span></code>], <code class="xref py py-class docutils literal notranslate"><span class="pre">dtype</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">floating</span></code>]], <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">...</span></code>], <code class="xref py py-class docutils literal notranslate"><span class="pre">dtype</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">integer</span></code>]]]</span></p>
-</dd>
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p><ul class="simple">
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
 <li><p><em>cKDTree</em> – The KNN tree constructed from data.</p></li>
 <li><p><em>NDArray[np.floating]</em> – The indices of each of the k-nearest neighbors.</p></li>
 <li><p><em>NDArray[np.integer]</em> – The distances to each k-nearest neighbors (using the max norm).</p></li>
 </ul>
 </p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple[<em>cKDTree</em>, <em>ndarray</em>[tuple[int, …], <em>dtype</em>[<em>floating</em>]], <em>ndarray</em>[tuple[int, …], <em>dtype</em>[<em>integer</em>]]]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -700,15 +700,15 @@ Physical Review E, 69(6), 066138.
 <dt class="sig sig-object py" id="syntropy.knn.utils.get_counts_from_tree">
 <span class="sig-prename descclassname"><span class="pre">syntropy.knn.utils.</span></span><span class="sig-name descname"><span class="pre">get_counts_from_tree</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tree</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eps</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/knn/utils.html#get_counts_from_tree"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.knn.utils.get_counts_from_tree" title="Link to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">...</span></code>], <code class="xref py py-class docutils literal notranslate"><span class="pre">dtype</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">integer</span></code>]]</span></p>
-</dd>
-<dt class="field-even">Parameters<span class="colon">:</span></dt>
-<dd class="field-even"><ul class="simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
 <li><p><strong>tree</strong> (<em>cKDTree</em>)</p></li>
 <li><p><strong>data</strong> (<em>ndarray</em><em>[</em><em>tuple</em><em>[</em><em>int</em><em>, </em><em>...</em><em>]</em><em>, </em><em>dtype</em><em>[</em><em>floating</em><em>]</em><em>]</em>)</p></li>
 <li><p><strong>eps</strong> (<em>ndarray</em><em>[</em><em>tuple</em><em>[</em><em>int</em><em>, </em><em>...</em><em>]</em><em>, </em><em>dtype</em><em>[</em><em>floating</em><em>]</em><em>]</em>)</p></li>
 </ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>ndarray</em>[tuple[int, …], <em>dtype</em>[<em>integer</em>]]</p>
 </dd>
 </dl>
 </dd></dl>

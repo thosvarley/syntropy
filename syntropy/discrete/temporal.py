@@ -1,30 +1,19 @@
 import numpy as np
-
+from typing import Any
 
 def lempel_ziv_complexity(
-    X: list, return_dictionary: bool = False
-) -> tuple[float, set]:
+    X: list[Any], return_dictionary: bool = False
+) -> float | tuple[float, set]:
     """
-    Uses the classic Lempel-Ziv compression algorithm to estimate the
-    entropy rate of a one-dimensional array. If each element in X is a
-    multi-dimensional tuple, then the result is equivalent to the
-    joint mutual information rate.
+    Uses the classic Lempel-Ziv compression algorithm to estimate the entropy rate of a one-dimensional array with :math:`N` samples. 
+    If each element in X is a multi-dimensional tuple, then the result is equivalent to the joint entropy rate.
 
-    The extension to multivariate Lempel-Ziv is straightforward and involves representing
-    the joint state of each element at time t as a tuple (X(t), Y(t)) and
-    treating the two sources as a single joint source.
+    The extension to multivariate Lempel-Ziv is straightforward and involves representing the joint state of each element at time t as a tuple (X(t), Y(t)) and treating the two sources as a single joint source.
 
-    See:
-        Zozor, S., Ravier, P., & Buttelli, O. (2005).
-        On Lempel–Ziv complexity for multidimensional data analysis.
-        Physica A: Statistical Mechanics and Its Applications, 345(1), 285–302.
-        https://doi.org/10.1016/j.physa.2004.07.025
+    Here, the dictionary length :math:`|D|` is normalized:
 
-        Blanc, J.-L., Schmidt, N., Bonnier, L., Pezard, L., & Lesne, A. (2008).
-        Quantifying Neural Correlations Using Lempel-Ziv Complexity.
-        Deuxième conférence française de Neurosciences Computationnelles,
-        Marseille, France.
-        https://hal.science/hal-00331599/document
+    .. math::
+        \\textnormal{Complexity}(X) = \\frac{|D|\\log|D|}{N}
 
     Parameters
     ----------
@@ -41,6 +30,24 @@ def lempel_ziv_complexity(
     set
         The dictionary (only returned if return_dictionary == True)
 
+    References
+    ----------
+
+    Schartner, M. M., Carhart-Harris, R. L., Barrett, A. B., Seth, A. K., & Muthukumaraswamy, S. D. (2017). 
+    Increased spontaneous MEG signal diversity for psychoactive doses of ketamine, LSD and psilocybin. 
+    Scientific Reports, 7, 46421. 
+    https://doi.org/10.1038/srep46421
+
+    Blanc, J.-L., Schmidt, N., Bonnier, L., Pezard, L., & Lesne, A. (2008).
+    Quantifying Neural Correlations Using Lempel-Ziv Complexity.
+    Deuxième conférence française de Neurosciences Computationnelles,
+    Marseille, France.
+    https://hal.science/hal-00331599/document
+    
+    Zozor, S., Ravier, P., & Buttelli, O. (2005).
+    On Lempel–Ziv complexity for multidimensional data analysis.
+    Physica A: Statistical Mechanics and Its Applications, 345(1), 285–302.
+    https://doi.org/10.1016/j.physa.2004.07.025
     """
 
     tuples: tuple = tuple((i,) for i in X)
@@ -57,9 +64,9 @@ def lempel_ziv_complexity(
         i = j  # Move index to next position
 
     c = len(dictionary)
-    complexity = c * (np.log2(c)) / N  # The +1 is removed for consistency w/ Coutinho
+    complexity = (c * np.log2(c)) / N  # The +1 is removed for consistency w/ Coutinho
 
-    if return_dictionary == True:
+    if return_dictionary is True:
         return complexity, dictionary
     else:
         return complexity
@@ -67,23 +74,11 @@ def lempel_ziv_complexity(
 
 def lempel_ziv_mutual_information(X: list, Y: list) -> float:
     """
-    Estimates the discrete mutual information rate for two channels X and Y
-    with the Lempel-Ziv compression algorithm.
+    Estimates the discrete mutual information rate for two channels X and Y with the Lempel-Ziv compression algorithm.
+    This measure can be transiently negative, although in the limit it approximates the discrete information rate.
 
-    This measure can be transiently negative, although in the limit it
-    approximates the discrete information rate.
-
-    See:
-        Zozor, S., Ravier, P., & Buttelli, O. (2005).
-        On Lempel–Ziv complexity for multidimensional data analysis.
-        Physica A: Statistical Mechanics and Its Applications, 345(1), 285–302.
-        https://doi.org/10.1016/j.physa.2004.07.025
-
-        Blanc, J.-L., Schmidt, N., Bonnier, L., Pezard, L., & Lesne, A. (2008).
-        Quantifying Neural Correlations Using Lempel-Ziv Complexity.
-        Deuxième conférence française de Neurosciences Computationnelles,
-        Marseille, France.
-        https://hal.science/hal-00331599/document
+    .. math::
+        I_{LZ}(X;Y) = LZ(X) + LZ(Y) - LZ(X,Y)
 
     Parameters
     ----------
@@ -98,6 +93,19 @@ def lempel_ziv_mutual_information(X: list, Y: list) -> float:
     -------
     float
         The estimated mutual information rate.
+
+    References
+    ----------
+    Zozor, S., Ravier, P., & Buttelli, O. (2005).
+    On Lempel–Ziv complexity for multidimensional data analysis.
+    Physica A: Statistical Mechanics and Its Applications, 345(1), 285–302.
+    https://doi.org/10.1016/j.physa.2004.07.025
+
+    Blanc, J.-L., Schmidt, N., Bonnier, L., Pezard, L., & Lesne, A. (2008).
+    Quantifying Neural Correlations Using Lempel-Ziv Complexity.
+    Deuxième conférence française de Neurosciences Computationnelles,
+    Marseille, France.
+    https://hal.science/hal-00331599/document
 
     """
 
@@ -114,11 +122,8 @@ def conditional_lempel_ziv_complexity(X: list, Y: list) -> float:
     """
     The conditional entropy rate estimated with the Lempel-Ziv algorithm.
 
-    See:
-        Zozor, S., Ravier, P., & Buttelli, O. (2005).
-        On Lempel–Ziv complexity for multidimensional data analysis.
-        Physica A: Statistical Mechanics and Its Applications, 345(1), 285–302.
-        https://doi.org/10.1016/j.physa.2004.07.025
+    .. math::
+        LZ(X|Y) = LZ(X,Y) - LZ(Y)
 
     Parameters
     ----------
@@ -134,6 +139,13 @@ def conditional_lempel_ziv_complexity(X: list, Y: list) -> float:
     float
         The estimated conditional entropy rate.
 
+    References
+    ----------
+    Zozor, S., Ravier, P., & Buttelli, O. (2005).
+    On Lempel–Ziv complexity for multidimensional data analysis.
+    Physica A: Statistical Mechanics and Its Applications, 345(1), 285–302.
+    https://doi.org/10.1016/j.physa.2004.07.025
+
     """
 
     joint: list = list(zip(X, Y))
@@ -146,7 +158,8 @@ def lempel_ziv_total_correlation(data: np.ndarray) -> float:
     A straightforward generalization of the mutual information rate given by
     Zozor et al., and Blanc et al.,
 
-    :math:`TC(X) = \\sum_{i=1}^{N} LZC(X_i) - LZC(X)`
+    .. math:: 
+        TC_{LZ}(X) = \\sum_{i=1}^{N} LZ(X_i) - LZ(X)
 
 
     Parameters
@@ -183,13 +196,6 @@ def cross_lempel_ziv_complexity(X: list, Y: list) -> int:
     Lempel-Ziv complexity is the extra patterns that appear in X but
     not in the compressed Y.
 
-    See:
-        Ziv, J., & Merhav, N. (1993).
-        A Measure of Relative Entropy between Individual Sequences with
-        Application to Universal Classification.
-        Proceedings. IEEE International Symposium on Information Theory, 352–352.
-        https://doi.org/10.1109/ISIT.1993.748668
-
     This code uses the optimized dictionary for Y, rather than searching all
     substrings of Y. Using all possible substrings is very impractical for
     long time series. As a result, however, it is very sensitive to the
@@ -214,6 +220,14 @@ def cross_lempel_ziv_complexity(X: list, Y: list) -> int:
     -------
     complexity : int
         The Lempel-ziv relative complexity.
+
+    References
+    ----------
+    Ziv, J., & Merhav, N. (1993).
+    A Measure of Relative Entropy between Individual Sequences with
+    Application to Universal Classification.
+    Proceedings. IEEE International Symposium on Information Theory, 352–352.
+    https://doi.org/10.1109/ISIT.1993.748668
 
     """
     X_tuples = tuple((i,) for i in X)

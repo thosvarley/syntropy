@@ -1,33 +1,25 @@
 import numpy as np
 from .utils import mobius_inversion
+from typing import Callable
 
 
 def partial_information_decomposition(
     redundancy: str,
     inputs: tuple,
     target: tuple,
-    joint_distribution: dict[tuple, float],
+    joint_distribution: dict[tuple[int, ...], float],
 ) -> (dict, dict):
     """
     Computes the partial information decomposition for up to four input variables
     onto one (potentially joint) target variable.
 
-    The available redundancy functions are i_min from Finn and Lizier
-    and i_sx from Makkeh et al.. See:
+    The available redundancy functions are :math:`i_{\\min}` from Finn and Lizier and :math:`i_{sx}` from Makkeh et al..
 
-        Finn, C., & Lizier, J. T. (2018).
-        Pointwise Partial Information Decomposition Using
-        the Specificity and Ambiguity Lattices.
-        Entropy, 20(4), Article 4.
-        https://doi.org/10.3390/e20040297
+    .. math:: 
 
-        Makkeh, A., Gutknecht, A. J., & Wibral, M. (2021).
-        Introducing a differentiable measure of pointwise
-        shared information.
-        Physical Review E, 103(3), 032149.
-        https://doi.org/10.1103/PhysRevE.103.032149
-
-
+        i_{\\min}(\\alpha;t) &= \\min h(\\alpha_i) - \min h(\\alpha_i|t) \\\\
+           i_{sx}(\\alpha;t) &= \\log\\frac{P(t)-P(t\\cap(\\alpha_1\\cup ...\\cup\\alpha_k))}{1-P(\\bar\\alpha_1\\cap ...\\cap\\alpha_N)}
+    
     Parameters
     ----------
     redundancy : str
@@ -52,6 +44,25 @@ def partial_information_decomposition(
     avg : dict
         The expected value for each partial information atom.
 
+    References
+    ----------
+    Williams, P. L., & Beer, R. D. (2010). 
+    Nonnegative Decomposition of Multivariate Information. 
+    arXiv:1004.2515 [Math-Ph, Physics:Physics, q-Bio]. 
+    http://arxiv.org/abs/1004.2515
+
+    Finn, C., & Lizier, J. T. (2018).
+    Pointwise Partial Information Decomposition Using
+    the Specificity and Ambiguity Lattices.
+    Entropy, 20(4), Article 4.
+    https://doi.org/10.3390/e20040297
+
+    Makkeh, A., Gutknecht, A. J., & Wibral, M. (2021).
+    Introducing a differentiable measure of pointwise
+    shared information.
+    Physical Review E, 103(3), 032149.
+    https://doi.org/10.1103/PhysRevE.103.032149
+    
     """
 
     ptw, avg = mobius_inversion(
@@ -66,27 +77,18 @@ def partial_information_decomposition(
 
 
 def partial_entropy_decomposition(
-    redundancy: str, joint_distribution: dict[tuple, float]
+    redundancy: str, joint_distribution: dict[tuple[int, ...], float]
 ) -> (dict, dict):
     """
     Computes the partial entropy decomposition of a joint distribution
     with up to four elements.
 
     The available redundancy functions are h_min from Finn and Lizier
-    and h_sx from Varley et al., See:
-
-        Finn, C., & Lizier, J. T. (2020).
-        Generalised Measures of Multivariate Information Content.
-        Entropy, 22(2), Article 2.
-        https://doi.org/10.3390/e22020216
-
-        Varley, T. F., Pope, M., Maria Grazia, P., Joshua, F., & Sporns, O. (2023).
-        Partial entropy decomposition reveals higher-order
-        information structures in human brain activity.
-        Proceedings of the National Academy of Sciences,
-        120(30), e2300888120.
-        https://doi.org/10.1073/pnas.2300888120
-
+    and h_sx from Varley et al.,
+    
+    .. math:: 
+        h_{\\min}(\\alpha) &= \\min(\\alpha_i) \\\\
+           h_{sx}(\\alpha) &= \\log\\frac{1}{P(\\alpha_1\\cup ... \\cup\\alpha_N)}
 
     Parameters
     ----------
@@ -106,6 +108,20 @@ def partial_entropy_decomposition(
     avg : dict[tuple, float]
         The expected value for each partial entropy atom.
 
+    References
+    ----------
+    Finn, C., & Lizier, J. T. (2020).
+    Generalised Measures of Multivariate Information Content.
+    Entropy, 22(2), Article 2.
+    https://doi.org/10.3390/e22020216
+
+    Varley, T. F., Pope, M., Maria Grazia, P., Joshua, F., & Sporns, O. (2023).
+    Partial entropy decomposition reveals higher-order
+    information structures in human brain activity.
+    Proceedings of the National Academy of Sciences,
+    120(30), e2300888120.
+    https://doi.org/10.1073/pnas.2300888120
+
     """
 
     ptw, avg = mobius_inversion(
@@ -118,7 +134,9 @@ def partial_entropy_decomposition(
 
 
 def generalized_information_decomposition(
-    redundancy: str, posterior_distribution: dict[tuple,float], prior_distribution: dict[tuple,float]
+    redundancy: str,
+    posterior_distribution: dict[tuple[int, ...], float],
+    prior_distribution: dict[tuple[int, ...], float],
 ) -> (dict, dict):
     """
     Computes the generalized information decomposition from Varley et al.
@@ -128,13 +146,6 @@ def generalized_information_decomposition(
     Available redundnacy functions are "hmin" and "hsx". See
     the documentation for the partial_entropy_decomposition() function
     for details.
-
-    See:
-        Varley, T. F. (2024).
-        Generalized decomposition of multivariate information.
-        PLOS ONE, 19(2), e0297128.
-        https://doi.org/10.1371/journal.pone.0297128
-
 
     Parameters
     ----------
@@ -156,10 +167,19 @@ def generalized_information_decomposition(
     avg : dict[tuple, float]
         The average Kullback-Leibler divergence for each atom.
 
+    References
+    ----------
+    Varley, T. F. (2024).
+    Generalized decomposition of multivariate information.
+    PLOS ONE, 19(2), e0297128.
+    https://doi.org/10.1371/journal.pone.0297128
+
     """
     assert set(prior_distribution.keys()).issuperset(
         set(posterior_distribution.keys())
-    ), "The support set of the prior must be a superset of the support set of the posterior."
+    ), (
+        "The support set of the prior must be a superset of the support set of the posterior."
+    )
     assert redundancy.lower() in {
         "hmin",
         "hsx",
@@ -195,20 +215,12 @@ def generalized_information_decomposition(
     return ptw, avg
 
 
-def representational_complexity(avg: dict, comparator=min) -> float:
+def representational_complexity(avg: dict, comparator: Callable = min) -> float:
     """
     Computes the representational complexity of a given partial information or entropy lattice.
     The representational complexity is a measure of how
     much partial information atoms of a given degree of synergy
     contribute to the overall mutual information or entropy.
-
-    See:
-        Ehrlich, D. A., Schneider, A. C., Priesemann, V., Wibral, M., & Makkeh, A. (2023).
-        A Measure of the Complexity of Neural Representations
-        based on Partial Information Decomposition.
-        Transactions on Machine Learning Research.
-        https://openreview.net/forum?id=R8TU3pfzFr
-
 
 
     Parameters
@@ -227,6 +239,14 @@ def representational_complexity(avg: dict, comparator=min) -> float:
     -------
     float
         The representational complexity.
+
+    References
+    ----------
+    Ehrlich, D. A., Schneider, A. C., Priesemann, V., Wibral, M., & Makkeh, A. (2023).
+    A Measure of the Complexity of Neural Representations
+    based on Partial Information Decomposition.
+    Transactions on Machine Learning Research.
+    https://openreview.net/forum?id=R8TU3pfzFr
 
     """
 

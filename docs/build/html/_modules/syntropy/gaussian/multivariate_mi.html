@@ -42,7 +42,10 @@
     <span class="n">data</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">],</span> <span class="n">cov</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">],</span> <span class="n">idxs</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,)</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    The local total correlation.</span>
+<span class="sd">    The local total correlation. Note that this measure can be negative.</span>
+
+<span class="sd">    .. math:: </span>
+<span class="sd">        tc(x) = \\sum_{i=1}^{N}h(x_i) - h(x)</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -98,8 +101,17 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The expected total correlation.</span>
 
-<span class="sd">    ..math:: </span>
-<span class="sd">        `TC(X) = \\sum_{i=1}^{N}H(X_i) - H(X)`</span>
+<span class="sd">    .. math::</span>
+
+<span class="sd">        TC(X) &amp;= D_{KL}(P(X) || \\prod_{i=1}^{N}P(X_i) \\\\</span>
+<span class="sd">              &amp;= \\sum_{i=1}^{N}H(X_i) - H(X)</span>
+
+<span class="sd">    For Gaussian random variables, the estimator is:</span>
+
+<span class="sd">        .. math::</span>
+<span class="sd">            \\hat{TC}(X) = \\frac{-\log R}{2}</span>
+
+<span class="sd">    Where :math:`R` is the Pearson correlation matrix.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -205,11 +217,11 @@
 <a class="viewcode-back" href="../../../api/syntropy.gaussian.html#syntropy.gaussian.k_wms">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">k_wms</span><span class="p">(</span><span class="n">k</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">cov</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">],</span> <span class="n">idxs</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,))</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    A utility function that computes the generalized form</span>
-<span class="sd">    of the O-information, S-information, and DTC.</span>
+<span class="sd">    S-information, DTC, and negative O-information can all be written in a general form:</span>
 
-<span class="sd">    .. math:: </span>
-<span class="sd">        K_{WMS}(X) = (N-k)TC(X) - \\sum_{i=1}^{N} TC(X^{-i})</span>
+<span class="sd">    .. math::</span>
+
+<span class="sd">        WMS^{k}(X) = (N-k)TC(X) - \\sum_{i=1}^{N}TC(X^{-i})</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -255,6 +267,11 @@
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Compute local S-information using Gaussian estimation.</span>
+<span class="sd">    </span>
+<span class="sd">    .. math::</span>
+<span class="sd">        \\sigma(X) &amp;= \\sum_{i=1}^{N}i(x_i;x^{-i}) \\\\</span>
+<span class="sd">                   &amp;= N\\times tc(x) - \\sum_{i=1}^{N}tc(x^{-i}) \\\\</span>
+<span class="sd">                   &amp;= tc(x) + dtc(x)</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -287,6 +304,12 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Compute S-information using Gaussian estimation.</span>
 
+<span class="sd">    .. math:: </span>
+
+<span class="sd">        \\Sigma(X) &amp;= \\sum_{i=1}^{N}I(X_i;X^{-i}) \\\\</span>
+<span class="sd">                   &amp;= N\\times TC(X) - \\sum_{i=1}^{N}TC(X^{-i}) \\\\</span>
+<span class="sd">                   &amp;= TC(X) + DTC(X)</span>
+<span class="sd">    </span>
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    data : NDArray[np.floating]</span>
@@ -329,7 +352,12 @@
     <span class="n">idxs</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,),</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Computes the dual total correlation using Gaussian estimation. </span>
+<span class="sd">    Computes the dual total correlation using Gaussian estimation. Note that this measure can be negative.</span>
+<span class="sd">    </span>
+<span class="sd">    .. math:: </span>
+
+<span class="sd">        dtc(x) &amp;= h(x) - \\sum_{i=1}^{N}h(x_i|x^{-i}) \\\\</span>
+<span class="sd">               &amp;= (N-1)\\times tc(x) - \\sum_{i=1}^{N}tc(x^{-i})</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -362,7 +390,12 @@
     <span class="n">cov</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">],</span> <span class="n">idxs</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,)</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Computes the dual total correlation. </span>
+<span class="sd">    Computes the dual total correlation using Gaussian estimation.</span>
+
+<span class="sd">    .. math:: </span>
+
+<span class="sd">        DTC(X) &amp;= H(X) - \\sum_{i=1}^{N}H(X_i|X^{-i}) \\\\</span>
+<span class="sd">               &amp;= (N-1)\\times TC(X) - \\sum_{i=1}^{N}TC(X^{-i})</span>
 <span class="sd">    </span>
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -407,6 +440,11 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Computes the local O-information for each sample using Gaussian estimation.</span>
 
+<span class="sd">    .. math::</span>
+
+<span class="sd">        \\omega(x) &amp;= (2-N)tc(x) + \\sum_{i=1}^{N}tc(x^{-i}) \\\\</span>
+<span class="sd">                   &amp;= tc(x) - dtc(x)</span>
+<span class="sd">    </span>
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    data : NDArray[np.floating]</span>
@@ -445,9 +483,12 @@
 <span class="k">def</span><span class="w"> </span><span class="nf">o_information</span><span class="p">(</span><span class="n">cov</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">],</span> <span class="n">idxs</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,))</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Compute O-information using Gaussian estimation.</span>
+<span class="sd">    O-information quantifies the balance between redundancy (positive values) and synergy (negative values) in multivariate information.</span>
+<span class="sd">    </span>
+<span class="sd">    .. math::</span>
 
-<span class="sd">    O-information quantifies the balance between redundancy (positive values)</span>
-<span class="sd">    and synergy (negative values) in multivariate information.</span>
+<span class="sd">        \\Omega(X) &amp;= (2-N)TC(X) + \\sum_{i=1}^{N}TC(X^{-i}) \\\\</span>
+<span class="sd">                   &amp;= TC(X) - DTC(X)</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -487,6 +528,13 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Computes the Tononi-Sporns-Edelman complexity using Gaussian</span>
 <span class="sd">    estimators.</span>
+<span class="sd">    </span>
+<span class="sd">    .. math::</span>
+
+<span class="sd">        TSE(X) &amp;= \\sum_{k=1}^{\\lfloor N/2\\rfloor} \\bigg\\langle I(X^{k}_j;X^{-k}_j) \\bigg\\rangle_{j} \\\\</span>
+<span class="sd">               &amp;= \\sum_{k=2}^{N}\\bigg[\\bigg(\\frac{k}{N}\\bigg)TC(X) - \\langle TC(X^{k}_{j}) \\rangle_{j}  \\bigg] </span>
+
+<span class="sd">    Runtimes scale very badly with system size (as it requires brute-forcing) all possible bipartitions of the system. If the system is too large, a sub-sampling approach is taken: at each scale, num_samples are drawn from the space of bipartitions.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -544,7 +592,7 @@
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    .. math:: </span>
-<span class="sd">        C(X) = DTC(X) / N </span>
+<span class="sd">        C(X) = \\frac{DTC(X)}{N} </span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -582,6 +630,11 @@
     <span class="n">idxs</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,),</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">    Computes the local description complexity for each sample using Gaussian estimation.</span>
+
+<span class="sd">    .. math::</span>
+<span class="sd">        c(x) = \\frac{dtc(x)}/N</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>

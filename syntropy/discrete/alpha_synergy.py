@@ -19,13 +19,11 @@ def alpha_synergistic_entropy(
 ) -> AlphaSynDist:
     """
     Computes the :math:`\\alpha`-synergistic entropy for a joint distribution
-    for a given value of :math:`\\alpha`. See:
+    for a given value of :math:`\\alpha`.
 
-        Varley, T. F. (2024).
-        A scalable synergy-first backbone decomposition of
-        higher-order structures in complex systems.
-        Npj Complexity, 1(1), 1–11.
-        https://doi.org/10.1038/s44260-024-00011-1
+    .. math::
+
+        h^{syn}_{\\alpha}(x) = \\min_{a\\subseteq x, |a|=\\alpha} h(x^{a}|x^{-a})
 
 
     Parameters
@@ -44,6 +42,14 @@ def alpha_synergistic_entropy(
     dict[tuple, float]
         The local alpha-synergy for each state.
 
+    References
+    ----------
+    Varley, T. F. (2024).
+    A scalable synergy-first backbone decomposition of
+    higher-order structures in complex systems.
+    Npj Complexity, 1(1), 1–11.
+    https://doi.org/10.1038/s44260-024-00011-1
+    
     """
     assert definition in {
         "min",
@@ -120,7 +126,7 @@ def partial_entropy_spectra(
     definition: str = "min",
 ) -> PartialSpectra:
     """
-    Computes the partial entropy spectrum for each state.
+    Computes the partial synergy for every value of :math:`alpha` (the spectrum) for each local state. 
 
     Parameters
     ----------
@@ -208,7 +214,7 @@ def partial_total_correlation_spectra(
     definition: str = "min",
 ) -> PartialSpectra:
     """
-    Computes the local total correlation spectrum for each state.
+    Computes the local total correlation spectrum for each state using the Kullback-Leibler divergence.
 
     Parameters
     ----------
