@@ -197,4 +197,4 @@ def evaluate_flow(
             log_probs = flow.log_prob(data, context=context)
         h = -log_probs.mean().item()
 
-    return h
+    return -log_probs, h

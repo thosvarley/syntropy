@@ -34,6 +34,7 @@
 <span></span><span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">nflows</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">initialize_flow</span><span class="p">,</span> <span class="n">train_flow</span><span class="p">,</span> <span class="n">evaluate_flow</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span>
 
 
 <div class="viewcode-block" id="differential_entropy">
@@ -41,15 +42,13 @@
 <span class="k">def</span><span class="w"> </span><span class="nf">differential_entropy</span><span class="p">(</span>
     <span class="n">idxs</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span>
     <span class="n">data</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
-    <span class="n">context</span><span class="p">:</span> <span class="kc">None</span> <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">data_test</span><span class="p">:</span> <span class="kc">None</span> <span class="o">|</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">flow_kwargs</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">train_kwargs</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">flow_kwargs</span><span class="p">:</span> <span class="kc">None</span> <span class="o">|</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">train_kwargs</span><span class="p">:</span> <span class="kc">None</span> <span class="o">|</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">verbose</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="n">nflows</span><span class="o">.</span><span class="n">flows</span><span class="o">.</span><span class="n">base</span><span class="o">.</span><span class="n">Flow</span><span class="p">]:</span>
-
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="n">nflows</span><span class="o">.</span><span class="n">flows</span><span class="o">.</span><span class="n">base</span><span class="o">.</span><span class="n">Flow</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Computes the differential entropy of the data. </span>
+<span class="sd">    Computes the differential entropy of the data.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -57,8 +56,6 @@
 <span class="sd">        The tuple of indices the differential entropy is computed for.</span>
 <span class="sd">    data : torch.Tensor</span>
 <span class="sd">        The training data, in samples x features format.</span>
-<span class="sd">    context : None | tuple[int]</span>
-<span class="sd">        If not None, the indices of the conditioning variables.</span>
 <span class="sd">    data_test : None | torch.Tensor</span>
 <span class="sd">        If not None, the testing data in samples x features format.</span>
 <span class="sd">    flow_kwargs : dict</span>
@@ -67,24 +64,18 @@
 <span class="sd">        Arguments for the utils.train_flow function.</span>
 <span class="sd">    verbose : bool</span>
 <span class="sd">        Whether to print the training progress.</span>
-<span class="sd">        </span>
+
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    float</span>
 
 <span class="sd">    nflows.flows.base.Flow</span>
-<span class="sd">        </span>
+
 
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">flow_kwargs</span> <span class="o">=</span> <span class="n">flow_kwargs</span> <span class="ow">or</span> <span class="p">{}</span>
     <span class="n">train_kwargs</span> <span class="o">=</span> <span class="n">train_kwargs</span> <span class="ow">or</span> <span class="p">{}</span>
-
-    <span class="c1"># select context tensor if provided</span>
-    <span class="n">context_arg</span><span class="p">:</span> <span class="kc">None</span> <span class="o">|</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="k">if</span> <span class="n">context</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">context_arg</span> <span class="o">=</span> <span class="n">data</span><span class="p">[:,</span> <span class="n">context</span><span class="p">]</span>
-        <span class="n">flow_kwargs</span><span class="p">[</span><span class="s2">&quot;dim_context&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">context</span><span class="p">)</span>
 
     <span class="c1"># initialize the flow</span>
     <span class="n">dim</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">idxs</span><span class="p">)</span>
@@ -94,40 +85,102 @@
     <span class="n">flow</span> <span class="o">=</span> <span class="n">train_flow</span><span class="p">(</span>
         <span class="n">flow</span><span class="o">=</span><span class="n">flow</span><span class="p">,</span>
         <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">[:,</span> <span class="n">idxs</span><span class="p">],</span>
-        <span class="n">context</span><span class="o">=</span><span class="n">context_arg</span><span class="p">,</span>
         <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">,</span>
         <span class="o">**</span><span class="n">train_kwargs</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="c1"># evaluation</span>
     <span class="n">eval_data</span> <span class="o">=</span> <span class="n">data</span> <span class="k">if</span> <span class="n">data_test</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">data_test</span>
-    <span class="n">eval_context</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="kc">None</span>
-        <span class="k">if</span> <span class="n">context</span> <span class="ow">is</span> <span class="kc">None</span>
-        <span class="k">else</span> <span class="p">(</span><span class="n">data_test</span><span class="p">[:,</span> <span class="n">context</span><span class="p">]</span> <span class="k">if</span> <span class="n">data_test</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">context_arg</span><span class="p">)</span>
+    <span class="n">ptw</span><span class="p">,</span> <span class="n">avg</span> <span class="o">=</span> <span class="n">evaluate_flow</span><span class="p">(</span><span class="n">flow</span><span class="p">,</span> <span class="n">eval_data</span><span class="p">[:,</span> <span class="n">idxs</span><span class="p">])</span>
+
+    <span class="k">return</span> <span class="n">ptw</span><span class="p">,</span> <span class="n">avg</span><span class="p">,</span> <span class="n">flow</span></div>
+
+
+
+<div class="viewcode-block" id="conditional_entropy">
+<a class="viewcode-back" href="../../../api/syntropy.neural.html#syntropy.neural.conditional_entropy">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">conditional_entropy</span><span class="p">(</span>
+    <span class="n">idxs_x</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span>
+    <span class="n">idxs_y</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span>
+    <span class="n">data</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
+    <span class="n">data_test</span><span class="p">:</span> <span class="kc">None</span> <span class="o">|</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">flow_kwargs</span><span class="p">:</span> <span class="kc">None</span> <span class="o">|</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">train_kwargs</span><span class="p">:</span> <span class="kc">None</span> <span class="o">|</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">verbose</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="n">nflows</span><span class="o">.</span><span class="n">flows</span><span class="o">.</span><span class="n">base</span><span class="o">.</span><span class="n">Flow</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Computes the differential entropy of the data.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    idxs_x : tuple[int, ...]</span>
+<span class="sd">        The tuple of indices the differential entropy is computed for.</span>
+<span class="sd">    idxs_y : tuple[int, ...]</span>
+<span class="sd">        The tuple of indices to condition on.</span>
+<span class="sd">    data : torch.Tensor</span>
+<span class="sd">        The training data, in samples x features format.</span>
+<span class="sd">    data_test : None | torch.Tensor</span>
+<span class="sd">        If not None, the testing data in samples x features format.</span>
+<span class="sd">    flow_kwargs : dict</span>
+<span class="sd">        Arguments for the utils.initalize_flow function.</span>
+<span class="sd">    train_kwargs : dict</span>
+<span class="sd">        Arguments for the utils.train_flow function.</span>
+<span class="sd">    verbose : bool</span>
+<span class="sd">        Whether to print the training progress.</span>
+
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    torch.Tensor</span>
+
+<span class="sd">    float</span>
+
+<span class="sd">    nflows.flows.base.Flow</span>
+
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">flow_kwargs</span> <span class="o">=</span> <span class="n">flow_kwargs</span> <span class="ow">or</span> <span class="p">{}</span>
+    <span class="n">train_kwargs</span> <span class="o">=</span> <span class="n">train_kwargs</span> <span class="ow">or</span> <span class="p">{}</span>
+
+    <span class="n">flow_kwargs</span><span class="p">[</span><span class="s2">&quot;dim_context&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">idxs_y</span><span class="p">)</span>
+
+    <span class="c1"># initialize the flow</span>
+    <span class="n">dim</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">idxs_x</span><span class="p">)</span>
+    <span class="n">flow</span> <span class="o">=</span> <span class="n">initialize_flow</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="n">dim</span><span class="p">,</span> <span class="o">**</span><span class="n">flow_kwargs</span><span class="p">)</span>
+
+    <span class="c1"># train the flow</span>
+    <span class="n">flow</span> <span class="o">=</span> <span class="n">train_flow</span><span class="p">(</span>
+        <span class="n">flow</span><span class="o">=</span><span class="n">flow</span><span class="p">,</span>
+        <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">[:,</span> <span class="n">idxs_x</span><span class="p">],</span>
+        <span class="n">context</span><span class="o">=</span><span class="n">data</span><span class="p">[:,</span> <span class="n">idxs_y</span><span class="p">],</span>
+        <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">train_kwargs</span><span class="p">,</span>
     <span class="p">)</span>
+    <span class="c1"># evaluation</span>
+    <span class="n">eval_data</span> <span class="o">=</span> <span class="n">data</span> <span class="k">if</span> <span class="n">data_test</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">data_test</span>
+    
+    <span class="n">ptw</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span>
+    <span class="n">avg</span><span class="p">:</span> <span class="nb">float</span>
 
-    <span class="n">h</span> <span class="o">=</span> <span class="n">evaluate_flow</span><span class="p">(</span><span class="n">flow</span><span class="p">,</span> <span class="n">eval_data</span><span class="p">[:,</span> <span class="n">idxs</span><span class="p">],</span> <span class="n">context</span><span class="o">=</span><span class="n">eval_context</span><span class="p">)</span>
+    <span class="n">ptw</span><span class="p">,</span> <span class="n">avg</span> <span class="o">=</span> <span class="n">evaluate_flow</span><span class="p">(</span><span class="n">flow</span><span class="p">,</span> <span class="n">eval_data</span><span class="p">[:,</span> <span class="n">idxs_x</span><span class="p">],</span> <span class="n">context</span><span class="o">=</span><span class="n">eval_data</span><span class="p">[:,</span> <span class="n">idxs_y</span><span class="p">])</span>
 
-    <span class="k">return</span> <span class="n">h</span><span class="p">,</span> <span class="n">flow</span></div>
+    <span class="k">return</span> <span class="n">ptw</span><span class="p">,</span> <span class="n">avg</span><span class="p">,</span> <span class="n">flow</span></div>
 
 
 
 <div class="viewcode-block" id="mutual_information">
 <a class="viewcode-back" href="../../../api/syntropy.neural.html#syntropy.neural.mutual_information">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">mutual_information</span><span class="p">(</span>
-    <span class="n">idxs_x</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span>
-    <span class="n">idxs_y</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span>
+    <span class="n">idxs_x</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span>
+    <span class="n">idxs_y</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span>
     <span class="n">data</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
-    <span class="n">context</span><span class="p">:</span> <span class="kc">None</span> <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">data_test</span><span class="p">:</span> <span class="kc">None</span> <span class="o">|</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">flow_kwargs</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">train_kwargs</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">flow_kwargs</span><span class="p">:</span> <span class="kc">None</span> <span class="o">|</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">train_kwargs</span><span class="p">:</span> <span class="kc">None</span> <span class="o">|</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">verbose</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Computes the mutual information between the elements given by idxs_x and idxs_y.</span>
-<span class="sd">    </span>
+
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    idxs_x : tuple[int, ...]</span>
@@ -146,48 +199,109 @@
 <span class="sd">        Arguments for the utils.train_flow function.</span>
 <span class="sd">    verbose : bool</span>
 <span class="sd">        Whether to print the training progress.</span>
-<span class="sd">        </span>
+
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    float</span>
-<span class="sd">        </span>
+
 
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">flow_kwargs</span> <span class="o">=</span> <span class="n">flow_kwargs</span> <span class="ow">or</span> <span class="p">{}</span>
     <span class="n">train_kwargs</span> <span class="o">=</span> <span class="n">train_kwargs</span> <span class="ow">or</span> <span class="p">{}</span>
 
-    <span class="k">if</span> <span class="n">context</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">context_arg</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="n">conditional_context_arg</span> <span class="o">=</span> <span class="n">idxs_y</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">context_arg</span> <span class="o">=</span> <span class="n">context</span>
-        <span class="n">conditional_context_arg</span> <span class="o">=</span> <span class="n">idxs_y</span> <span class="o">+</span> <span class="n">context</span>
-
-    <span class="n">h_x</span><span class="p">,</span>  <span class="n">_</span><span class="p">,</span> <span class="o">=</span> <span class="n">differential_entropy</span><span class="p">(</span>
+    <span class="n">ptw_x</span><span class="p">,</span> <span class="n">avg_x</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">differential_entropy</span><span class="p">(</span>
         <span class="n">idxs</span><span class="o">=</span><span class="n">idxs_x</span><span class="p">,</span>
         <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span>
-        <span class="n">context</span><span class="o">=</span><span class="n">context_arg</span><span class="p">,</span>
         <span class="n">data_test</span><span class="o">=</span><span class="n">data_test</span><span class="p">,</span>
         <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">,</span>
         <span class="n">flow_kwargs</span><span class="o">=</span><span class="n">flow_kwargs</span><span class="p">,</span>
         <span class="n">train_kwargs</span><span class="o">=</span><span class="n">train_kwargs</span><span class="p">,</span>
     <span class="p">)</span>
-    <span class="n">h_x_given_y</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">differential_entropy</span><span class="p">(</span>
-        <span class="n">idxs</span><span class="o">=</span><span class="n">idxs_x</span><span class="p">,</span>
+    <span class="n">ptw_cond</span><span class="p">,</span> <span class="n">avg_cond</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">conditional_entropy</span><span class="p">(</span>
+        <span class="n">idxs_x</span><span class="o">=</span><span class="n">idxs_x</span><span class="p">,</span>
+        <span class="n">idxs_y</span><span class="o">=</span><span class="n">idxs_y</span><span class="p">,</span>
         <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span>
-        <span class="n">context</span><span class="o">=</span><span class="n">conditional_context_arg</span><span class="p">,</span>
         <span class="n">data_test</span><span class="o">=</span><span class="n">data_test</span><span class="p">,</span>
         <span class="n">flow_kwargs</span><span class="o">=</span><span class="n">flow_kwargs</span><span class="p">,</span>
         <span class="n">train_kwargs</span><span class="o">=</span><span class="n">train_kwargs</span><span class="p">,</span>
         <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">,</span>
     <span class="p">)</span>
 
-    <span class="n">mi</span> <span class="o">=</span> <span class="n">h_x</span> <span class="o">-</span> <span class="n">h_x_given_y</span>
+    <span class="n">ptw</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span> <span class="o">=</span> <span class="n">ptw_x</span> <span class="o">-</span> <span class="n">ptw_cond</span>
+    <span class="n">mi</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">avg_x</span> <span class="o">-</span> <span class="n">avg_cond</span>
 
-    <span class="k">return</span> <span class="n">mi</span> </div>
+    <span class="k">return</span> <span class="n">ptw</span><span class="p">,</span> <span class="n">mi</span></div>
 
 
+
+<div class="viewcode-block" id="conditional_mutual_information">
+<a class="viewcode-back" href="../../../api/syntropy.neural.html#syntropy.neural.conditional_mutual_information">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">conditional_mutual_information</span><span class="p">(</span>
+    <span class="n">idxs_x</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span>
+    <span class="n">idxs_y</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span>
+    <span class="n">idxs_z</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span>
+    <span class="n">data</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
+    <span class="n">data_test</span><span class="p">:</span> <span class="kc">None</span> <span class="o">|</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">flow_kwargs</span><span class="p">:</span> <span class="kc">None</span> <span class="o">|</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">train_kwargs</span><span class="p">:</span> <span class="kc">None</span> <span class="o">|</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">verbose</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Computes the mutual information between the elements given by idxs_x and idxs_y.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    idxs_x : tuple[int, ...]</span>
+<span class="sd">        The tuple of indices the x variable.</span>
+<span class="sd">    idxs_y : tuple[int, ...]</span>
+<span class="sd">        The tuple of indices for the y variable.</span>
+<span class="sd">    data : torch.Tensor</span>
+<span class="sd">        The training data, in samples x features format.</span>
+<span class="sd">    context : None | tuple[int]</span>
+<span class="sd">        If not None, the indices of the conditioning variables.</span>
+<span class="sd">    data_test : None | torch.Tensor</span>
+<span class="sd">        If not None, the testing data in samples x features format.</span>
+<span class="sd">    flow_kwargs : dict</span>
+<span class="sd">        Arguments for the utils.initalize_flow function.</span>
+<span class="sd">    train_kwargs : dict</span>
+<span class="sd">        Arguments for the utils.train_flow function.</span>
+<span class="sd">    verbose : bool</span>
+<span class="sd">        Whether to print the training progress.</span>
+
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    float</span>
+
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">flow_kwargs</span> <span class="o">=</span> <span class="n">flow_kwargs</span> <span class="ow">or</span> <span class="p">{}</span>
+    <span class="n">train_kwargs</span> <span class="o">=</span> <span class="n">train_kwargs</span> <span class="ow">or</span> <span class="p">{}</span>
+
+    <span class="n">ptw_x_given_z</span><span class="p">,</span> <span class="n">avg_x_given_z</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">conditional_entropy</span><span class="p">(</span>
+        <span class="n">idxs_x</span><span class="o">=</span><span class="n">idxs_x</span><span class="p">,</span>
+        <span class="n">idxs_y</span><span class="o">=</span><span class="n">idxs_z</span><span class="p">,</span>
+        <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span>
+        <span class="n">data_test</span><span class="o">=</span><span class="n">data_test</span><span class="p">,</span>
+        <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">,</span>
+        <span class="n">flow_kwargs</span><span class="o">=</span><span class="n">flow_kwargs</span><span class="p">,</span>
+        <span class="n">train_kwargs</span><span class="o">=</span><span class="n">train_kwargs</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">ptw_x_given_yz</span><span class="p">,</span> <span class="n">avg_x_given_yz</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">conditional_entropy</span><span class="p">(</span>
+        <span class="n">idxs_x</span><span class="o">=</span><span class="n">idxs_x</span><span class="p">,</span>
+        <span class="n">idxs_y</span><span class="o">=</span><span class="n">idxs_y</span> <span class="o">+</span> <span class="n">idxs_z</span><span class="p">,</span>
+        <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span>
+        <span class="n">data_test</span><span class="o">=</span><span class="n">data_test</span><span class="p">,</span>
+        <span class="n">flow_kwargs</span><span class="o">=</span><span class="n">flow_kwargs</span><span class="p">,</span>
+        <span class="n">train_kwargs</span><span class="o">=</span><span class="n">train_kwargs</span><span class="p">,</span>
+        <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">ptw</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span> <span class="o">=</span> <span class="n">ptw_x_given_z</span> <span class="o">-</span> <span class="n">ptw_x_given_yz</span>
+    <span class="n">avg</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">avg_x_given_z</span> <span class="o">-</span> <span class="n">avg_x_given_yz</span>
+
+    <span class="k">return</span> <span class="n">ptw</span><span class="p">,</span> <span class="n">avg</span></div>
 
 </pre></div>
 
