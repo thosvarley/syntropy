@@ -160,8 +160,6 @@
 
 
 
-<div class="viewcode-block" id="local_k_wms">
-<a class="viewcode-back" href="../../../api/syntropy.gaussian.html#syntropy.gaussian.local_k_wms">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">local_k_wms</span><span class="p">(</span>
     <span class="n">k</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
     <span class="n">data</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">],</span>
@@ -209,12 +207,9 @@
         <span class="n">idxs</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">_idxs</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">)</span> <span class="k">if</span> <span class="n">j</span> <span class="o">!=</span> <span class="n">i</span><span class="p">)</span>
         <span class="n">sum_parts</span> <span class="o">+=</span> <span class="n">local_total_correlation</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">idxs</span><span class="p">,</span> <span class="p">:],</span> <span class="n">cov</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ix_</span><span class="p">(</span><span class="n">idxs</span><span class="p">,</span> <span class="n">idxs</span><span class="p">)])</span>
 
-    <span class="k">return</span> <span class="n">whole</span> <span class="o">-</span> <span class="n">sum_parts</span></div>
+    <span class="k">return</span> <span class="n">whole</span> <span class="o">-</span> <span class="n">sum_parts</span>
 
 
-
-<div class="viewcode-block" id="k_wms">
-<a class="viewcode-back" href="../../../api/syntropy.gaussian.html#syntropy.gaussian.k_wms">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">k_wms</span><span class="p">(</span><span class="n">k</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">cov</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">],</span> <span class="n">idxs</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,))</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    S-information, DTC, and negative O-information can all be written in a general form:</span>
@@ -254,8 +249,7 @@
         <span class="n">idxs_residual</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">_idxs</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">)</span> <span class="k">if</span> <span class="n">j</span> <span class="o">!=</span> <span class="n">i</span><span class="p">)</span>
         <span class="n">sum_parts</span> <span class="o">+=</span> <span class="n">total_correlation</span><span class="p">(</span><span class="n">cov</span><span class="p">[</span><span class="n">idxs_residual</span><span class="p">,</span> <span class="p">:][:,</span> <span class="n">idxs_residual</span><span class="p">])</span>
 
-    <span class="k">return</span> <span class="n">whole</span> <span class="o">-</span> <span class="n">sum_parts</span></div>
-
+    <span class="k">return</span> <span class="n">whole</span> <span class="o">-</span> <span class="n">sum_parts</span>
 
 
 <div class="viewcode-block" id="local_s_information">
@@ -622,8 +616,6 @@
 
 
 
-<div class="viewcode-block" id="local_description_complexity">
-<a class="viewcode-back" href="../../../api/syntropy.gaussian.html#syntropy.gaussian.local_description_complexity">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">local_description_complexity</span><span class="p">(</span>
     <span class="n">data</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">],</span>
     <span class="n">cov</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">]</span> <span class="o">=</span> <span class="n">COV_NULL</span><span class="p">,</span>
@@ -656,8 +648,7 @@
 
     <span class="n">N</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">cov</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="k">if</span> <span class="n">idxs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span> <span class="k">else</span> <span class="nb">float</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">idxs</span><span class="p">))</span>
 
-    <span class="k">return</span> <span class="n">local_k_wms</span><span class="p">(</span><span class="n">k</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">cov</span><span class="o">=</span><span class="n">cov</span><span class="p">,</span> <span class="n">idxs</span><span class="o">=</span><span class="n">idxs</span><span class="p">)</span> <span class="o">/</span> <span class="n">N</span></div>
-
+    <span class="k">return</span> <span class="n">local_k_wms</span><span class="p">(</span><span class="n">k</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">cov</span><span class="o">=</span><span class="n">cov</span><span class="p">,</span> <span class="n">idxs</span><span class="o">=</span><span class="n">idxs</span><span class="p">)</span> <span class="o">/</span> <span class="n">N</span>
 </pre></div>
 
           </div>

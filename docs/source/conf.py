@@ -53,3 +53,5 @@ napoleon_attr_annotations = True
 
 # Typehints settings
 autodoc_typehints = "description"
+
+autodoc_member_order = 'bysource'

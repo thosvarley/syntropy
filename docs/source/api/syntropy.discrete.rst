@@ -17,42 +17,10 @@ syntropy.discrete.alpha\_synergy module
    :show-inheritance:
    :undoc-members:
 
-syntropy.discrete.decompositions module
----------------------------------------
-
-.. automodule:: syntropy.discrete.decompositions
-   :members:
-   :show-inheritance:
-   :undoc-members:
-
-syntropy.discrete.distributions module
---------------------------------------
-
-.. automodule:: syntropy.discrete.distributions
-   :members:
-   :show-inheritance:
-   :undoc-members:
-
-syntropy.discrete.multivariate\_mi module
------------------------------------------
-
-.. automodule:: syntropy.discrete.multivariate_mi
-   :members:
-   :show-inheritance:
-   :undoc-members:
-
 syntropy.discrete.optimization module
 -------------------------------------
 
 .. automodule:: syntropy.discrete.optimization
-   :members:
-   :show-inheritance:
-   :undoc-members:
-
-syntropy.discrete.shannon module
---------------------------------
-
-.. automodule:: syntropy.discrete.shannon
    :members:
    :show-inheritance:
    :undoc-members:

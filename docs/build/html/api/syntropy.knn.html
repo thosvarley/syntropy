@@ -72,42 +72,6 @@ Problems of Information Transmission, 23(2), 9.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="syntropy.knn.dual_total_correlation">
-<span class="sig-prename descclassname"><span class="pre">syntropy.knn.</span></span><span class="sig-name descname"><span class="pre">dual_total_correlation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idxs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(-1,)</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/knn/multivariate_mi.html#dual_total_correlation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.knn.dual_total_correlation" title="Link to this definition">¶</a></dt>
-<dd><p>Compute dual total correlation using KSG estimation.
-Code adapted from JIDT
-<a class="reference external" href="https://github.com/jlizier/jidt/blob/master/java/source/infodynamics/measures/continuous/kraskov/DualTotalCorrelationCalculatorKraskov.java">https://github.com/jlizier/jidt/blob/master/java/source/infodynamics/measures/continuous/kraskov/DualTotalCorrelationCalculatorKraskov.java</a></p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>data</strong> (<em>NDArray</em><em>[</em><em>np.floating</em><em>]</em>) – Data array of shape (n_variables, n_samples)</p></li>
-<li><p><strong>k</strong> (<em>int</em>) – Number of nearest neighbors</p></li>
-<li><p><strong>idxs</strong> (<em>tuple</em><em>[</em><em>int</em><em>, </em><em>...</em><em>]</em>) – Indices of variables to use (-1 means all)</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p><ul class="simple">
-<li><p><em>NDArray[np.floating</em> – The local dual total correlation for each sample.</p></li>
-<li><p><em>float</em> – The expected dual total correlation over all samples</p></li>
-</ul>
-</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>tuple[<em>ndarray</em>[tuple[int, …], <em>dtype</em>[<em>floating</em>]], float]</p>
-</dd>
-</dl>
-<p class="rubric">References</p>
-<p>Abdallah, S. A., &amp; Plumbley, M. D. (2012).
-A measure of statistical complexity based on predictive information with application to finite spin systems.
-Physics Letters A, 376(4), 275–281.
-<a class="reference external" href="https://doi.org/10.1016/j.physleta.2011.10.066">https://doi.org/10.1016/j.physleta.2011.10.066</a></p>
-<p>Rosas, F., Mediano, P. A. M., Gastpar, M., &amp; Jensen, H. J. (2019).
-Quantifying High-order Interdependencies via Multivariate Extensions of the Mutual Information.
-Physical Review E, 100(3), Article 3.
-<a class="reference external" href="https://doi.org/10.1103/PhysRevE.100.032305">https://doi.org/10.1103/PhysRevE.100.032305</a></p>
-</dd></dl>
-
-<dl class="py function">
 <dt class="sig sig-object py" id="syntropy.knn.mutual_information">
 <span class="sig-prename descclassname"><span class="pre">syntropy.knn.</span></span><span class="sig-name descname"><span class="pre">mutual_information</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">idxs_x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idxs_y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">algorithm</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/knn/shannon.html#mutual_information"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.knn.mutual_information" title="Link to this definition">¶</a></dt>
 <dd><p>A wrapper function for the two KSG mutual information functions.</p>
@@ -142,81 +106,6 @@ Defaults to 1</p></li>
 <dd class="field-odd"><p>tuple[<em>ndarray</em>[tuple[int, …], <em>dtype</em>[<em>floating</em>]], float]</p>
 </dd>
 </dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="syntropy.knn.o_information">
-<span class="sig-prename descclassname"><span class="pre">syntropy.knn.</span></span><span class="sig-name descname"><span class="pre">o_information</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idxs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(-1,)</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/knn/multivariate_mi.html#o_information"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.knn.o_information" title="Link to this definition">¶</a></dt>
-<dd><p>Compute O-information using KSG estimation.
-Code adapted from JIDT
-<a class="reference external" href="https://github.com/jlizier/jidt/blob/master/java/source/infodynamics/measures/continuous/kraskov/OInfoCalculatorKraskov.java">https://github.com/jlizier/jidt/blob/master/java/source/infodynamics/measures/continuous/kraskov/OInfoCalculatorKraskov.java</a></p>
-<p>O-information quantifies the balance between redundancy (positive values)
-and synergy (negative values) in multivariate information.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>data</strong> (<em>NDArray</em><em>[</em><em>np.floating</em><em>]</em>) – Data array of shape (n_variables, n_samples)</p></li>
-<li><p><strong>k</strong> (<em>int</em>) – Number of nearest neighbors</p></li>
-<li><p><strong>idxs</strong> (<em>tuple</em><em>[</em><em>int</em><em>, </em><em>...</em><em>]</em>) – Indices of variables to use (-1 means all)</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p><ul class="simple">
-<li><p><em>NDArray[np.floating</em> – The local O-information for each sample.</p></li>
-<li><p><em>float</em> – The expected O-information over all samples</p></li>
-</ul>
-</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>tuple[<em>ndarray</em>[tuple[int, …], <em>dtype</em>[<em>floating</em>]], float]</p>
-</dd>
-</dl>
-<p class="rubric">References</p>
-<p>Rosas, F., Mediano, P. A. M., Gastpar, M., &amp; Jensen, H. J. (2019).
-Quantifying High-order Interdependencies via Multivariate
-Extensions of the Mutual Information.
-Physical Review E, 100(3), Article 3.
-<a class="reference external" href="https://doi.org/10.1103/PhysRevE.100.032305">https://doi.org/10.1103/PhysRevE.100.032305</a></p>
-<p>Varley, T. F., Pope, M., Faskowitz, J., &amp; Sporns, O. (2023).
-Multivariate information theory uncovers synergistic subsystems of the human cerebral cortex.
-Communications Biology, 6(1), Article 1.
-<a class="reference external" href="https://doi.org/10.1038/s42003-023-04843-w">https://doi.org/10.1038/s42003-023-04843-w</a></p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="syntropy.knn.s_information">
-<span class="sig-prename descclassname"><span class="pre">syntropy.knn.</span></span><span class="sig-name descname"><span class="pre">s_information</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idxs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(-1,)</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/knn/multivariate_mi.html#s_information"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.knn.s_information" title="Link to this definition">¶</a></dt>
-<dd><p>Compute S-information using KSG estimation.
-Code adapted from JIDT
-<a class="reference external" href="https://github.com/jlizier/jidt/blob/master/java/source/infodynamics/measures/continuous/kraskov/SInfoCalculatorKraskov.java">https://github.com/jlizier/jidt/blob/master/java/source/infodynamics/measures/continuous/kraskov/SInfoCalculatorKraskov.java</a></p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>data</strong> (<em>NDArray</em><em>[</em><em>np.floating</em><em>]</em>) – Data array of shape (n_variables, n_samples)</p></li>
-<li><p><strong>k</strong> (<em>int</em>) – Number of nearest neighbors</p></li>
-<li><p><strong>idxs</strong> (<em>tuple</em><em>[</em><em>int</em><em>, </em><em>...</em><em>]</em>) – Indices of variables to use (-1 means all)</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p><ul class="simple">
-<li><p><em>NDArray[np.floating</em> – The local S-information for each sample.</p></li>
-<li><p><em>float</em> – The expected S-information over all samples</p></li>
-</ul>
-</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>tuple[<em>ndarray</em>[tuple[int, …], <em>dtype</em>[<em>floating</em>]], float]</p>
-</dd>
-</dl>
-<p class="rubric">References</p>
-<p>Rosas, F., Mediano, P. A. M., Gastpar, M., &amp; Jensen, H. J. (2019).
-Quantifying High-order Interdependencies via Multivariate Extensions of the Mutual Information.
-Physical Review E, 100(3), Article 3.
-<a class="reference external" href="https://doi.org/10.1103/PhysRevE.100.032305">https://doi.org/10.1103/PhysRevE.100.032305</a></p>
-<p>Varley, T. F., Pope, M., Faskowitz, J., &amp; Sporns, O. (2023).
-Multivariate information theory uncovers synergistic subsystems of the human cerebral cortex.
-Communications Biology, 6(1), Article 1.
-<a class="reference external" href="https://doi.org/10.1038/s42003-023-04843-w">https://doi.org/10.1038/s42003-023-04843-w</a></p>
 </dd></dl>
 
 <dl class="py function">
@@ -268,14 +157,9 @@ Defaults to 1</p></li>
 </dl>
 </dd></dl>
 
-<section id="submodules">
-<h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading">¶</a></h2>
-</section>
-<section id="module-syntropy.knn.multivariate_mi">
-<span id="syntropy-knn-multivariate-mi-module"></span><h2>syntropy.knn.multivariate_mi module<a class="headerlink" href="#module-syntropy.knn.multivariate_mi" title="Link to this heading">¶</a></h2>
 <dl class="py function">
-<dt class="sig sig-object py" id="syntropy.knn.multivariate_mi.dual_total_correlation">
-<span class="sig-prename descclassname"><span class="pre">syntropy.knn.multivariate_mi.</span></span><span class="sig-name descname"><span class="pre">dual_total_correlation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idxs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(-1,)</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/knn/multivariate_mi.html#dual_total_correlation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.knn.multivariate_mi.dual_total_correlation" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="syntropy.knn.dual_total_correlation">
+<span class="sig-prename descclassname"><span class="pre">syntropy.knn.</span></span><span class="sig-name descname"><span class="pre">dual_total_correlation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idxs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(-1,)</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/knn/multivariate_mi.html#dual_total_correlation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.knn.dual_total_correlation" title="Link to this definition">¶</a></dt>
 <dd><p>Compute dual total correlation using KSG estimation.
 Code adapted from JIDT
 <a class="reference external" href="https://github.com/jlizier/jidt/blob/master/java/source/infodynamics/measures/continuous/kraskov/DualTotalCorrelationCalculatorKraskov.java">https://github.com/jlizier/jidt/blob/master/java/source/infodynamics/measures/continuous/kraskov/DualTotalCorrelationCalculatorKraskov.java</a></p>
@@ -310,8 +194,44 @@ Physical Review E, 100(3), Article 3.
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="syntropy.knn.multivariate_mi.o_information">
-<span class="sig-prename descclassname"><span class="pre">syntropy.knn.multivariate_mi.</span></span><span class="sig-name descname"><span class="pre">o_information</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idxs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(-1,)</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/knn/multivariate_mi.html#o_information"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.knn.multivariate_mi.o_information" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="syntropy.knn.s_information">
+<span class="sig-prename descclassname"><span class="pre">syntropy.knn.</span></span><span class="sig-name descname"><span class="pre">s_information</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idxs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(-1,)</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/knn/multivariate_mi.html#s_information"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.knn.s_information" title="Link to this definition">¶</a></dt>
+<dd><p>Compute S-information using KSG estimation.
+Code adapted from JIDT
+<a class="reference external" href="https://github.com/jlizier/jidt/blob/master/java/source/infodynamics/measures/continuous/kraskov/SInfoCalculatorKraskov.java">https://github.com/jlizier/jidt/blob/master/java/source/infodynamics/measures/continuous/kraskov/SInfoCalculatorKraskov.java</a></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> (<em>NDArray</em><em>[</em><em>np.floating</em><em>]</em>) – Data array of shape (n_variables, n_samples)</p></li>
+<li><p><strong>k</strong> (<em>int</em>) – Number of nearest neighbors</p></li>
+<li><p><strong>idxs</strong> (<em>tuple</em><em>[</em><em>int</em><em>, </em><em>...</em><em>]</em>) – Indices of variables to use (-1 means all)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><em>NDArray[np.floating</em> – The local S-information for each sample.</p></li>
+<li><p><em>float</em> – The expected S-information over all samples</p></li>
+</ul>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple[<em>ndarray</em>[tuple[int, …], <em>dtype</em>[<em>floating</em>]], float]</p>
+</dd>
+</dl>
+<p class="rubric">References</p>
+<p>Rosas, F., Mediano, P. A. M., Gastpar, M., &amp; Jensen, H. J. (2019).
+Quantifying High-order Interdependencies via Multivariate Extensions of the Mutual Information.
+Physical Review E, 100(3), Article 3.
+<a class="reference external" href="https://doi.org/10.1103/PhysRevE.100.032305">https://doi.org/10.1103/PhysRevE.100.032305</a></p>
+<p>Varley, T. F., Pope, M., Faskowitz, J., &amp; Sporns, O. (2023).
+Multivariate information theory uncovers synergistic subsystems of the human cerebral cortex.
+Communications Biology, 6(1), Article 1.
+<a class="reference external" href="https://doi.org/10.1038/s42003-023-04843-w">https://doi.org/10.1038/s42003-023-04843-w</a></p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="syntropy.knn.o_information">
+<span class="sig-prename descclassname"><span class="pre">syntropy.knn.</span></span><span class="sig-name descname"><span class="pre">o_information</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idxs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(-1,)</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/knn/multivariate_mi.html#o_information"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.knn.o_information" title="Link to this definition">¶</a></dt>
 <dd><p>Compute O-information using KSG estimation.
 Code adapted from JIDT
 <a class="reference external" href="https://github.com/jlizier/jidt/blob/master/java/source/infodynamics/measures/continuous/kraskov/OInfoCalculatorKraskov.java">https://github.com/jlizier/jidt/blob/master/java/source/infodynamics/measures/continuous/kraskov/OInfoCalculatorKraskov.java</a></p>
@@ -348,42 +268,11 @@ Communications Biology, 6(1), Article 1.
 <a class="reference external" href="https://doi.org/10.1038/s42003-023-04843-w">https://doi.org/10.1038/s42003-023-04843-w</a></p>
 </dd></dl>
 
-<dl class="py function">
-<dt class="sig sig-object py" id="syntropy.knn.multivariate_mi.s_information">
-<span class="sig-prename descclassname"><span class="pre">syntropy.knn.multivariate_mi.</span></span><span class="sig-name descname"><span class="pre">s_information</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idxs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(-1,)</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/knn/multivariate_mi.html#s_information"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.knn.multivariate_mi.s_information" title="Link to this definition">¶</a></dt>
-<dd><p>Compute S-information using KSG estimation.
-Code adapted from JIDT
-<a class="reference external" href="https://github.com/jlizier/jidt/blob/master/java/source/infodynamics/measures/continuous/kraskov/SInfoCalculatorKraskov.java">https://github.com/jlizier/jidt/blob/master/java/source/infodynamics/measures/continuous/kraskov/SInfoCalculatorKraskov.java</a></p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>data</strong> (<em>NDArray</em><em>[</em><em>np.floating</em><em>]</em>) – Data array of shape (n_variables, n_samples)</p></li>
-<li><p><strong>k</strong> (<em>int</em>) – Number of nearest neighbors</p></li>
-<li><p><strong>idxs</strong> (<em>tuple</em><em>[</em><em>int</em><em>, </em><em>...</em><em>]</em>) – Indices of variables to use (-1 means all)</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p><ul class="simple">
-<li><p><em>NDArray[np.floating</em> – The local S-information for each sample.</p></li>
-<li><p><em>float</em> – The expected S-information over all samples</p></li>
-</ul>
-</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>tuple[<em>ndarray</em>[tuple[int, …], <em>dtype</em>[<em>floating</em>]], float]</p>
-</dd>
-</dl>
-<p class="rubric">References</p>
-<p>Rosas, F., Mediano, P. A. M., Gastpar, M., &amp; Jensen, H. J. (2019).
-Quantifying High-order Interdependencies via Multivariate Extensions of the Mutual Information.
-Physical Review E, 100(3), Article 3.
-<a class="reference external" href="https://doi.org/10.1103/PhysRevE.100.032305">https://doi.org/10.1103/PhysRevE.100.032305</a></p>
-<p>Varley, T. F., Pope, M., Faskowitz, J., &amp; Sporns, O. (2023).
-Multivariate information theory uncovers synergistic subsystems of the human cerebral cortex.
-Communications Biology, 6(1), Article 1.
-<a class="reference external" href="https://doi.org/10.1038/s42003-023-04843-w">https://doi.org/10.1038/s42003-023-04843-w</a></p>
-</dd></dl>
-
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading">¶</a></h2>
+</section>
+<section id="module-syntropy.knn.multivariate_mi">
+<span id="syntropy-knn-multivariate-mi-module"></span><h2>syntropy.knn.multivariate_mi module<a class="headerlink" href="#module-syntropy.knn.multivariate_mi" title="Link to this heading">¶</a></h2>
 <dl class="py function">
 <dt class="sig sig-object py" id="syntropy.knn.multivariate_mi.total_correlation">
 <span class="sig-prename descclassname"><span class="pre">syntropy.knn.multivariate_mi.</span></span><span class="sig-name descname"><span class="pre">total_correlation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idxs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(-1,)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">algorithm</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/knn/multivariate_mi.html#total_correlation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.knn.multivariate_mi.total_correlation" title="Link to this definition">¶</a></dt>
@@ -503,6 +392,117 @@ Physical Review E, 69(6), 066138.
 Information Theoretical Analysis of Multivariate Correlation.
 IBM Journal of Research and Development, 4(1), Article 1.
 <a class="reference external" href="https://doi.org/10.1147/rd.41.0066">https://doi.org/10.1147/rd.41.0066</a></p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="syntropy.knn.multivariate_mi.dual_total_correlation">
+<span class="sig-prename descclassname"><span class="pre">syntropy.knn.multivariate_mi.</span></span><span class="sig-name descname"><span class="pre">dual_total_correlation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idxs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(-1,)</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/knn/multivariate_mi.html#dual_total_correlation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.knn.multivariate_mi.dual_total_correlation" title="Link to this definition">¶</a></dt>
+<dd><p>Compute dual total correlation using KSG estimation.
+Code adapted from JIDT
+<a class="reference external" href="https://github.com/jlizier/jidt/blob/master/java/source/infodynamics/measures/continuous/kraskov/DualTotalCorrelationCalculatorKraskov.java">https://github.com/jlizier/jidt/blob/master/java/source/infodynamics/measures/continuous/kraskov/DualTotalCorrelationCalculatorKraskov.java</a></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> (<em>NDArray</em><em>[</em><em>np.floating</em><em>]</em>) – Data array of shape (n_variables, n_samples)</p></li>
+<li><p><strong>k</strong> (<em>int</em>) – Number of nearest neighbors</p></li>
+<li><p><strong>idxs</strong> (<em>tuple</em><em>[</em><em>int</em><em>, </em><em>...</em><em>]</em>) – Indices of variables to use (-1 means all)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><em>NDArray[np.floating</em> – The local dual total correlation for each sample.</p></li>
+<li><p><em>float</em> – The expected dual total correlation over all samples</p></li>
+</ul>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple[<em>ndarray</em>[tuple[int, …], <em>dtype</em>[<em>floating</em>]], float]</p>
+</dd>
+</dl>
+<p class="rubric">References</p>
+<p>Abdallah, S. A., &amp; Plumbley, M. D. (2012).
+A measure of statistical complexity based on predictive information with application to finite spin systems.
+Physics Letters A, 376(4), 275–281.
+<a class="reference external" href="https://doi.org/10.1016/j.physleta.2011.10.066">https://doi.org/10.1016/j.physleta.2011.10.066</a></p>
+<p>Rosas, F., Mediano, P. A. M., Gastpar, M., &amp; Jensen, H. J. (2019).
+Quantifying High-order Interdependencies via Multivariate Extensions of the Mutual Information.
+Physical Review E, 100(3), Article 3.
+<a class="reference external" href="https://doi.org/10.1103/PhysRevE.100.032305">https://doi.org/10.1103/PhysRevE.100.032305</a></p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="syntropy.knn.multivariate_mi.s_information">
+<span class="sig-prename descclassname"><span class="pre">syntropy.knn.multivariate_mi.</span></span><span class="sig-name descname"><span class="pre">s_information</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idxs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(-1,)</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/knn/multivariate_mi.html#s_information"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.knn.multivariate_mi.s_information" title="Link to this definition">¶</a></dt>
+<dd><p>Compute S-information using KSG estimation.
+Code adapted from JIDT
+<a class="reference external" href="https://github.com/jlizier/jidt/blob/master/java/source/infodynamics/measures/continuous/kraskov/SInfoCalculatorKraskov.java">https://github.com/jlizier/jidt/blob/master/java/source/infodynamics/measures/continuous/kraskov/SInfoCalculatorKraskov.java</a></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> (<em>NDArray</em><em>[</em><em>np.floating</em><em>]</em>) – Data array of shape (n_variables, n_samples)</p></li>
+<li><p><strong>k</strong> (<em>int</em>) – Number of nearest neighbors</p></li>
+<li><p><strong>idxs</strong> (<em>tuple</em><em>[</em><em>int</em><em>, </em><em>...</em><em>]</em>) – Indices of variables to use (-1 means all)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><em>NDArray[np.floating</em> – The local S-information for each sample.</p></li>
+<li><p><em>float</em> – The expected S-information over all samples</p></li>
+</ul>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple[<em>ndarray</em>[tuple[int, …], <em>dtype</em>[<em>floating</em>]], float]</p>
+</dd>
+</dl>
+<p class="rubric">References</p>
+<p>Rosas, F., Mediano, P. A. M., Gastpar, M., &amp; Jensen, H. J. (2019).
+Quantifying High-order Interdependencies via Multivariate Extensions of the Mutual Information.
+Physical Review E, 100(3), Article 3.
+<a class="reference external" href="https://doi.org/10.1103/PhysRevE.100.032305">https://doi.org/10.1103/PhysRevE.100.032305</a></p>
+<p>Varley, T. F., Pope, M., Faskowitz, J., &amp; Sporns, O. (2023).
+Multivariate information theory uncovers synergistic subsystems of the human cerebral cortex.
+Communications Biology, 6(1), Article 1.
+<a class="reference external" href="https://doi.org/10.1038/s42003-023-04843-w">https://doi.org/10.1038/s42003-023-04843-w</a></p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="syntropy.knn.multivariate_mi.o_information">
+<span class="sig-prename descclassname"><span class="pre">syntropy.knn.multivariate_mi.</span></span><span class="sig-name descname"><span class="pre">o_information</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idxs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(-1,)</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/knn/multivariate_mi.html#o_information"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.knn.multivariate_mi.o_information" title="Link to this definition">¶</a></dt>
+<dd><p>Compute O-information using KSG estimation.
+Code adapted from JIDT
+<a class="reference external" href="https://github.com/jlizier/jidt/blob/master/java/source/infodynamics/measures/continuous/kraskov/OInfoCalculatorKraskov.java">https://github.com/jlizier/jidt/blob/master/java/source/infodynamics/measures/continuous/kraskov/OInfoCalculatorKraskov.java</a></p>
+<p>O-information quantifies the balance between redundancy (positive values)
+and synergy (negative values) in multivariate information.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> (<em>NDArray</em><em>[</em><em>np.floating</em><em>]</em>) – Data array of shape (n_variables, n_samples)</p></li>
+<li><p><strong>k</strong> (<em>int</em>) – Number of nearest neighbors</p></li>
+<li><p><strong>idxs</strong> (<em>tuple</em><em>[</em><em>int</em><em>, </em><em>...</em><em>]</em>) – Indices of variables to use (-1 means all)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><em>NDArray[np.floating</em> – The local O-information for each sample.</p></li>
+<li><p><em>float</em> – The expected O-information over all samples</p></li>
+</ul>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple[<em>ndarray</em>[tuple[int, …], <em>dtype</em>[<em>floating</em>]], float]</p>
+</dd>
+</dl>
+<p class="rubric">References</p>
+<p>Rosas, F., Mediano, P. A. M., Gastpar, M., &amp; Jensen, H. J. (2019).
+Quantifying High-order Interdependencies via Multivariate
+Extensions of the Mutual Information.
+Physical Review E, 100(3), Article 3.
+<a class="reference external" href="https://doi.org/10.1103/PhysRevE.100.032305">https://doi.org/10.1103/PhysRevE.100.032305</a></p>
+<p>Varley, T. F., Pope, M., Faskowitz, J., &amp; Sporns, O. (2023).
+Multivariate information theory uncovers synergistic subsystems of the human cerebral cortex.
+Communications Biology, 6(1), Article 1.
+<a class="reference external" href="https://doi.org/10.1038/s42003-023-04843-w">https://doi.org/10.1038/s42003-023-04843-w</a></p>
 </dd></dl>
 
 </section>
@@ -648,9 +648,117 @@ Physical Review E, 69(6), 066138.
 <a class="reference external" href="https://doi.org/10.1103/PhysRevE.69.066138">https://doi.org/10.1103/PhysRevE.69.066138</a></p>
 </dd></dl>
 
+<dl class="py function">
+<dt class="sig sig-object py" id="syntropy.knn.shannon.conditional_mutual_information_1">
+<span class="sig-prename descclassname"><span class="pre">syntropy.knn.shannon.</span></span><span class="sig-name descname"><span class="pre">conditional_mutual_information_1</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">idxs_x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idxs_y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idxs_z</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/knn/shannon.html#conditional_mutual_information_1"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.knn.shannon.conditional_mutual_information_1" title="Link to this definition">¶</a></dt>
+<dd><p>Computes the conditional mutual information I(X;Y|Z) using the KSG algorithm 1
+as described in Frenzel &amp; Pompe (2007).</p>
+<p>The conditional mutual information is estimated using:</p>
+<div class="math notranslate nohighlight">
+\[\hat{I}(X;Y|Z) = \psi(k) - \langle \psi(n_{xz}+1) + \psi(n_{yz}+1) - \psi(n_z+1) \rangle\]</div>
+<p>where n_{xz}, n_{yz}, and n_z are the counts of neighbors within the epsilon-ball
+in the respective subspaces.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>idxs_x</strong> (<em>tuple</em><em>[</em><em>int</em><em>, </em><em>...</em><em>]</em>) – Indices of the x-variable.</p></li>
+<li><p><strong>idxs_y</strong> (<em>tuple</em><em>[</em><em>int</em><em>, </em><em>...</em><em>]</em>) – Indices of the y-variable.</p></li>
+<li><p><strong>idxs_z</strong> (<em>tuple</em><em>[</em><em>int</em><em>, </em><em>...</em><em>]</em>) – Indices of the conditioning variable z.</p></li>
+<li><p><strong>k</strong> (<em>int</em>) – Number of nearest neighbors</p></li>
+<li><p><strong>data</strong> (<em>NDArray</em><em>[</em><em>np.floating</em><em>]</em>) – Numpy array of shape (n_variables, n_samples)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><em>NDArray[np.floating]</em> – The local conditional mutual information for each sample.</p></li>
+<li><p><em>float</em> – The expected conditional mutual information over all samples</p></li>
+</ul>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple[<em>ndarray</em>[tuple[int, …], <em>dtype</em>[<em>floating</em>]], float]</p>
+</dd>
+</dl>
+<p class="rubric">References</p>
+<p>Frenzel, S., &amp; Pompe, B. (2007).
+Partial Mutual Information for Coupling Analysis of Multivariate Time Series.
+Physical Review Letters, 99(20), 204101.
+<a class="reference external" href="https://doi.org/10.1103/PhysRevLett.99.204101">https://doi.org/10.1103/PhysRevLett.99.204101</a></p>
+<p>Kraskov, A., Stögbauer, H., &amp; Grassberger, P. (2004).
+Estimating mutual information.
+Physical Review E, 69(6), 066138.
+<a class="reference external" href="https://doi.org/10.1103/PhysRevE.69.066138">https://doi.org/10.1103/PhysRevE.69.066138</a></p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="syntropy.knn.shannon.conditional_mutual_information_2">
+<span class="sig-prename descclassname"><span class="pre">syntropy.knn.shannon.</span></span><span class="sig-name descname"><span class="pre">conditional_mutual_information_2</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">idxs_x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idxs_y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idxs_z</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/knn/shannon.html#conditional_mutual_information_2"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.knn.shannon.conditional_mutual_information_2" title="Link to this definition">¶</a></dt>
+<dd><p>Computes the conditional mutual information I(X;Y|Z) using the KSG algorithm 2
+as adapted by Wibral et al. (2014) from Frenzel &amp; Pompe (2007).</p>
+<p>The conditional mutual information is estimated using:</p>
+<div class="math notranslate nohighlight">
+\[\hat{I}(X;Y|Z) = \psi(k) - 2/k + \langle \psi(n_z) - \psi(n_{xz}) - \psi(n_{yz}) + 1/n_{xz} + 1/n_{yz} \rangle\]</div>
+<p>where epsilon_x, epsilon_y, and epsilon_z are the maximum norms in each subspace
+among the k nearest neighbors in the joint space.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>idxs_x</strong> (<em>tuple</em><em>[</em><em>int</em><em>, </em><em>...</em><em>]</em>) – Indices of the x-variable.</p></li>
+<li><p><strong>idxs_y</strong> (<em>tuple</em><em>[</em><em>int</em><em>, </em><em>...</em><em>]</em>) – Indices of the y-variable.</p></li>
+<li><p><strong>idxs_z</strong> (<em>tuple</em><em>[</em><em>int</em><em>, </em><em>...</em><em>]</em>) – Indices of the conditioning variable z.</p></li>
+<li><p><strong>k</strong> (<em>int</em>) – Number of nearest neighbors</p></li>
+<li><p><strong>data</strong> (<em>NDArray</em><em>[</em><em>np.floating</em><em>]</em>) – Numpy array of shape (n_variables, n_samples)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><em>NDArray[np.floating]</em> – The local conditional mutual information for each sample.</p></li>
+<li><p><em>float</em> – The expected conditional mutual information over all samples</p></li>
+</ul>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple[<em>ndarray</em>[tuple[int, …], <em>dtype</em>[<em>floating</em>]], float]</p>
+</dd>
+</dl>
+<p class="rubric">References</p>
+<p>Wibral, M., Vicente, R., &amp; Lindner, M. (2014).
+Transfer Entropy in Neuroscience.
+In Directed Information Measures in Neuroscience (pp. 3-36). Springer.
+<a class="reference external" href="https://doi.org/10.1007/978-3-642-54474-3_1">https://doi.org/10.1007/978-3-642-54474-3_1</a></p>
+<p>Frenzel, S., &amp; Pompe, B. (2007).
+Partial Mutual Information for Coupling Analysis of Multivariate Time Series.
+Physical Review Letters, 99(20), 204101.
+<a class="reference external" href="https://doi.org/10.1103/PhysRevLett.99.204101">https://doi.org/10.1103/PhysRevLett.99.204101</a></p>
+<p>Kraskov, A., Stögbauer, H., &amp; Grassberger, P. (2004).
+Estimating mutual information.
+Physical Review E, 69(6), 066138.
+<a class="reference external" href="https://doi.org/10.1103/PhysRevE.69.066138">https://doi.org/10.1103/PhysRevE.69.066138</a></p>
+</dd></dl>
+
 </section>
 <section id="module-syntropy.knn.utils">
 <span id="syntropy-knn-utils-module"></span><h2>syntropy.knn.utils module<a class="headerlink" href="#module-syntropy.knn.utils" title="Link to this heading">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="syntropy.knn.utils.check_idxs">
+<span class="sig-prename descclassname"><span class="pre">syntropy.knn.utils.</span></span><span class="sig-name descname"><span class="pre">check_idxs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">idxs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">N</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/knn/utils.html#check_idxs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.knn.utils.check_idxs" title="Link to this definition">¶</a></dt>
+<dd><p>Checks whether the idxs input is -1, in which case, defaults to all processes.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>idxs</strong> (<em>tuple</em><em>[</em><em>int</em><em>, </em><em>...</em><em>]</em>) – Indices of variables to use (-1 means all)</p></li>
+<li><p><strong>N</strong> (<em>int</em>) – The total number of processes.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Either idxs, or a tuple of all processes.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple[int, …]</p>
+</dd>
+</dl>
+</dd></dl>
+
 <dl class="py function">
 <dt class="sig sig-object py" id="syntropy.knn.utils.build_tree_and_get_distances">
 <span class="sig-prename descclassname"><span class="pre">syntropy.knn.utils.</span></span><span class="sig-name descname"><span class="pre">build_tree_and_get_distances</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/knn/utils.html#build_tree_and_get_distances"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.knn.utils.build_tree_and_get_distances" title="Link to this definition">¶</a></dt>
@@ -672,26 +780,6 @@ Physical Review E, 69(6), 066138.
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>tuple[<em>cKDTree</em>, <em>ndarray</em>[tuple[int, …], <em>dtype</em>[<em>floating</em>]], <em>ndarray</em>[tuple[int, …], <em>dtype</em>[<em>integer</em>]]]</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="syntropy.knn.utils.check_idxs">
-<span class="sig-prename descclassname"><span class="pre">syntropy.knn.utils.</span></span><span class="sig-name descname"><span class="pre">check_idxs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">idxs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">N</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/knn/utils.html#check_idxs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.knn.utils.check_idxs" title="Link to this definition">¶</a></dt>
-<dd><p>Checks whether the idxs input is -1, in which case, defaults to all processes.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>idxs</strong> (<em>tuple</em><em>[</em><em>int</em><em>, </em><em>...</em><em>]</em>) – Indices of variables to use (-1 means all)</p></li>
-<li><p><strong>N</strong> (<em>int</em>) – The total number of processes.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Either idxs, or a tuple of all processes.</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>tuple[int, …]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -750,19 +838,7 @@ Physical Review E, 69(6), 066138.
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="syntropy.discrete.html">syntropy.discrete package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="syntropy.gaussian.html">syntropy.gaussian package</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">syntropy.knn package</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#syntropy.knn.differential_entropy"><code class="docutils literal notranslate"><span class="pre">differential_entropy()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="#syntropy.knn.dual_total_correlation"><code class="docutils literal notranslate"><span class="pre">dual_total_correlation()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="#syntropy.knn.mutual_information"><code class="docutils literal notranslate"><span class="pre">mutual_information()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="#syntropy.knn.o_information"><code class="docutils literal notranslate"><span class="pre">o_information()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="#syntropy.knn.s_information"><code class="docutils literal notranslate"><span class="pre">s_information()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="#syntropy.knn.total_correlation"><code class="docutils literal notranslate"><span class="pre">total_correlation()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="#submodules">Submodules</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#module-syntropy.knn.multivariate_mi">syntropy.knn.multivariate_mi module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#module-syntropy.knn.shannon">syntropy.knn.shannon module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#module-syntropy.knn.utils">syntropy.knn.utils module</a></li>
-</ul>
-</li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">syntropy.knn package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="syntropy.neural.html">syntropy.neural package</a></li>
 </ul>
 

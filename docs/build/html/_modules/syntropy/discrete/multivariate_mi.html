@@ -94,8 +94,6 @@
 
 
 
-<div class="viewcode-block" id="k_wms">
-<a class="viewcode-back" href="../../../api/syntropy.discrete.html#syntropy.discrete.k_wms">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">k_wms</span><span class="p">(</span><span class="n">k</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">joint_distribution</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span> <span class="nb">float</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="p">(</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">dict</span><span class="p">,</span> <span class="nb">float</span><span class="p">],</span> <span class="nb">float</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    S-information, DTC, and negative O-information can all be written in a general form:</span>
@@ -164,8 +162,7 @@
     <span class="n">ptw</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="p">{</span><span class="n">state</span><span class="p">:</span> <span class="n">ptw_whole</span><span class="p">[</span><span class="n">state</span><span class="p">]</span> <span class="o">-</span> <span class="n">ptw_sum_parts</span><span class="p">[</span><span class="n">state</span><span class="p">]</span> <span class="k">for</span> <span class="n">state</span> <span class="ow">in</span> <span class="n">states</span><span class="p">}</span>
     <span class="n">avg</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">avg_whole</span> <span class="o">-</span> <span class="n">avg_sum_parts</span>
 
-    <span class="k">return</span> <span class="n">ptw</span><span class="p">,</span> <span class="n">avg</span></div>
-
+    <span class="k">return</span> <span class="n">ptw</span><span class="p">,</span> <span class="n">avg</span>
 
 
 <div class="viewcode-block" id="s_information">

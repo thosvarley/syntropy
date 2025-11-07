@@ -78,7 +78,7 @@ Example
    examples
 
 .. toctree::
-   :maxdepth: 3
+   :maxdepth: 1
    :caption: API Reference:
 
    api/syntropy.discrete
