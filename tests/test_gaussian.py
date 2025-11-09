@@ -24,6 +24,7 @@ from syntropy.gaussian.temporal import (
     differential_entropy_rate,
     mutual_information_rate,
     total_correlation_rate,
+    o_information_rate
 )
 
 data_path = pathlib.Path(__file__).parent
@@ -76,28 +77,28 @@ def test_mutual_information():
 
 def test_higher_order_mi():
 
-    inputs = (0, 1, 2, 3)
+    idxs = (0, 1, 2, 3)
 
-    tc = mi.total_correlation(cov, inputs)
-    dtc = mi.dual_total_correlation(cov, inputs)
-    o = mi.o_information(cov, inputs)
-    s = mi.s_information(cov, inputs)
+    tc = mi.total_correlation(cov, idxs)
+    dtc = mi.dual_total_correlation(cov, idxs)
+    o = mi.o_information(cov, idxs)
+    s = mi.s_information(cov, idxs)
 
     assert tc - dtc == pytest.approx(o, abs=pytest_abs)
     assert tc + dtc == pytest.approx(s, abs=pytest_abs)
 
-    ltc = mi.local_total_correlation(data, cov, inputs)
-    ldtc = mi.local_dual_total_correlation(data, cov, inputs)
-    lo = mi.local_o_information(data, cov, inputs)
-    ls = mi.local_s_information(data, cov, inputs)
+    ltc = mi.local_total_correlation(data, cov, idxs)
+    ldtc = mi.local_dual_total_correlation(data, cov, idxs)
+    lo = mi.local_o_information(data, cov, idxs)
+    ls = mi.local_s_information(data, cov, idxs)
 
     assert ltc.mean() == pytest.approx(tc, abs=pytest_abs)
     assert ldtc.mean() == pytest.approx(dtc, abs=pytest_abs)
     assert lo.mean() == pytest.approx(o, abs=pytest_abs)
     assert ls.mean() == pytest.approx(s, abs=pytest_abs)
 
-    c = mi.description_complexity(cov, inputs)
-    assert c == pytest.approx(dtc / len(inputs), abs=pytest_abs)
+    c = mi.description_complexity(cov, idxs)
+    assert c == pytest.approx(dtc / len(idxs), abs=pytest_abs)
 
     triad = np.array(
         [
@@ -122,18 +123,18 @@ def test_higher_order_mi():
     for i in range(3):
         residuals = tuple(j for j in range(3) if j != i)
         sum_diffs += shannon.differential_entropy(
-            triad, inputs=(i,)
-        ) - shannon.differential_entropy(triad, inputs=residuals)
+            triad, idxs=(i,)
+        ) - shannon.differential_entropy(triad, idxs=residuals)
 
     assert whole + sum_diffs == pytest.approx(mi.o_information(triad), abs=pytest_abs)
 
 
 def test_pid():
 
-    inputs = (0, 1)
+    idxs = (0, 1)
     target = (3, 4)
-    ptw, avg = pid(inputs, target, data, cov)
-    mi = shannon.mutual_information(inputs, target, cov)
+    ptw, avg = pid(idxs, target, data, cov)
+    mi = shannon.mutual_information(idxs, target, cov)
 
     assert sum(avg.values()) == pytest.approx(mi, abs=pytest_abs)
 
@@ -143,27 +144,27 @@ def test_pid():
 
 def test_ped():
 
-    inputs = (0, 1, 2, 3)
+    idxs = (0, 1, 2, 3)
 
-    ptw, avg = ped(inputs, data, cov)
-    h = shannon.differential_entropy(cov, inputs)
+    ptw, avg = ped(idxs, data, cov)
+    h = shannon.differential_entropy(cov, idxs)
 
     assert sum(avg.values()) == pytest.approx(h, abs=pytest_abs)
 
 
 def test_gid():
 
-    inputs = (0, 1, 2, 3)
-    cov_prior = np.eye(len(inputs))
-    cov_posterior = cov[inputs, :][:, inputs]
+    idxs = (0, 1, 2, 3)
+    cov_prior = np.eye(len(idxs))
+    cov_posterior = cov[np.ix_(idxs, idxs)]
 
-    ptw, avg = gid(inputs, data, cov_posterior, cov_prior)
+    ptw, avg = gid(idxs, data, cov_posterior, cov_prior)
 
     dkl = shannon.kullback_leibler_divergence(cov_posterior, cov_prior)
     assert sum(avg.values()) == pytest.approx(dkl, abs=pytest_abs)
 
     ldkl = shannon.local_kullback_leibler_divergence(
-        cov_posterior, cov_prior, data[inputs, :]
+        cov_posterior, cov_prior, data[idxs, :]
     )
 
     assert ldkl.mean() == pytest.approx(sum(avg.values()), abs=pytest_abs)
@@ -208,3 +209,18 @@ def test_gaussian_rate():
     analytic = 0.5 * (np.log(2 * np.pi * np.e * (eps**2))) - (0.5 * np.log(1 - (a**2)))
 
     assert np.isclose(hX, analytic, rtol=1e-2)
+
+def test_oinfo_rate():
+
+    T = 5_000_000
+
+    noise = np.random.randn(3, T)
+    
+    _, mi_joint = mutual_information_rate((0,1), (2,), noise, nperseg=2**13)
+    _, mi_1 = mutual_information_rate((0,),(2,), noise, nperseg=2**13)
+    _, mi_2 = mutual_information_rate((1,),(2,), noise, nperseg=2**13)
+
+    _, oir = o_information_rate((0,1,2), noise, nperseg=2**13)
+
+    assert oir == pytest.approx(mi_1 + mi_2 - mi_joint, abs=pytest_abs)
+

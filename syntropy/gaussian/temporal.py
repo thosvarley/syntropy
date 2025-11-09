@@ -39,7 +39,7 @@ def construct_csd_tensor(
                 nperseg=nperseg,
             )
             Pij = np.fft.fftshift(Pij)
-            S[:i, j] = Pij.real
+            S[:, i, j] = Pij.real
             S[:, j, i] = np.conj(Pij).real
 
     omega = 2 * np.pi * f / fs
@@ -270,8 +270,8 @@ def k_wms_rate(
         idxs=idxs, data=data, fs=fs, nperseg=nperseg
     )
 
-    ptw_whole *= N0 - k
-    avg_whole *= N0 - k
+    ptw_whole *= (N0 - k)
+    avg_whole *= (N0 - k)
 
     ptw_sum_parts: NDArray[np.floating] = np.zeros_like(ptw_whole)
     avg_sum_parts: float = 0.0
