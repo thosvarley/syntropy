@@ -13,7 +13,9 @@ from .optimization import constrained_maximum_entropy_distributions
 binom_lookup = {N: {k: comb(N, k, exact=True) for k in range(N)} for N in range(16)}
 
 
-def total_correlation(joint_distribution: dict[tuple[int, ...], float]) -> (tuple[dict, float], float):
+def total_correlation(
+    joint_distribution: dict[tuple[int, ...], float],
+) -> (tuple[dict, float], float):
     """
     Computes the average and pointwise total correlations:
 
@@ -58,7 +60,9 @@ def total_correlation(joint_distribution: dict[tuple[int, ...], float]) -> (tupl
     return ptw, avg
 
 
-def k_wms(k: int, joint_distribution: dict[tuple[int, ...], float]) -> (tuple[dict, float], float):
+def k_wms(
+    k: int, joint_distribution: dict[tuple[int, ...], float]
+) -> (tuple[dict, float], float):
     """
     S-information, DTC, and negative O-information can all be written in a general form:
 
@@ -91,7 +95,7 @@ def k_wms(k: int, joint_distribution: dict[tuple[int, ...], float]) -> (tuple[di
 
     """
 
-    states: list[tuple[int,...]] = list(joint_distribution.keys())
+    states: list[tuple[int, ...]] = list(joint_distribution.keys())
     N: int = len(states[0])
 
     ptw_tc: dict
@@ -106,7 +110,6 @@ def k_wms(k: int, joint_distribution: dict[tuple[int, ...], float]) -> (tuple[di
     ptw_sum_parts = {state: 0 for state in states}
 
     for i in range(N):
-
         residuals: tuple = tuple(j for j in range(N) if j != i)
 
         reduced_distribution: dict = marginalize_out((i,), joint_distribution)
@@ -129,7 +132,9 @@ def k_wms(k: int, joint_distribution: dict[tuple[int, ...], float]) -> (tuple[di
     return ptw, avg
 
 
-def s_information(joint_distribution: dict[tuple[int, ...], float]) -> (tuple[dict, float], float):
+def s_information(
+    joint_distribution: dict[tuple[int, ...], float],
+) -> (tuple[dict, float], float):
     """
     Computes the local and expected S-information for the joint distribution.
 
@@ -174,7 +179,9 @@ def s_information(joint_distribution: dict[tuple[int, ...], float]) -> (tuple[di
     return ptw, avg
 
 
-def dual_total_correlation(joint_distribution: dict[tuple[int, ...], float]) -> (tuple[dict, float], float):
+def dual_total_correlation(
+    joint_distribution: dict[tuple[int, ...], float],
+) -> (tuple[dict, float], float):
     """
     Computes the local and expected dual total correlations for the joint distribution.
 
@@ -217,7 +224,9 @@ def dual_total_correlation(joint_distribution: dict[tuple[int, ...], float]) -> 
     return ptw, avg
 
 
-def o_information(joint_distribution: dict[tuple[int, ...], float]) -> (tuple[dict, float], float):
+def o_information(
+    joint_distribution: dict[tuple[int, ...], float],
+) -> (tuple[dict, float], float):
     """
     Computes the local and expected O-informations for the joint distribution.
     O-information quantifies the balance between redundancy (positive values) and synergy (negative values) in multivariate information.
@@ -262,11 +271,13 @@ def o_information(joint_distribution: dict[tuple[int, ...], float]) -> (tuple[di
     return {state: -ptw[state] for state in ptw.keys()}, -avg
 
 
-def co_information(joint_distribution: dict[tuple[int, ...], float]) -> (tuple[dict, float], float):
+def co_information(
+    joint_distribution: dict[tuple[int, ...], float],
+) -> (tuple[dict, float], float):
     """
     Computes the cO-information, the third generalization of bivariate mutual information. Unlike total correlation and dual total correlation, the cO-information can be negative and is difficult to interpret.
-    
-    .. math:: 
+
+    .. math::
         Co(X) = \\sum_{\\xi\\subseteq X}(-1)^{|\\xi|}H(\\xi)
 
     Parameters
@@ -302,9 +313,7 @@ def co_information(joint_distribution: dict[tuple[int, ...], float]) -> (tuple[d
     avg: float = 0.0
 
     for state in joint_distribution.keys():
-
         for source in h_marginals.keys():
-
             sign = (-1) ** len(source)
 
             ptw[state] -= sign * h_marginals[source][reduce_state(state, source)]
@@ -314,7 +323,9 @@ def co_information(joint_distribution: dict[tuple[int, ...], float]) -> (tuple[d
     return ptw, avg
 
 
-def tse_complexity(joint_distribution: dict[tuple[int, ...], float], num_samples) -> float:
+def tse_complexity(
+    joint_distribution: dict[tuple[int, ...], float], num_samples
+) -> float:
     """
     The Tononi-Sporns-Edelman neural complexity measure, which provides a measure of the balance between integration and segregation across scales.
 
@@ -363,7 +374,6 @@ def tse_complexity(joint_distribution: dict[tuple[int, ...], float], num_samples
     exp_tcs[-1] = tc_whole
 
     for k in range(1, N):  # For each layer of the TSE-leaf.
-
         binom: int = binom_lookup[N][k]
 
         if (
@@ -381,7 +391,6 @@ def tse_complexity(joint_distribution: dict[tuple[int, ...], float], num_samples
 
         sample: tuple
         for sample in samples:
-
             marginal: dict = get_marginal_distribution(sample, joint_distribution)
             tcs += total_correlation(marginal)[1]
 
@@ -390,15 +399,17 @@ def tse_complexity(joint_distribution: dict[tuple[int, ...], float], num_samples
     return (null_tcs - exp_tcs).sum()
 
 
-def description_complexity(joint_distribution: dict[tuple[int, ...], float]) -> (tuple[dict, float], float):
+def description_complexity(
+    joint_distribution: dict[tuple[int, ...], float],
+) -> (tuple[dict, float], float):
     """
     The description complexity was proposed by Tononi and Sporns as a
     heuristic, easy-to-compute approximation of the full TSE-Complexity.
     Later shown by Varley et al., to be directly proportional to
     the dual total correlation.
 
-    .. math:: 
-        
+    .. math::
+
         C(X) = \\frac{DTC(X)}{N}
 
 
@@ -417,7 +428,7 @@ def description_complexity(joint_distribution: dict[tuple[int, ...], float]) -> 
         The pointwise description complexity.
     avg : float
         The average description complexity.
-    
+
     References
     ----------
     Varley, T. F., Pope, M., Faskowitz, J., & Sporns, O. (2023).
@@ -439,14 +450,16 @@ def description_complexity(joint_distribution: dict[tuple[int, ...], float]) -> 
     return ptw, avg
 
 
-def connected_information(joint_distribution: dict[tuple[int, ...], float], maximum_order: int = -1) -> list[float]:
+def connected_information(
+    joint_distribution: dict[tuple[int, ...], float], maximum_order: int = -1
+) -> list[float]:
     """
     Returns the connected information profile from Schneidman et al.,
     which decomposes the total correlation into contributing parts of
     different orders:
-    
-    .. math:: 
-        TC(X) = \\sum_{k=2}^{N}TC^{k}(X) 
+
+    .. math::
+        TC(X) = \\sum_{k=2}^{N}TC^{k}(X)
 
     Where the `k` superscript refers to the maximum-entropy distribution that preserves all marginals of order `k`.
 
@@ -478,27 +491,19 @@ def connected_information(joint_distribution: dict[tuple[int, ...], float], maxi
     """
 
     N: int = len(list(joint_distribution.keys())[0])
-    profile: list = []
-    maxent: dict[tuple[int,...], float] = constrained_maximum_entropy_distributions(joint_distribution, order=1)
-
-    profile.append(shannon_entropy(maxent)[1])
-    print(shannon_entropy(maxent)[1])
-
     if maximum_order == -1:
         maximum_order = N
+    
+    profile: list[float] = []
 
-    order: int
-    for order in range(2, maximum_order):
-
-        maxent: dict = constrained_maximum_entropy_distributions(
-            joint_distribution, order=order
+    for order in range(1, maximum_order + 1):
+        maxent: dict[tuple[int, ...], float] = (
+            constrained_maximum_entropy_distributions(
+                joint_distribution=joint_distribution, order=order
+            )
         )
+        profile.append(shannon_entropy(maxent)[1])
 
-        entropy: float = shannon_entropy(maxent)[1]
-
-        if order == 2:
-            profile.append(entropy)
-        else:
-            profile.append(profile[-1] - entropy)
+    profile = [profile[i-1] - profile[i] for i in range(1, len(profile))]
 
     return profile

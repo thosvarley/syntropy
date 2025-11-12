@@ -10,7 +10,7 @@ import pytest
 
 from syntropy.discrete.optimization import constrained_maximum_entropy_distributions
 from syntropy.discrete.distributions import (GIANT_BIT, XOR_DIST, SUMMED_DICE, 
-                                          RANDOM_DIST_2, RANDOM_DIST_3)
+                                          RANDOM_DIST_2, RANDOM_DIST_3, RANDOM_DIST_4)
 from syntropy.discrete import multivariate_mi as mi 
 from syntropy.discrete import shannon
 from syntropy.discrete.decompositions import (partial_entropy_decomposition as ped, 
@@ -167,3 +167,10 @@ def test_gid():
     
     assert avg[((0,1,2),)] == pytest.approx(1.0)
     assert sum(avg.values()) == pytest.approx(shannon.kullback_leibler_divergence(XOR_DIST, maxent)[1])
+
+def test_connected_information():
+    
+    profile = mi.connected_information(RANDOM_DIST_4)
+    tc = mi.total_correlation(RANDOM_DIST_4)[1]
+
+    assert sum(profile) == pytest.approx(tc)
