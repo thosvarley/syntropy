@@ -4,6 +4,9 @@ Syntropy is a Python package for information-theoretic analysis of discrete and 
 
 Wherever possible, syntropy provides discrete and Gaussian estimators for a given function (entropy, mutual information, total correlation, etc). 
 
+#### Documentation 
+Read the documentation [here](https://syntropy.readthedocs.io/en/latest/).
+
 #### Estimators 
 
 Information theoretic analysis requires estimating entropies from different kinds of data - discrete and continuous. This is a non-trivial problem, especially in the case of real-valued data, as the underlying probability distributions can be non-parametric. The Syntropy package implements functions with three classes of estimators: discrete, continuous using Gaussian assumptions, and continuous estimators using normalizing flows.  
