@@ -11,10 +11,14 @@ COV_NULL: NDArray[np.floating] = np.array([[-1.0]])
 def check_cov(
     cov: NDArray[np.floating], data: NDArray[np.floating]
 ) -> NDArray[np.floating]:
-    if cov[0, 0] == -1:
-        cov_ = np.cov(data, ddof=0.0)
+
+    if cov.shape == ():
+        cov_ = cov 
     else:
-        cov_ = cov.copy()
+        if cov[0, 0] == -1:
+            cov_ = np.cov(data, ddof=0.0)
+        else:
+            cov_ = cov.copy()
 
     return cov_
 

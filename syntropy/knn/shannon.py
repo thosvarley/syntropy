@@ -89,7 +89,7 @@ def mutual_information(
 
     Returns
     -------
-    NDArray[np.floating
+    NDArray[np.floating]
         The local mutual information for each sample.
     float
         The expected mutual information over all samples
