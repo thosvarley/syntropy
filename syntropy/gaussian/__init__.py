@@ -1,11 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-Created on Mon Feb 10 21:09:55 2025
-
-@author: thosvarley
-"""
-
 from .shannon import (
     differential_entropy,
     local_differential_entropy, 
