@@ -3,6 +3,7 @@ from numpy.typing import NDArray
 from .. import gaussian
 from .. import knn
 
+
 def shannon_entropy(
     discrete_vars: NDArray[np.integer],
     continuous_vars: NDArray[np.floating],
@@ -19,10 +20,10 @@ def shannon_entropy(
         Numpy array of the discrete variables, of shape (n_variables, n_samples)
     continuous_vars : NDArray[np.floating]
         Numpy array of the continuous variables, of shape (n_variables, n_samples)
-    continuous_estimator : str 
+    continuous_estimator : str
         Whether to use a Gaussian or KNN-based estimator of the continuous entropy. Options are "gaussian" or "knn".
     k : int (optional)
-        If a KNN-based estimator is selected, sets the k-value. Defaults to 5.    
+        If a KNN-based estimator is selected, sets the k-value. Defaults to 5.
 
     Returns
     -------
@@ -43,7 +44,7 @@ def shannon_entropy(
     probs: NDArray[np.floating] = counts / counts.sum()
 
     avg: float = -np.sum(probs * np.log(probs))
-    ptw: NDArray[np.floating] = np.zeros((1,continuous_vars.shape[1]))
+    ptw: NDArray[np.floating] = np.zeros((1, continuous_vars.shape[1]))
 
     conditional_entropy: float = 0.0
     for i in range(unq.shape[1]):
@@ -54,7 +55,7 @@ def shannon_entropy(
 
         cov_conditional: NDArray[np.floating] = np.cov(continuous_vars[:, mask], ddof=0)
 
-        ptw[:,mask] += gaussian.local_differential_entropy(
+        ptw[:, mask] += gaussian.local_differential_entropy(
             continuous_vars[:, mask], cov_conditional
         )
         conditional_entropy += probs[i] * gaussian.differential_entropy(cov_conditional)
@@ -119,15 +120,15 @@ def conditional_entropy(
         counts: NDArray[np.integer]
         unq, counts = np.unique(discrete_vars, axis=1, return_counts=True)
         probs: NDArray[np.floating] = counts / counts.sum()
-        
-        ptw_marginal: NDArray[np.floating] = np.zeros((1,discrete_vars.shape[1]))
+
+        ptw_marginal: NDArray[np.floating] = np.zeros((1, discrete_vars.shape[1]))
         avg_marginal: float = -np.sum(probs * np.log(probs))
 
         for i in range(unq.shape[1]):
             state: NDArray[np.integer] = unq[:, [i]]
             mask: NDArray[np.bool_] = np.all(discrete_vars == state, axis=0)
 
-            ptw_marginal[:,mask] = -np.log(probs[i])
+            ptw_marginal[:, mask] = -np.log(probs[i])
 
     avg: float = avg_joint - avg_marginal
     ptw: NDArray[np.floating] = ptw_joint - ptw_marginal
@@ -166,8 +167,10 @@ def mutual_information(
     cov: NDArray[np.floating] = np.cov(continuous_vars, ddof=0)
 
     avg: float = gaussian.differential_entropy(cov)
-    ptw: NDArray[np.floating] = gaussian.local_differential_entropy(continuous_vars, cov)
-    
+    ptw: NDArray[np.floating] = gaussian.local_differential_entropy(
+        continuous_vars, cov
+    )
+
     unq: NDArray[np.integer]
     counts: NDArray[np.integer]
     unq, counts = np.unique(discrete_vars, axis=1, return_counts=True)
@@ -184,8 +187,8 @@ def mutual_information(
         local_conditional: NDArray[np.floating] = gaussian.local_differential_entropy(
             continuous_vars[:, mask], cov_conditional
         )
-        ptw[:,mask] -= local_conditional
+        ptw[:, mask] -= local_conditional
 
     avg -= conditional_entropy
 
-    return avg, ptw
+    return ptw, avg

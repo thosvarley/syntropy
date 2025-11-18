@@ -51,7 +51,7 @@ def differential_entropy(
     psi_k: float = digamma(k)
     psi_N: float = digamma(N)
 
-    _, distances, _ = build_tree_and_get_distances(data[idxs], k=k)
+    _, distances, _ = build_tree_and_get_distances(data[idxs, :], k=k)
 
     ptw: NDArray[np.floating] = -psi_k + psi_N + d * np.log(2 * distances[:, -1])
 
@@ -227,6 +227,26 @@ def mutual_information_2(
     return ptw, ptw.mean()
 
 
+def conditional_mutual_information(
+    idxs_x: tuple[int, ...],
+    idxs_y: tuple[int, ...],
+    idxs_z: tuple[int, ...],
+    k: int,
+    data: NDArray[np.floating],
+    algorithm=1,
+) -> tuple[NDArray[np.floating], float]:
+    assert algorithm in {1, 2}, "Algorithm must be 1 or 2."
+
+    if algorithm == 1:
+        return conditional_mutual_information_1(
+            idxs_x=idxs_x, idxs_y=idxs_y, idxs_z=idxs_z, k=k, data=data
+        )
+    elif algorithm == 2:
+        return conditional_mutual_information_2(
+            idxs_x=idxs_x, idxs_y=idxs_y, idxs_z=idxs_z, k=k, data=data
+        )
+
+
 def conditional_mutual_information_1(
     idxs_x: tuple[int, ...],
     idxs_y: tuple[int, ...],
@@ -383,7 +403,7 @@ def conditional_mutual_information_2(
 
     N: int = data.shape[1]
     psi_k: float = digamma(k)
-    
+
     # Determine inverse k term based on whether there's a conditional
     inverse_k_term: float = 2.0 / k if len(idxs_z) > 0 else 1.0 / k
 
@@ -421,20 +441,38 @@ def conditional_mutual_information_2(
 
     # Count neighbors within or on the boundary in each subspace
     # For algorithm 2, we use <= instead of < for the radius check
-    n_xz: NDArray[np.integer] = np.array([
-        tree_xz.query_ball_point(data[idxs_xz, i], r=max(eps_x[i], eps_z[i]), p=np.inf, return_length=True)
-        for i in range(N)
-    ])
-    
-    n_yz: NDArray[np.integer] = np.array([
-        tree_yz.query_ball_point(data[idxs_yz, i], r=max(eps_y[i], eps_z[i]), p=np.inf, return_length=True)
-        for i in range(N)
-    ])
-    
-    n_z: NDArray[np.integer] = np.array([
-        tree_z.query_ball_point(data[idxs_z, i], r=eps_z[i], p=np.inf, return_length=True)
-        for i in range(N)
-    ])
+    n_xz: NDArray[np.integer] = np.array(
+        [
+            tree_xz.query_ball_point(
+                data[idxs_xz, i],
+                r=max(eps_x[i], eps_z[i]),
+                p=np.inf,
+                return_length=True,
+            )
+            for i in range(N)
+        ]
+    )
+
+    n_yz: NDArray[np.integer] = np.array(
+        [
+            tree_yz.query_ball_point(
+                data[idxs_yz, i],
+                r=max(eps_y[i], eps_z[i]),
+                p=np.inf,
+                return_length=True,
+            )
+            for i in range(N)
+        ]
+    )
+
+    n_z: NDArray[np.integer] = np.array(
+        [
+            tree_z.query_ball_point(
+                data[idxs_z, i], r=eps_z[i], p=np.inf, return_length=True
+            )
+            for i in range(N)
+        ]
+    )
 
     # Compute inverse terms (set to 0 if no conditional variable)
     inv_n_xz: NDArray[np.floating] = 1.0 / n_xz if len(idxs_z) > 0 else np.zeros(N)
@@ -442,9 +480,13 @@ def conditional_mutual_information_2(
 
     # Compute local conditional mutual information
     ptw: NDArray[np.floating] = (
-        psi_k - inverse_k_term
-        + digamma(n_z) - digamma(n_xz) - digamma(n_yz)
-        + inv_n_xz + inv_n_yz
+        psi_k
+        - inverse_k_term
+        + digamma(n_z)
+        - digamma(n_xz)
+        - digamma(n_yz)
+        + inv_n_xz
+        + inv_n_yz
     )
 
     return ptw, ptw.mean()
