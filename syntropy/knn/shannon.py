@@ -53,7 +53,8 @@ def differential_entropy(
 
     _, distances, _ = build_tree_and_get_distances(data[idxs, :], k=k)
 
-    ptw: NDArray[np.floating] = -psi_k + psi_N + d * np.log(2 * distances[:, -1])
+    ptw: NDArray[np.floating] = np.zeros((1, N))
+    ptw[0, :] += -psi_k + psi_N + d * np.log(2 * distances[:, -1])
 
     return ptw, ptw.mean()
 
@@ -151,13 +152,13 @@ def mutual_information_1(
     distances: NDArray[np.floating]
     _, distances, _ = build_tree_and_get_distances(data[idxs_xy, :], k=k)
 
-    ptw: NDArray[np.floating] = np.full(N, psi_k + psi_N)
+    ptw: NDArray[np.floating] = np.full((1, N), psi_k + psi_N)
     for idxs in (idxs_x, idxs_y):
         tree, _, _ = build_tree_and_get_distances(data[idxs, :], k=k)
         counts: NDArray[np.integer] = get_counts_from_tree(
             tree, data[idxs, :], distances[:, -1]
         )
-        ptw -= digamma(counts + 1)
+        ptw[0, :] -= digamma(counts + 1)
 
     return ptw, ptw.mean()
 
@@ -209,7 +210,7 @@ def mutual_information_2(
     _, distances, indices = build_tree_and_get_distances(data[idxs_xy, :], k=k)
     neighbors: NDArray[np.integer] = indices[:, 1:]
 
-    ptw: NDArray[np.floating] = np.full(N, psi_k - (1 / k) + psi_N)
+    ptw: NDArray[np.floating] = np.full((1, N), psi_k - (1 / k) + psi_N)
     for idxs in (idxs_x, idxs_y):
         data_idx: NDArray[np.floating] = data[idxs, :].T
         eps: NDArray[np.floating] = np.repeat(-np.inf, N)
@@ -222,7 +223,7 @@ def mutual_information_2(
 
         tree, distances, _ = build_tree_and_get_distances(data_idx.T, k=k)
         counts = get_counts_from_tree(tree, data_idx.T, eps)
-        ptw -= digamma(counts)
+        ptw[0, :] -= digamma(counts)
 
     return ptw, ptw.mean()
 
@@ -327,9 +328,8 @@ def conditional_mutual_information_1(
     n_z: NDArray[np.integer] = get_counts_from_tree(tree_z, data[idxs_z, :], eps)
 
     # Compute local conditional mutual information
-    ptw: NDArray[np.floating] = (
-        psi_k - digamma(n_xz + 1) - digamma(n_yz + 1) + digamma(n_z + 1)
-    )
+    ptw: NDArray[np.floating] = np.zeros((1, N), dtype=np.floating)
+    ptw[0, :] += psi_k - digamma(n_xz + 1) - digamma(n_yz + 1) + digamma(n_z + 1)
 
     return ptw, ptw.mean()
 
@@ -479,7 +479,8 @@ def conditional_mutual_information_2(
     inv_n_yz: NDArray[np.floating] = 1.0 / n_yz if len(idxs_z) > 0 else np.zeros(N)
 
     # Compute local conditional mutual information
-    ptw: NDArray[np.floating] = (
+    ptw: NDArray[np.floating] = np.zeros((1, N), dtype=np.floating)
+    ptw[0, :] += (
         psi_k
         - inverse_k_term
         + digamma(n_z)

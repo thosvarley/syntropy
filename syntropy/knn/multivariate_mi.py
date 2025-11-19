@@ -2,7 +2,7 @@ import numpy as np
 from numpy.typing import NDArray
 from scipy.special import digamma
 from scipy.spatial import cKDTree
-from .utils import check_idxs, build_tree_and_get_distances, get_counts_from_tree 
+from .utils import check_idxs, build_tree_and_get_distances, get_counts_from_tree
 
 
 def total_correlation(
@@ -12,7 +12,7 @@ def total_correlation(
     algorithm: int = 1,
 ) -> tuple[NDArray[np.floating], float]:
     """
-    A wrapper function for the two TC functions. 
+    A wrapper function for the two TC functions.
 
     Parameters
     ----------
@@ -23,7 +23,7 @@ def total_correlation(
     idxs : tuple[int, ...]
         Indices of variables to use (-1 means all)
     algorithm : int
-        Whether to use algorithm 1 or 2. 
+        Whether to use algorithm 1 or 2.
         Defaults to 1
 
     See Also
@@ -33,13 +33,13 @@ def total_correlation(
 
     Returns
     -------
-    NDArray[np.floating 
+    NDArray[np.floating
         The local total correlation for each sample.
     float
         The expected total correlation over all samples
 
     """
-    
+
     assert algorithm in {1, 2}, "Algorithm must be 1 or 2."
 
     if algorithm == 1:
@@ -52,9 +52,9 @@ def total_correlation_1(
     data: NDArray[np.floating], k: int, idxs: tuple[int, ...] = (-1,)
 ) -> tuple[NDArray[np.floating], float]:
     """
-    Computes the Kraskov, Stogbauer, Grassberger estimate of the total correlation using the first algorithm presented Kraskov et. al (2004) 
-    
-    .. math:: 
+    Computes the Kraskov, Stogbauer, Grassberger estimate of the total correlation using the first algorithm presented Kraskov et. al (2004)
+
+    .. math::
         \hat{TC}(X) = \psi(k) - (m-1)\psi(N) -\\langle \psi(n_{x_{1}}+1) + \ldots + \psi(n_{x_{N}}+1)\\rangle
 
     Parameters
@@ -68,7 +68,7 @@ def total_correlation_1(
 
     Returns
     -------
-    NDArray[np.floating 
+    NDArray[np.floating
         The local total correlation for each sample.
     float
         The expected total correlation over all samples
@@ -79,18 +79,18 @@ def total_correlation_1(
     Estimating mutual information.
     Physical Review E, 69(6), 066138.
     https://doi.org/10.1103/PhysRevE.69.066138
-    
-    Watanabe, S. (1960). 
+
+    Watanabe, S. (1960).
     Information Theoretical Analysis of Multivariate Correlation.
     IBM Journal of Research and Development, 4(1), Article 1.
     https://doi.org/10.1147/rd.41.0066
-    
+
     """
-    idxs_: tuple[int,...] = check_idxs(idxs, data.shape[0])
+    idxs_: tuple[int, ...] = check_idxs(idxs, data.shape[0])
 
     N: int = data.shape[1]
     m: int = len(idxs_)
-    
+
     psi_k, psi_N = digamma([k, N])
 
     tree: cKDTree = cKDTree(data[idxs_, :].T)
@@ -98,17 +98,17 @@ def total_correlation_1(
     distances, _ = tree.query(data[idxs_, :].T, k=k + 1, p=np.inf)
     eps: NDArray[np.floating] = distances[:, -1]
 
-    ptw: NDArray[np.floating] = np.zeros(N)
+    ptw: NDArray[np.floating] = np.zeros((1, N))
 
     for i in idxs_:
         tree_i: cKDTree = cKDTree(data[(i,), :].T)
-        
-        counts: NDArray[np.integer] = get_counts_from_tree(tree_i, data[i,:].T, eps)
-        ptw -= digamma(counts + 1)
 
-    ptw += psi_k + (m - 1) * psi_N
+        counts: NDArray[np.integer] = get_counts_from_tree(tree_i, data[i, :].T, eps)
+        ptw[0, :] -= digamma(counts + 1)
 
-    return ptw, ptw.mean() 
+    ptw[0, :] += psi_k + (m - 1) * psi_N
+
+    return ptw, ptw.mean()
 
 
 def total_correlation_2(
@@ -116,8 +116,8 @@ def total_correlation_2(
 ) -> tuple[NDArray[np.floating], float]:
     """
     Computes the Kraskov, Stogbauer, Grassberger estimate of the total correlation using the second algorithm presented in Kraskov et. al., (2004).
-    
-    .. math:: 
+
+    .. math::
         \hat{TC}(X) = \psi(k) - ((m-1)/k) - (m-1)\psi(N) - \langle \psi(n_{x_{1}}) + \ldots + \psi(n_{x_{N}}) \\rangle`
 
     Parameters
@@ -131,7 +131,7 @@ def total_correlation_2(
 
     Returns
     -------
-    NDArray[np.floating 
+    NDArray[np.floating
         The local total correlation for each sample.
     float
         The expected total correlation over all samples
@@ -142,14 +142,14 @@ def total_correlation_2(
     Estimating mutual information.
     Physical Review E, 69(6), 066138.
     https://doi.org/10.1103/PhysRevE.69.066138
-    
-    Watanabe, S. (1960). 
+
+    Watanabe, S. (1960).
     Information Theoretical Analysis of Multivariate Correlation.
     IBM Journal of Research and Development, 4(1), Article 1.
     https://doi.org/10.1147/rd.41.0066
-    
+
     """
-    idxs_: tuple[int,...] = check_idxs(idxs, data.shape[0])
+    idxs_: tuple[int, ...] = check_idxs(idxs, data.shape[0])
 
     N: int = data.shape[1]
     m: int = len(idxs_)
@@ -163,7 +163,7 @@ def total_correlation_2(
     distances, indices = tree.query(data[idxs_, :].T, k=k + 1, p=np.inf)
 
     neighbors: NDArray[np.integer] = indices[:, 1:]
-    ptw: NDArray[np.floating] = np.zeros(N)
+    ptw: NDArray[np.floating] = np.zeros((1,N))
 
     for i in idxs_:
         data_i: NDArray[np.floating] = data[(i,), :].T
@@ -177,9 +177,9 @@ def total_correlation_2(
 
         tree_i: cKDTree = cKDTree(data_i)
         counts: NDArray[np.integer] = get_counts_from_tree(tree_i, data_i.T, eps)
-        ptw -= digamma(counts)
+        ptw[0,:] -= digamma(counts)
 
-    ptw += psi_k - ((m - 1) / k) + ((m - 1) * psi_N)
+    ptw[0,:] += psi_k - ((m - 1) / k) + ((m - 1) * psi_N)
 
     return ptw, ptw.mean()
 
@@ -189,7 +189,7 @@ def dual_total_correlation(
 ) -> tuple[NDArray[np.floating], float]:
     """
     Compute dual total correlation using KSG estimation.
-    Code adapted from JIDT 
+    Code adapted from JIDT
     https://github.com/jlizier/jidt/blob/master/java/source/infodynamics/measures/continuous/kraskov/DualTotalCorrelationCalculatorKraskov.java
 
     Parameters
@@ -203,11 +203,11 @@ def dual_total_correlation(
 
     Returns
     -------
-    NDArray[np.floating 
+    NDArray[np.floating
         The local dual total correlation for each sample.
     float
         The expected dual total correlation over all samples
-    
+
     References
     ----------
     Abdallah, S. A., & Plumbley, M. D. (2012).
@@ -219,9 +219,9 @@ def dual_total_correlation(
     Quantifying High-order Interdependencies via Multivariate Extensions of the Mutual Information.
     Physical Review E, 100(3), Article 3.
     https://doi.org/10.1103/PhysRevE.100.032305
-    
+
     """
-    idxs_: tuple[int,...] = check_idxs(idxs, data.shape[0])
+    idxs_: tuple[int, ...] = check_idxs(idxs, data.shape[0])
 
     N: int = data.shape[1]
     m: int = len(idxs_)
@@ -233,7 +233,7 @@ def dual_total_correlation(
     eps: NDArray[np.floating] = distances[:, -1]
 
     # Initialize local values: start with (ψ(k) - ψ(N))
-    ptw: NDArray[np.floating] = np.full(N, psi_k - psi_N)
+    ptw: NDArray[np.floating] = np.full((1,N), psi_k - psi_N)
 
     # Build marginal trees and compute counts
     # Each marginal excludes one dimension (so has m-1 dimensions)
@@ -247,12 +247,12 @@ def dual_total_correlation(
         counts: NDArray[np.integer] = get_counts_from_tree(tree_i, marginal_data.T, eps)
 
         # Subtract the contribution from this marginal, divided by (m-1)
-        ptw -= (digamma(counts + 1) - psi_N) / (m - 1)
+        ptw[0,:] -= (digamma(counts + 1) - psi_N) / (m - 1)
 
     # Multiply everything by (m-1)
     ptw *= m - 1
 
-    return ptw, ptw.mean() 
+    return ptw, ptw.mean()
 
 
 def s_information(
@@ -260,7 +260,7 @@ def s_information(
 ) -> tuple[NDArray[np.floating], float]:
     """
     Compute S-information using KSG estimation.
-    Code adapted from JIDT 
+    Code adapted from JIDT
     https://github.com/jlizier/jidt/blob/master/java/source/infodynamics/measures/continuous/kraskov/SInfoCalculatorKraskov.java
 
     Parameters
@@ -274,11 +274,11 @@ def s_information(
 
     Returns
     -------
-    NDArray[np.floating 
+    NDArray[np.floating
         The local S-information for each sample.
     float
         The expected S-information over all samples
-    
+
     References
     ----------
     Rosas, F., Mediano, P. A. M., Gastpar, M., & Jensen, H. J. (2019).
@@ -292,7 +292,7 @@ def s_information(
     https://doi.org/10.1038/s42003-023-04843-w
 
     """
-    idxs_: tuple[int,...] = check_idxs(idxs, data.shape[0])
+    idxs_: tuple[int, ...] = check_idxs(idxs, data.shape[0])
 
     N: int = data.shape[1]
     m: int = len(idxs_)
@@ -304,25 +304,25 @@ def s_information(
     eps: NDArray[np.floating] = distances[:, -1]
 
     # Initialize local values: start with (ψ(k) - ψ(N))
-    ptw: NDArray[np.floating] = np.full(N, psi_k - psi_N)
+    ptw: NDArray[np.floating] = np.full((1,N), psi_k - psi_N)
 
     # For each dimension d
     for d in range(m):
         # Small marginal: just dimension d alone (1D)
-        small_marginal_data = data[idxs_[d]:idxs_[d]+1, :].T  # Shape: (N, 1)
+        small_marginal_data = data[idxs_[d] : idxs_[d] + 1, :].T  # Shape: (N, 1)
         tree_small = cKDTree(small_marginal_data)
-        
+
         # Big marginal: all dimensions except d (m-1 dimensions)
         big_marginal_idxs = [idxs_[j] for j in range(m) if j != d]
         big_marginal_data = data[big_marginal_idxs, :].T  # Shape: (N, m-1)
         tree_big = cKDTree(big_marginal_data)
-        
+
         counts_small = get_counts_from_tree(tree_small, small_marginal_data.T, eps)
         counts_big = get_counts_from_tree(tree_big, big_marginal_data.T, eps)
-        
+
         # Subtract contributions from both marginals, divided by m
-        ptw -= (digamma(counts_big + 1) - psi_N) / m
-        ptw -= (digamma(counts_small + 1) - psi_N) / m
+        ptw[0,:] -= (digamma(counts_big + 1) - psi_N) / m
+        ptw[0,:] -= (digamma(counts_small + 1) - psi_N) / m
 
     # Multiply everything by m
     ptw *= m
@@ -335,9 +335,9 @@ def o_information(
 ) -> tuple[NDArray[np.floating], float]:
     """
     Compute O-information using KSG estimation.
-    Code adapted from JIDT 
+    Code adapted from JIDT
     https://github.com/jlizier/jidt/blob/master/java/source/infodynamics/measures/continuous/kraskov/OInfoCalculatorKraskov.java
-    
+
     O-information quantifies the balance between redundancy (positive values)
     and synergy (negative values) in multivariate information.
 
@@ -352,11 +352,11 @@ def o_information(
 
     Returns
     -------
-    NDArray[np.floating 
+    NDArray[np.floating
         The local O-information for each sample.
     float
         The expected O-information over all samples
-    
+
     References
     ----------
     Rosas, F., Mediano, P. A. M., Gastpar, M., & Jensen, H. J. (2019).
@@ -389,25 +389,25 @@ def o_information(
     eps: NDArray[np.floating] = distances[:, -1]
 
     # Initialize local values: start with (ψ(k) - ψ(N))
-    ptw: NDArray[np.floating] = np.full(N, psi_k - psi_N)
+    ptw: NDArray[np.floating] = np.full((1,N), psi_k - psi_N)
 
     for d in range(m):
         # Small marginal: just dimension d alone (1D)
-        small_marginal_data = data[idxs_[d]:idxs_[d]+1, :]  # Shape: (N, 1)
+        small_marginal_data = data[idxs_[d] : idxs_[d] + 1, :]  # Shape: (N, 1)
         tree_small = cKDTree(small_marginal_data.T)
-        
+
         # Big marginal: all dimensions except d (m-1 dimensions)
         big_marginal_idxs = [idxs_[j] for j in range(m) if j != d]
         big_marginal_data = data[big_marginal_idxs, :]  # Shape: (N, m-1)
         tree_big = cKDTree(big_marginal_data.T)
-        
+
         counts_small = get_counts_from_tree(tree_small, small_marginal_data, eps)
         counts_big = get_counts_from_tree(tree_big, big_marginal_data, eps)
-        
-        ptw -= (digamma(counts_big + 1) - psi_N) / (m - 2)
-        ptw += (digamma(counts_small + 1) - psi_N) / (m - 2)
+
+        ptw[0,:] -= (digamma(counts_big + 1) - psi_N) / (m - 2)
+        ptw[0,:] += (digamma(counts_small + 1) - psi_N) / (m - 2)
 
     # Multiply everything by (2 - m)
-    ptw *= (2 - m)
+    ptw *= 2 - m
 
-    return ptw, ptw.mean() 
+    return ptw, ptw.mean()
