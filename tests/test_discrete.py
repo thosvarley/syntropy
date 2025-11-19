@@ -1,11 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-Created on Mon Feb 10 21:35:29 2025
-
-@author: thosvarley
-"""
-
 import pytest 
 
 from syntropy.discrete.optimization import constrained_maximum_entropy_distributions
