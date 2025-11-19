@@ -2,9 +2,10 @@ import numpy as np
 from numpy.typing import NDArray
 from scipy.spatial import cKDTree
 
+
 def check_idxs(idxs: tuple[int, ...], N: int) -> tuple[int, ...]:
     """
-    Checks whether the idxs input is -1, in which case, defaults to all processes. 
+    Checks whether the idxs input is -1, in which case, defaults to all processes.
 
     Parameters
     ----------
@@ -42,9 +43,9 @@ def build_tree_and_get_distances(
 
     Returns
     -------
-    cKDTree 
+    cKDTree
         The KNN tree constructed from data.
-    NDArray[np.floating] 
+    NDArray[np.floating]
         The indices of each of the k-nearest neighbors.
     NDArray[np.integer]
         The distances to each k-nearest neighbors (using the max norm).
@@ -60,12 +61,20 @@ def build_tree_and_get_distances(
 
 
 def get_counts_from_tree(
-    tree: cKDTree, data: NDArray[np.floating], eps: NDArray[np.floating]
+    tree: cKDTree,
+    data: NDArray[np.floating],
+    eps: NDArray[np.floating],
+    strict: bool = True,
 ) -> NDArray[np.integer]:
+
+    if strict is True:
+        eps_ = np.nextafter(eps, -np.inf)
+    else:
+        eps_ = eps
     counts: NDArray[np.integer] = np.array(
         [
             tree.query_ball_point(x_i, eps_i, return_length=True, p=np.inf) - 1
-            for x_i, eps_i in zip(data.T, eps)
+            for x_i, eps_i in zip(data.T, eps_)
         ]
     )
 
