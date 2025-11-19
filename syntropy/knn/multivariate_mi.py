@@ -187,75 +187,70 @@ def total_correlation_2(
     return ptw, ptw.mean()
 
 
-# def dual_total_correlation(
-#     data: NDArray[np.floating], k: int, idxs: tuple[int, ...] = (-1,)
-# ) -> tuple[NDArray[np.floating], float]:
-#     """
-#     Compute dual total correlation using KSG estimation.
-#     Code adapted from JIDT
-#     https://github.com/jlizier/jidt/blob/master/java/source/infodynamics/measures/continuous/kraskov/DualTotalCorrelationCalculatorKraskov.java
-#
-#     Parameters
-#     ----------
-#     data : NDArray[np.floating]
-#         Data array of shape (n_variables, n_samples)
-#     k : int
-#         Number of nearest neighbors
-#     idxs : tuple[int, ...]
-#         Indices of variables to use (-1 means all)
-#
-#     Returns
-#     -------
-#     NDArray[np.floating
-#         The local dual total correlation for each sample.
-#     float
-#         The expected dual total correlation over all samples
-#
-#     References
-#     ----------
-#     Abdallah, S. A., & Plumbley, M. D. (2012).
-#     A measure of statistical complexity based on predictive information with application to finite spin systems.
-#     Physics Letters A, 376(4), 275–281.
-#     https://doi.org/10.1016/j.physleta.2011.10.066
-#
-#     Rosas, F., Mediano, P. A. M., Gastpar, M., & Jensen, H. J. (2019).
-#     Quantifying High-order Interdependencies via Multivariate Extensions of the Mutual Information.
-#     Physical Review E, 100(3), Article 3.
-#     https://doi.org/10.1103/PhysRevE.100.032305
-#
-#     """
-#     idxs_: tuple[int, ...] = check_idxs(idxs, data.shape[0])
-#
-#     N: int = data.shape[1]
-#     m: int = len(idxs_)
-#
-#     psi_k, psi_N = digamma([k, N])
-#
-#     # Build tree for joint distribution (all m dimensions)
-#     tree, distances, _ = build_tree_and_get_distances(data[idxs_, :], k=k)
-#     eps: NDArray[np.floating] = distances[:, -1]
-#
-#     # Initialize local values: start with (ψ(k) - ψ(N))
-#     ptw: NDArray[np.floating] = np.full((1,N), psi_k - psi_N)
-#
-#     # Build marginal trees and compute counts
-#     # Each marginal excludes one dimension (so has m-1 dimensions)
-#     for i in range(m):
-#         # Get indices for this marginal (all dimensions except j)
-#         residual_idxs = [idxs_[j] for j in range(m) if j != i]
-#         marginal_data = data[residual_idxs, :].T
-#         tree_i = cKDTree(marginal_data)
-#
-#         # Count neighbors strictly within eps for each point
-#         counts: NDArray[np.integer] = get_counts_from_tree(tree_i, marginal_data.T, eps)
-#
-#         # Subtract the contribution from this marginal, divided by (m-1)
-#         ptw[0,:] -= (digamma(counts + 1) - psi_N) / (m - 1)
-#
-#     # Multiply everything by (m-1)
-#     ptw *= m - 1
-#
-#     return ptw, ptw.mean()
+def dual_total_correlation(
+    data: NDArray[np.floating], k: int, idxs: tuple[int, ...] = (-1,)
+) -> tuple[NDArray[np.floating], float]:
+    """
+    Compute dual total correlation using KSG estimation.
+    Code adapted from JIDT
+    https://github.com/jlizier/jidt/blob/master/java/source/infodynamics/measures/continuous/kraskov/DualTotalCorrelationCalculatorKraskov.java
+
+    Parameters
+    ----------
+    data : NDArray[np.floating]
+        Data array of shape (n_variables, n_samples)
+    k : int
+        Number of nearest neighbors
+    idxs : tuple[int, ...]
+        Indices of variables to use (-1 means all)
+
+    Returns
+    -------
+    NDArray[np.floating
+        The local dual total correlation for each sample.
+    float
+        The expected dual total correlation over all samples
+
+    References
+    ----------
+    Abdallah, S. A., & Plumbley, M. D. (2012).
+    A measure of statistical complexity based on predictive information with application to finite spin systems.
+    Physics Letters A, 376(4), 275–281.
+    https://doi.org/10.1016/j.physleta.2011.10.066
+
+    Rosas, F., Mediano, P. A. M., Gastpar, M., & Jensen, H. J. (2019).
+    Quantifying High-order Interdependencies via Multivariate Extensions of the Mutual Information.
+    Physical Review E, 100(3), Article 3.
+    https://doi.org/10.1103/PhysRevE.100.032305
+
+    """
+    idxs = check_idxs(idxs, data.shape[0])
+
+    m: int = len(idxs)
+    N: int = data.shape[1]
+
+    psi_k: float = digamma(k)
+    psi_N: float = digamma(N) 
+
+    ptw: NDArray[np.floating] = np.full((1,N), psi_k - psi_N)
+    
+    distances: NDArray[np.floating]
+    tree, distances, _ = build_tree_and_get_distances(data[idxs, :], k=k)
+    eps: NDArray[np.floating] = distances[:,-1]
+
+    for i in range(m):
+
+        residual_idxs: list[int] = [idxs[j] for j in range(m) if j != i] 
+        residual_data: NDArray[np.floating] = data[residual_idxs,:]
+
+        residual_tree = cKDTree(residual_data.T)
+
+        counts: NDArray[np.integer] = get_counts_from_tree(residual_tree, residual_data, eps)
+
+        ptw[0, :] -= (digamma(counts + 1) - psi_N) / (m-1)
+    ptw *= m-1
+
+    return ptw, ptw.mean()
 #
 #
 # def s_information(
