@@ -36,6 +36,7 @@ def shannon_entropy(
     assert discrete_vars.shape[1] == continuous_vars.shape[1], (
         "The discrete and continuous variables must have the same number of samples."
     )
+    assert continuous_estimator in {"gaussian", "knn"}, "Continuous estimator options are 'gaussian' or 'knn'."
 
     unq: NDArray[np.integer]
     counts: NDArray[np.integer]

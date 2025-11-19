@@ -1,11 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-Created on Mon Feb 10 21:16:01 2025
-
-@author: thosvarley
-"""
-
 import pytest
 import pathlib
 
