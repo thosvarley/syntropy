@@ -6,7 +6,7 @@ from .shannon import (
 
 from.multivariate_mi import (
      total_correlation,
-#     dual_total_correlation,
+     dual_total_correlation,
 #     s_information,
 #     o_information
 )
@@ -16,7 +16,7 @@ __all__ = [
     "mutual_information",
     #"conditional_mutual_information",
      "total_correlation",
-    # "dual_total_correlation",
+     "dual_total_correlation",
     # "s_information",
     # "o_information",
 ]
