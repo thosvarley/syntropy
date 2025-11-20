@@ -251,161 +251,161 @@ def dual_total_correlation(
     ptw *= m-1
 
     return ptw, ptw.mean()
-#
-#
-# def s_information(
-#     data: NDArray[np.floating], k: int, idxs: tuple[int, ...] = (-1,)
-# ) -> tuple[NDArray[np.floating], float]:
-#     """
-#     Compute S-information using KSG estimation.
-#     Code adapted from JIDT
-#     https://github.com/jlizier/jidt/blob/master/java/source/infodynamics/measures/continuous/kraskov/SInfoCalculatorKraskov.java
-#
-#     Parameters
-#     ----------
-#     data : NDArray[np.floating]
-#         Data array of shape (n_variables, n_samples)
-#     k : int
-#         Number of nearest neighbors
-#     idxs : tuple[int, ...]
-#         Indices of variables to use (-1 means all)
-#
-#     Returns
-#     -------
-#     NDArray[np.floating
-#         The local S-information for each sample.
-#     float
-#         The expected S-information over all samples
-#
-#     References
-#     ----------
-#     Rosas, F., Mediano, P. A. M., Gastpar, M., & Jensen, H. J. (2019).
-#     Quantifying High-order Interdependencies via Multivariate Extensions of the Mutual Information.
-#     Physical Review E, 100(3), Article 3.
-#     https://doi.org/10.1103/PhysRevE.100.032305
-#
-#     Varley, T. F., Pope, M., Faskowitz, J., & Sporns, O. (2023).
-#     Multivariate information theory uncovers synergistic subsystems of the human cerebral cortex.
-#     Communications Biology, 6(1), Article 1.
-#     https://doi.org/10.1038/s42003-023-04843-w
-#
-#     """
-#     idxs_: tuple[int, ...] = check_idxs(idxs, data.shape[0])
-#
-#     N: int = data.shape[1]
-#     m: int = len(idxs_)
-#
-#     psi_k, psi_N = digamma([k, N])
-#
-#     # Build tree for joint distribution (all m dimensions)
-#     tree, distances, _ = build_tree_and_get_distances(data[idxs_, :], k=k)
-#     eps: NDArray[np.floating] = distances[:, -1]
-#
-#     # Initialize local values: start with (ψ(k) - ψ(N))
-#     ptw: NDArray[np.floating] = np.full((1,N), psi_k - psi_N)
-#
-#     # For each dimension d
-#     for d in range(m):
-#         # Small marginal: just dimension d alone (1D)
-#         small_marginal_data = data[idxs_[d] : idxs_[d] + 1, :].T  # Shape: (N, 1)
-#         tree_small = cKDTree(small_marginal_data)
-#
-#         # Big marginal: all dimensions except d (m-1 dimensions)
-#         big_marginal_idxs = [idxs_[j] for j in range(m) if j != d]
-#         big_marginal_data = data[big_marginal_idxs, :].T  # Shape: (N, m-1)
-#         tree_big = cKDTree(big_marginal_data)
-#
-#         counts_small = get_counts_from_tree(tree_small, small_marginal_data.T, eps)
-#         counts_big = get_counts_from_tree(tree_big, big_marginal_data.T, eps)
-#
-#         # Subtract contributions from both marginals, divided by m
-#         ptw[0,:] -= (digamma(counts_big + 1) - psi_N) / m
-#         ptw[0,:] -= (digamma(counts_small + 1) - psi_N) / m
-#
-#     # Multiply everything by m
-#     ptw *= m
-#
-#     return ptw, ptw.mean()
-#
-#
-# def o_information(
-#     data: NDArray[np.floating], k: int, idxs: tuple[int, ...] = (-1,)
-# ) -> tuple[NDArray[np.floating], float]:
-#     """
-#     Compute O-information using KSG estimation.
-#     Code adapted from JIDT
-#     https://github.com/jlizier/jidt/blob/master/java/source/infodynamics/measures/continuous/kraskov/OInfoCalculatorKraskov.java
-#
-#     O-information quantifies the balance between redundancy (positive values)
-#     and synergy (negative values) in multivariate information.
-#
-#     Parameters
-#     ----------
-#     data : NDArray[np.floating]
-#         Data array of shape (n_variables, n_samples)
-#     k : int
-#         Number of nearest neighbors
-#     idxs : tuple[int, ...]
-#         Indices of variables to use (-1 means all)
-#
-#     Returns
-#     -------
-#     NDArray[np.floating
-#         The local O-information for each sample.
-#     float
-#         The expected O-information over all samples
-#
-#     References
-#     ----------
-#     Rosas, F., Mediano, P. A. M., Gastpar, M., & Jensen, H. J. (2019).
-#     Quantifying High-order Interdependencies via Multivariate
-#     Extensions of the Mutual Information.
-#     Physical Review E, 100(3), Article 3.
-#     https://doi.org/10.1103/PhysRevE.100.032305
-#
-#     Varley, T. F., Pope, M., Faskowitz, J., & Sporns, O. (2023).
-#     Multivariate information theory uncovers synergistic subsystems of the human cerebral cortex.
-#     Communications Biology, 6(1), Article 1.
-#     https://doi.org/10.1038/s42003-023-04843-w
-#
-#     """
-#     if idxs[0] == -1:
-#         idxs_ = tuple(range(data.shape[0]))
-#     else:
-#         idxs_ = idxs
-#
-#     N: int = data.shape[1]
-#     m: int = len(idxs_)
-#
-#     # Special case: O-information is 0 for 2D data
-#     if m == 2:
-#         return np.zeros(N), 0.0
-#
-#     psi_k, psi_N = digamma([k, N])
-#
-#     tree, distances, _ = build_tree_and_get_distances(data[idxs_, :], k=k)
-#     eps: NDArray[np.floating] = distances[:, -1]
-#
-#     # Initialize local values: start with (ψ(k) - ψ(N))
-#     ptw: NDArray[np.floating] = np.full((1,N), psi_k - psi_N)
-#
-#     for d in range(m):
-#         # Small marginal: just dimension d alone (1D)
-#         small_marginal_data = data[idxs_[d] : idxs_[d] + 1, :]  # Shape: (N, 1)
-#         tree_small = cKDTree(small_marginal_data.T)
-#
-#         # Big marginal: all dimensions except d (m-1 dimensions)
-#         big_marginal_idxs = [idxs_[j] for j in range(m) if j != d]
-#         big_marginal_data = data[big_marginal_idxs, :]  # Shape: (N, m-1)
-#         tree_big = cKDTree(big_marginal_data.T)
-#
-#         counts_small = get_counts_from_tree(tree_small, small_marginal_data, eps)
-#         counts_big = get_counts_from_tree(tree_big, big_marginal_data, eps)
-#
-#         ptw[0,:] -= (digamma(counts_big + 1) - psi_N) / (m - 2)
-#         ptw[0,:] += (digamma(counts_small + 1) - psi_N) / (m - 2)
-#
-#     # Multiply everything by (2 - m)
-#     ptw *= 2 - m
-#
-#     return ptw, ptw.mean()
+
+
+def s_information(
+    data: NDArray[np.floating], k: int, idxs: tuple[int, ...] = (-1,)
+) -> tuple[NDArray[np.floating], float]:
+    """
+    Compute S-information using KSG estimation.
+    Code adapted from JIDT
+    https://github.com/jlizier/jidt/blob/master/java/source/infodynamics/measures/continuous/kraskov/SInfoCalculatorKraskov.java
+
+    Parameters
+    ----------
+    data : NDArray[np.floating]
+        Data array of shape (n_variables, n_samples)
+    k : int
+        Number of nearest neighbors
+    idxs : tuple[int, ...]
+        Indices of variables to use (-1 means all)
+
+    Returns
+    -------
+    NDArray[np.floating
+        The local S-information for each sample.
+    float
+        The expected S-information over all samples
+
+    References
+    ----------
+    Rosas, F., Mediano, P. A. M., Gastpar, M., & Jensen, H. J. (2019).
+    Quantifying High-order Interdependencies via Multivariate Extensions of the Mutual Information.
+    Physical Review E, 100(3), Article 3.
+    https://doi.org/10.1103/PhysRevE.100.032305
+
+    Varley, T. F., Pope, M., Faskowitz, J., & Sporns, O. (2023).
+    Multivariate information theory uncovers synergistic subsystems of the human cerebral cortex.
+    Communications Biology, 6(1), Article 1.
+    https://doi.org/10.1038/s42003-023-04843-w
+
+    """
+    idxs_: tuple[int, ...] = check_idxs(idxs, data.shape[0])
+
+    N: int = data.shape[1]
+    m: int = len(idxs_)
+
+    psi_k, psi_N = digamma([k, N])
+
+    # Build tree for joint distribution (all m dimensions)
+    tree, distances, _ = build_tree_and_get_distances(data[idxs_, :], k=k)
+    eps: NDArray[np.floating] = distances[:, -1]
+
+    # Initialize local values: start with (ψ(k) - ψ(N))
+    ptw: NDArray[np.floating] = np.full((1,N), psi_k - psi_N)
+
+    # For each dimension d
+    for d in range(m):
+        # Small marginal: just dimension d alone (1D)
+        small_marginal_data = data[idxs_[d] : idxs_[d] + 1, :].T  # Shape: (N, 1)
+        tree_small = cKDTree(small_marginal_data)
+
+        # Big marginal: all dimensions except d (m-1 dimensions)
+        big_marginal_idxs = [idxs_[j] for j in range(m) if j != d]
+        big_marginal_data = data[big_marginal_idxs, :].T  # Shape: (N, m-1)
+        tree_big = cKDTree(big_marginal_data)
+
+        counts_small = get_counts_from_tree(tree_small, small_marginal_data.T, eps)
+        counts_big = get_counts_from_tree(tree_big, big_marginal_data.T, eps)
+
+        # Subtract contributions from both marginals, divided by m
+        ptw[0,:] -= (digamma(counts_big + 1) - psi_N) / m
+        ptw[0,:] -= (digamma(counts_small + 1) - psi_N) / m
+
+    # Multiply everything by m
+    ptw *= m
+
+    return ptw, ptw.mean()
+
+
+def o_information(
+    data: NDArray[np.floating], k: int, idxs: tuple[int, ...] = (-1,)
+) -> tuple[NDArray[np.floating], float]:
+    """
+    Compute O-information using KSG estimation.
+    Code adapted from JIDT
+    https://github.com/jlizier/jidt/blob/master/java/source/infodynamics/measures/continuous/kraskov/OInfoCalculatorKraskov.java
+
+    O-information quantifies the balance between redundancy (positive values)
+    and synergy (negative values) in multivariate information.
+
+    Parameters
+    ----------
+    data : NDArray[np.floating]
+        Data array of shape (n_variables, n_samples)
+    k : int
+        Number of nearest neighbors
+    idxs : tuple[int, ...]
+        Indices of variables to use (-1 means all)
+
+    Returns
+    -------
+    NDArray[np.floating
+        The local O-information for each sample.
+    float
+        The expected O-information over all samples
+
+    References
+    ----------
+    Rosas, F., Mediano, P. A. M., Gastpar, M., & Jensen, H. J. (2019).
+    Quantifying High-order Interdependencies via Multivariate
+    Extensions of the Mutual Information.
+    Physical Review E, 100(3), Article 3.
+    https://doi.org/10.1103/PhysRevE.100.032305
+
+    Varley, T. F., Pope, M., Faskowitz, J., & Sporns, O. (2023).
+    Multivariate information theory uncovers synergistic subsystems of the human cerebral cortex.
+    Communications Biology, 6(1), Article 1.
+    https://doi.org/10.1038/s42003-023-04843-w
+
+    """
+    if idxs[0] == -1:
+        idxs_ = tuple(range(data.shape[0]))
+    else:
+        idxs_ = idxs
+
+    N: int = data.shape[1]
+    m: int = len(idxs_)
+
+    # Special case: O-information is 0 for 2D data
+    if m == 2:
+        return np.zeros(N), 0.0
+
+    psi_k, psi_N = digamma([k, N])
+
+    tree, distances, _ = build_tree_and_get_distances(data[idxs_, :], k=k)
+    eps: NDArray[np.floating] = distances[:, -1]
+
+    # Initialize local values: start with (ψ(k) - ψ(N))
+    ptw: NDArray[np.floating] = np.full((1,N), psi_k - psi_N)
+
+    for d in range(m):
+        # Small marginal: just dimension d alone (1D)
+        small_marginal_data = data[idxs_[d] : idxs_[d] + 1, :]  # Shape: (N, 1)
+        tree_small = cKDTree(small_marginal_data.T)
+
+        # Big marginal: all dimensions except d (m-1 dimensions)
+        big_marginal_idxs = [idxs_[j] for j in range(m) if j != d]
+        big_marginal_data = data[big_marginal_idxs, :]  # Shape: (N, m-1)
+        tree_big = cKDTree(big_marginal_data.T)
+
+        counts_small = get_counts_from_tree(tree_small, small_marginal_data, eps)
+        counts_big = get_counts_from_tree(tree_big, big_marginal_data, eps)
+
+        ptw[0,:] -= (digamma(counts_big + 1) - psi_N) / (m - 2)
+        ptw[0,:] += (digamma(counts_small + 1) - psi_N) / (m - 2)
+
+    # Multiply everything by (2 - m)
+    ptw *= 2 - m
+
+    return ptw, ptw.mean()
