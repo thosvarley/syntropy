@@ -11,7 +11,9 @@ def shannon_entropy(
     k: int = 5,
 ) -> tuple[NDArray[np.floating], float]:
     """
-    For discrete :math:`X` and continuous :math:`Y`, leverages the identity .. math::
+    For discrete :math:`X` and continuous :math:`Y`, leverages the identity 
+
+    .. math::
         H(X,Y) = H(X) + H(Y | X)
 
     Parameters
@@ -72,7 +74,9 @@ def conditional_entropy(
     conditional: str = "discrete",
 ) -> tuple[NDArray[np.floating], float]:
     """
-    For discrete :math:`X` and continuous :math:`Y`, leverages the identity .. math::
+    For discrete :math:`X` and continuous :math:`Y`, leverages the identity 
+
+    .. math::
         H(X,Y) = H(X) + H(Y | X)
 
     Either the discrete variables or the continuous variables can be conditioning variable (in which case the other is conditioned).
