@@ -60,18 +60,18 @@ def local_total_correlation(
 def total_correlation(
     cov: NDArray[np.floating], idxs: tuple[int, ...] = (-1,)
 ) -> float:
-    """
+    r"""
     The expected total correlation.
 
     .. math::
 
-        TC(X) &= D_{KL}(P(X) || \\prod_{i=1}^{N}P(X_i) \\\\
-              &= \\sum_{i=1}^{N}H(X_i) - H(X)
+        TC(X) &= D_{KL}(P(X) || \prod_{i=1}^{N}P(X_i) \\
+              &= \sum_{i=1}^{N}H(X_i) - H(X)
 
     For Gaussian random variables, the estimator is:
 
         .. math::
-            \\hat{TC}(X) = \\frac{-\log R}{2}
+            \hat{TC}(X) = \frac{-\log R}{2}
 
     Where :math:`R` is the Pearson correlation matrix.
 
@@ -121,18 +121,18 @@ def total_correlation(
     return -np.linalg.slogdet(corr)[1] / 2
 
 
-def local_k_wms(
+def local_delta_k(
     k: int,
     data: NDArray[np.floating],
     cov: NDArray[np.floating],
     idxs: tuple[int, ...] = (-1,),
 ) -> NDArray[np.floating]:
-    """
+    r"""
     A utility function that computes the local generalized form
     of the O-information, S-information, and DTC.
 
-    .. math:: 
-        k_{WMS}(x) = (N-k)tc(x) - \\sum_{i=1}^{N} tc(x^{-i})
+    .. math::
+        \delta_{k}(x) = (N-k)tc(x) - \sum_{i=1}^{N} tc(x^{-i})
 
     Parameters
     ----------
@@ -151,7 +151,7 @@ def local_k_wms(
     Returns
     -------
     NDArray[np.floating].
-        The series of local k_{wms}.
+        The series of local :math:`\delta^{k}`.
 
     """
     if idxs[0] == -1:
@@ -171,7 +171,7 @@ def local_k_wms(
     return whole - sum_parts
 
 
-def k_wms(k: int, cov: NDArray[np.floating], idxs: tuple[int, ...] = (-1,)) -> float:
+def delta_k(k: int, cov: NDArray[np.floating], idxs: tuple[int, ...] = (-1,)) -> float:
     """
     S-information, DTC, and negative O-information can all be written in a general form:
 
@@ -247,7 +247,7 @@ def local_s_information(
     if cov[0][0] == -1:
         cov = np.cov(data, ddof=0)
 
-    return local_k_wms(k=0, data=data, cov=cov, idxs=idxs)
+    return local_delta_k(k=0, data=data, cov=cov, idxs=idxs)
 
 
 def s_information(cov: NDArray[np.floating], idxs: tuple[int, ...] = (-1,)) -> float:
@@ -290,7 +290,7 @@ def s_information(cov: NDArray[np.floating], idxs: tuple[int, ...] = (-1,)) -> f
 
     """
 
-    return k_wms(k=0, cov=cov, idxs=idxs)
+    return delta_k(k=0, cov=cov, idxs=idxs)
 
 
 def local_dual_total_correlation(
@@ -327,7 +327,7 @@ def local_dual_total_correlation(
     if cov[0][0] == -1:
         cov = np.cov(data, ddof=0)
 
-    return local_k_wms(k=1, data=data, cov=cov, idxs=idxs)
+    return local_delta_k(k=1, data=data, cov=cov, idxs=idxs)
 
 
 def dual_total_correlation(
@@ -370,7 +370,7 @@ def dual_total_correlation(
 
     """
 
-    return k_wms(k=1, cov=cov, idxs=idxs)
+    return delta_k(k=1, cov=cov, idxs=idxs)
 
 
 def local_o_information(
@@ -415,7 +415,7 @@ def local_o_information(
 
     """
 
-    return -local_k_wms(k=2, data=data, cov=cov, idxs=idxs)
+    return -local_delta_k(k=2, data=data, cov=cov, idxs=idxs)
 
 
 def o_information(cov: NDArray[np.floating], idxs: tuple[int, ...] = (-1,)) -> float:
@@ -456,7 +456,7 @@ def o_information(cov: NDArray[np.floating], idxs: tuple[int, ...] = (-1,)) -> f
 
     """
 
-    return -k_wms(k=2, cov=cov, idxs=idxs)
+    return -delta_k(k=2, cov=cov, idxs=idxs)
 
 
 def tse_complexity(num_samples: int, cov: NDArray[np.floating]) -> float:
@@ -585,4 +585,4 @@ def local_description_complexity(
 
     N: float = float(cov.shape[0]) if idxs[0] == -1 else float(len(idxs))
 
-    return local_k_wms(k=1, data=data, cov=cov, idxs=idxs) / N
+    return local_delta_k(k=1, data=data, cov=cov, idxs=idxs) / N

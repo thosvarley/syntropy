@@ -60,15 +60,15 @@ def total_correlation(
     return ptw, avg
 
 
-def k_wms(
+def delta_k(
     k: int, joint_distribution: dict[tuple[int, ...], float]
 ) -> (tuple[dict, float], float):
-    """
+    r"""
     S-information, DTC, and negative O-information can all be written in a general form:
 
     .. math::
 
-        WMS^{k}(X) = (N-k)TC(X) - \\sum_{i=1}^{N}TC(X^{-i})
+        \Delta^{k}(X) = (N-k)TC(X) - \sum_{i=1}^{N}TC(X^{-i})
 
     Parameters
     ----------
@@ -82,9 +82,9 @@ def k_wms(
     Returns
     -------
     ptw : dict[tuple[int, ...], float]
-        The pointwise w-WMS .
+        The pointwise :math:`\delta^{k}`.
     avg : float
-        The average k-WMS.
+        The average :math:`\Delta^{k}`.
 
     References
     ----------
@@ -174,7 +174,7 @@ def s_information(
 
     ptw: dict
     avg: float
-    ptw, avg = k_wms(k=0, joint_distribution=joint_distribution)
+    ptw, avg = delta_k(k=0, joint_distribution=joint_distribution)
 
     return ptw, avg
 
@@ -219,7 +219,7 @@ def dual_total_correlation(
     """
     ptw: dict
     avg: float
-    ptw, avg = k_wms(k=1, joint_distribution=joint_distribution)
+    ptw, avg = delta_k(k=1, joint_distribution=joint_distribution)
 
     return ptw, avg
 
@@ -266,7 +266,7 @@ def o_information(
 
     ptw: dict
     avg: float
-    ptw, avg = k_wms(k=2, joint_distribution=joint_distribution)
+    ptw, avg = delta_k(k=2, joint_distribution=joint_distribution)
 
     return {state: -ptw[state] for state in ptw.keys()}, -avg
 
@@ -442,7 +442,7 @@ def description_complexity(
 
     ptw: dict
     avg: float
-    ptw, avg = k_wms(k=1, joint_distribution=joint_distribution)
+    ptw, avg = delta_k(k=1, joint_distribution=joint_distribution)
 
     avg /= N
     ptw = {key: ptw[key] / N for key in ptw.keys()}

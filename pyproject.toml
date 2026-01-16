@@ -9,25 +9,58 @@ authors = [
   { name="Thomas F. Varley", email="tfvarley@uvm.edu" },
 ]
 maintainers = [
-  { name="Thomas F. Valey", email="tfvarley@uvm.edu" },
+  { name="Thomas F. Varley", email="tfvarley@uvm.edu" },
 ]
 description = "A package for multivariate information theory on discrete and continuous random variables."
 readme = "README.md"
 requires-python = ">=3.8"
 classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Science/Research",
+    "Topic :: Scientific/Engineering",
+    "Topic :: Scientific/Engineering :: Information Analysis",
+    "License :: OSI Approved :: MIT License",
     "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
     "Operating System :: OS Independent",
 ]
 license = "MIT"
 license-files = ["LICEN[CS]E*"]
 dependencies = [
-    "numpy",
-    "scipy",
-    "networkx",
-    "torch",
-    "nflows"
+    "numpy>=1.20.0",
+    "scipy>=1.7.0",
+    "networkx>=2.6.0",
+    "torch>=1.9.0",
+    "nflows>=0.14"
 ]
 
 [project.urls]
-#Homepage = ""
-#Issues = ""
+Homepage = "https://github.com/thosvarley/syntropy"
+Repository = "https://github.com/thosvarley/syntropy"
+Documentation = "https://syntropy.readthedocs.io"
+Issues = "https://github.com/thosvarley/syntropy/issues"
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0.0",
+    "pytest-cov>=4.0.0",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-v"
+
+[tool.coverage.run]
+source = ["syntropy"]
+omit = ["*/tests/*", "*/__pycache__/*"]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise NotImplementedError",
+]

@@ -50,11 +50,11 @@ def total_correlation(
 def total_correlation_1(
     data: NDArray[np.floating], k: int, idxs: tuple[int, ...] = (-1,)
 ) -> tuple[NDArray[np.floating], float]:
-    """
+    r"""
     Computes the Kraskov, Stogbauer, Grassberger estimate of the total correlation using the first algorithm presented Kraskov et. al (2004)
 
     .. math::
-        \hat{TC}(X) = \psi(k) - (m-1)\psi(N) -\\langle \psi(n_{x_{1}}+1) + \ldots + \psi(n_{x_{N}}+1)\\rangle
+        \hat{TC}(X) = \psi(k) - (m-1)\psi(N) -\langle \psi(n_{x_{1}}+1) + \ldots + \psi(n_{x_{N}}+1)\rangle
 
     Parameters
     ----------
@@ -101,7 +101,7 @@ def total_correlation_1(
     for idx in idxs:
         tree, _, _ = build_tree_and_get_distances(data[(idx,), :], k=k)
         counts: NDArray[np.integer] = get_counts_from_tree(
-            tree, data[(idx,), :], distances[:, -1]
+            tree, data[(idx,), :], distances[:, -1],
         )
 
         ptw[0, :] -= digamma(counts + 1)
@@ -112,11 +112,11 @@ def total_correlation_1(
 def total_correlation_2(
     data: NDArray[np.floating], k: int, idxs: tuple[int, ...] = (-1,)
 ) -> tuple[NDArray[np.floating], float]:
-    """
+    r"""
     Computes the Kraskov, Stogbauer, Grassberger estimate of the total correlation using the second algorithm presented in Kraskov et. al., (2004).
 
     .. math::
-        \hat{TC}(X) = \psi(k) - ((m-1)/k) - (m-1)\psi(N) - \langle \psi(n_{x_{1}}) + \ldots + \psi(n_{x_{N}}) \\rangle`
+        \hat{TC}(X) = \psi(k) - ((m-1)/k) - (m-1)\psi(N) - \langle \psi(n_{x_{1}}) + \ldots + \psi(n_{x_{N}}) \rangle
 
     Parameters
     ----------

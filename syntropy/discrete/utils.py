@@ -1,6 +1,7 @@
 # import pickle
 import numpy as np
-import itertools as it
+import itertools
+
 
 def make_powerset(iterable):
     """
@@ -11,7 +12,7 @@ def make_powerset(iterable):
     """
     xs: list = list(iterable)
     # note we return an iterator rather than a list
-    return it.chain.from_iterable(it.combinations(xs, n) for n in range(len(xs) + 1))
+    return itertools.chain.from_iterable(itertools.combinations(xs, n) for n in range(len(xs) + 1))
 
 
 def clean_distribution(joint_distribution: dict[tuple, float]) -> dict:
@@ -202,3 +203,75 @@ def get_all_marginal_distributions(
     return marginal_dict
 
 
+def product_distribution(
+    A: dict[tuple[int, ...], float], B: dict[tuple[int, ...], float]
+) -> dict[tuple[int, ...], float]:
+    """
+    Compute the product of two independent distributions.
+
+    Parameters
+    ----------
+    A : dict[tuple[int, ...], float]
+        The first distribution
+    B : dict[tuple[int, ...], float]
+        The second distribution
+
+    Returns
+    -------
+    dict[tuple[int, ...], float]
+        Joint distribution over concatenated states
+    """
+    result = {}
+    for state_a, prob_a in A.items():
+        for state_b, prob_b in B.items():
+            joint_state = state_a + state_b
+            result[joint_state] = prob_a * prob_b
+    return result
+
+
+def generate_closed_distribution(N: int, seed: int = None) -> dict[tuple[int, ...], float]:
+    """
+    Generate a random closed discrete probability distribution on N binary elements.
+    
+    A distribution is closed iff H(X_i | X^{-i}) = 0 for all i, meaning every
+    variable is fully determined by the others. This requires the support to
+    have minimum Hamming distance >= 2.
+    
+    Parameters
+    ----------
+    N : int
+        Number of binary elements.
+    seed : int, optional
+        Random seed for reproducibility.
+        
+    Returns
+    -------
+    dict[tuple[int, ...], float]
+        Probability distribution as {state: probability} mapping.
+    """
+    rng = np.random.default_rng(seed)
+    
+    # Generate all 2^N possible states
+    all_states = list(itertools.product([0, 1], repeat=N))
+    
+    # Build valid support: greedily add states with Hamming distance >= 2 from all others
+    support = []
+    candidates = list(all_states)
+    rng.shuffle(candidates)
+    
+    for state in candidates:
+        # Check if this state has Hamming distance >= 2 from all states in support
+        valid = True
+        for s in support:
+            hamming_dist = sum(a != b for a, b in zip(state, s))
+            if hamming_dist < 2:
+                valid = False
+                break
+        if valid:
+            support.append(state)
+    
+    # Assign random probabilities to support states
+    weights = rng.random(len(support))
+    weights /= weights.sum()
+    
+    return {state: float(p) for state, p in zip(support, weights)}

@@ -4,7 +4,7 @@ from .shannon import (
     conditional_mutual_information
 )
 
-from.multivariate_mi import (
+from .multivariate_mi import (
      total_correlation,
      dual_total_correlation,
      s_information,
