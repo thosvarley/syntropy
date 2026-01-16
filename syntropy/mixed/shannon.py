@@ -136,21 +136,27 @@ def conditional_entropy(
         continuous_estimator=continuous_estimator,
         k=k,
     )
+    ptw_marginal: NDArray[np.floating]
+    avg_marginal: float
 
     if conditional == "continuous":
-        cov: NDArray[np.floating] = np.cov(continuous_vars, ddof=0)
-        ptw_marginal: NDArray[np.floating] = gaussian.local_differential_entropy(
-            continuous_vars, cov=cov
-        )
-        avg_marginal: float = gaussian.differential_entropy(cov)
+        if continuous_estimator == "gaussian":
+            cov: NDArray[np.floating] = np.cov(continuous_vars, ddof=0)
+            ptw_marginal = gaussian.local_differential_entropy(
+                continuous_vars, cov=cov
+            )
+            avg_marginal = ptw_marginal.mean()
+        elif continuous_estimator == "knn": 
+            ptw_marginal, avg_marginal = knn.differential_entropy(continuous_vars, k)
+
     elif conditional == "discrete":
         unq: NDArray[np.integer]
         counts: NDArray[np.integer]
         unq, counts = np.unique(discrete_vars, axis=1, return_counts=True)
         probs: NDArray[np.floating] = counts / counts.sum()
 
-        ptw_marginal: NDArray[np.floating] = np.zeros((1, discrete_vars.shape[1]))
-        avg_marginal: float = -np.sum(probs * np.log(probs))
+        ptw_marginal = np.zeros((1, discrete_vars.shape[1]))
+        avg_marginal = -np.sum(probs * np.log(probs))
 
         for i in range(unq.shape[1]):
             state: NDArray[np.integer] = unq[:, [i]]
