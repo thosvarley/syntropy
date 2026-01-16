@@ -1,5 +1,5 @@
 syntropy.mixed package
-====================
+======================
 
 .. automodule:: syntropy.mixed
    :members:
@@ -10,7 +10,7 @@ Submodules
 ----------
 
 syntropy.mixed.shannon module
----------------------------
+-----------------------------
 
 .. automodule:: syntropy.mixed.shannon
    :members:
@@ -18,7 +18,7 @@ syntropy.mixed.shannon module
    :undoc-members:
 
 syntropy.mixed.utils module
--------------------------
+---------------------------
 
 .. automodule:: syntropy.mixed.utils
    :members:
