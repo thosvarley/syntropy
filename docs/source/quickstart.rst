@@ -107,12 +107,12 @@ K-nearest neighbors estimators behave similarly to the local Gaussian estimators
    data[0,:] = rand 
    data[1,:] = 0.5 * data[0,:] + np.sqrt(1 - 0.5**2) + np.random.randn(num_samples)
    data[2,:] = -0.3 * data[0,:] + np.sqrt(1 - -0.3**2) + np.random.randn(num_samples)
-   
+  
    lmi, mi = mutual_information(
         idxs_x = (0,1),
         idxs_y = (2,),
         data = data, 
-        k=k,
+        k=4,
         algorithm = 1
    )
 
@@ -205,3 +205,25 @@ You can customize the normalizing flow architecture and training process using `
    )
 
 The default hyperparameters work reasonably well for most cases, but may need tuning for specific applications. Sample sizes of 10,000 or more typically produce reliable convergence.
+
+Mixed estimators 
+----------------
+
+Mixed estimators estimate the entropy or mutual information between a discrete and continuous random variable (or set of random variables). Currently, a Gaussian estimator is used for the continuous entropies, although a KNN-based alternative will also be introduced. 
+   
+.. code-block:: python
+
+   from syntropy.mixed import mutual_information 
+        
+   # Using the same data as above.
+   num_samples = 10_000
+   rand = np.random.randn(num_samples)
+   data = np.zeros((2, num_samples))
+   data[0,:] = rand 
+   data[1,:] = 0.5 * data[0,:] + np.sqrt(1 - 0.5**2) + np.random.randn(num_samples)
+
+   continuous = data[[0],:]
+   discrete = (data[[1],:] > 0).astype(int)
+
+   ptw, mi = mutual_information(discrete_vars = discrete, continuous_vars = 
+   continuous). 
