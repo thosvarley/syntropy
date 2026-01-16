@@ -1,7 +1,7 @@
 Information Theory Primer
 =========================
 
-This document provides a conceptual introduction to the core ideas of information theory, with particular attention to the challenges of estimation and higher-order information measures. For formal treatments, see Shannon's original work or Cover & Thomas's *Elements of Information Theory*. Much of the content here is based on the review article `"Information Theory for Complex Systems Scientists" <https://arxiv.org/abs/2304.12482>`_.
+This document provides a conceptual introduction to the core ideas of information theory, with particular attention to the challenges of estimation and higher-order information measures. For formal treatments, see Shannon's original work or Cover & Thomas's *Elements of Information Theory*. Much of the content here is based on the review article `"Information Theory for Complex Systems Scientists" <https://www.sciencedirect.com/science/article/pii/S037015732500256X>`_.
 
 Entropy: Quantifying Uncertainty
 --------------------------------
@@ -208,59 +208,10 @@ For two sources :math:`X_1, X_2` and target :math:`Y`:
 
 The XOR function is the canonical example of synergy: neither input alone predicts the output, but together they determine it completely.
 
-Challenges in Higher-Order Information
---------------------------------------
-
-Higher-order information theory is an active research area with several fundamental challenges:
-
-Definitional Ambiguity
-^^^^^^^^^^^^^^^^^^^^^^
-
-Unlike entropy and mutual information, there is no unique, universally accepted definition of redundancy and synergy. Multiple proposals exist (I_min, I_BROJA, I_CCS, I_sx, etc.), each satisfying different axioms and yielding different decompositions for the same data. The "correct" measure may depend on the specific scientific question.
-
-Estimation Difficulty
-^^^^^^^^^^^^^^^^^^^^^
-
-Higher-order measures compound the estimation challenges of basic information theory:
-
-- **Sample complexity:** Estimating joint distributions over many variables requires exponentially more data.
-- **Bias amplification:** Biases in entropy estimation propagate and amplify through higher-order formulas.
-- **Dimensionality:** KNN and density-based estimators struggle in high dimensions.
-
-Computational Complexity
-^^^^^^^^^^^^^^^^^^^^^^^^
-
-The number of possible higher-order interactions grows combinatorially. For :math:`N` variables, there are :math:`\binom{N}{k}` possible :math:`k`-th order interactions. Exhaustively computing all higher-order terms quickly becomes infeasible.
-
-Interpretation Challenges
-^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Even when higher-order measures can be computed, interpreting them is subtle:
-
-- Negative O-information indicates synergy dominance, but doesn't localize *where* the synergy occurs.
-- PID decomposes information, but the meaning of "redundancy" remains debated.
-- Different normalization choices can lead to different conclusions about the same system.
-
-Practical Recommendations
--------------------------
-
-1. **Start simple.** Compute pairwise mutual information before moving to higher-order measures. Many questions can be answered without the complexity of multivariate methods.
-
-2. **Validate with known distributions.** Test your analysis pipeline on synthetic data with known information-theoretic properties before applying to real data.
-
-3. **Consider multiple estimators.** If results depend heavily on the choice of estimator, treat conclusions with caution.
-
-4. **Mind your sample size.** Information estimation is data-hungry. Underpowered analyses can yield unreliable or misleading results.
-
-5. **Report uncertainty.** Use bootstrap or other resampling methods to quantify estimation uncertainty.
-
-6. **Be skeptical of high-dimensional claims.** Estimating information in high dimensions is inherently difficult. Extraordinary claims require extraordinary evidence.
-
 Further Reading
 ---------------
 
 - Shannon, C. E. (1948). A Mathematical Theory of Communication. *Bell System Technical Journal*.
 - Cover, T. M., & Thomas, J. A. (2006). *Elements of Information Theory* (2nd ed.). Wiley.
-- Varley, T. F. (2024). Information Theory for Complex Systems Scientists. *arXiv:2304.12482*.
+- Varley, T. F. (2024). Information Theory for Complex Systems Scientists. *https://www.sciencedirect.com/science/article/pii/S037015732500256X*.
 - Timme, N. M., & Lapish, C. (2018). A Tutorial for Information Theory in Neuroscience. *eNeuro*.
-- Mediano, P. A. M., et al. (2022). Greater than the parts: A review of the information decomposition approach to causal emergence. *Philosophical Transactions of the Royal Society A*.
