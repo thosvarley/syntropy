@@ -181,24 +181,24 @@ def local_conditional_entropy(
 def mutual_information(
     idxs_x: tuple[int, ...], idxs_y: tuple[int, ...], cov: NDArray[np.floating]
 ) -> float:
-    """
+    r"""
     Computes the mutual information between two (potentially multivariate) sets of elements.
-    
-    .. math:: 
-        I(X;Y) &= H(X) + H(Y) - H(X,Y) \\\\
-               &= H(X) - H(X|Y) \\\\
-               &= H(Y) - H(Y|X) \\\\
-               &= H(X,Y) - H(X|Y) - H(Y|X)
-    
-    For Gaussian random variables:
-
-    .. math:: 
-        I(X;Y) = \\frac{1}{2}\\log\\frac{|\\Sigma_{X}||\\Sigma_{Y}|}{|\Sigma_{XY}|}
-
-    In the particular case where :math:`X` and :math:`Y` are univariate, the mutual information can be computed directly from the Pearson correlation coefficient :math:`r`: 
 
     .. math::
-        I(X;Y) = \\frac{-\\log(1-r^{2})}{2}
+        I(X;Y) &= H(X) + H(Y) - H(X,Y) \\
+               &= H(X) - H(X|Y) \\
+               &= H(Y) - H(Y|X) \\
+               &= H(X,Y) - H(X|Y) - H(Y|X)
+
+    For Gaussian random variables:
+
+    .. math::
+        I(X;Y) = \frac{1}{2}\log\frac{|\Sigma_{X}||\Sigma_{Y}|}{|\Sigma_{XY}|}
+
+    In the particular case where :math:`X` and :math:`Y` are univariate, the mutual information can be computed directly from the Pearson correlation coefficient :math:`r`:
+
+    .. math::
+        I(X;Y) = \frac{-\log(1-r^{2})}{2}
 
     Parameters
     ----------
@@ -286,7 +286,6 @@ def local_mutual_information(
     h_joint: NDArray[np.floating] = local_differential_entropy(
         data = data[joint, :], cov = cov_[np.ix_(joint, joint)]
     )
-    print("woo")
 
     return h_x + h_y - h_joint
 

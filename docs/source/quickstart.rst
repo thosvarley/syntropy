@@ -121,5 +121,87 @@ Once again, the `lmi` object is a Numpy array, while mi is a floating point valu
 Neural estimators
 -----------------
 
-The neural estimators use the PyTorch package to represent data.
+The neural estimators use normalizing flows to estimate information-theoretic quantities for continuous random variables. They require PyTorch tensors as input and use the `nflows` library under the hood.
 
+.. code-block:: python
+
+   import torch
+   from syntropy.neural import (
+       differential_entropy,
+       mutual_information,
+       total_correlation,
+       higher_order_information
+   )
+
+   # Generate sample data (samples x features format)
+   num_samples = 10_000
+   rand = torch.randn(num_samples)
+   data = torch.zeros((num_samples, 3))
+   data[:, 0] = rand
+   data[:, 1] = 0.5 * data[:, 0] + torch.sqrt(torch.tensor(1 - 0.5**2)) * torch.randn(num_samples)
+   data[:, 2] = -0.3 * data[:, 0] + torch.sqrt(torch.tensor(1 - 0.3**2)) * torch.randn(num_samples)
+
+   # Compute mutual information
+   ptw_mi, mi = mutual_information(
+       idxs_x=(0, 1),
+       idxs_y=(2,),
+       data=data,
+       verbose=True  # Print training progress
+   )
+
+The neural estimators return both pointwise (local) values as a tensor and the average value as a float. You can also pass separate test data using the ``data_test`` parameter for out-of-sample evaluation.
+
+For multivariate measures like total correlation and O-information:
+
+.. code-block:: python
+
+   # Compute total correlation
+   tc = total_correlation(
+       idxs=(0, 1, 2),
+       data=data,
+       verbose=True
+   )
+
+   # Compute O-information, S-information, total correlation, and dual total correlation together
+   results = higher_order_information(
+       idxs=(0, 1, 2),
+       data=data,
+       verbose=True
+   )
+   print(results["o_information"])
+   print(results["s_information"])
+   print(results["total_correlation"])
+   print(results["dual_total_correlation"])
+
+Customizing the normalizing flow
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+You can customize the normalizing flow architecture and training process using ``flow_kwargs`` and ``train_kwargs``:
+
+.. code-block:: python
+
+   # Custom flow architecture
+   flow_kwargs = {
+       "num_layers": 8,         # Number of flow layers (default: 5)
+       "hidden_features": 128,  # Neurons per hidden layer (default: 64)
+       "dropout_probability": 0.2  # Dropout rate (default: 0.1)
+   }
+
+   # Custom training parameters
+   train_kwargs = {
+       "batch_size": 512,       # Batch size (default: 256)
+       "lr": 1e-3,              # Learning rate (default: 1e-4)
+       "num_epochs": 200,       # Training epochs (default: 100)
+       "weight_decay": 1e-4,    # L2 regularization (default: 1e-5)
+       "convergence_threshold": 0.01  # Early stopping threshold (default: 0.0)
+   }
+
+   ptw_mi, mi = mutual_information(
+       idxs_x=(0,),
+       idxs_y=(1,),
+       data=data,
+       flow_kwargs=flow_kwargs,
+       train_kwargs=train_kwargs
+   )
+
+The default hyperparameters work reasonably well for most cases, but may need tuning for specific applications. Sample sizes of 10,000 or more typically produce reliable convergence.

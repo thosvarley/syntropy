@@ -8,11 +8,11 @@ from .utils import check_idxs, build_tree_and_get_distances, get_counts_from_tre
 def differential_entropy(
     data: NDArray[np.floating], k: int, idxs: tuple[int, ...] = (-1,)
 ) -> tuple[NDArray[np.floating], float]:
-    """
+    r"""
     Computes the differential entropy using the Kozachenko-Leoneko estimator.
 
     .. math::
-        \hat{H}(X) = -\psi(k)+\psi(N) + (1/N)\\sum_{i=1}^{N}\log d_i
+        \hat{H}(X) = -\psi(k)+\psi(N) + (1/N)\sum_{i=1}^{N}\log d_i
 
     Parameters
     ----------
@@ -108,12 +108,12 @@ def mutual_information(
 def mutual_information_1(
     idxs_x: tuple[int, ...], idxs_y: tuple[int, ...], k: int, data: NDArray[np.floating]
 ) -> tuple[NDArray[np.floating], float]:
-    """
+    r"""
     Computes the Kraskov, Stogbauer, Grassberger estimate of the bivariate mutual information
     using the first algorithm presented in Kraskov et. al., (2004)
 
     .. math::
-        \hat{I}(X;Y) = \psi(k) - \psi(N) -\\langle \psi(x+1) + \psi(y+1)\\rangle
+        \hat{I}(X;Y) = \psi(k) - \psi(N) -\langle \psi(x+1) + \psi(y+1)\rangle
 
     Parameters
     ----------
@@ -166,12 +166,12 @@ def mutual_information_1(
 def mutual_information_2(
     idxs_x: tuple[int, ...], idxs_y: tuple[int, ...], k: int, data: NDArray[np.floating]
 ) -> tuple[NDArray[np.floating], float]:
-    """
+    r"""
     Computes the Kraskov, Stogbauer, Grassberger estimate of the bivariate mutual information
     using the second algorithm presented in Kraskove et. al., (2004).
 
     .. math::
-        \hat{I}(X;Y) = \psi(k) - \\frac{1}{k} - \psi(N) - \langle \psi(x) + \ldots + \psi(y) \\rangle
+        \hat{I}(X;Y) = \psi(k) - \frac{1}{k} - \psi(N) - \langle \psi(x) + \ldots + \psi(y) \rangle
 
     Parameters
     ----------

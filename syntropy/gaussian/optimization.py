@@ -44,6 +44,7 @@ def simulated_annealing(
     iters_per_temperature: int = 10,
     convergence_window: int = 100,
     convergence_threshold: float = 1e-6,
+    verbose: bool = False,
 ) -> tuple[set[int], float, NDArray[np.floating]]:
     """
     Implements a simulated annealing algorithm for optimizing
@@ -84,6 +85,9 @@ def simulated_annealing(
     convergence_threshold : float, optional
         The standard deviation of the window below which convergence is said
         to have been achieved.. The default is 1e-6.
+    verbose : bool, optional
+        Whether to print progress messages during optimization.
+        The default is False.
 
     Returns
     -------
@@ -96,7 +100,8 @@ def simulated_annealing(
     """
     assert min_temperature > 0, "The minimum temperature must be greater than zero."
 
-    print("Initializing annealing...")
+    if verbose:
+        print("Initializing annealing...")
 
     num_steps: int = (
         math.ceil(np.log(min_temperature / temperature) / np.log(cooling_rate)) + 1
@@ -113,7 +118,8 @@ def simulated_annealing(
     convergence: bool = False
 
     counter: int = 1
-    print("Annealing...")
+    if verbose:
+        print("Annealing...")
     while temperature > min_temperature:
         for _ in range(iters_per_temperature):
             # Randomly pick an available element and an chosen element
@@ -158,21 +164,23 @@ def simulated_annealing(
             std: float = np.std(values[counter - convergence_window : counter])
             if std < convergence_threshold:
                 if value < best_value:
-                    print("...testing convergence...")
+                    if verbose:
+                        print("...testing convergence...")
                     chosen_set = best_set.copy()
                     available_set = {
                         i for i in range(cov.shape[0]) if i not in chosen_set
                     }
                     value = best_value
                 else:
-                    print("Convergence achieved!")
+                    if verbose:
+                        print("Convergence achieved!")
                     convergence = True
                     break
 
         temperature *= cooling_rate
         counter += 1
 
-    if convergence is False:
+    if convergence is False and verbose:
         print("Annealing schedule finished")
         print("No convergence achieved")
 
