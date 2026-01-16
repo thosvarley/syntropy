@@ -1,85 +1,177 @@
 # Syntropy
 
-Syntropy is a Python package for information-theoretic analysis of discrete and continuous random variables. 
+[![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Documentation](https://readthedocs.org/projects/syntropy/badge/?version=latest)](https://syntropy.readthedocs.io/en/latest/)
 
-Wherever possible, syntropy provides discrete and Gaussian estimators for a given function (entropy, mutual information, total correlation, etc). 
+**Syntropy** is a Python library for multivariate information-theoretic analysis of discrete and continuous data. It provides efficient implementations of information measures ranging from basic quantities like entropy and mutual information to modern constructs like the partial information decomposition, O-information, and information rates for time series.
 
-#### Documentation 
-Read the documentation [here](https://syntropy.readthedocs.io/en/latest/).
+## Features
 
-#### Estimators 
+- **Multiple estimators**: Discrete, Gaussian, KNN (Kraskov), and neural (normalizing flow) estimators
+- **Pointwise measures**: Access local/pointwise values, not just expected values
+- **Higher-order information**: Total correlation, dual total correlation, O-information, S-information
+- **Information decomposition**: Partial information decomposition (PID) and partial entropy decomposition
+- **Time series**: Information rates and Lempel-Ziv complexity measures
+- **Consistent API**: Same interface across all estimator types
 
-Information theoretic analysis requires estimating entropies from different kinds of data - discrete and continuous. This is a non-trivial problem, especially in the case of real-valued data, as the underlying probability distributions can be non-parametric. The Syntropy package implements functions with three classes of estimators: discrete, continuous using Gaussian assumptions, and continuous estimators using normalizing flows.  
+## Installation
 
-##### Discrete 
+```bash
+git clone https://github.com/thosvarley/syntropy.git
+cd syntropy
+pip install .
+```
 
-The discrete estimators are built on discrete probability distributions and the measures computed directly:
+For development:
+```bash
+pip install -e ".[dev]"
+```
 
-$$H(X) = -\sum_{x\in\mathcal{X}}P_X(x)\log P_X(x)$$
+## Quick Start
 
-The distirbutions are represented in Python as dictionaries where the keys are tuples representing the joint-state of every element, and the values are the probabilities of that state. For example, an XOR distribution would look like:
+### Discrete Distributions
+
+Discrete estimators work with probability distributions represented as dictionaries:
 
 ```python
-xor_distribution = {
-    (0,0,0) : 1/4,
-    (0,1,1) : 1/4,
-    (1,0,1) : 1/4,
-    (1,1,0) : 1/4,
+from syntropy.discrete import mutual_information, o_information
+
+# XOR distribution: pure synergy
+xor = {
+    (0, 0, 0): 0.25,
+    (0, 1, 1): 0.25,
+    (1, 0, 1): 0.25,
+    (1, 1, 0): 0.25,
+}
+
+# Mutual information between inputs (0,1) and output (2)
+ptw, mi = mutual_information(idxs_x=(0, 1), idxs_y=(2,), joint_distribution=xor)
+print(f"I(X0,X1 ; X2) = {mi:.3f} bits")  # 1.0 bit
+
+# O-information (negative = synergy-dominated)
+ptw, omega = o_information(idxs=(0, 1, 2), joint_distribution=xor)
+print(f"Omega = {omega:.3f} bits")  # -1.0 bit
+```
+
+### Gaussian Estimator
+
+For continuous data with approximately Gaussian distributions:
+
+```python
+import numpy as np
+from syntropy.gaussian import mutual_information, total_correlation
+
+# Generate correlated Gaussian data
+n = 10_000
+x = np.random.randn(n)
+y = 0.8 * x + 0.6 * np.random.randn(n)
+z = 0.5 * x + 0.866 * np.random.randn(n)
+data = np.vstack([x, y, z])
+
+cov = np.cov(data)
+mi = mutual_information(idxs_x=(0,), idxs_y=(1,), cov=cov)
+tc = total_correlation(idxs=(0, 1, 2), cov=cov)
+
+print(f"I(X ; Y) = {mi:.3f} nats")
+print(f"TC(X, Y, Z) = {tc:.3f} nats")
+```
+
+### KNN Estimator (Kraskov)
+
+Non-parametric estimation for continuous data:
+
+```python
+import numpy as np
+from syntropy.knn import mutual_information
+
+# Non-linear relationship
+n = 5_000
+x = np.random.randn(n)
+y = x**2 + 0.5 * np.random.randn(n)
+data = np.vstack([x, y])
+
+ptw, mi = mutual_information(idxs_x=(0,), idxs_y=(1,), data=data, k=5)
+print(f"I(X ; Y) = {mi:.3f} nats")
+```
+
+### Neural Estimator
+
+For complex, high-dimensional distributions using normalizing flows:
+
+```python
+import torch
+from syntropy.neural import mutual_information
+
+# Generate data (samples x features format)
+n = 10_000
+x = torch.randn(n)
+y = 0.7 * x + 0.714 * torch.randn(n)
+data = torch.stack([x, y], dim=1)
+
+ptw, mi = mutual_information(idxs_x=(0,), idxs_y=(1,), data=data, verbose=True)
+print(f"I(X ; Y) = {mi:.3f} nats")
+```
+
+### Mixed Discrete-Continuous
+
+For mutual information between discrete and continuous variables:
+
+```python
+import numpy as np
+from syntropy.mixed import mutual_information
+
+n = 10_000
+continuous = np.random.randn(1, n)
+discrete = (continuous > 0).astype(int)
+
+ptw, mi = mutual_information(discrete_vars=discrete, continuous_vars=continuous)
+print(f"I(discrete ; continuous) = {mi:.3f} nats")
+```
+
+## Available Measures
+
+| Measure | Discrete | Gaussian | KNN | Neural |
+|---------|:--------:|:--------:|:---:|:------:|
+| Entropy | x | x | x | x |
+| Mutual Information | x | x | x | x |
+| Conditional MI | x | x | x | |
+| KL Divergence | x | x | | |
+| Total Correlation | x | x | x | x |
+| Dual Total Correlation | x | x | x | x |
+| O-Information | x | x | x | x |
+| S-Information | x | x | x | x |
+| Co-Information | x | | | |
+| PID | x | x | | |
+| Information Rates | | x | | |
+| Lempel-Ziv Complexity | x | | | |
+
+## Documentation
+
+Full documentation is available at [syntropy.readthedocs.io](https://syntropy.readthedocs.io).
+
+- [Quickstart Guide](https://syntropy.readthedocs.io/en/latest/quickstart.html)
+- [Theory Primer](https://syntropy.readthedocs.io/en/latest/theory.html)
+- [API Reference](https://syntropy.readthedocs.io/en/latest/api/syntropy.html)
+
+## Testing
+
+```bash
+pytest tests/
+```
+
+## Citation
+
+If you use Syntropy in your research, please cite:
+
+```bibtex
+@software{syntropy,
+  author = {Varley, Thomas F.},
+  title = {Syntropy: Multivariate Information Theory for Python},
+  url = {https://github.com/thosvarley/syntropy},
 }
 ```
-The discrete estimators typically take in the distribution, and the indices of the relevant variables, represented as tuples. For example, the mutual information estimator syntax is:
 
-```python
-ptw, avg = mutual_information(
-    idxs_x = (0,1), 
-    idxs_y = (2,), 
-    joint_distributions = xor_distribution)
-```
+## License
 
-the `ptw` object is a dictionary with the pointwise mutual informations for each possible joint state, while avg is the expected mutual information. 
-
-Syntropy also includes a number of utility functions for manipulating discrete probability distributions.
-
-##### Gaussian
-
-Gaussian estimators assume that real valued data are drawn from a $k$-dimensional normal distribution $P_{X}(x)$ parameterized by some covariance matrix $\Sigma_{X}$. The entropy of that distribution is given by:
-
-
-$$H(X) = \frac{k}{2}\log(2\pi\textnormal{e}) + \frac{1}{2}\log |\Sigma_{X}|$$
-
-Where $|\Sigma_{X}|$ is the determinant of the covariance matrix.
-
-The Gaussian estimator syntax uses the same form as the discrete estimators, but with the covariance matrix instead:
-
-```python
-mi = mutual_information(
-    idxs_x = (0,), 
-    idxs_y = (1,),
-    cov = cov 
-)
-```
-To get pointwise estimates, there are `local_` functions that also take in the raw data as well.
-
-##### Neural 
-
-Neural estimators are non-parametric estimators based on [normalizing-flow neural networks](https://en.wikipedia.org/wiki/Flow-based_generative_model). The flow finds the set of invertible transformations that transforms a Gaussian distribution into a non-parametric distribution that maximizes the likelihood of the given data. 
-
-The neural estimators take the same syntax as above:
-
-```python
-mi = mutual_information(
-    idxs_x = (0,),
-    idxs_y = (1,),
-    data = data 
-)
-```
-Here, data is a PyTorch tensor object.
-
-#### Installation
-
-Download the directory using ``git clone https://github.com/thosvarley/syntropy.git``
-
-``cd`` into the directory and run ``pip install .`` (or ``pip install -e .`` for an editable install).
-
-##### Unit testing 
-If you have ``pytest`` installed, you can double-check the unit tests with ``pytest tests/`` from the root directory. 
+MIT License. See [LICENSE](LICENSE) for details.
