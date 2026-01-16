@@ -132,7 +132,7 @@ Unlike the discrete and KNN estimators, there are separate functions for expecte
      <span class="n">idxs_x</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">),</span>
      <span class="n">idxs_y</span> <span class="o">=</span> <span class="p">(</span><span class="mi">2</span><span class="p">,),</span>
      <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="p">,</span>
-     <span class="n">k</span><span class="o">=</span><span class="n">k</span><span class="p">,</span>
+     <span class="n">k</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
      <span class="n">algorithm</span> <span class="o">=</span> <span class="mi">1</span>
 <span class="p">)</span>
 </pre></div>
@@ -219,6 +219,26 @@ Unlike the discrete and KNN estimators, there are separate functions for expecte
 <p>The default hyperparameters work reasonably well for most cases, but may need tuning for specific applications. Sample sizes of 10,000 or more typically produce reliable convergence.</p>
 </section>
 </section>
+<section id="mixed-estimators">
+<h2>Mixed estimators<a class="headerlink" href="#mixed-estimators" title="Link to this heading">¶</a></h2>
+<p>Mixed estimators estimate the entropy or mutual information between a discrete and continuous random variable (or set of random variables). Currently, a Gaussian estimator is used for the continuous entropies, although a KNN-based alternative will also be introduced.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">syntropy.mixed</span><span class="w"> </span><span class="kn">import</span> <span class="n">mutual_information</span>
+
+<span class="c1"># Using the same data as above.</span>
+<span class="n">num_samples</span> <span class="o">=</span> <span class="mi">10_000</span>
+<span class="n">rand</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="n">num_samples</span><span class="p">)</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">2</span><span class="p">,</span> <span class="n">num_samples</span><span class="p">))</span>
+<span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">,:]</span> <span class="o">=</span> <span class="n">rand</span>
+<span class="n">data</span><span class="p">[</span><span class="mi">1</span><span class="p">,:]</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">,:]</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="mf">0.5</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="n">num_samples</span><span class="p">)</span>
+
+<span class="n">continuous</span> <span class="o">=</span> <span class="n">data</span><span class="p">[[</span><span class="mi">0</span><span class="p">],:]</span>
+<span class="n">discrete</span> <span class="o">=</span> <span class="p">(</span><span class="n">data</span><span class="p">[[</span><span class="mi">1</span><span class="p">],:]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+
+<span class="n">ptw</span><span class="p">,</span> <span class="n">mi</span> <span class="o">=</span> <span class="n">mutual_information</span><span class="p">(</span><span class="n">discrete_vars</span> <span class="o">=</span> <span class="n">discrete</span><span class="p">,</span> <span class="n">continuous_vars</span> <span class="o">=</span>
+<span class="n">continuous</span><span class="p">)</span><span class="o">.</span>
+</pre></div>
+</div>
+</section>
 </section>
 
 
@@ -254,6 +274,7 @@ Unlike the discrete and KNN estimators, there are separate functions for expecte
 <li class="toctree-l2"><a class="reference internal" href="#gaussian-estimators">Gaussian estimators</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#knn-estimators">KNN estimators</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#neural-estimators">Neural estimators</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mixed-estimators">Mixed estimators</a></li>
 </ul>
 </li>
 </ul>
@@ -263,6 +284,7 @@ Unlike the discrete and KNN estimators, there are separate functions for expecte
 <li class="toctree-l1"><a class="reference internal" href="api/syntropy.gaussian.html">syntropy.gaussian package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="api/syntropy.knn.html">syntropy.knn package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="api/syntropy.neural.html">syntropy.neural package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/syntropy.mixed.html">syntropy.mixed package</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Additional Information:</span></p>
 <ul>

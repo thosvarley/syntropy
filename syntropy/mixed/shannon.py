@@ -11,7 +11,7 @@ def shannon_entropy(
     k: int = 5,
 ) -> tuple[NDArray[np.floating], float]:
     """
-    For discrete :math:`X` and continuous :math:`Y`, leverages the identity 
+    For discrete :math:`X` and continuous :math:`Y`, leverages the identity
 
     .. math::
         H(X,Y) = H(X) + H(Y | X)
@@ -38,7 +38,10 @@ def shannon_entropy(
     assert discrete_vars.shape[1] == continuous_vars.shape[1], (
         "The discrete and continuous variables must have the same number of samples."
     )
-    assert continuous_estimator in {"gaussian", "knn"}, "Continuous estimator options are 'gaussian' or 'knn'."
+    assert continuous_estimator in {
+        "gaussian",
+        "knn",
+    }, "Continuous estimator options are 'gaussian' or 'knn'."
 
     unq: NDArray[np.integer]
     counts: NDArray[np.integer]
@@ -55,13 +58,25 @@ def shannon_entropy(
         mask: NDArray[np.bool_] = np.all(discrete_vars == state, axis=0)
 
         ptw[:, mask] -= np.log(probs[i])
+        continuous_conditional: NDArray[np.floating] = continuous_vars[:, mask]
 
-        cov_conditional: NDArray[np.floating] = np.cov(continuous_vars[:, mask], ddof=0)
+        if continuous_estimator == "gaussian":
+            cov_conditional: NDArray[np.floating] = np.cov(
+                continuous_conditional, ddof=0
+            )
+            ptw_conditional: NDArray[np.floating] = gaussian.local_differential_entropy(
+                continuous_conditional, cov_conditional
+            )
 
-        ptw[:, mask] += gaussian.local_differential_entropy(
-            continuous_vars[:, mask], cov_conditional
-        )
-        conditional_entropy += probs[i] * gaussian.differential_entropy(cov_conditional)
+            ptw[:, mask] += ptw_conditional
+            conditional_entropy += probs[i] * ptw_conditional.mean()
+
+        elif continuous_estimator == "knn":
+            ptw_conditional, avg_conditional = knn.differential_entropy(
+                continuous_conditional, k=k
+            )
+            ptw[:, mask] += ptw_conditional
+            conditional_entropy += probs[i] * avg_conditional
 
     avg += conditional_entropy
 
@@ -72,12 +87,14 @@ def conditional_entropy(
     discrete_vars: NDArray[np.integer],
     continuous_vars: NDArray[np.floating],
     conditional: str = "discrete",
+    continuous_estimator: str = "gaussian",
+    k: int = 5,
 ) -> tuple[NDArray[np.floating], float]:
     """
-    For discrete :math:`X` and continuous :math:`Y`, leverages the identity 
+    For discrete :math:`X` and continuous :math:`Y`, leverages the identity
 
     .. math::
-        H(X,Y) = H(X) + H(Y | X)
+        H(X | Y) = H(X,Y) - H(Y)
 
     Either the discrete variables or the continuous variables can be conditioning variable (in which case the other is conditioned).
 
@@ -89,7 +106,10 @@ def conditional_entropy(
         Numpy array of the continuous variables, of shape (n_variables, n_samples)
     conditional : str
         Wheter to condition the discrete variables on the continuous, or vice versa.
-
+    continuous_estimator : str
+        Whether to use a Gaussian or KNN-based estimator of the continuous entropy. Options are "gaussian" or "knn".
+    k : int (optional)
+        If a KNN-based estimator is selected, sets the k-value. Defaults to 5.
 
     Returns
     -------
@@ -111,7 +131,10 @@ def conditional_entropy(
     ptw_joint: NDArray[np.floating]
     avg_joint: float
     ptw_joint, avg_joint = shannon_entropy(
-        discrete_vars=discrete_vars, continuous_vars=continuous_vars
+        discrete_vars=discrete_vars,
+        continuous_vars=continuous_vars,
+        continuous_estimator=continuous_estimator,
+        k=k,
     )
 
     if conditional == "continuous":
