@@ -131,20 +131,33 @@ print(f"I(discrete ; continuous) = {mi:.3f} nats")
 
 ## Available Measures
 
-| Measure | Discrete | Gaussian | KNN | Neural |
-|---------|:--------:|:--------:|:---:|:------:|
-| Entropy | x | x | x | x |
-| Mutual Information | x | x | x | x |
-| Conditional MI | x | x | x | |
+| Measure | Discrete | Gaussian | KNN | Neural | Mixed |
+|---------|:--------:|:--------:|:---:|:------:|:-----:|
+| Entropy | x | x | x | x | x |
+| Conditional Ent. | x | x | x | x | x |
+| Mutual Information | x | x | x | x | x |
+| Conditional MI | x | x | x | x |
 | KL Divergence | x | x | | |
 | Total Correlation | x | x | x | x |
 | Dual Total Correlation | x | x | x | x |
 | O-Information | x | x | x | x |
 | S-Information | x | x | x | x |
 | Co-Information | x | | | |
-| PID | x | x | | |
-| Information Rates | | x | | |
-| Lempel-Ziv Complexity | x | | | |
+| TSE Complexity | x | x | | | 
+| Partial Info. Decomp. | x | x | | |
+| Partial Entropy Decomp. | x | x | | |
+| Generalized Info. Decomp. | x | x | | |
+| Information Rates | x | x | | |
+| Connected Information | x| | | |
+
+### Optimizations and Utilities
+
+Syntropy also includes a number of optimization algorithms. 
+
+* Finding optimally-synergistic submatrices from a covariance matrix (as done by [Varley, Pope et al., 2023](https://www.nature.com/articles/s42003-023-04843-w)).
+* Finding the maximum-entropy discrete distribution consistent with k-order marginals (as done in the [DIT package](https://dit.readthedocs.io/en/latest/optimization.html?highlight=maxentoptimizer)).
+
+In the ```utils.py``` files, you can also find a number of utility functions for interacting with discrete and continuous probability distributions. 
 
 ## Documentation
 
