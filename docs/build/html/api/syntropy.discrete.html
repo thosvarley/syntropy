@@ -5,11 +5,11 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>syntropy.discrete package &#8212; Syntropy 1.0.0 documentation</title>
+    <title>syntropy.discrete package &#8212; Syntropy 0.0.1 documentation</title>
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=5ecbeea2" />
     <link rel="stylesheet" type="text/css" href="../_static/basic.css?v=b08954a9" />
     <link rel="stylesheet" type="text/css" href="../_static/alabaster.css?v=27fed22d" />
-    <script src="../_static/documentation_options.js?v=8d563738"></script>
+    <script src="../_static/documentation_options.js?v=d45e8c67"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
@@ -1245,183 +1245,44 @@ each value is the associated marginal distribution .</p>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="syntropy.discrete.utils.local_precompute_sources">
-<span class="sig-prename descclassname"><span class="pre">syntropy.discrete.utils.</span></span><span class="sig-name descname"><span class="pre">local_precompute_sources</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">joint_distribution</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/discrete/utils.html#local_precompute_sources"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.discrete.utils.local_precompute_sources" title="Link to this definition">¶</a></dt>
-<dd><p>A utility function that computes the local entropy of each subset of
-elements. This speeds up the computation using the hmin function
-considerably,</p>
+<dt class="sig sig-object py" id="syntropy.discrete.utils.product_distribution">
+<span class="sig-prename descclassname"><span class="pre">syntropy.discrete.utils.</span></span><span class="sig-name descname"><span class="pre">product_distribution</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">A</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">B</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/discrete/utils.html#product_distribution"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.discrete.utils.product_distribution" title="Link to this definition">¶</a></dt>
+<dd><p>Compute the product of two independent distributions.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>joint_distribution</strong> (<em>dict</em><em>[</em><em>tuple</em><em>, </em><em>float</em><em>]</em>) – The joint probability distribution.
-Keys are tuples corresponding to the state of each element.
-The valules are the probabilities.</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>A</strong> (<em>dict</em><em>[</em><em>tuple</em><em>[</em><em>int</em><em>, </em><em>...</em><em>]</em><em>, </em><em>float</em><em>]</em>) – The first distribution</p></li>
+<li><p><strong>B</strong> (<em>dict</em><em>[</em><em>tuple</em><em>[</em><em>int</em><em>, </em><em>...</em><em>]</em><em>, </em><em>float</em><em>]</em>) – The second distribution</p></li>
+</ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>For each state, the joint entropy of every subset.</p>
+<dd class="field-even"><p>Joint distribution over concatenated states</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>dict</p>
+<dd class="field-odd"><p>dict[tuple[int, …], float]</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="syntropy.discrete.utils.hmin_discrete_redundancy">
-<span class="sig-prename descclassname"><span class="pre">syntropy.discrete.utils.</span></span><span class="sig-name descname"><span class="pre">hmin_discrete_redundancy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">atom</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">state</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sources</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">joint_distribution</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/discrete/utils.html#hmin_discrete_redundancy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.discrete.utils.hmin_discrete_redundancy" title="Link to this definition">¶</a></dt>
-<dd><p>For a collection of sources <span class="math notranslate nohighlight">\(\alpha=\{a_1, a_2, \ldots, a_k\}\)</span>, computes
-the redundnat entropy shared by all sources as:</p>
-<p><span class="math notranslate nohighlight">\(h_{\cap}^{min}(\alpha) = \min_{i}h(a_i)\)</span></p>
-<dl class="simple">
-<dt>See:</dt><dd><p>Finn, C., &amp; Lizier, J. T. (2020).
-Generalised Measures of Multivariate Information Content.
-Entropy, 22(2), Article 2.
-<a class="reference external" href="https://doi.org/10.3390/e22020216">https://doi.org/10.3390/e22020216</a></p>
-</dd>
-</dl>
+<dt class="sig sig-object py" id="syntropy.discrete.utils.generate_closed_distribution">
+<span class="sig-prename descclassname"><span class="pre">syntropy.discrete.utils.</span></span><span class="sig-name descname"><span class="pre">generate_closed_distribution</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">N</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/discrete/utils.html#generate_closed_distribution"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.discrete.utils.generate_closed_distribution" title="Link to this definition">¶</a></dt>
+<dd><p>Generate a random closed discrete probability distribution on N binary elements.</p>
+<p>A distribution is closed iff H(X_i | X^{-i}) = 0 for all i, meaning every
+variable is fully determined by the others. This requires the support to
+have minimum Hamming distance &gt;= 2.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>atom</strong> (<em>tuple</em>) – The partial entropy atom.</p></li>
-<li><p><strong>state</strong> (<em>tuple</em>) – The state of the system.</p></li>
-<li><p><strong>sources</strong> (<em>dict</em>) – The pre-computed local entropies constructed by the
-precompute_local_entropies() function.</p></li>
-<li><p><strong>joint_distribution</strong> (<em>dict</em><em>[</em><em>tuple</em><em>, </em><em>float</em><em>]</em>) – The joint probability distribution.
-Keys are tuples corresponding to the state of each element.
-The valules are the probabilities.</p></li>
+<li><p><strong>N</strong> (<em>int</em>) – Number of binary elements.</p></li>
+<li><p><strong>seed</strong> (<em>int</em><em>, </em><em>optional</em>) – Random seed for reproducibility.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>The redundant entropy shared by every source in the atom.</p>
+<dd class="field-even"><p>Probability distribution as {state: probability} mapping.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>float</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="syntropy.discrete.utils.imin_discrete_redundancy">
-<span class="sig-prename descclassname"><span class="pre">syntropy.discrete.utils.</span></span><span class="sig-name descname"><span class="pre">imin_discrete_redundancy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">atom</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">state</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inputs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sources</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">joint_distribution</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/discrete/utils.html#imin_discrete_redundancy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.discrete.utils.imin_discrete_redundancy" title="Link to this definition">¶</a></dt>
-<dd><p>For a collection of sources <span class="math notranslate nohighlight">\(\alpha = \{a_{1}, a_{2}, \ldots, a_{k}\}\)</span> and a target <span class="math notranslate nohighlight">\(t\)</span> the redundancy is defined as:</p>
-<p><span class="math notranslate nohighlight">\(i_{min}(\alpha;t) = \min_{i}h(a_i) - \min_{i}h(a_i|t)\)</span></p>
-<dl class="simple">
-<dt>See:</dt><dd><p>Finn, C., &amp; Lizier, J. T. (2020).
-Generalised Measures of Multivariate Information Content.
-Entropy, 22(2), Article 2.
-<a class="reference external" href="https://doi.org/10.3390/e22020216">https://doi.org/10.3390/e22020216</a></p>
-</dd>
-</dl>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>atom</strong> (<em>tuple</em>) – The partial information atom.</p></li>
-<li><p><strong>state</strong> (<em>tuple</em>) – The joint-state of the systems.</p></li>
-<li><p><strong>inputs</strong> (<em>tuple</em>) – The indices of the input variables.</p></li>
-<li><p><strong>target</strong> (<em>tuple</em>) – The indices of the target variable. May be multivariate.</p></li>
-<li><p><strong>sources</strong> (<em>dict</em>) – The pre-computed local entropies
-for the joint state of the source and the target.</p></li>
-<li><p><strong>joint_distribution</strong> (<em>dict</em><em>[</em><em>tuple</em><em>, </em><em>float</em><em>]</em>) – The joint probability distribution.
-Keys are tuples corresponding to the state of each element.
-The valules are the probabilities.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>The local redundant mutual information.</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>float</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="syntropy.discrete.utils.hsx_discrete_redundancy">
-<span class="sig-prename descclassname"><span class="pre">syntropy.discrete.utils.</span></span><span class="sig-name descname"><span class="pre">hsx_discrete_redundancy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">atom</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">state</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">joint_distribution</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/discrete/utils.html#hsx_discrete_redundancy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.discrete.utils.hsx_discrete_redundancy" title="Link to this definition">¶</a></dt>
-<dd><p>Computes the redundant entropy shared by a set of sources using the <span class="math notranslate nohighlight">\(h_{sx}\)</span> function.</p>
-<p>For a collection of sources <span class="math notranslate nohighlight">\(\alpha = \{a_{1}, a_{2}, \ldots, a_{k}\}\)</span>,
-the redundancy is defined as</p>
-<p><span class="math notranslate nohighlight">\(h^{sx}_{\cap}(\alpha) = -\log_{2} P(a_{1} \cup a_{2} \cup \ldots \cup a_{k})\)</span>.</p>
-<dl class="simple">
-<dt>See:</dt><dd><p>Varley, T. F., Pope, M., Maria Grazia, P., Joshua, F., &amp; Sporns, O. (2023).
-Partial entropy decomposition reveals higher-order information structures in human brain activity.
-Proceedings of the National Academy of Sciences, 120(30), e2300888120.
-<a class="reference external" href="https://doi.org/10.1073/pnas.2300888120">https://doi.org/10.1073/pnas.2300888120</a></p>
-</dd>
-</dl>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>atom</strong> (<em>tuple</em>) – The partial entropy atom.</p></li>
-<li><p><strong>state</strong> (<em>tuple</em>) – The state of the system.</p></li>
-<li><p><strong>joint_distribution</strong> (<em>dict</em><em>[</em><em>tuple</em><em>, </em><em>float</em><em>]</em>) – The joint probability distribution.
-Keys are tuples corresponding to the state of each element.
-The valules are the probabilities.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>The redundant entropy shared by every source in the atom..</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>float</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="syntropy.discrete.utils.isx_discrete_redundancy">
-<span class="sig-prename descclassname"><span class="pre">syntropy.discrete.utils.</span></span><span class="sig-name descname"><span class="pre">isx_discrete_redundancy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">atom</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">state</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inputs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">joint_distribution</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/discrete/utils.html#isx_discrete_redundancy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.discrete.utils.isx_discrete_redundancy" title="Link to this definition">¶</a></dt>
-<dd><p>For a collection of sources <span class="math notranslate nohighlight">\(\alpha = \{a_{1}, a_{2}, \ldots, a_{k}\}\)</span> and a target <span class="math notranslate nohighlight">\(t\)</span> the redundancy is defined as:</p>
-<p><span class="math notranslate nohighlight">\(i_{sx}(\alpha;t) = \log_{2}\frac{P(t) - P(t \cap (\bar{a}_1 \cap \ldots \cap \bar{a}_k)}{1 - P(\bar{a}_1 \cap \ldots \cap \bar{a}_{k})} - \log_2 P(t)\)</span></p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>atom</strong> (<em>tuple</em>) – The partial information atom.</p></li>
-<li><p><strong>state</strong> (<em>tuple</em>) – The joint-state of the systems.</p></li>
-<li><p><strong>inputs</strong> (<em>tuple</em>) – The indices of the input variables.</p></li>
-<li><p><strong>target</strong> (<em>tuple</em>) – The indices of the target variable. May be multivariate.</p></li>
-<li><p><strong>sources</strong> (<em>dict</em>) – The pre-computed local entropies
-for the joint state of the source and the target.</p></li>
-<li><p><strong>joint_distribution</strong> (<em>dict</em><em>[</em><em>tuple</em><em>, </em><em>float</em><em>]</em>) – The joint probability distribution.
-Keys are tuples corresponding to the state of each element.
-The valules are the probabilities.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>The redundant mutual informations.</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>float</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="syntropy.discrete.utils.mobius_inversion">
-<span class="sig-prename descclassname"><span class="pre">syntropy.discrete.utils.</span></span><span class="sig-name descname"><span class="pre">mobius_inversion</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">decomposition</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">joint_distribution</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">redundancy</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inputs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(None,)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(None,)</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/discrete/utils.html#mobius_inversion"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.discrete.utils.mobius_inversion" title="Link to this definition">¶</a></dt>
-<dd><p>Computes the Mobius inversion on the antichain lattice.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>decomposition</strong> (<em>str</em>) – <dl class="simple">
-<dt>Which decomposition to use:</dt><dd><p>For partial information decomposition use “pid”.
-For partial entropy decomposition use “ped”.</p>
-</dd>
-</dl>
-</p></li>
-<li><p><strong>joint_distribution</strong> (<em>dict</em><em>[</em><em>tuple</em><em>, </em><em>float</em><em>]</em>) – The joint probability distribution.
-Keys are tuples corresponding to the state of each element.
-The valules are the probabilities.</p></li>
-<li><p><strong>redundancy</strong> (<em>str</em>) – The redundancy function.</p></li>
-<li><p><strong>inputs</strong> (<em>tuple</em><em>, </em><em>optional</em>) – The indicies of the inputs. The default is (None,)</p></li>
-<li><p><strong>target</strong> (<em>tuple</em><em>, </em><em>optional</em>) – The (potentially multivariate) indices of the target.
-The default is (None,).</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>The pointwise and average partial information atom dictionaries.</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>(dict, dict)</p>
+<dd class="field-odd"><p>dict[tuple[int, …], float]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1465,6 +1326,10 @@ The default is (None,).</p></li>
 <li class="toctree-l1"><a class="reference internal" href="syntropy.gaussian.html">syntropy.gaussian package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="syntropy.knn.html">syntropy.knn package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="syntropy.neural.html">syntropy.neural package</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Additional Information:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../contributing.html">Contributing</a></li>
 </ul>
 
 <div class="relations">

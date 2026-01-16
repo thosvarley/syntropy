@@ -4,11 +4,11 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>syntropy.gaussian.shannon &#8212; Syntropy 1.0.0 documentation</title>
+    <title>syntropy.gaussian.shannon &#8212; Syntropy 0.0.1 documentation</title>
     <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=5ecbeea2" />
     <link rel="stylesheet" type="text/css" href="../../../_static/basic.css?v=b08954a9" />
     <link rel="stylesheet" type="text/css" href="../../../_static/alabaster.css?v=27fed22d" />
-    <script src="../../../_static/documentation_options.js?v=8d563738"></script>
+    <script src="../../../_static/documentation_options.js?v=d45e8c67"></script>
     <script src="../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
@@ -228,24 +228,24 @@
 <span class="k">def</span><span class="w"> </span><span class="nf">mutual_information</span><span class="p">(</span>
     <span class="n">idxs_x</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span> <span class="n">idxs_y</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span> <span class="n">cov</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">]</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Computes the mutual information between two (potentially multivariate) sets of elements.</span>
-<span class="sd">    </span>
-<span class="sd">    .. math:: </span>
-<span class="sd">        I(X;Y) &amp;= H(X) + H(Y) - H(X,Y) \\\\</span>
-<span class="sd">               &amp;= H(X) - H(X|Y) \\\\</span>
-<span class="sd">               &amp;= H(Y) - H(Y|X) \\\\</span>
-<span class="sd">               &amp;= H(X,Y) - H(X|Y) - H(Y|X)</span>
-<span class="sd">    </span>
-<span class="sd">    For Gaussian random variables:</span>
-
-<span class="sd">    .. math:: </span>
-<span class="sd">        I(X;Y) = \\frac{1}{2}\\log\\frac{|\\Sigma_{X}||\\Sigma_{Y}|}{|\Sigma_{XY}|}</span>
-
-<span class="sd">    In the particular case where :math:`X` and :math:`Y` are univariate, the mutual information can be computed directly from the Pearson correlation coefficient :math:`r`: </span>
 
 <span class="sd">    .. math::</span>
-<span class="sd">        I(X;Y) = \\frac{-\\log(1-r^{2})}{2}</span>
+<span class="sd">        I(X;Y) &amp;= H(X) + H(Y) - H(X,Y) \\</span>
+<span class="sd">               &amp;= H(X) - H(X|Y) \\</span>
+<span class="sd">               &amp;= H(Y) - H(Y|X) \\</span>
+<span class="sd">               &amp;= H(X,Y) - H(X|Y) - H(Y|X)</span>
+
+<span class="sd">    For Gaussian random variables:</span>
+
+<span class="sd">    .. math::</span>
+<span class="sd">        I(X;Y) = \frac{1}{2}\log\frac{|\Sigma_{X}||\Sigma_{Y}|}{|\Sigma_{XY}|}</span>
+
+<span class="sd">    In the particular case where :math:`X` and :math:`Y` are univariate, the mutual information can be computed directly from the Pearson correlation coefficient :math:`r`:</span>
+
+<span class="sd">    .. math::</span>
+<span class="sd">        I(X;Y) = \frac{-\log(1-r^{2})}{2}</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -336,7 +336,6 @@
     <span class="n">h_joint</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">]</span> <span class="o">=</span> <span class="n">local_differential_entropy</span><span class="p">(</span>
         <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">joint</span><span class="p">,</span> <span class="p">:],</span> <span class="n">cov</span> <span class="o">=</span> <span class="n">cov_</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ix_</span><span class="p">(</span><span class="n">joint</span><span class="p">,</span> <span class="n">joint</span><span class="p">)]</span>
     <span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;woo&quot;</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">h_x</span> <span class="o">+</span> <span class="n">h_y</span> <span class="o">-</span> <span class="n">h_joint</span></div>
 
@@ -553,6 +552,10 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../api/syntropy.gaussian.html">syntropy.gaussian package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../api/syntropy.knn.html">syntropy.knn package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../api/syntropy.neural.html">syntropy.neural package</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Additional Information:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../contributing.html">Contributing</a></li>
 </ul>
 
 <div class="relations">

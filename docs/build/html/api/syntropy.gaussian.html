@@ -5,11 +5,11 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>syntropy.gaussian package &#8212; Syntropy 1.0.0 documentation</title>
+    <title>syntropy.gaussian package &#8212; Syntropy 0.0.1 documentation</title>
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=5ecbeea2" />
     <link rel="stylesheet" type="text/css" href="../_static/basic.css?v=b08954a9" />
     <link rel="stylesheet" type="text/css" href="../_static/alabaster.css?v=27fed22d" />
-    <script src="../_static/documentation_options.js?v=8d563738"></script>
+    <script src="../_static/documentation_options.js?v=d45e8c67"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
@@ -36,8 +36,6 @@
             
   <section id="module-syntropy.gaussian">
 <span id="syntropy-gaussian-package"></span><h1>syntropy.gaussian package<a class="headerlink" href="#module-syntropy.gaussian" title="Link to this heading">¶</a></h1>
-<p>Created on Mon Feb 10 21:09:55 2025</p>
-<p>&#64;author: thosvarley</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="syntropy.gaussian.differential_entropy">
 <span class="sig-prename descclassname"><span class="pre">syntropy.gaussian.</span></span><span class="sig-name descname"><span class="pre">differential_entropy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cov</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idxs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(-1,)</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/gaussian/shannon.html#differential_entropy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.gaussian.differential_entropy" title="Link to this definition">¶</a></dt>
@@ -1058,7 +1056,7 @@ The covariance matrix (NDArray) and indices (tuple of ints)</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="syntropy.gaussian.optimization.simulated_annealing">
-<span class="sig-prename descclassname"><span class="pre">syntropy.gaussian.optimization.</span></span><span class="sig-name descname"><span class="pre">simulated_annealing</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cov</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">function</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">temperature</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cooling_rate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.999</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_temperature</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">iters_per_temperature</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">convergence_window</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">convergence_threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-06</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/gaussian/optimization.html#simulated_annealing"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.gaussian.optimization.simulated_annealing" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">syntropy.gaussian.optimization.</span></span><span class="sig-name descname"><span class="pre">simulated_annealing</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cov</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">function</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">temperature</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cooling_rate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.999</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_temperature</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">iters_per_temperature</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">convergence_window</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">convergence_threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-06</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/gaussian/optimization.html#simulated_annealing"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.gaussian.optimization.simulated_annealing" title="Link to this definition">¶</a></dt>
 <dd><p>Implements a simulated annealing algorithm for optimizing
 multivariate information measures (O-info, DTC, etc) from
 a covariance matrix. Modified from;</p>
@@ -1088,6 +1086,8 @@ The default is 10.</p></li>
 The default is 100.</p></li>
 <li><p><strong>convergence_threshold</strong> (<em>float</em><em>, </em><em>optional</em>) – The standard deviation of the window below which convergence is said
 to have been achieved.. The default is 1e-6.</p></li>
+<li><p><strong>verbose</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to print progress messages during optimization.
+The default is False.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -1154,145 +1154,6 @@ Returns False otherwise.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="syntropy.gaussian.utils.unpack_atom">
-<span class="sig-prename descclassname"><span class="pre">syntropy.gaussian.utils.</span></span><span class="sig-name descname"><span class="pre">unpack_atom</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">atom</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/gaussian/utils.html#unpack_atom"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.gaussian.utils.unpack_atom" title="Link to this definition">¶</a></dt>
-<dd><p>A utitlity function to unpack tuples.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>atom</strong> (<em>tuple</em>)</p>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>set</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="syntropy.gaussian.utils.local_precompute_sources">
-<span class="sig-prename descclassname"><span class="pre">syntropy.gaussian.utils.</span></span><span class="sig-name descname"><span class="pre">local_precompute_sources</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cov</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">array([[-1.]])</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/gaussian/utils.html#local_precompute_sources"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.gaussian.utils.local_precompute_sources" title="Link to this definition">¶</a></dt>
-<dd><p>A utility function that pre-computes the local entropies
-of every subset of the data. This speeds up the PID/GID/PED
-by orders of magnitude.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>data</strong> (<em>NDArray</em><em>[</em><em>np.floating</em><em>]</em>) – The data in channels x samples format.</p></li>
-<li><p><strong>cov</strong> (<em>NDArray</em><em>[</em><em>np.floating</em><em>]</em><em>, </em><em>optional</em>) – The covariance matrix of the data.
-The default is COV_NULL.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>A dictionary of the local entropies for every source.</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>dict</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="syntropy.gaussian.utils.hmin_differential_redundancy">
-<span class="sig-prename descclassname"><span class="pre">syntropy.gaussian.utils.</span></span><span class="sig-name descname"><span class="pre">hmin_differential_redundancy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">atom</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sources</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cov</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">array([[-1.]])</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/gaussian/utils.html#hmin_differential_redundancy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.gaussian.utils.hmin_differential_redundancy" title="Link to this definition">¶</a></dt>
-<dd><p>For a collection of sources <span class="math notranslate nohighlight">\(\alpha=\{a_1, a_2, \ldots, a_k\}\)</span>, computes
-the redundnat entropy shared by all sources as:</p>
-<p><span class="math notranslate nohighlight">\(h_{\cap}^{min}(\alpha) = \min_{i}(a_{i})\)</span></p>
-<dl class="simple">
-<dt>See:</dt><dd><p>Finn, C., &amp; Lizier, J. T. (2020).
-Generalised Measures of Multivariate Information Content.
-Entropy, 22(2), Article 2.
-<a class="reference external" href="https://doi.org/10.3390/e22020216">https://doi.org/10.3390/e22020216</a></p>
-</dd>
-</dl>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>atom</strong> (<em>tuple</em>) – The partial information atom. In the form <span class="math notranslate nohighlight">\(((a_1,),(a_2,)\ldots)\)</span>.</p></li>
-<li><p><strong>sources</strong> (<em>dict</em>) – The pre-computed collection of sources.</p></li>
-<li><p><strong>data</strong> (<em>NDArray</em><em>[</em><em>np.floating</em><em>]</em>) – The data, assumed to be in sources x samples format.</p></li>
-<li><p><strong>cov</strong> (<em>ndarray</em><em>[</em><em>tuple</em><em>[</em><em>int</em><em>, </em><em>...</em><em>]</em><em>, </em><em>dtype</em><em>[</em><em>floating</em><em>]</em><em>]</em>)</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>The local redundancies for each sample.</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>NDArray[np.floating]</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="syntropy.gaussian.utils.imin_differential_redundancy">
-<span class="sig-prename descclassname"><span class="pre">syntropy.gaussian.utils.</span></span><span class="sig-name descname"><span class="pre">imin_differential_redundancy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">atom</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sources</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inputs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cov</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">array([[-1.]])</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/gaussian/utils.html#imin_differential_redundancy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.gaussian.utils.imin_differential_redundancy" title="Link to this definition">¶</a></dt>
-<dd><p>Computes the differential redundnacy between a partial information atom <span class="math notranslate nohighlight">\(\alpha=\{a_i,\ldots,a_k\}\)</span> and a (potentially multivariate) target. Uses a Gaussian estimator for the local entropies.</p>
-<p><span class="math notranslate nohighlight">\(i_{\cap}^{min}(\alpha;t) = \min_{i}h(a_i) - \min_{i}h(a_i|t)\)</span></p>
-<p>This is NOT the I_min from Williams and Beer - it is the local redundancy function from Finn and Lizier.</p>
-<dl class="simple">
-<dt>See:</dt><dd><p>Finn, C., &amp; Lizier, J. T. (2018).
-Pointwise Partial Information Decomposition Using
-the Specificity and Ambiguity Lattices.
-Entropy, 20(4), Article 4.
-<a class="reference external" href="https://doi.org/10.3390/e20040297">https://doi.org/10.3390/e20040297</a></p>
-</dd>
-</dl>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>atom</strong> (<em>tuple</em>) – The partial information atom. In the form <span class="math notranslate nohighlight">\(((a_1,),(a_2,)\ldots)\)</span>.</p></li>
-<li><p><strong>sources</strong> (<em>dict</em>) – The pre-computed collection of sources.</p></li>
-<li><p><strong>inputs</strong> (<em>tuple</em>) – The indicies of the inputs - one index per element of the tuple.</p></li>
-<li><p><strong>target</strong> (<em>tuple</em>) – The (potentially multivariate) indices of the collective target.</p></li>
-<li><p><strong>data</strong> (<em>NDArray</em><em>[</em><em>np.floating</em><em>]</em>) – The data, assumed to be in channels x samples format.</p></li>
-<li><p><strong>cov</strong> (<em>ndarray</em><em>[</em><em>tuple</em><em>[</em><em>int</em><em>, </em><em>...</em><em>]</em><em>, </em><em>dtype</em><em>[</em><em>floating</em><em>]</em><em>]</em>)</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>The local differnetial redundancy for each frame.</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>NDArray[np.floating]</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="syntropy.gaussian.utils.mobius_inversion">
-<span class="sig-prename descclassname"><span class="pre">syntropy.gaussian.utils.</span></span><span class="sig-name descname"><span class="pre">mobius_inversion</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">decomposition</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inputs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(None,)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cov</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">array([[-1.]])</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/gaussian/utils.html#mobius_inversion"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.gaussian.utils.mobius_inversion" title="Link to this definition">¶</a></dt>
-<dd><p>Computes the Mobius inversion on a lattice, given a redundancy function.</p>
-<dl class="simple">
-<dt>See:</dt><dd><p>Williams, P. L., &amp; Beer, R. D. (2010).
-Nonnegative Decomposition of Multivariate Information.
-arXiv:1004.2515 [Math-Ph, Physics:Physics, q-Bio].
-http://arxiv.org/abs/1004.2515</p>
-</dd>
-</dl>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>decomposition</strong> (<em>str</em>) – Whehter to do a PID or PED. Options: “pid”, “ped”.</p></li>
-<li><p><strong>data</strong> (<em>NDArray</em><em>[</em><em>np.floating</em><em>]</em>) – The data, assumed to be in channels x samples format.</p></li>
-<li><p><strong>inputs</strong> (<em>tuple</em>) – The variables to be decomposed.</p></li>
-<li><p><strong>target</strong> (<em>tuple</em><em>, </em><em>optional</em>) – If doing a PID, the indices of the target.
-If doing a PED, leave false.
-The default is (None,).</p></li>
-<li><p><strong>cov</strong> (<em>NDArray</em><em>[</em><em>np.floating</em><em>]</em><em>, </em><em>optional</em>) – The covariance matrix that defines the multivairate distribution.
-If left empty, it is computed from the data. The default is COV_NULL.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p><ul class="simple">
-<li><p><strong>ptw</strong> (<em>dict</em>) – The pointwise values of each atom in the decomposition for each sample.</p></li>
-<li><p><strong>avg</strong> (<em>dict</em>) – The expected values of each atom in the decomposition.</p></li>
-</ul>
-</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>tuple[dict, dict]</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
 <dt class="sig sig-object py" id="syntropy.gaussian.utils.correlation_to_mutual_information">
 <span class="sig-prename descclassname"><span class="pre">syntropy.gaussian.utils.</span></span><span class="sig-name descname"><span class="pre">correlation_to_mutual_information</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cov</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/gaussian/utils.html#correlation_to_mutual_information"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.gaussian.utils.correlation_to_mutual_information" title="Link to this definition">¶</a></dt>
 <dd><p>Converts a Pearson correlation matrix to a Guassian mutual
@@ -1353,6 +1214,10 @@ and unit variance.</p>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">syntropy.gaussian package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="syntropy.knn.html">syntropy.knn package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="syntropy.neural.html">syntropy.neural package</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Additional Information:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../contributing.html">Contributing</a></li>
 </ul>
 
 <div class="relations">

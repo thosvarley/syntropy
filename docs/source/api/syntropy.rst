@@ -17,3 +17,4 @@ Subpackages
    syntropy.knn
    syntropy.lattices
    syntropy.neural
+   syntropy.mixed
