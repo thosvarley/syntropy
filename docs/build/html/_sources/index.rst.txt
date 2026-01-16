@@ -85,6 +85,7 @@ Example
    api/syntropy.gaussian
    api/syntropy.knn
    api/syntropy.neural
+   api/syntropy.mixed
 
 .. toctree::
    :maxdepth: 1
