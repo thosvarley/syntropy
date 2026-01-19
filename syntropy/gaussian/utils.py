@@ -69,7 +69,7 @@ def correlation_to_mutual_information(
 
 def copula_transform(
     X: NDArray[np.floating],
-) -> tuple[NDArray[np.floating], NDArray[np.floating]]:
+) -> tuple[NDArray[np.floating], ...]:
     """
     Transform data to Gaussian copula space and compute the correlation matrix.
 
@@ -80,9 +80,9 @@ def copula_transform(
 
     Returns
     -------
-    Z : ndarray, shape (n_channels, n_samples)
+    Z : NDArray[np.floating]
         Gaussianized copula data (zero-mean, unit-variance)
-    R : ndarray, shape (n_channels, n_channels)
+    R : NDArray[np.floating]
         Copula correlation matrix
     """
 
