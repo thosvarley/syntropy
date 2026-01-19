@@ -11,6 +11,8 @@ def local_total_correlation(
 
     .. math:: 
         tc(x) = \\sum_{i=1}^{N}h(x_i) - h(x)
+    
+    If you wish to use a Gaussian copula estimator, use the transformed data and the correlation matrix returned by the function :func:`utils.copula_transform`. 
 
     Parameters
     ----------
@@ -74,6 +76,8 @@ def total_correlation(
             \hat{TC}(X) = \frac{-\log R}{2}
 
     Where :math:`R` is the Pearson correlation matrix.
+    
+    If you wish to use a Gaussian copula estimator, use the correlation matrix returned by the function :func:`utils.copula_transform`. 
 
     Parameters
     ----------
@@ -133,6 +137,8 @@ def local_delta_k(
 
     .. math::
         \delta_{k}(x) = (N-k)tc(x) - \sum_{i=1}^{N} tc(x^{-i})
+    
+    If you wish to use a Gaussian copula estimator, use the transformed data and the correlation matrix returned by the function :func:`utils.copula_transform`. 
 
     Parameters
     ----------
@@ -178,6 +184,8 @@ def delta_k(k: int, cov: NDArray[np.floating], idxs: tuple[int, ...] = (-1,)) ->
     .. math::
 
         WMS^{k}(X) = (N-k)TC(X) - \\sum_{i=1}^{N}TC(X^{-i})
+    
+    If you wish to use a Gaussian copula estimator, use the correlation matrix returned by the function :func:`utils.copula_transform`. 
 
     Parameters
     ----------
@@ -225,6 +233,8 @@ def local_s_information(
         \\sigma(X) &= \\sum_{i=1}^{N}i(x_i;x^{-i}) \\\\
                    &= N\\times tc(x) - \\sum_{i=1}^{N}tc(x^{-i}) \\\\
                    &= tc(x) + dtc(x)
+    
+    If you wish to use a Gaussian copula estimator, use the transformed data and the correlation matrix returned by the function :func:`utils.copula_transform`. 
 
     Parameters
     ----------
@@ -259,6 +269,8 @@ def s_information(cov: NDArray[np.floating], idxs: tuple[int, ...] = (-1,)) -> f
         \\Sigma(X) &= \\sum_{i=1}^{N}I(X_i;X^{-i}) \\\\
                    &= N\\times TC(X) - \\sum_{i=1}^{N}TC(X^{-i}) \\\\
                    &= TC(X) + DTC(X)
+    
+    If you wish to use a Gaussian copula estimator, use the correlation matrix returned by the function :func:`utils.copula_transform`. 
     
     Parameters
     ----------
@@ -305,6 +317,8 @@ def local_dual_total_correlation(
 
         dtc(x) &= h(x) - \\sum_{i=1}^{N}h(x_i|x^{-i}) \\\\
                &= (N-1)\\times tc(x) - \\sum_{i=1}^{N}tc(x^{-i})
+    
+    If you wish to use a Gaussian copula estimator, use the transformed data and the correlation matrix returned by the function :func:`utils.copula_transform`. 
 
     Parameters
     ----------
@@ -341,6 +355,7 @@ def dual_total_correlation(
         DTC(X) &= H(X) - \\sum_{i=1}^{N}H(X_i|X^{-i}) \\\\
                &= (N-1)\\times TC(X) - \\sum_{i=1}^{N}TC(X^{-i})
     
+    If you wish to use a Gaussian copula estimator, use the correlation matrix returned by the function :func:`utils.copula_transform`. 
     Parameters
     ----------
     data : NDArray[np.floating]
@@ -386,6 +401,8 @@ def local_o_information(
         \\omega(x) &= (2-N)tc(x) + \\sum_{i=1}^{N}tc(x^{-i}) \\\\
                    &= tc(x) - dtc(x)
     
+    If you wish to use a Gaussian copula estimator, use the transformed data and the correlation matrix returned by the function :func:`utils.copula_transform`. 
+    
     Parameters
     ----------
     data : NDArray[np.floating]
@@ -427,6 +444,8 @@ def o_information(cov: NDArray[np.floating], idxs: tuple[int, ...] = (-1,)) -> f
 
         \\Omega(X) &= (2-N)TC(X) + \\sum_{i=1}^{N}TC(X^{-i}) \\\\
                    &= TC(X) - DTC(X)
+    
+    If you wish to use a Gaussian copula estimator, use the correlation matrix returned by the function :func:`utils.copula_transform`. 
 
     Parameters
     ----------
@@ -470,6 +489,8 @@ def tse_complexity(num_samples: int, cov: NDArray[np.floating]) -> float:
                &= \\sum_{k=2}^{N}\\bigg[\\bigg(\\frac{k}{N}\\bigg)TC(X) - \\langle TC(X^{k}_{j}) \\rangle_{j}  \\bigg] 
 
     Runtimes scale very badly with system size (as it requires brute-forcing) all possible bipartitions of the system. If the system is too large, a sub-sampling approach is taken: at each scale, num_samples are drawn from the space of bipartitions.
+    
+    If you wish to use a Gaussian copula estimator, use the correlation matrix returned by the function :func:`utils.copula_transform`. 
 
     Parameters
     ----------
@@ -525,6 +546,8 @@ def description_complexity(
     """
     .. math:: 
         C(X) = \\frac{DTC(X)}{N} 
+    
+    If you wish to use a Gaussian copula estimator, use the correlation matrix returned by the function :func:`utils.copula_transform`. 
 
     Parameters
     ----------
@@ -564,6 +587,8 @@ def local_description_complexity(
 
     .. math::
         c(x) = \\frac{dtc(x)}/N
+    
+    If you wish to use a Gaussian copula estimator, use the transformed data and the correlation matrix returned by the function :func:`utils.copula_transform`. 
 
     Parameters
     ----------
