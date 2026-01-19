@@ -147,6 +147,7 @@ If none is provided, it is computed from the data object.</p></li>
 <p>In the particular case where <span class="math notranslate nohighlight">\(X\)</span> and <span class="math notranslate nohighlight">\(Y\)</span> are univariate, the mutual information can be computed directly from the Pearson correlation coefficient <span class="math notranslate nohighlight">\(r\)</span>:</p>
 <div class="math notranslate nohighlight">
 \[I(X;Y) = \frac{-\log(1-r^{2})}{2}\]</div>
+<p>If you wish to use a Gaussian copula estimator, use the correlation matrix returned by the function <a class="reference internal" href="#syntropy.gaussian.utils.copula_transform" title="syntropy.gaussian.utils.copula_transform"><code class="xref py py-func docutils literal notranslate"><span class="pre">utils.copula_transform()</span></code></a>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -1175,6 +1176,27 @@ and unit variance.</p>
 </dl>
 </dd></dl>
 
+<dl class="py function">
+<dt class="sig sig-object py" id="syntropy.gaussian.utils.copula_transform">
+<span class="sig-prename descclassname"><span class="pre">syntropy.gaussian.utils.</span></span><span class="sig-name descname"><span class="pre">copula_transform</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/gaussian/utils.html#copula_transform"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.gaussian.utils.copula_transform" title="Link to this definition">¶</a></dt>
+<dd><p>Transform data to Gaussian copula space and compute the correlation matrix.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>X</strong> (<em>ndarray</em><em>, </em><em>shape</em><em> (</em><em>n_channels</em><em>, </em><em>n_samples</em><em>)</em>) – Input data (channels x samples)</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>Z</strong> (<em>ndarray, shape (n_channels, n_samples)</em>) – Gaussianized copula data (zero-mean, unit-variance)</p></li>
+<li><p><strong>R</strong> (<em>ndarray, shape (n_channels, n_channels)</em>) – Copula correlation matrix</p></li>
+</ul>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple[<em>ndarray</em>[tuple[int, …], <em>dtype</em>[<em>floating</em>]], <em>ndarray</em>[tuple[int, …], <em>dtype</em>[<em>floating</em>]]]</p>
+</dd>
+</dl>
+</dd></dl>
+
 </section>
 </section>
 
@@ -1214,9 +1236,11 @@ and unit variance.</p>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">syntropy.gaussian package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="syntropy.knn.html">syntropy.knn package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="syntropy.neural.html">syntropy.neural package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="syntropy.mixed.html">syntropy.mixed package</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Additional Information:</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="../theory.html">Information Theory Primer</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../contributing.html">Contributing</a></li>
 </ul>
 

@@ -112,7 +112,7 @@ def conditional_entropy(
     
     .. math::
         H(X|Y) = H(X,Y) - H(Y)
-
+    
     Parameters
     ----------
     idxs_x : tuple
@@ -149,6 +149,7 @@ def local_conditional_entropy(
     .. math::
     
         h(x|y) = h(x,y) - h(y)
+    
 
     Parameters
     ----------
@@ -199,6 +200,9 @@ def mutual_information(
 
     .. math::
         I(X;Y) = \frac{-\log(1-r^{2})}{2}
+    
+    If you wish to use a Gaussian copula estimator, use the correlation matrix returned by the function :func:`utils.copula_transform`. 
+
 
     Parameters
     ----------
@@ -254,6 +258,8 @@ def local_mutual_information(
                &= \\log\\frac{p(x|y)}{p(x)} \\\\
                &= \\log\\frac{p(y|x)}{p(y)} \\\\
                &= \\log\\frac{p(x,y)}{p(x)p(y)} \\\\
+    
+    If you wish to use a Gaussian copula estimator, use the transformed data and the correlation matrix returned by the function :func:`utils.copula_transform`. 
 
     Parameters
     ----------
@@ -303,6 +309,8 @@ def conditional_mutual_information(
     .. math:: 
         I(X,Y|Z) &= H(X|Z) + H(Y|Z) - H(X,Y|Z) \\\\
                  &= I(X;Y,Z) - I(X;Z)
+    
+    If you wish to use a Gaussian copula estimator, use the correlation matrix returned by the function :func:`utils.copula_transform`. 
 
     Parameters
     ----------
@@ -345,6 +353,8 @@ def local_conditional_mutual_information(
     
         i(x,y|z) &= h(x|z) + h(y|z) - h(x,y|z) \\\\
                  &= i(x;y,z) - i(x;z)
+    
+    If you wish to use a Gaussian copula estimator, use the transformed data and the correlation matrix returned by the function :func:`utils.copula_transform`. 
 
     Parameters
     ----------
