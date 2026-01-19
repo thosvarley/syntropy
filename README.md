@@ -18,13 +18,20 @@
 ## Installation
 
 ```bash
-git clone https://github.com/thosvarley/syntropy.git
-cd syntropy
-pip install .
+pip install syntropyx
 ```
+
+Then import as:
+```python
+import syntropy
+```
+
+Note: The package is `syntropyx` on PyPI because `syntropy` was already taken. The `x` is just a workaround—the actual library is called Syntropy.
 
 For development:
 ```bash
+git clone https://github.com/thosvarley/syntropy.git
+cd syntropy
 pip install -e ".[dev]"
 ```
 
