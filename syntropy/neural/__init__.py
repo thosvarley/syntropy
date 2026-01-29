@@ -5,12 +5,12 @@ from .shannon import (
 
 from .multivariate_mi import (
     total_correlation,
-    higher_order_information
+    # higher_order_information
 )
 
 __all__ = [
     "differential_entropy",
     "mutual_information",
     "total_correlation",
-    "higher_order_information"
+    # "higher_order_information"
 ]
