@@ -3,27 +3,24 @@ import scipy.stats as stats
 import itertools as it
 from numpy.typing import NDArray
 
-
-COV_NULL: NDArray[np.floating] = np.array([[-1.0]])
+from typing import Iterable
 
 # %% LIBRARY
 
-
 def check_cov(
-    cov: NDArray[np.floating], data: NDArray[np.floating]
+    cov: NDArray[np.floating] | None, data: NDArray[np.floating]
 ) -> NDArray[np.floating]:
-    if cov.shape == ():
-        cov_ = cov
+    
+    if cov is None:
+        cov_ = np.cov(data, ddof=0)
     else:
-        if cov[0, 0] == -1:
-            cov_ = np.cov(data, ddof=0.0)
-        else:
-            cov_ = cov.copy()
+        assert cov.shape[0] == data.shape[0], "The data and given covariance matrix must have the same dimensionality"
+        cov_ = cov.copy()
 
     return cov_
 
 
-def make_powerset(iterable):
+def make_powerset(iterable: Iterable):
     """
     Computes the powerset of a collection of elements.
 

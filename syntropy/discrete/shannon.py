@@ -5,6 +5,9 @@ from typing import Any
 
 DiscreteDist = dict[tuple[Any, ...], float]
 
+def add(x:int, y:int) -> int:
+    return x + y
+
 def shannon_entropy(joint_distribution: DiscreteDist) -> tuple[dict, float]:
     """
     Computes the Shannon entropy of the distribution :math:`P(x)`.

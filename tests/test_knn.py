@@ -1,26 +1,70 @@
 import pytest
-import pathlib
 import numpy as np
-import pandas as pd
 
-from syntropy.knn import mutual_information, total_correlation, dual_total_correlation
+import syntropy.knn as knn
 
-data_path = pathlib.Path(__file__).parent
-data = pd.read_csv(data_path / "../examples/bold.csv", header=None).values
-
+# df_path = pathlib.Path(__file__).parent
+# df = pd.read_csv(df_path / "../examples/bold.csv", header=None)
+#
+# cov = np.cov(df.values, ddof=0)
+# idxs = tuple(np.random.randint(0, cov.shape[0], size=2))
+# data = (
+#     stats.multivariate_normal(mean=[0, 0], cov=cov[np.ix_(idxs, idxs)]).rvs(100_000).T
+# )
+#
 pytest_abs = 1e-6
-def test_total_correlation():
-    tc1 = total_correlation(data=data, k=5, idxs=(0, 1), algorithm=1)
-    mi1 = mutual_information(idxs_x=(0,), idxs_y=(1,), data=data, k=5, algorithm=1)
 
-    assert tc1[1] == pytest.approx(mi1[1], abs=pytest_abs)
-    tc2 = total_correlation(data=data, k=5, idxs=(0, 1), algorithm=2)
-    mi2 = mutual_information(idxs_x=(0,), idxs_y=(1,), data=data, k=5, algorithm=2)
+x = np.arange(100).reshape((1, 100))
+y = x[::-1]
+z = np.mod(x, 2)
 
-    assert tc1[1] == pytest.approx(mi1[1], abs=pytest_abs)
+data = np.vstack((x, y, z))
 
-def test_dual_total_correlation():
-    dtc1 = dual_total_correlation(data=data, k=5, idxs=(0, 1))
-    mi1 = mutual_information(idxs_x=(0,), idxs_y=(1,), data=data, k=5, algorithm=1)
 
-    assert dtc1[1] == pytest.approx(mi1[1], abs=pytest_abs)
+def test_kozachenko():
+    # Did this one out by hand.
+    h = knn.differential_entropy(data=data, idxs=(0,), k=1)[1]
+    assert pytest.approx(h, pytest_abs) == 5.870524698081722
+
+    # Testing different k - also by hand.
+    h = knn.differential_entropy(data=data, idxs=(0,), k=4)[1]
+    assert pytest.approx(h, pytest_abs) == 4.752310791249405
+
+
+def test_mutual_information():
+    mi_1 = knn.mutual_information(
+        idxs_x=(0,), idxs_y=(1,), k=1, data=data, algorithm=1
+    )[1]
+    # Compared to JIDT for this one.
+    assert pytest.approx(mi_1, pytest_abs) == 5.177377517639623
+
+    mi_2 = knn.mutual_information(
+        idxs_x=(0,), idxs_y=(1,), k=1, data=data, algorithm=2
+    )[1]
+    # Also from JIDT
+    assert pytest.approx(mi_2, pytest_abs) == 2.2173775176396227
+
+    # Also from JIDT
+    cmi = knn.conditional_mutual_information(
+        idxs_x=(0,), idxs_y=(1,), idxs_z=(2,), k=1, data=data
+    )[1]
+
+    assert pytest.approx(cmi, pytest_abs) == 4.479205338329424
+
+
+def test_higher_order_mi():
+    tc = knn.total_correlation(data=data, k=1)[-1]
+    # From JIDT
+    assert pytest.approx(tc, pytest_abs) == 5.875549696949821
+    
+    dtc = knn.dual_total_correlation(data=data, k=1)[-1]
+    # From JIDT
+    assert pytest.approx(dtc, pytest_abs) == 5.1773775176396235
+    
+    oinfo = knn.o_information(data=data, k=1)[-1]
+    # From JIDT
+    assert pytest.approx(oinfo, pytest_abs) == 0.6981721793101983
+
+    sinfo = knn.s_information(data=data, k=1)[-1]
+    # From JIDT 
+    assert pytest.approx(sinfo, pytest_abs) == 11.052927214589442

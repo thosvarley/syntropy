@@ -16,7 +16,7 @@ from syntropy.gaussian.temporal import (
     differential_entropy_rate,
     mutual_information_rate,
     total_correlation_rate,
-    o_information_rate
+    o_information_rate,
 )
 
 data_path = pathlib.Path(__file__).parent
@@ -30,7 +30,6 @@ pytest_abs = 1e-6
 
 
 def test_differential_entropy():
-
     h = shannon.local_differential_entropy(data[1, :]).mean()
     assert shannon.differential_entropy(cov[1, 1], (1,)) == pytest.approx(
         h, abs=pytest_abs
@@ -54,7 +53,6 @@ def test_differential_entropy():
 
 
 def test_mutual_information():
-
     i = shannon.mutual_information((0,), (1,), cov)
     r, _ = stats.pearsonr(data[0, :], data[1, :])
 
@@ -68,8 +66,8 @@ def test_mutual_information():
 
 
 def test_higher_order_mi():
-
     idxs = (0, 1, 2, 3)
+    cov_ix = cov[np.ix_(idxs, idxs)]
 
     tc = mi.total_correlation(cov, idxs)
     dtc = mi.dual_total_correlation(cov, idxs)
@@ -79,10 +77,10 @@ def test_higher_order_mi():
     assert tc - dtc == pytest.approx(o, abs=pytest_abs)
     assert tc + dtc == pytest.approx(s, abs=pytest_abs)
 
-    ltc = mi.local_total_correlation(data, cov, idxs)
-    ldtc = mi.local_dual_total_correlation(data, cov, idxs)
-    lo = mi.local_o_information(data, cov, idxs)
-    ls = mi.local_s_information(data, cov, idxs)
+    ltc = mi.local_total_correlation(data=data, cov=cov, idxs=idxs)
+    ldtc = mi.local_dual_total_correlation(data=data, cov=cov, idxs=idxs)
+    lo = mi.local_o_information(data=data, cov=cov, idxs=idxs)
+    ls = mi.local_s_information(data=data, cov=cov, idxs=idxs)
 
     assert ltc.mean() == pytest.approx(tc, abs=pytest_abs)
     assert ldtc.mean() == pytest.approx(dtc, abs=pytest_abs)
@@ -122,7 +120,6 @@ def test_higher_order_mi():
 
 
 def test_pid():
-
     idxs = (0, 1)
     target = (3, 4)
     ptw, avg = pid(idxs, target, data, cov)
@@ -135,7 +132,6 @@ def test_pid():
 
 
 def test_ped():
-
     idxs = (0, 1, 2, 3)
 
     ptw, avg = ped(idxs, data, cov)
@@ -145,7 +141,6 @@ def test_ped():
 
 
 def test_gid():
-
     idxs = (0, 1, 2, 3)
     cov_prior = np.eye(len(idxs))
     cov_posterior = cov[np.ix_(idxs, idxs)]
@@ -163,7 +158,6 @@ def test_gid():
 
 
 def test_gaussian_rate():
-
     T = 5_000_000
 
     noise = np.random.randn(2, T)
@@ -202,17 +196,16 @@ def test_gaussian_rate():
 
     assert np.isclose(hX, analytic, rtol=1e-2)
 
-def test_oinfo_rate():
 
+def test_oinfo_rate():
     T = 5_000_000
 
     noise = np.random.randn(3, T)
-    
-    _, mi_joint = mutual_information_rate((0,1), (2,), noise, nperseg=2**13)
-    _, mi_1 = mutual_information_rate((0,),(2,), noise, nperseg=2**13)
-    _, mi_2 = mutual_information_rate((1,),(2,), noise, nperseg=2**13)
 
-    _, oir = o_information_rate((0,1,2), noise, nperseg=2**13)
+    _, mi_joint = mutual_information_rate((0, 1), (2,), noise, nperseg=2**13)
+    _, mi_1 = mutual_information_rate((0,), (2,), noise, nperseg=2**13)
+    _, mi_2 = mutual_information_rate((1,), (2,), noise, nperseg=2**13)
+
+    _, oir = o_information_rate((0, 1, 2), noise, nperseg=2**13)
 
     assert oir == pytest.approx(mi_1 + mi_2 - mi_joint, abs=pytest_abs)
-

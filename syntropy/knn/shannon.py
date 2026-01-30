@@ -1,12 +1,11 @@
 import numpy as np
 from numpy.typing import NDArray
 from scipy.special import digamma
-from scipy.spatial import cKDTree
-from .utils import check_idxs, build_tree_and_get_distances, get_counts_from_tree
-
+from .utils import build_tree_and_get_distances, get_counts_from_tree
+from ..utils import check_idxs
 
 def differential_entropy(
-    data: NDArray[np.floating], k: int, idxs: tuple[int, ...] = (-1,)
+    data: NDArray[np.floating], k: int, idxs: tuple[int, ...] | None = None
 ) -> tuple[NDArray[np.floating], float]:
     r"""
     Computes the differential entropy using the Kozachenko-Leoneko estimator.
@@ -43,15 +42,15 @@ def differential_entropy(
 
     """
 
-    idxs: tuple[int, ...] = check_idxs(idxs, data.shape[0])
+    idxs_: tuple[int, ...] = check_idxs(idxs, data)
 
-    d: int = len(idxs)
+    d: int = len(idxs_)
     N: int = data.shape[1]
 
     psi_k: float = digamma(k)
     psi_N: float = digamma(N)
 
-    _, distances, _ = build_tree_and_get_distances(data[idxs, :], k=k)
+    _, distances, _ = build_tree_and_get_distances(data[idxs_, :], k=k)
 
     ptw: NDArray[np.floating] = np.zeros((1, N))
     ptw[0, :] += -psi_k + psi_N + d * np.log(2 * distances[:, -1])

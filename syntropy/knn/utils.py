@@ -3,31 +3,6 @@ from numpy.typing import NDArray
 from scipy.spatial import cKDTree
 
 
-def check_idxs(idxs: tuple[int, ...], N: int) -> tuple[int, ...]:
-    """
-    Checks whether the idxs input is -1, in which case, defaults to all processes.
-
-    Parameters
-    ----------
-    idxs : tuple[int, ...]
-        Indices of variables to use (-1 means all)
-    N : int
-        The total number of processes.
-
-    Returns
-    -------
-    tuple[int, ...]
-        Either idxs, or a tuple of all processes.
-
-    """
-    if idxs[0] == -1:
-        idxs_ = tuple(i for i in range(N))
-    else:
-        idxs_ = idxs
-
-    return idxs_
-
-
 def build_tree_and_get_distances(
     data: NDArray[np.floating], k: int
 ) -> tuple[cKDTree, NDArray[np.floating], NDArray[np.integer]]:

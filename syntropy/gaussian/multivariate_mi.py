@@ -1,26 +1,36 @@
 import numpy as np
-from .utils import COV_NULL
 from .shannon import local_differential_entropy
 from numpy.typing import NDArray
+from .utils import check_cov
+from ..utils import check_idxs
+
 
 def local_total_correlation(
-    data: NDArray[np.floating], cov: NDArray[np.floating], idxs: tuple[int, ...] = (-1,)
+    data: NDArray[np.floating],
+    cov: NDArray[np.floating] | None,
+    idxs: tuple[int, ...] | None = None,
 ) -> NDArray[np.floating]:
     """
     The local total correlation. Note that this measure can be negative.
 
-    .. math:: 
+    .. math::
         tc(x) = \\sum_{i=1}^{N}h(x_i) - h(x)
-    
-    If you wish to use a Gaussian copula estimator, use the transformed data and the correlation matrix returned by the function :func:`utils.copula_transform`. 
+
+    If you wish to use a Gaussian copula estimator, use the transformed data and the correlation matrix returned by the function :func:`utils.copula_transform`.
 
     Parameters
     ----------
     data : NDArray[np.floating]
         The data in channels x samples format.
-    inptuts: tuple
+    cov : NDArray[np.floating] | None
+        The covariance matrix used to compute the local entropies.
+        If None is provided, it is inferred from the data.
+        The default is None.
+    inputs: tuple | None
         The indices of the channels to include.
-    
+        If None is provided, all channels are used.
+        The default is None.
+
     Returns
     -------
     NDArray[np.floating]
@@ -33,34 +43,29 @@ def local_total_correlation(
     Physical Review Research, 4(1), 013184.
     https://doi.org/10.1103/PhysRevResearch.4.013184
 
-    Pope, M., Varley, T. F., Grazia Puxeddu, M., Faskowitz, J., & Sporns, O. (2025). 
-    Time-varying synergy/redundancy dominance in the human cerebral cortex. 
-    Journal of Physics: Complexity, 6(1), 015015. 
+    Pope, M., Varley, T. F., Grazia Puxeddu, M., Faskowitz, J., & Sporns, O. (2025).
+    Time-varying synergy/redundancy dominance in the human cerebral cortex.
+    Journal of Physics: Complexity, 6(1), 015015.
     https://doi.org/10.1088/2632-072X/adbaa9
 
     """
 
-    assert cov.shape[0] == data.shape[0], (
-        "The data and covariance matrix must have the same dimensionality"
-    )
+    idxs_: tuple[int, ...] = check_idxs(idxs, data)
+    cov_: NDArray[np.floating] = check_cov(cov, data)
 
-    if idxs[0] == -1:
-        _idxs = tuple(i for i in range(data.shape[0]))
-    else:
-        _idxs = idxs
-    N = len(_idxs)
+    N = len(idxs_)
 
-    whole = local_differential_entropy(data[_idxs, :], cov[np.ix_(_idxs, _idxs)])
+    whole = local_differential_entropy(data[idxs_, :], cov_[np.ix_(idxs_, idxs_)])
 
     sum_parts = np.zeros_like(whole)
     for i in range(N):
-        sum_parts += local_differential_entropy(data[_idxs[i], :])
+        sum_parts += local_differential_entropy(data[idxs_[i], :])
 
     return sum_parts - whole
 
 
 def total_correlation(
-    cov: NDArray[np.floating], idxs: tuple[int, ...] = (-1,)
+    cov: NDArray[np.floating], idxs: tuple[int, ...] | None = None
 ) -> float:
     r"""
     The expected total correlation.
@@ -109,18 +114,21 @@ def total_correlation(
     https://doi.org/10.48550/arXiv.2507.08773
 
     """
-    if idxs[0] == -1:
-        _idxs = tuple(i for i in range(cov.shape[0]))
+    idxs_: tuple[int, ...] = check_idxs(idxs, cov)
+
+    cov_: NDArray[np.floating] = cov[np.ix_(idxs_, idxs_)]
+    corr: NDArray[np.floating]
+    
+    # Checking to see if the covariance matrix has 
+    # 1s along the diagonal (a correlation matrix). 
+    if False in np.isclose(cov_.diagonal(), 1):
+        # Converting to a correlation/coherence matrix.
+        diag: NDArray[np.floating] = np.sqrt(np.diag(cov_))
+        d_inv: NDArray[np.floating] = np.diag(1.0 / diag)
+
+        corr = d_inv @ cov_ @ d_inv
     else:
-        _idxs = idxs
-
-    _cov: NDArray[np.floating] = cov[np.ix_(_idxs, _idxs)]
-
-    # Converting to a correlation/coherence matrix.
-    diag: NDArray[np.floating] = np.sqrt(np.diag(_cov))
-    d_inv: NDArray[np.floating] = np.diag(1.0 / diag)
-
-    corr: NDArray[np.floating] = d_inv @ _cov @ d_inv
+        corr = cov_.copy()
 
     return -np.linalg.slogdet(corr)[1] / 2
 
@@ -128,8 +136,8 @@ def total_correlation(
 def local_delta_k(
     k: int,
     data: NDArray[np.floating],
-    cov: NDArray[np.floating],
-    idxs: tuple[int, ...] = (-1,),
+    cov: NDArray[np.floating] | None = None,
+    idxs: tuple[int, ...] | None = None,
 ) -> NDArray[np.floating]:
     r"""
     A utility function that computes the local generalized form
@@ -137,8 +145,8 @@ def local_delta_k(
 
     .. math::
         \delta_{k}(x) = (N-k)tc(x) - \sum_{i=1}^{N} tc(x^{-i})
-    
-    If you wish to use a Gaussian copula estimator, use the transformed data and the correlation matrix returned by the function :func:`utils.copula_transform`. 
+
+    If you wish to use a Gaussian copula estimator, use the transformed data and the correlation matrix returned by the function :func:`utils.copula_transform`.
 
     Parameters
     ----------
@@ -160,32 +168,36 @@ def local_delta_k(
         The series of local :math:`\delta^{k}`.
 
     """
-    if idxs[0] == -1:
-        _idxs: tuple[int, ...] = tuple(i for i in range(data.shape[0]))
-    else:
-        _idxs = idxs
+    idxs_: tuple[int, ...] = check_idxs(idxs, data)
+    cov_: NDArray[np.floating] = check_cov(cov, data)
 
-    N: int = len(_idxs)
-    whole = (N - k) * local_total_correlation(data[_idxs, :], cov[np.ix_(_idxs, _idxs)])
+    N: int = len(idxs_)
+    whole = (N - k) * local_total_correlation(
+        data[idxs_, :], cov_[np.ix_(idxs_, idxs_)]
+    )
 
     sum_parts = np.zeros_like(whole)
 
     for i in range(N):
-        idxs = tuple(_idxs[j] for j in range(N) if j != i)
-        sum_parts += local_total_correlation(data[idxs, :], cov[np.ix_(idxs, idxs)])
+        idxs_r = tuple(idxs_[j] for j in range(N) if j != i)
+        sum_parts += local_total_correlation(
+            data[idxs_r, :], cov_[np.ix_(idxs_r, idxs_r)]
+        )
 
     return whole - sum_parts
 
 
-def delta_k(k: int, cov: NDArray[np.floating], idxs: tuple[int, ...] = (-1,)) -> float:
+def delta_k(
+    k: int, cov: NDArray[np.floating], idxs: tuple[int, ...] | None = None
+) -> float:
     """
     S-information, DTC, and negative O-information can all be written in a general form:
 
     .. math::
 
         WMS^{k}(X) = (N-k)TC(X) - \\sum_{i=1}^{N}TC(X^{-i})
-    
-    If you wish to use a Gaussian copula estimator, use the correlation matrix returned by the function :func:`utils.copula_transform`. 
+
+    If you wish to use a Gaussian copula estimator, use the correlation matrix returned by the function :func:`utils.copula_transform`.
 
     Parameters
     ----------
@@ -204,18 +216,14 @@ def delta_k(k: int, cov: NDArray[np.floating], idxs: tuple[int, ...] = (-1,)) ->
 
     """
 
-    if idxs[0] == -1:
-        _idxs: tuple[int, ...] = tuple(i for i in range(cov.shape[0]))
-    else:
-        _idxs = idxs
+    idxs_: tuple[int, ...] = check_idxs(idxs, cov)
+    N: int = len(idxs_)
 
-    N: int = len(_idxs)
-
-    whole: float = (N - k) * total_correlation(cov[np.ix_(_idxs, _idxs)])
+    whole: float = (N - k) * total_correlation(cov[np.ix_(idxs_, idxs_)])
     sum_parts: float = 0.0
 
     for i in range(N):
-        idxs_residual: tuple[int, ...] = tuple(_idxs[j] for j in range(N) if j != i)
+        idxs_residual: tuple[int, ...] = tuple(idxs_[j] for j in range(N) if j != i)
         sum_parts += total_correlation(cov[idxs_residual, :][:, idxs_residual])
 
     return whole - sum_parts
@@ -223,8 +231,8 @@ def delta_k(k: int, cov: NDArray[np.floating], idxs: tuple[int, ...] = (-1,)) ->
 
 def local_s_information(
     data: NDArray[np.floating],
-    cov: NDArray[np.floating] = COV_NULL,
-    idxs: tuple[int, ...] = (-1,),
+    cov: NDArray[np.floating] | None = None,
+    idxs: tuple[int, ...] | None = None,
 ) -> NDArray[np.floating]:
     """
     Compute local S-information using Gaussian estimation.
@@ -254,13 +262,12 @@ def local_s_information(
 
     """
 
-    if cov[0][0] == -1:
-        cov = np.cov(data, ddof=0)
-
     return local_delta_k(k=0, data=data, cov=cov, idxs=idxs)
 
 
-def s_information(cov: NDArray[np.floating], idxs: tuple[int, ...] = (-1,)) -> float:
+def s_information(
+    cov: NDArray[np.floating], idxs: tuple[int, ...] | None = None
+) -> float:
     """
     Compute S-information using Gaussian estimation.
 
@@ -307,8 +314,8 @@ def s_information(cov: NDArray[np.floating], idxs: tuple[int, ...] = (-1,)) -> f
 
 def local_dual_total_correlation(
     data: NDArray[np.floating],
-    cov: NDArray[np.floating] = COV_NULL,
-    idxs: tuple[int, ...] = (-1,),
+    cov: NDArray[np.floating] | None = None,
+    idxs: tuple[int, ...] | None = None,
 ) -> NDArray[np.floating]:
     """
     Computes the dual total correlation using Gaussian estimation. Note that this measure can be negative.
@@ -338,14 +345,11 @@ def local_dual_total_correlation(
 
     """
 
-    if cov[0][0] == -1:
-        cov = np.cov(data, ddof=0)
-
     return local_delta_k(k=1, data=data, cov=cov, idxs=idxs)
 
 
 def dual_total_correlation(
-    cov: NDArray[np.floating], idxs: tuple[int, ...] = (-1,)
+    cov: NDArray[np.floating], idxs: tuple[int, ...] | None = None
 ) -> float:
     """
     Computes the dual total correlation using Gaussian estimation.
@@ -390,8 +394,8 @@ def dual_total_correlation(
 
 def local_o_information(
     data: NDArray[np.floating],
-    cov: NDArray[np.floating] = COV_NULL,
-    idxs: tuple[int, ...] = (-1,),
+    cov: NDArray[np.floating] | None = None,
+    idxs: tuple[int, ...] | None = None,
 ) -> NDArray[np.floating]:
     """
     Computes the local O-information for each sample using Gaussian estimation.
@@ -435,7 +439,9 @@ def local_o_information(
     return -local_delta_k(k=2, data=data, cov=cov, idxs=idxs)
 
 
-def o_information(cov: NDArray[np.floating], idxs: tuple[int, ...] = (-1,)) -> float:
+def o_information(
+    cov: NDArray[np.floating], idxs: tuple[int, ...] | None = None
+) -> float:
     """
     Compute O-information using Gaussian estimation.
     O-information quantifies the balance between redundancy (positive values) and synergy (negative values) in multivariate information.
@@ -541,13 +547,13 @@ def tse_complexity(num_samples: int, cov: NDArray[np.floating]) -> float:
 
 
 def description_complexity(
-    cov: NDArray[np.floating], idxs: tuple[int, ...] = (-1,)
+    cov: NDArray[np.floating], idxs: tuple[int, ...] | None = None
 ) -> float:
     """
-    .. math:: 
-        C(X) = \\frac{DTC(X)}{N} 
-    
-    If you wish to use a Gaussian copula estimator, use the correlation matrix returned by the function :func:`utils.copula_transform`. 
+    .. math::
+        C(X) = \\frac{DTC(X)}{N}
+
+    If you wish to use a Gaussian copula estimator, use the correlation matrix returned by the function :func:`utils.copula_transform`.
 
     Parameters
     ----------
@@ -568,18 +574,18 @@ def description_complexity(
     Multivariate information theory uncovers synergistic subsystems of the human cerebral cortex.
     Communications Biology, 6(1), Article 1.
     https://doi.org/10.1038/s42003-023-04843-w
-    
+
     """
 
-    N: float = float(cov.shape[0]) if idxs[0] == -1 else float(len(idxs))
+    N: float = float(cov.shape[0]) if idxs[0] is None else float(len(idxs))
 
     return dual_total_correlation(cov=cov, idxs=idxs) / N
 
 
 def local_description_complexity(
     data: NDArray[np.floating],
-    cov: NDArray[np.floating] = COV_NULL,
-    idxs: tuple[int, ...] = (-1,),
+    cov: NDArray[np.floating] | None = None,
+    idxs: tuple[int, ...] | None = None,
 ) -> NDArray[np.floating]:
     """
 
@@ -587,8 +593,8 @@ def local_description_complexity(
 
     .. math::
         c(x) = \\frac{dtc(x)}/N
-    
-    If you wish to use a Gaussian copula estimator, use the transformed data and the correlation matrix returned by the function :func:`utils.copula_transform`. 
+
+    If you wish to use a Gaussian copula estimator, use the transformed data and the correlation matrix returned by the function :func:`utils.copula_transform`.
 
     Parameters
     ----------
@@ -608,6 +614,6 @@ def local_description_complexity(
 
     """
 
-    N: float = float(cov.shape[0]) if idxs[0] == -1 else float(len(idxs))
+    N: float = float(cov.shape[0]) if idxs[0] is None else float(len(idxs))
 
     return local_delta_k(k=1, data=data, cov=cov, idxs=idxs) / N

@@ -2,12 +2,14 @@ import numpy as np
 from numpy.typing import NDArray
 from scipy.special import digamma
 from scipy.spatial import cKDTree
-from .utils import check_idxs, build_tree_and_get_distances, get_counts_from_tree
+from .utils import build_tree_and_get_distances, get_counts_from_tree
+from ..utils import check_idxs
+
 
 def total_correlation(
     data: NDArray[np.floating],
     k: int,
-    idxs: tuple[int, ...] = (-1,),
+    idxs: tuple[int, ...] | None = None,
     algorithm: int = 1,
 ) -> tuple[NDArray[np.floating], float]:
     """
@@ -48,7 +50,7 @@ def total_correlation(
 
 
 def total_correlation_1(
-    data: NDArray[np.floating], k: int, idxs: tuple[int, ...] = (-1,)
+    data: NDArray[np.floating], k: int, idxs: tuple[int, ...] | None = None
 ) -> tuple[NDArray[np.floating], float]:
     r"""
     Computes the Kraskov, Stogbauer, Grassberger estimate of the total correlation using the first algorithm presented Kraskov et. al (2004)
@@ -85,9 +87,9 @@ def total_correlation_1(
     https://doi.org/10.1147/rd.41.0066
 
     """
-    idxs: tuple[int, ...] = check_idxs(idxs, data.shape[0])
+    idxs_: tuple[int, ...] = check_idxs(idxs, data)
 
-    m: int = len(idxs)
+    m: int = len(idxs_)
     N: int = data.shape[1]
 
     psi_k: float = digamma(k)
@@ -96,12 +98,14 @@ def total_correlation_1(
     ptw: NDArray[np.floating] = np.full((1, N), psi_k + (m - 1) * psi_N)
 
     distances: NDArray[np.floating]
-    _, distances, _ = build_tree_and_get_distances(data=data[idxs, :], k=k)
+    _, distances, _ = build_tree_and_get_distances(data=data[idxs_, :], k=k)
 
-    for idx in idxs:
+    for idx in idxs_:
         tree, _, _ = build_tree_and_get_distances(data[(idx,), :], k=k)
         counts: NDArray[np.integer] = get_counts_from_tree(
-            tree, data[(idx,), :], distances[:, -1],
+            tree,
+            data[(idx,), :],
+            distances[:, -1],
         )
 
         ptw[0, :] -= digamma(counts + 1)
@@ -110,7 +114,7 @@ def total_correlation_1(
 
 
 def total_correlation_2(
-    data: NDArray[np.floating], k: int, idxs: tuple[int, ...] = (-1,)
+    data: NDArray[np.floating], k: int, idxs: tuple[int, ...] | None = None
 ) -> tuple[NDArray[np.floating], float]:
     r"""
     Computes the Kraskov, Stogbauer, Grassberger estimate of the total correlation using the second algorithm presented in Kraskov et. al., (2004).
@@ -147,9 +151,9 @@ def total_correlation_2(
     https://doi.org/10.1147/rd.41.0066
 
     """
-    idxs = check_idxs(idxs, data.shape[0])
+    idxs_: tuple[int, ...] = check_idxs(idxs, data)
 
-    m: int = len(idxs)
+    m: int = len(idxs_)
     N: int = data.shape[1]
 
     psi_k: float = digamma(k)
@@ -161,10 +165,10 @@ def total_correlation_2(
 
     distances: NDArray[np.floating]
     indices: NDArray[np.integer]
-    _, distances, indices = build_tree_and_get_distances(data[idxs, :], k=k)
+    _, distances, indices = build_tree_and_get_distances(data[idxs_, :], k=k)
     neighbors: NDArray[np.floating] = indices[:, 1:]
 
-    for idx in idxs:
+    for idx in idxs_:
         data_idx: NDArray[np.floating] = data[
             (idx,),
             :,
@@ -188,7 +192,7 @@ def total_correlation_2(
 
 
 def dual_total_correlation(
-    data: NDArray[np.floating], k: int, idxs: tuple[int, ...] = (-1,)
+    data: NDArray[np.floating], k: int, idxs: tuple[int, ...] | None = None
 ) -> tuple[NDArray[np.floating], float]:
     """
     Compute dual total correlation using KSG estimation.
@@ -224,37 +228,38 @@ def dual_total_correlation(
     https://doi.org/10.1103/PhysRevE.100.032305
 
     """
-    idxs = check_idxs(idxs, data.shape[0])
+    idxs_: tuple[int, ...] = check_idxs(idxs, data)
 
-    m: int = len(idxs)
+    m: int = len(idxs_)
     N: int = data.shape[1]
 
     psi_k: float = digamma(k)
-    psi_N: float = digamma(N) 
+    psi_N: float = digamma(N)
 
-    ptw: NDArray[np.floating] = np.full((1,N), psi_k - psi_N)
-    
+    ptw: NDArray[np.floating] = np.full((1, N), psi_k - psi_N)
+
     distances: NDArray[np.floating]
-    tree, distances, _ = build_tree_and_get_distances(data[idxs, :], k=k)
-    eps: NDArray[np.floating] = distances[:,-1]
+    tree, distances, _ = build_tree_and_get_distances(data[idxs_, :], k=k)
+    eps: NDArray[np.floating] = distances[:, -1]
 
     for i in range(m):
-
-        residual_idxs: list[int] = [idxs[j] for j in range(m) if j != i] 
-        residual_data: NDArray[np.floating] = data[residual_idxs,:]
+        residual_idxs: list[int] = [idxs_[j] for j in range(m) if j != i]
+        residual_data: NDArray[np.floating] = data[residual_idxs, :]
 
         residual_tree = cKDTree(residual_data.T)
 
-        counts: NDArray[np.integer] = get_counts_from_tree(residual_tree, residual_data, eps)
+        counts: NDArray[np.integer] = get_counts_from_tree(
+            residual_tree, residual_data, eps
+        )
 
-        ptw[0, :] -= (digamma(counts + 1) - psi_N) / (m-1)
-    ptw *= m-1
+        ptw[0, :] -= (digamma(counts + 1) - psi_N) / (m - 1)
+    ptw *= m - 1
 
     return ptw, ptw.mean()
 
 
 def s_information(
-    data: NDArray[np.floating], k: int, idxs: tuple[int, ...] = (-1,)
+    data: NDArray[np.floating], k: int, idxs: tuple[int, ...] | None = None
 ) -> tuple[NDArray[np.floating], float]:
     """
     Compute S-information using KSG estimation.
@@ -290,7 +295,7 @@ def s_information(
     https://doi.org/10.1038/s42003-023-04843-w
 
     """
-    idxs_: tuple[int, ...] = check_idxs(idxs, data.shape[0])
+    idxs_: tuple[int, ...] = check_idxs(idxs, data)
 
     N: int = data.shape[1]
     m: int = len(idxs_)
@@ -302,7 +307,7 @@ def s_information(
     eps: NDArray[np.floating] = distances[:, -1]
 
     # Initialize local values: start with (ψ(k) - ψ(N))
-    ptw: NDArray[np.floating] = np.full((1,N), psi_k - psi_N)
+    ptw: NDArray[np.floating] = np.full((1, N), psi_k - psi_N)
 
     # For each dimension d
     for d in range(m):
@@ -319,8 +324,8 @@ def s_information(
         counts_big = get_counts_from_tree(tree_big, big_marginal_data.T, eps)
 
         # Subtract contributions from both marginals, divided by m
-        ptw[0,:] -= (digamma(counts_big + 1) - psi_N) / m
-        ptw[0,:] -= (digamma(counts_small + 1) - psi_N) / m
+        ptw[0, :] -= (digamma(counts_big + 1) - psi_N) / m
+        ptw[0, :] -= (digamma(counts_small + 1) - psi_N) / m
 
     # Multiply everything by m
     ptw *= m
@@ -329,7 +334,7 @@ def s_information(
 
 
 def o_information(
-    data: NDArray[np.floating], k: int, idxs: tuple[int, ...] = (-1,)
+    data: NDArray[np.floating], k: int, idxs: tuple[int, ...] | None = None
 ) -> tuple[NDArray[np.floating], float]:
     """
     Compute O-information using KSG estimation.
@@ -369,10 +374,7 @@ def o_information(
     https://doi.org/10.1038/s42003-023-04843-w
 
     """
-    if idxs[0] == -1:
-        idxs_ = tuple(range(data.shape[0]))
-    else:
-        idxs_ = idxs
+    idxs_: tuple[int, ...] = check_idxs(idxs, data)
 
     N: int = data.shape[1]
     m: int = len(idxs_)
@@ -387,7 +389,7 @@ def o_information(
     eps: NDArray[np.floating] = distances[:, -1]
 
     # Initialize local values: start with (ψ(k) - ψ(N))
-    ptw: NDArray[np.floating] = np.full((1,N), psi_k - psi_N)
+    ptw: NDArray[np.floating] = np.full((1, N), psi_k - psi_N)
 
     for d in range(m):
         # Small marginal: just dimension d alone (1D)
@@ -402,8 +404,8 @@ def o_information(
         counts_small = get_counts_from_tree(tree_small, small_marginal_data, eps)
         counts_big = get_counts_from_tree(tree_big, big_marginal_data, eps)
 
-        ptw[0,:] -= (digamma(counts_big + 1) - psi_N) / (m - 2)
-        ptw[0,:] += (digamma(counts_small + 1) - psi_N) / (m - 2)
+        ptw[0, :] -= (digamma(counts_big + 1) - psi_N) / (m - 2)
+        ptw[0, :] += (digamma(counts_small + 1) - psi_N) / (m - 2)
 
     # Multiply everything by (2 - m)
     ptw *= 2 - m

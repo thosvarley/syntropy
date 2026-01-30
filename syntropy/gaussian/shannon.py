@@ -2,17 +2,15 @@ import numpy as np
 import scipy.stats as stats
 from numpy.typing import NDArray
 from .utils import check_cov
+from ..utils import check_idxs
 
 H_SINGLE: float = np.log(np.sqrt(2.0 * np.pi * np.e))
 LN_TWO_PI_E: float = np.log(2.0 * np.pi * np.e)
 TWO_PI: float = 2.0 * np.pi
 SQRT_TWO_PI: float = np.sqrt(TWO_PI)
 
-COV_NULL: NDArray[np.floating] = np.array([[-1.0]])
-
-
 def differential_entropy(
-    cov: NDArray[np.floating], idxs: tuple[int, ...] = (-1,)
+    cov: NDArray[np.floating], idxs: tuple[int, ...] | None = None
 ) -> float:
     """
     Computes the expected differential entropy of a multivariate
@@ -47,7 +45,7 @@ def differential_entropy(
 
     """
 
-    if idxs[0] == -1:
+    if idxs is None:
         return stats.multivariate_normal(cov=cov, allow_singular=True).entropy()
     else:
         if len(idxs) == 1:
@@ -59,7 +57,7 @@ def differential_entropy(
 
 
 def local_differential_entropy(
-    data: NDArray[np.floating], cov: NDArray[np.floating] = COV_NULL
+    data: NDArray[np.floating], cov: NDArray[np.floating] | None = None
 ) -> NDArray[np.floating]:
     """
     Computes the framewise differential entropy for a set of variables.
@@ -98,7 +96,7 @@ def local_differential_entropy(
         return -(
             stats.multivariate_normal.logpdf(
                 x=data.T, mean=data.mean(axis=-1), cov=cov_, allow_singular=True
-            )
+            ).reshape((1, data.shape[-1]))
         )
 
 
@@ -141,7 +139,7 @@ def local_conditional_entropy(
     idxs_x: tuple[int, ...],
     idxs_y: tuple[int, ...],
     data: NDArray[np.floating],
-    cov: NDArray[np.floating] = COV_NULL,
+    cov: NDArray[np.floating] | None = None,
 ) -> NDArray[np.floating]:
     """
     Computes the local condition entropy for every sample in data using Gaussian estimation.
@@ -247,7 +245,7 @@ def local_mutual_information(
     idxs_x: tuple[int, ...],
     idxs_y: tuple[int, ...],
     data: NDArray[np.floating],
-    cov: NDArray[np.floating] = COV_NULL,
+    cov: NDArray[np.floating] | None = None
 ) -> NDArray[np.floating]:
     """
     Computes the local mutual information between X and Y for every sample in data using Gaussian estimation.
@@ -343,7 +341,7 @@ def local_conditional_mutual_information(
     idxs_y: tuple[int, ...],
     idxs_z: tuple[int, ...],
     data: NDArray[np.floating],
-    cov: NDArray[np.floating] = COV_NULL,
+    cov: NDArray[np.floating] | None = None,
 ):
     """
     Computes the local conditional mutual information between
