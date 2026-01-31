@@ -4,10 +4,10 @@ from numpy.typing import NDArray
 from .utils import check_cov
 from ..utils import check_idxs
 
-H_SINGLE: float = np.log(np.sqrt(2.0 * np.pi * np.e))
 LN_TWO_PI_E: float = np.log(2.0 * np.pi * np.e)
 TWO_PI: float = 2.0 * np.pi
 SQRT_TWO_PI: float = np.sqrt(TWO_PI)
+
 
 def differential_entropy(
     cov: NDArray[np.floating], idxs: tuple[int, ...] | None = None
@@ -15,7 +15,7 @@ def differential_entropy(
     """
     Computes the expected differential entropy of a multivariate
     distribution parameterized by a covariance matrix using a
-    Gaussian estimator.
+    Gaussian estimator via direct computation.
 
     The differential entropy is given by:
 
@@ -36,28 +36,30 @@ def differential_entropy(
     cov : NDArray[np.floating]
         The covariance matrix that defines the distribution.
     idxs : tuple[int, ...], optional
-        The specific subset of variables to compute the total correlation of.
-        Defaults to computing the TC of the entire covariance matrix.
+        The specific subset of variables to compute the entropy of.
+        Defaults to using the entire covariance matrix.
 
     Returns
     -------
     float
 
     """
+    idxs_: tuple[int, ...] = check_idxs(idxs, cov)
 
-    if idxs is None:
-        return stats.multivariate_normal(cov=cov, allow_singular=True).entropy()
-    else:
-        if len(idxs) == 1:
-            return H_SINGLE
-        else:
-            return stats.multivariate_normal(
-                cov=cov[np.ix_(idxs, idxs)], allow_singular=True
-            ).entropy()
+    cov_subset: NDArray[np.floating] = cov[np.ix_(idxs_, idxs_)]
+    k: int = len(idxs_)
+
+    # Use slogdet for numerical stability
+    sign, logdet = np.linalg.slogdet(cov_subset)
+
+    # H(X) = (k/2) * log(2πe) + (1/2) * log|Σ|
+    return 0.5 * (k * LN_TWO_PI_E + logdet)
 
 
 def local_differential_entropy(
-    data: NDArray[np.floating], cov: NDArray[np.floating] | None = None
+    data: NDArray[np.floating],
+    cov: NDArray[np.floating] | None = None,
+    idxs: tuple[int, ...] | None = None,
 ) -> NDArray[np.floating]:
     """
     Computes the framewise differential entropy for a set of variables.
@@ -77,6 +79,9 @@ def local_differential_entropy(
     cov : NDArray[np.floating], optional
         The covariance matrix that defines the distribution.
         If none is provided, it is computed from the data object.
+    idxs : tuple[int, ...], optional
+        The specific subset of variables to compute the entropy of.
+        Defaults to using all channels.
 
     Returns
     -------
@@ -84,18 +89,24 @@ def local_differential_entropy(
         The series of pointwise entropies.
 
     """
-    N: int = data.shape[0]
 
-    cov_: NDArray[np.floating] = check_cov(cov, data)
-
-    if N == 1:
+    if data.ndim == 1:
+        assert (idxs is None) or (idxs == (0,)), f"There's an indexing mismatch!"
         return -stats.norm.logpdf(
-            x=data, loc=data.mean(), scale=data.std()
-        )
+                x = data, 
+                loc = data.mean(),
+                scale = data.std()
+                )
     else:
+        idxs_: tuple[int, ...] = check_idxs(idxs, data)
+        cov_: NDArray[np.floating] = check_cov(cov, data)
+
         return -(
             stats.multivariate_normal.logpdf(
-                x=data.T, mean=data.mean(axis=-1), cov=cov_, allow_singular=True
+                x=data[idxs_, :].T,
+                mean=data[idxs_, :].mean(axis=-1),
+                cov=cov_[np.ix_(idxs_, idxs_)],
+                allow_singular=True,
             ).reshape((1, data.shape[-1]))
         )
 
@@ -107,10 +118,10 @@ def conditional_entropy(
 ) -> float:
     """
     Computes the conditional entropy of X given Y using Gaussian estimation.
-    
+
     .. math::
         H(X|Y) = H(X,Y) - H(Y)
-    
+
     Parameters
     ----------
     idxs_x : tuple
@@ -145,9 +156,9 @@ def local_conditional_entropy(
     Computes the local condition entropy for every sample in data using Gaussian estimation.
 
     .. math::
-    
+
         h(x|y) = h(x,y) - h(y)
-    
+
 
     Parameters
     ----------
@@ -245,7 +256,7 @@ def local_mutual_information(
     idxs_x: tuple[int, ...],
     idxs_y: tuple[int, ...],
     data: NDArray[np.floating],
-    cov: NDArray[np.floating] | None = None
+    cov: NDArray[np.floating] | None = None,
 ) -> NDArray[np.floating]:
     """
     Computes the local mutual information between X and Y for every sample in data using Gaussian estimation.
@@ -282,13 +293,13 @@ def local_mutual_information(
     joint: tuple[int, ...] = idxs_x + idxs_y
 
     h_x: NDArray[np.floating] = local_differential_entropy(
-        data = data[idxs_x, :], cov = cov_[np.ix_(idxs_x, idxs_x)]
+        data=data[idxs_x, :], cov=cov_[np.ix_(idxs_x, idxs_x)]
     )
     h_y: NDArray[np.floating] = local_differential_entropy(
-        data = data[idxs_y, :], cov = cov_[np.ix_(idxs_y, idxs_y)]
+        data=data[idxs_y, :], cov=cov_[np.ix_(idxs_y, idxs_y)]
     )
     h_joint: NDArray[np.floating] = local_differential_entropy(
-        data = data[joint, :], cov = cov_[np.ix_(joint, joint)]
+        data=data[joint, :], cov=cov_[np.ix_(joint, joint)]
     )
 
     return h_x + h_y - h_joint
@@ -428,11 +439,11 @@ def local_kullback_leibler_divergence(
     Computes the local Kullback-Leibler divergence between the
     posterior and the prior for every sample in the data.
     The local KL divergence is a rarely used measure.
-    
+
     .. math::
 
         d_{kl}^{P||Q}(x) = h^{Q}(x) - h^{P}(x)
-    
+
     Parameters
     ----------
     cov_posterior : NDArray[np.floating]

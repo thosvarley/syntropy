@@ -30,23 +30,22 @@ pytest_abs = 1e-6
 
 
 def test_differential_entropy():
-    h = shannon.local_differential_entropy(data[1, :]).mean()
-    assert shannon.differential_entropy(cov[1, 1], (1,)) == pytest.approx(
-        h, abs=pytest_abs
-    )
+    h_all = shannon.local_differential_entropy(data).mean()
+    assert shannon.differential_entropy(cov) == pytest.approx(h_all, abs=pytest_abs)
 
     h1 = shannon.local_differential_entropy(
-        data[(1, 2), :], cov[(1, 2), :][:, (1, 2)]
+        data=data[(1, 2), :], cov=cov[np.ix_((1, 2), (1, 2))]
     ).mean()
     h2 = shannon.local_differential_entropy(
-        data[(1, 2), :],
+        data=data[(1, 2), :],
     ).mean()
     assert h1 == pytest.approx(h2, abs=pytest_abs)
 
     assert h1 == pytest.approx(
-        shannon.differential_entropy(cov, (1, 2)), abs=pytest_abs
+        shannon.differential_entropy(cov=cov, idxs=(1, 2)), abs=pytest_abs
     )
-
+    
+    h = shannon.differential_entropy(cov[np.ix_((2,),(2,))])
     c = shannon.conditional_entropy((2,), (1,), cov)
 
     assert h1 - h == pytest.approx(c, abs=pytest_abs)
