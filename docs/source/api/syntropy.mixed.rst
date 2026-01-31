@@ -17,10 +17,3 @@ syntropy.mixed.shannon module
    :show-inheritance:
    :undoc-members:
 
-syntropy.mixed.utils module
----------------------------
-
-.. automodule:: syntropy.mixed.utils
-   :members:
-   :show-inheritance:
-   :undoc-members:

@@ -34,14 +34,18 @@
 <span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">numpy.typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">NDArray</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">scipy.special</span><span class="w"> </span><span class="kn">import</span> <span class="n">digamma</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">scipy.spatial</span><span class="w"> </span><span class="kn">import</span> <span class="n">cKDTree</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">check_idxs</span><span class="p">,</span> <span class="n">build_tree_and_get_distances</span><span class="p">,</span> <span class="n">get_counts_from_tree</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">build_tree_and_get_distances</span><span class="p">,</span> <span class="n">get_counts_from_tree</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">check_idxs</span>
 
 
 <div class="viewcode-block" id="differential_entropy">
 <a class="viewcode-back" href="../../../api/syntropy.knn.html#syntropy.knn.differential_entropy">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">differential_entropy</span><span class="p">(</span>
-    <span class="n">data</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">],</span> <span class="n">k</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">idxs</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,)</span>
+    <span class="n">data</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">],</span>
+    <span class="n">k</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">idxs</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">p</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span>
+    <span class="n">noise_level</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">],</span> <span class="nb">float</span><span class="p">]:</span>
 <span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Computes the differential entropy using the Kozachenko-Leoneko estimator.</span>
@@ -55,8 +59,17 @@
 <span class="sd">        Numpy array of shape (n_variables, n_samples)</span>
 <span class="sd">    k : int</span>
 <span class="sd">        Number of nearest neighbors</span>
-<span class="sd">    idxs : tuple[int, ...]</span>
-<span class="sd">        Indices of variables to use (-1 means all)</span>
+<span class="sd">    idxs : tuple[int, ...] | None</span>
+<span class="sd">        Indices of channels to use.</span>
+<span class="sd">        If None, all channels are used.</span>
+<span class="sd">        The default is None.</span>
+<span class="sd">    p : float</span>
+<span class="sd">        The order of the norm to use in the nearest neighbor lookup.</span>
+<span class="sd">        If p = 2, the norm is Euclidean. If p = np.inf, the norm is Chebyshev.</span>
+<span class="sd">        The default is np.inf.</span>
+<span class="sd">    noise_level : float</span>
+<span class="sd">        The standard deviation  of the noise to add to the data.</span>
+<span class="sd">        The default is 0.0</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -78,15 +91,19 @@
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="n">idxs</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="n">check_idxs</span><span class="p">(</span><span class="n">idxs</span><span class="p">,</span> <span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="n">idxs_</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="n">check_idxs</span><span class="p">(</span><span class="n">idxs</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
 
-    <span class="n">d</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">idxs</span><span class="p">)</span>
+    <span class="n">d</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">idxs_</span><span class="p">)</span>
     <span class="n">N</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
 
     <span class="n">psi_k</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">digamma</span><span class="p">(</span><span class="n">k</span><span class="p">)</span>
     <span class="n">psi_N</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">digamma</span><span class="p">(</span><span class="n">N</span><span class="p">)</span>
 
-    <span class="n">_</span><span class="p">,</span> <span class="n">distances</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">build_tree_and_get_distances</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">idxs</span><span class="p">,</span> <span class="p">:],</span> <span class="n">k</span><span class="o">=</span><span class="n">k</span><span class="p">)</span>
+    <span class="n">data_idxs</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">idxs_</span><span class="p">,</span> <span class="p">:]</span>
+    <span class="k">if</span> <span class="n">noise_level</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">data_idxs</span> <span class="o">+=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="o">*</span><span class="n">data_idxs</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">*</span> <span class="n">noise_level</span>
+
+    <span class="n">_</span><span class="p">,</span> <span class="n">distances</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">build_tree_and_get_distances</span><span class="p">(</span><span class="n">data_idxs</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="n">k</span><span class="p">,</span> <span class="n">p</span><span class="o">=</span><span class="n">p</span><span class="p">)</span>
 
     <span class="n">ptw</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span> <span class="n">N</span><span class="p">))</span>
     <span class="n">ptw</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="p">:]</span> <span class="o">+=</span> <span class="o">-</span><span class="n">psi_k</span> <span class="o">+</span> <span class="n">psi_N</span> <span class="o">+</span> <span class="n">d</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">distances</span><span class="p">[:,</span> <span class="o">-</span><span class="mi">1</span><span class="p">])</span>
@@ -103,6 +120,7 @@
     <span class="n">k</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
     <span class="n">data</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">],</span>
     <span class="n">algorithm</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="n">p</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">],</span> <span class="nb">float</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A wrapper function for the two KSG mutual information functions.</span>
@@ -138,16 +156,20 @@
     <span class="k">assert</span> <span class="n">algorithm</span> <span class="ow">in</span> <span class="p">{</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">},</span> <span class="s2">&quot;Algorithm must be 1 or 2.&quot;</span>
 
     <span class="k">if</span> <span class="n">algorithm</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">mutual_information_1</span><span class="p">(</span><span class="n">idxs_x</span><span class="o">=</span><span class="n">idxs_x</span><span class="p">,</span> <span class="n">idxs_y</span><span class="o">=</span><span class="n">idxs_y</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="n">k</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">mutual_information_1</span><span class="p">(</span><span class="n">idxs_x</span><span class="o">=</span><span class="n">idxs_x</span><span class="p">,</span> <span class="n">idxs_y</span><span class="o">=</span><span class="n">idxs_y</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="n">k</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">p</span><span class="o">=</span><span class="n">p</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">mutual_information_2</span><span class="p">(</span><span class="n">idxs_x</span><span class="o">=</span><span class="n">idxs_x</span><span class="p">,</span> <span class="n">idxs_y</span><span class="o">=</span><span class="n">idxs_y</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="n">k</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="n">mutual_information_2</span><span class="p">(</span><span class="n">idxs_x</span><span class="o">=</span><span class="n">idxs_x</span><span class="p">,</span> <span class="n">idxs_y</span><span class="o">=</span><span class="n">idxs_y</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="n">k</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">p</span><span class="o">=</span><span class="n">p</span><span class="p">)</span></div>
 
 
 
 <div class="viewcode-block" id="mutual_information_1">
 <a class="viewcode-back" href="../../../api/syntropy.knn.html#syntropy.knn.mutual_information_1">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">mutual_information_1</span><span class="p">(</span>
-    <span class="n">idxs_x</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span> <span class="n">idxs_y</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span> <span class="n">k</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">]</span>
+    <span class="n">idxs_x</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span>
+    <span class="n">idxs_y</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span>
+    <span class="n">k</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">data</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">],</span>
+    <span class="n">p</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">],</span> <span class="nb">float</span><span class="p">]:</span>
 <span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Computes the Kraskov, Stogbauer, Grassberger estimate of the bivariate mutual information</span>
@@ -197,7 +219,7 @@
     <span class="k">for</span> <span class="n">idxs</span> <span class="ow">in</span> <span class="p">(</span><span class="n">idxs_x</span><span class="p">,</span> <span class="n">idxs_y</span><span class="p">):</span>
         <span class="n">tree</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">build_tree_and_get_distances</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">idxs</span><span class="p">,</span> <span class="p">:],</span> <span class="n">k</span><span class="o">=</span><span class="n">k</span><span class="p">)</span>
         <span class="n">counts</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">integer</span><span class="p">]</span> <span class="o">=</span> <span class="n">get_counts_from_tree</span><span class="p">(</span>
-            <span class="n">tree</span><span class="p">,</span> <span class="n">data</span><span class="p">[</span><span class="n">idxs</span><span class="p">,</span> <span class="p">:],</span> <span class="n">distances</span><span class="p">[:,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">tree</span><span class="p">,</span> <span class="n">data</span><span class="p">[</span><span class="n">idxs</span><span class="p">,</span> <span class="p">:],</span> <span class="n">distances</span><span class="p">[:,</span> <span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">p</span><span class="o">=</span><span class="n">p</span>
         <span class="p">)</span>
         <span class="n">ptw</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="p">:]</span> <span class="o">-=</span> <span class="n">digamma</span><span class="p">(</span><span class="n">counts</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
 
@@ -208,7 +230,11 @@
 <div class="viewcode-block" id="mutual_information_2">
 <a class="viewcode-back" href="../../../api/syntropy.knn.html#syntropy.knn.mutual_information_2">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">mutual_information_2</span><span class="p">(</span>
-    <span class="n">idxs_x</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span> <span class="n">idxs_y</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span> <span class="n">k</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">]</span>
+    <span class="n">idxs_x</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span>
+    <span class="n">idxs_y</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span>
+    <span class="n">k</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">data</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">],</span>
+    <span class="n">p</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">],</span> <span class="nb">float</span><span class="p">]:</span>
 <span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Computes the Kraskov, Stogbauer, Grassberger estimate of the bivariate mutual information</span>
@@ -251,7 +277,7 @@
     <span class="n">psi_k</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">digamma</span><span class="p">(</span><span class="n">k</span><span class="p">)</span>
     <span class="n">psi_N</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">digamma</span><span class="p">(</span><span class="n">N</span><span class="p">)</span>
 
-    <span class="n">_</span><span class="p">,</span> <span class="n">distances</span><span class="p">,</span> <span class="n">indices</span> <span class="o">=</span> <span class="n">build_tree_and_get_distances</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">idxs_xy</span><span class="p">,</span> <span class="p">:],</span> <span class="n">k</span><span class="o">=</span><span class="n">k</span><span class="p">)</span>
+    <span class="n">_</span><span class="p">,</span> <span class="n">distances</span><span class="p">,</span> <span class="n">indices</span> <span class="o">=</span> <span class="n">build_tree_and_get_distances</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">idxs_xy</span><span class="p">,</span> <span class="p">:],</span> <span class="n">k</span><span class="o">=</span><span class="n">k</span><span class="p">,</span> <span class="n">p</span><span class="o">=</span><span class="n">p</span><span class="p">)</span>
     <span class="n">neighbors</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">integer</span><span class="p">]</span> <span class="o">=</span> <span class="n">indices</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">:]</span>
 
     <span class="n">ptw</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span> <span class="n">N</span><span class="p">),</span> <span class="n">psi_k</span> <span class="o">-</span> <span class="p">(</span><span class="mi">1</span> <span class="o">/</span> <span class="n">k</span><span class="p">)</span> <span class="o">+</span> <span class="n">psi_N</span><span class="p">)</span>
@@ -261,12 +287,12 @@
 
         <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">k</span><span class="p">):</span>
             <span class="n">norm</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span>
-                <span class="n">data_idx</span> <span class="o">-</span> <span class="n">data_idx</span><span class="p">[</span><span class="n">neighbors</span><span class="p">[:,</span> <span class="n">j</span><span class="p">]],</span> <span class="nb">ord</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span>
+                <span class="n">data_idx</span> <span class="o">-</span> <span class="n">data_idx</span><span class="p">[</span><span class="n">neighbors</span><span class="p">[:,</span> <span class="n">j</span><span class="p">]],</span> <span class="nb">ord</span><span class="o">=</span><span class="n">p</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span>
             <span class="p">)</span>
             <span class="n">eps</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="n">norm</span><span class="p">,</span> <span class="n">eps</span><span class="p">)</span>
 
-        <span class="n">tree</span><span class="p">,</span> <span class="n">distances</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">build_tree_and_get_distances</span><span class="p">(</span><span class="n">data_idx</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="n">k</span><span class="p">)</span>
-        <span class="n">counts</span> <span class="o">=</span> <span class="n">get_counts_from_tree</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">data_idx</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">eps</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">tree</span><span class="p">,</span> <span class="n">distances</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">build_tree_and_get_distances</span><span class="p">(</span><span class="n">data_idx</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="n">k</span><span class="p">,</span> <span class="n">p</span><span class="o">=</span><span class="n">p</span><span class="p">)</span>
+        <span class="n">counts</span> <span class="o">=</span> <span class="n">get_counts_from_tree</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">data_idx</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">eps</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">p</span><span class="o">=</span><span class="n">p</span><span class="p">)</span>
         <span class="n">ptw</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="p">:]</span> <span class="o">-=</span> <span class="n">digamma</span><span class="p">(</span><span class="n">counts</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">ptw</span><span class="p">,</span> <span class="n">ptw</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span></div>
@@ -281,6 +307,7 @@
     <span class="n">idxs_z</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span>
     <span class="n">k</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
     <span class="n">data</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">],</span>
+    <span class="n">p</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">],</span> <span class="nb">float</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Computes the conditional mutual information I(X;Y|Z) using the KSG algorithm 1</span>
@@ -338,13 +365,13 @@
     <span class="n">ptw</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span> <span class="n">N</span><span class="p">),</span> <span class="n">psi_k</span><span class="p">)</span>
 
     <span class="n">distances</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">]</span>
-    <span class="n">_</span><span class="p">,</span> <span class="n">distances</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">build_tree_and_get_distances</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="n">idxs_joint</span><span class="p">,</span> <span class="p">:],</span> <span class="n">k</span><span class="o">=</span><span class="n">k</span><span class="p">)</span>
+    <span class="n">_</span><span class="p">,</span> <span class="n">distances</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">build_tree_and_get_distances</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="n">idxs_joint</span><span class="p">,</span> <span class="p">:],</span> <span class="n">k</span><span class="o">=</span><span class="n">k</span><span class="p">,</span> <span class="n">p</span><span class="o">=</span><span class="n">p</span><span class="p">)</span>
 
     <span class="n">counter</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
     <span class="k">for</span> <span class="n">idxs</span> <span class="ow">in</span> <span class="p">(</span><span class="n">idxs_z</span><span class="p">,</span> <span class="n">idxs_xz</span><span class="p">,</span> <span class="n">idxs_yz</span><span class="p">):</span>
-        <span class="n">tree</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">build_tree_and_get_distances</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">idxs</span><span class="p">,</span> <span class="p">:],</span> <span class="n">k</span><span class="o">=</span><span class="n">k</span><span class="p">)</span>
+        <span class="n">tree</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">build_tree_and_get_distances</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">idxs</span><span class="p">,</span> <span class="p">:],</span> <span class="n">k</span><span class="o">=</span><span class="n">k</span><span class="p">,</span> <span class="n">p</span><span class="o">=</span><span class="n">p</span><span class="p">)</span>
         <span class="n">counts</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">integer</span><span class="p">]</span> <span class="o">=</span> <span class="n">get_counts_from_tree</span><span class="p">(</span>
-            <span class="n">tree</span><span class="p">,</span> <span class="n">data</span><span class="p">[</span><span class="n">idxs</span><span class="p">,</span> <span class="p">:],</span> <span class="n">distances</span><span class="p">[:,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">tree</span><span class="p">,</span> <span class="n">data</span><span class="p">[</span><span class="n">idxs</span><span class="p">,</span> <span class="p">:],</span> <span class="n">distances</span><span class="p">[:,</span> <span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">p</span><span class="o">=</span><span class="n">p</span>
         <span class="p">)</span>
 
         <span class="k">if</span> <span class="n">counter</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
@@ -392,9 +419,11 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../api/syntropy.gaussian.html">syntropy.gaussian package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../api/syntropy.knn.html">syntropy.knn package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../api/syntropy.neural.html">syntropy.neural package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api/syntropy.mixed.html">syntropy.mixed package</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Additional Information:</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../theory.html">Information Theory Primer</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../contributing.html">Contributing</a></li>
 </ul>
 

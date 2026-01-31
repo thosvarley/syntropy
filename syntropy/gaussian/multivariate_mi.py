@@ -682,25 +682,23 @@ def co_information(cov: NDArray[np.floating], idxs: tuple[int, ...] | None) -> f
     idxs : tuple | None, optional
         The specific subset of variables to compute the co-information of.
         Defaults to computing the measure for the entire covariance matrix.
-        
+
 
     Returns
     -------
     float
-        
+
     """
-    
+
     idxs_: tuple[int, ...] = check_idxs(idxs, cov)
     sources: list[tuple[int, ...]] = list(make_powerset(idxs_))
     sources.remove(())
 
-    co: float = 0.0 
+    co: float = 0.0
 
     for source in sources:
-        sign: int = (-1)**len(source)
+        sign: int = (-1) ** len(source)
 
         co -= sign * differential_entropy(cov[np.ix_(source, source)])
 
     return co
-
-    

@@ -14,7 +14,7 @@
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Contributing" href="../contributing.html" />
+    <link rel="next" title="syntropy.mixed package" href="syntropy.mixed.html" />
     <link rel="prev" title="syntropy.knn package" href="syntropy.knn.html" />
    
   <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
@@ -88,45 +88,28 @@
 
 <dl class="py function">
 <dt class="sig sig-object py" id="syntropy.neural.total_correlation">
-<span class="sig-prename descclassname"><span class="pre">syntropy.neural.</span></span><span class="sig-name descname"><span class="pre">total_correlation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">idxs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_test</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flow_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">train_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/neural/multivariate_mi.html#total_correlation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.neural.total_correlation" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">syntropy.neural.</span></span><span class="sig-name descname"><span class="pre">total_correlation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">idxs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_test</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flow_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">train_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/neural/multivariate_mi.html#total_correlation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.neural.total_correlation" title="Link to this definition">¶</a></dt>
 <dd><p>Computes the total correlation of the data using normalizing flow estimators.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>idxs</strong> (<em>tuple</em><em>[</em><em>int</em><em>, </em><em>...</em><em>]</em>) – The tuple of indices the differential entropy is computed for.</p></li>
 <li><p><strong>data</strong> (<em>torch.Tensor</em>) – The training data, in samples x features format.</p></li>
-<li><p><strong>context</strong> (<em>None</em><em> | </em><em>tuple</em><em>[</em><em>int</em><em>]</em>) – If not None, the indices of the conditioning variables.</p></li>
 <li><p><strong>data_test</strong> (<em>None</em><em> | </em><em>torch.Tensor</em>) – If not None, the testing data in samples x features format.</p></li>
 <li><p><strong>flow_kwargs</strong> (<em>dict</em>) – Arguments for the utils.initalize_flow function.</p></li>
 <li><p><strong>train_kwargs</strong> (<em>dict</em>) – Arguments for the utils.train_flow function.</p></li>
 <li><p><strong>verbose</strong> (<em>bool</em>) – Whether to print the training progress.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>float</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="syntropy.neural.higher_order_information">
-<span class="sig-prename descclassname"><span class="pre">syntropy.neural.</span></span><span class="sig-name descname"><span class="pre">higher_order_information</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">idxs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_test</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flow_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">train_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/neural/multivariate_mi.html#higher_order_information"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.neural.higher_order_information" title="Link to this definition">¶</a></dt>
-<dd><p>Computes the O-information, S-information, total correlation, and dual total correlation for the data.
-Computing them all as a set is more efficient than computing each one independently.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>idxs</strong> (<em>tuple</em><em>[</em><em>int</em><em>, </em><em>...</em><em>]</em>) – The tuple of indices the differential entropy is computed for.</p></li>
-<li><p><strong>data</strong> (<em>torch.Tensor</em>) – The training data, in samples x features format.</p></li>
-<li><p><strong>context</strong> (<em>None</em><em> | </em><em>tuple</em><em>[</em><em>int</em><em>]</em>) – If not None, the indices of the conditioning variables.</p></li>
-<li><p><strong>data_test</strong> (<em>None</em><em> | </em><em>torch.Tensor</em>) – If not None, the testing data in samples x features format.</p></li>
-<li><p><strong>flow_kwargs</strong> (<em>dict</em>) – Arguments for the utils.initalize_flow function.</p></li>
-<li><p><strong>train_kwargs</strong> (<em>dict</em>) – Arguments for the utils.train_flow function.</p></li>
-<li><p><strong>verbose</strong> (<em>bool</em>) – Whether to print the training progress.</p></li>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><em>torch.Tensor</em></p></li>
+<li><p><em>float</em></p></li>
 </ul>
+</p>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>dict[str, float]</p>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple[<em>Tensor</em>, float]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -138,29 +121,35 @@ Computing them all as a set is more efficient than computing each one independen
 <span id="syntropy-neural-multivariate-mi-module"></span><h2>syntropy.neural.multivariate_mi module<a class="headerlink" href="#module-syntropy.neural.multivariate_mi" title="Link to this heading">¶</a></h2>
 <dl class="py function">
 <dt class="sig sig-object py" id="syntropy.neural.multivariate_mi.total_correlation">
-<span class="sig-prename descclassname"><span class="pre">syntropy.neural.multivariate_mi.</span></span><span class="sig-name descname"><span class="pre">total_correlation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">idxs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_test</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flow_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">train_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/neural/multivariate_mi.html#total_correlation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.neural.multivariate_mi.total_correlation" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">syntropy.neural.multivariate_mi.</span></span><span class="sig-name descname"><span class="pre">total_correlation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">idxs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_test</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flow_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">train_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/neural/multivariate_mi.html#total_correlation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.neural.multivariate_mi.total_correlation" title="Link to this definition">¶</a></dt>
 <dd><p>Computes the total correlation of the data using normalizing flow estimators.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>idxs</strong> (<em>tuple</em><em>[</em><em>int</em><em>, </em><em>...</em><em>]</em>) – The tuple of indices the differential entropy is computed for.</p></li>
 <li><p><strong>data</strong> (<em>torch.Tensor</em>) – The training data, in samples x features format.</p></li>
-<li><p><strong>context</strong> (<em>None</em><em> | </em><em>tuple</em><em>[</em><em>int</em><em>]</em>) – If not None, the indices of the conditioning variables.</p></li>
 <li><p><strong>data_test</strong> (<em>None</em><em> | </em><em>torch.Tensor</em>) – If not None, the testing data in samples x features format.</p></li>
 <li><p><strong>flow_kwargs</strong> (<em>dict</em>) – Arguments for the utils.initalize_flow function.</p></li>
 <li><p><strong>train_kwargs</strong> (<em>dict</em>) – Arguments for the utils.train_flow function.</p></li>
 <li><p><strong>verbose</strong> (<em>bool</em>) – Whether to print the training progress.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>float</p>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><em>torch.Tensor</em></p></li>
+<li><p><em>float</em></p></li>
+</ul>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple[<em>Tensor</em>, float]</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="syntropy.neural.multivariate_mi.higher_order_information">
-<span class="sig-prename descclassname"><span class="pre">syntropy.neural.multivariate_mi.</span></span><span class="sig-name descname"><span class="pre">higher_order_information</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">idxs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_test</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flow_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">train_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/neural/multivariate_mi.html#higher_order_information"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.neural.multivariate_mi.higher_order_information" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">syntropy.neural.multivariate_mi.</span></span><span class="sig-name descname"><span class="pre">higher_order_information</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">idxs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_test</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flow_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">train_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/neural/multivariate_mi.html#higher_order_information"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.neural.multivariate_mi.higher_order_information" title="Link to this definition">¶</a></dt>
 <dd><p>Computes the O-information, S-information, total correlation, and dual total correlation for the data.
 Computing them all as a set is more efficient than computing each one independently.</p>
 <dl class="field-list simple">
@@ -176,7 +165,7 @@ Computing them all as a set is more efficient than computing each one independen
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>dict[str, float]</p>
+<dd class="field-even"><p>dict[str, dict[str, float | torch.Tensor]]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -409,9 +398,11 @@ The standard error of the estimate.</p>
 <li class="toctree-l1"><a class="reference internal" href="syntropy.gaussian.html">syntropy.gaussian package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="syntropy.knn.html">syntropy.knn package</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">syntropy.neural package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="syntropy.mixed.html">syntropy.mixed package</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Additional Information:</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="../theory.html">Information Theory Primer</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../contributing.html">Contributing</a></li>
 </ul>
 
@@ -420,7 +411,7 @@ The standard error of the estimate.</p>
 <ul>
   <li><a href="../index.html">Documentation overview</a><ul>
       <li>Previous: <a href="syntropy.knn.html" title="previous chapter">syntropy.knn package</a></li>
-      <li>Next: <a href="../contributing.html" title="next chapter">Contributing</a></li>
+      <li>Next: <a href="syntropy.mixed.html" title="next chapter">syntropy.mixed package</a></li>
   </ul></li>
 </ul>
 </div>

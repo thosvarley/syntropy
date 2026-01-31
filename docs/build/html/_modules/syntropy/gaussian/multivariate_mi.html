@@ -32,28 +32,41 @@
             
   <h1>Source code for syntropy.gaussian.multivariate_mi</h1><div class="highlight"><pre>
 <span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">COV_NULL</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">.shannon</span><span class="w"> </span><span class="kn">import</span> <span class="n">local_differential_entropy</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.shannon</span><span class="w"> </span><span class="kn">import</span> <span class="n">local_differential_entropy</span><span class="p">,</span> <span class="n">differential_entropy</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">numpy.typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">NDArray</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">check_cov</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">check_idxs</span><span class="p">,</span> <span class="n">make_powerset</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.decompositions</span><span class="w"> </span><span class="kn">import</span> <span class="n">local_precompute_sources</span>
+
 
 <div class="viewcode-block" id="local_total_correlation">
 <a class="viewcode-back" href="../../../api/syntropy.gaussian.html#syntropy.gaussian.local_total_correlation">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">local_total_correlation</span><span class="p">(</span>
-    <span class="n">data</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">],</span> <span class="n">cov</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">],</span> <span class="n">idxs</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,)</span>
+    <span class="n">data</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">],</span>
+    <span class="n">cov</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">idxs</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The local total correlation. Note that this measure can be negative.</span>
 
-<span class="sd">    .. math:: </span>
+<span class="sd">    .. math::</span>
 <span class="sd">        tc(x) = \\sum_{i=1}^{N}h(x_i) - h(x)</span>
+
+<span class="sd">    If you wish to use a Gaussian copula estimator, use the transformed data and the correlation matrix returned by the function :func:`utils.copula_transform`.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    data : NDArray[np.floating]</span>
 <span class="sd">        The data in channels x samples format.</span>
-<span class="sd">    inptuts: tuple</span>
+<span class="sd">    cov : NDArray[np.floating] | None</span>
+<span class="sd">        The covariance matrix used to compute the local entropies.</span>
+<span class="sd">        If None is provided, it is inferred from the data.</span>
+<span class="sd">        The default is None.</span>
+<span class="sd">    inputs: tuple | None</span>
 <span class="sd">        The indices of the channels to include.</span>
-<span class="sd">    </span>
+<span class="sd">        If None is provided, all channels are used.</span>
+<span class="sd">        The default is None.</span>
+
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    NDArray[np.floating]</span>
@@ -66,28 +79,23 @@
 <span class="sd">    Physical Review Research, 4(1), 013184.</span>
 <span class="sd">    https://doi.org/10.1103/PhysRevResearch.4.013184</span>
 
-<span class="sd">    Pope, M., Varley, T. F., Grazia Puxeddu, M., Faskowitz, J., &amp; Sporns, O. (2025). </span>
-<span class="sd">    Time-varying synergy/redundancy dominance in the human cerebral cortex. </span>
-<span class="sd">    Journal of Physics: Complexity, 6(1), 015015. </span>
+<span class="sd">    Pope, M., Varley, T. F., Grazia Puxeddu, M., Faskowitz, J., &amp; Sporns, O. (2025).</span>
+<span class="sd">    Time-varying synergy/redundancy dominance in the human cerebral cortex.</span>
+<span class="sd">    Journal of Physics: Complexity, 6(1), 015015.</span>
 <span class="sd">    https://doi.org/10.1088/2632-072X/adbaa9</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">assert</span> <span class="n">cov</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="p">(</span>
-        <span class="s2">&quot;The data and covariance matrix must have the same dimensionality&quot;</span>
-    <span class="p">)</span>
+    <span class="n">idxs_</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="n">check_idxs</span><span class="p">(</span><span class="n">idxs</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
+    <span class="n">cov_</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">]</span> <span class="o">=</span> <span class="n">check_cov</span><span class="p">(</span><span class="n">cov</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
 
-    <span class="k">if</span> <span class="n">idxs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
-        <span class="n">_idxs</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">_idxs</span> <span class="o">=</span> <span class="n">idxs</span>
-    <span class="n">N</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">_idxs</span><span class="p">)</span>
+    <span class="n">N</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">idxs_</span><span class="p">)</span>
 
-    <span class="n">whole</span> <span class="o">=</span> <span class="n">local_differential_entropy</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">_idxs</span><span class="p">,</span> <span class="p">:],</span> <span class="n">cov</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ix_</span><span class="p">(</span><span class="n">_idxs</span><span class="p">,</span> <span class="n">_idxs</span><span class="p">)])</span>
+    <span class="n">whole</span> <span class="o">=</span> <span class="n">local_differential_entropy</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">idxs_</span><span class="p">,</span> <span class="p">:],</span> <span class="n">cov_</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ix_</span><span class="p">(</span><span class="n">idxs_</span><span class="p">,</span> <span class="n">idxs_</span><span class="p">)])</span>
 
     <span class="n">sum_parts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">whole</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">):</span>
-        <span class="n">sum_parts</span> <span class="o">+=</span> <span class="n">local_differential_entropy</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">_idxs</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="p">:])</span>
+        <span class="n">sum_parts</span> <span class="o">+=</span> <span class="n">local_differential_entropy</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">idxs_</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="p">:])</span>
 
     <span class="k">return</span> <span class="n">sum_parts</span> <span class="o">-</span> <span class="n">whole</span></div>
 
@@ -96,7 +104,7 @@
 <div class="viewcode-block" id="total_correlation">
 <a class="viewcode-back" href="../../../api/syntropy.gaussian.html#syntropy.gaussian.total_correlation">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">total_correlation</span><span class="p">(</span>
-    <span class="n">cov</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">],</span> <span class="n">idxs</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,)</span>
+    <span class="n">cov</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">],</span> <span class="n">idxs</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
 <span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The expected total correlation.</span>
@@ -112,6 +120,8 @@
 <span class="sd">            \hat{TC}(X) = \frac{-\log R}{2}</span>
 
 <span class="sd">    Where :math:`R` is the Pearson correlation matrix.</span>
+<span class="sd">    </span>
+<span class="sd">    If you wish to use a Gaussian copula estimator, use the correlation matrix returned by the function :func:`utils.copula_transform`. </span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -143,18 +153,21 @@
 <span class="sd">    https://doi.org/10.48550/arXiv.2507.08773</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="n">idxs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
-        <span class="n">_idxs</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">cov</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+    <span class="n">idxs_</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="n">check_idxs</span><span class="p">(</span><span class="n">idxs</span><span class="p">,</span> <span class="n">cov</span><span class="p">)</span>
+
+    <span class="n">cov_</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">]</span> <span class="o">=</span> <span class="n">cov</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ix_</span><span class="p">(</span><span class="n">idxs_</span><span class="p">,</span> <span class="n">idxs_</span><span class="p">)]</span>
+    <span class="n">corr</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">]</span>
+
+    <span class="c1"># Checking to see if the covariance matrix has</span>
+    <span class="c1"># 1s along the diagonal (a correlation matrix).</span>
+    <span class="k">if</span> <span class="kc">False</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">cov_</span><span class="o">.</span><span class="n">diagonal</span><span class="p">(),</span> <span class="mi">1</span><span class="p">):</span>
+        <span class="c1"># Converting to a correlation/coherence matrix.</span>
+        <span class="n">diag</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="n">cov_</span><span class="p">))</span>
+        <span class="n">d_inv</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="mf">1.0</span> <span class="o">/</span> <span class="n">diag</span><span class="p">)</span>
+
+        <span class="n">corr</span> <span class="o">=</span> <span class="n">d_inv</span> <span class="o">@</span> <span class="n">cov_</span> <span class="o">@</span> <span class="n">d_inv</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="n">_idxs</span> <span class="o">=</span> <span class="n">idxs</span>
-
-    <span class="n">_cov</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">]</span> <span class="o">=</span> <span class="n">cov</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ix_</span><span class="p">(</span><span class="n">_idxs</span><span class="p">,</span> <span class="n">_idxs</span><span class="p">)]</span>
-
-    <span class="c1"># Converting to a correlation/coherence matrix.</span>
-    <span class="n">diag</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="n">_cov</span><span class="p">))</span>
-    <span class="n">d_inv</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="mf">1.0</span> <span class="o">/</span> <span class="n">diag</span><span class="p">)</span>
-
-    <span class="n">corr</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">]</span> <span class="o">=</span> <span class="n">d_inv</span> <span class="o">@</span> <span class="n">_cov</span> <span class="o">@</span> <span class="n">d_inv</span>
+        <span class="n">corr</span> <span class="o">=</span> <span class="n">cov_</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
 
     <span class="k">return</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">slogdet</span><span class="p">(</span><span class="n">corr</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="mi">2</span></div>
 
@@ -163,8 +176,8 @@
 <span class="k">def</span><span class="w"> </span><span class="nf">local_delta_k</span><span class="p">(</span>
     <span class="n">k</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
     <span class="n">data</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">],</span>
-    <span class="n">cov</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">],</span>
-    <span class="n">idxs</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,),</span>
+    <span class="n">cov</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">idxs</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">]:</span>
 <span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A utility function that computes the local generalized form</span>
@@ -172,6 +185,8 @@
 
 <span class="sd">    .. math::</span>
 <span class="sd">        \delta_{k}(x) = (N-k)tc(x) - \sum_{i=1}^{N} tc(x^{-i})</span>
+
+<span class="sd">    If you wish to use a Gaussian copula estimator, use the transformed data and the correlation matrix returned by the function :func:`utils.copula_transform`.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -193,30 +208,36 @@
 <span class="sd">        The series of local :math:`\delta^{k}`.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="n">idxs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
-        <span class="n">_idxs</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">_idxs</span> <span class="o">=</span> <span class="n">idxs</span>
+    <span class="n">idxs_</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="n">check_idxs</span><span class="p">(</span><span class="n">idxs</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
+    <span class="n">cov_</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">]</span> <span class="o">=</span> <span class="n">check_cov</span><span class="p">(</span><span class="n">cov</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
 
-    <span class="n">N</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">_idxs</span><span class="p">)</span>
-    <span class="n">whole</span> <span class="o">=</span> <span class="p">(</span><span class="n">N</span> <span class="o">-</span> <span class="n">k</span><span class="p">)</span> <span class="o">*</span> <span class="n">local_total_correlation</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">_idxs</span><span class="p">,</span> <span class="p">:],</span> <span class="n">cov</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ix_</span><span class="p">(</span><span class="n">_idxs</span><span class="p">,</span> <span class="n">_idxs</span><span class="p">)])</span>
+    <span class="n">N</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">idxs_</span><span class="p">)</span>
+    <span class="n">whole</span> <span class="o">=</span> <span class="p">(</span><span class="n">N</span> <span class="o">-</span> <span class="n">k</span><span class="p">)</span> <span class="o">*</span> <span class="n">local_total_correlation</span><span class="p">(</span>
+        <span class="n">data</span><span class="p">[</span><span class="n">idxs_</span><span class="p">,</span> <span class="p">:],</span> <span class="n">cov_</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ix_</span><span class="p">(</span><span class="n">idxs_</span><span class="p">,</span> <span class="n">idxs_</span><span class="p">)]</span>
+    <span class="p">)</span>
 
     <span class="n">sum_parts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">whole</span><span class="p">)</span>
 
     <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">):</span>
-        <span class="n">idxs</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">_idxs</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">)</span> <span class="k">if</span> <span class="n">j</span> <span class="o">!=</span> <span class="n">i</span><span class="p">)</span>
-        <span class="n">sum_parts</span> <span class="o">+=</span> <span class="n">local_total_correlation</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">idxs</span><span class="p">,</span> <span class="p">:],</span> <span class="n">cov</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ix_</span><span class="p">(</span><span class="n">idxs</span><span class="p">,</span> <span class="n">idxs</span><span class="p">)])</span>
+        <span class="n">idxs_r</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">idxs_</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">)</span> <span class="k">if</span> <span class="n">j</span> <span class="o">!=</span> <span class="n">i</span><span class="p">)</span>
+        <span class="n">sum_parts</span> <span class="o">+=</span> <span class="n">local_total_correlation</span><span class="p">(</span>
+            <span class="n">data</span><span class="p">[</span><span class="n">idxs_r</span><span class="p">,</span> <span class="p">:],</span> <span class="n">cov_</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ix_</span><span class="p">(</span><span class="n">idxs_r</span><span class="p">,</span> <span class="n">idxs_r</span><span class="p">)]</span>
+        <span class="p">)</span>
 
     <span class="k">return</span> <span class="n">whole</span> <span class="o">-</span> <span class="n">sum_parts</span>
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">delta_k</span><span class="p">(</span><span class="n">k</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">cov</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">],</span> <span class="n">idxs</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,))</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">delta_k</span><span class="p">(</span>
+    <span class="n">k</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">cov</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">],</span> <span class="n">idxs</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    S-information, DTC, and negative O-information can all be written in a general form:</span>
 
 <span class="sd">    .. math::</span>
 
 <span class="sd">        WMS^{k}(X) = (N-k)TC(X) - \\sum_{i=1}^{N}TC(X^{-i})</span>
+
+<span class="sd">    If you wish to use a Gaussian copula estimator, use the correlation matrix returned by the function :func:`utils.copula_transform`.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -235,18 +256,14 @@
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">if</span> <span class="n">idxs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
-        <span class="n">_idxs</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">cov</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">_idxs</span> <span class="o">=</span> <span class="n">idxs</span>
+    <span class="n">idxs_</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="n">check_idxs</span><span class="p">(</span><span class="n">idxs</span><span class="p">,</span> <span class="n">cov</span><span class="p">)</span>
+    <span class="n">N</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">idxs_</span><span class="p">)</span>
 
-    <span class="n">N</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">_idxs</span><span class="p">)</span>
-
-    <span class="n">whole</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="p">(</span><span class="n">N</span> <span class="o">-</span> <span class="n">k</span><span class="p">)</span> <span class="o">*</span> <span class="n">total_correlation</span><span class="p">(</span><span class="n">cov</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ix_</span><span class="p">(</span><span class="n">_idxs</span><span class="p">,</span> <span class="n">_idxs</span><span class="p">)])</span>
+    <span class="n">whole</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="p">(</span><span class="n">N</span> <span class="o">-</span> <span class="n">k</span><span class="p">)</span> <span class="o">*</span> <span class="n">total_correlation</span><span class="p">(</span><span class="n">cov</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ix_</span><span class="p">(</span><span class="n">idxs_</span><span class="p">,</span> <span class="n">idxs_</span><span class="p">)])</span>
     <span class="n">sum_parts</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span>
 
     <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">):</span>
-        <span class="n">idxs_residual</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">_idxs</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">)</span> <span class="k">if</span> <span class="n">j</span> <span class="o">!=</span> <span class="n">i</span><span class="p">)</span>
+        <span class="n">idxs_residual</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">idxs_</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">)</span> <span class="k">if</span> <span class="n">j</span> <span class="o">!=</span> <span class="n">i</span><span class="p">)</span>
         <span class="n">sum_parts</span> <span class="o">+=</span> <span class="n">total_correlation</span><span class="p">(</span><span class="n">cov</span><span class="p">[</span><span class="n">idxs_residual</span><span class="p">,</span> <span class="p">:][:,</span> <span class="n">idxs_residual</span><span class="p">])</span>
 
     <span class="k">return</span> <span class="n">whole</span> <span class="o">-</span> <span class="n">sum_parts</span>
@@ -256,8 +273,8 @@
 <a class="viewcode-back" href="../../../api/syntropy.gaussian.html#syntropy.gaussian.local_s_information">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">local_s_information</span><span class="p">(</span>
     <span class="n">data</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">],</span>
-    <span class="n">cov</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">]</span> <span class="o">=</span> <span class="n">COV_NULL</span><span class="p">,</span>
-    <span class="n">idxs</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,),</span>
+    <span class="n">cov</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">idxs</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Compute local S-information using Gaussian estimation.</span>
@@ -266,6 +283,8 @@
 <span class="sd">        \\sigma(X) &amp;= \\sum_{i=1}^{N}i(x_i;x^{-i}) \\\\</span>
 <span class="sd">                   &amp;= N\\times tc(x) - \\sum_{i=1}^{N}tc(x^{-i}) \\\\</span>
 <span class="sd">                   &amp;= tc(x) + dtc(x)</span>
+<span class="sd">    </span>
+<span class="sd">    If you wish to use a Gaussian copula estimator, use the transformed data and the correlation matrix returned by the function :func:`utils.copula_transform`. </span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -285,16 +304,15 @@
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">if</span> <span class="n">cov</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
-        <span class="n">cov</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cov</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">ddof</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-
     <span class="k">return</span> <span class="n">local_delta_k</span><span class="p">(</span><span class="n">k</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">cov</span><span class="o">=</span><span class="n">cov</span><span class="p">,</span> <span class="n">idxs</span><span class="o">=</span><span class="n">idxs</span><span class="p">)</span></div>
 
 
 
 <div class="viewcode-block" id="s_information">
 <a class="viewcode-back" href="../../../api/syntropy.gaussian.html#syntropy.gaussian.s_information">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">s_information</span><span class="p">(</span><span class="n">cov</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">],</span> <span class="n">idxs</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,))</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">s_information</span><span class="p">(</span>
+    <span class="n">cov</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">],</span> <span class="n">idxs</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Compute S-information using Gaussian estimation.</span>
 
@@ -303,6 +321,8 @@
 <span class="sd">        \\Sigma(X) &amp;= \\sum_{i=1}^{N}I(X_i;X^{-i}) \\\\</span>
 <span class="sd">                   &amp;= N\\times TC(X) - \\sum_{i=1}^{N}TC(X^{-i}) \\\\</span>
 <span class="sd">                   &amp;= TC(X) + DTC(X)</span>
+<span class="sd">    </span>
+<span class="sd">    If you wish to use a Gaussian copula estimator, use the correlation matrix returned by the function :func:`utils.copula_transform`. </span>
 <span class="sd">    </span>
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -342,8 +362,8 @@
 <a class="viewcode-back" href="../../../api/syntropy.gaussian.html#syntropy.gaussian.local_dual_total_correlation">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">local_dual_total_correlation</span><span class="p">(</span>
     <span class="n">data</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">],</span>
-    <span class="n">cov</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">]</span> <span class="o">=</span> <span class="n">COV_NULL</span><span class="p">,</span>
-    <span class="n">idxs</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,),</span>
+    <span class="n">cov</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">idxs</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Computes the dual total correlation using Gaussian estimation. Note that this measure can be negative.</span>
@@ -352,6 +372,8 @@
 
 <span class="sd">        dtc(x) &amp;= h(x) - \\sum_{i=1}^{N}h(x_i|x^{-i}) \\\\</span>
 <span class="sd">               &amp;= (N-1)\\times tc(x) - \\sum_{i=1}^{N}tc(x^{-i})</span>
+<span class="sd">    </span>
+<span class="sd">    If you wish to use a Gaussian copula estimator, use the transformed data and the correlation matrix returned by the function :func:`utils.copula_transform`. </span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -371,9 +393,6 @@
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">if</span> <span class="n">cov</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
-        <span class="n">cov</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cov</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">ddof</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-
     <span class="k">return</span> <span class="n">local_delta_k</span><span class="p">(</span><span class="n">k</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">cov</span><span class="o">=</span><span class="n">cov</span><span class="p">,</span> <span class="n">idxs</span><span class="o">=</span><span class="n">idxs</span><span class="p">)</span></div>
 
 
@@ -381,7 +400,7 @@
 <div class="viewcode-block" id="dual_total_correlation">
 <a class="viewcode-back" href="../../../api/syntropy.gaussian.html#syntropy.gaussian.dual_total_correlation">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">dual_total_correlation</span><span class="p">(</span>
-    <span class="n">cov</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">],</span> <span class="n">idxs</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,)</span>
+    <span class="n">cov</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">],</span> <span class="n">idxs</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Computes the dual total correlation using Gaussian estimation.</span>
@@ -391,6 +410,7 @@
 <span class="sd">        DTC(X) &amp;= H(X) - \\sum_{i=1}^{N}H(X_i|X^{-i}) \\\\</span>
 <span class="sd">               &amp;= (N-1)\\times TC(X) - \\sum_{i=1}^{N}TC(X^{-i})</span>
 <span class="sd">    </span>
+<span class="sd">    If you wish to use a Gaussian copula estimator, use the correlation matrix returned by the function :func:`utils.copula_transform`. </span>
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    data : NDArray[np.floating]</span>
@@ -428,8 +448,8 @@
 <a class="viewcode-back" href="../../../api/syntropy.gaussian.html#syntropy.gaussian.local_o_information">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">local_o_information</span><span class="p">(</span>
     <span class="n">data</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">],</span>
-    <span class="n">cov</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">]</span> <span class="o">=</span> <span class="n">COV_NULL</span><span class="p">,</span>
-    <span class="n">idxs</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,),</span>
+    <span class="n">cov</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">idxs</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Computes the local O-information for each sample using Gaussian estimation.</span>
@@ -438,6 +458,8 @@
 
 <span class="sd">        \\omega(x) &amp;= (2-N)tc(x) + \\sum_{i=1}^{N}tc(x^{-i}) \\\\</span>
 <span class="sd">                   &amp;= tc(x) - dtc(x)</span>
+<span class="sd">    </span>
+<span class="sd">    If you wish to use a Gaussian copula estimator, use the transformed data and the correlation matrix returned by the function :func:`utils.copula_transform`. </span>
 <span class="sd">    </span>
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -474,7 +496,9 @@
 
 <div class="viewcode-block" id="o_information">
 <a class="viewcode-back" href="../../../api/syntropy.gaussian.html#syntropy.gaussian.o_information">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">o_information</span><span class="p">(</span><span class="n">cov</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">],</span> <span class="n">idxs</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,))</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">o_information</span><span class="p">(</span>
+    <span class="n">cov</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">],</span> <span class="n">idxs</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Compute O-information using Gaussian estimation.</span>
 <span class="sd">    O-information quantifies the balance between redundancy (positive values) and synergy (negative values) in multivariate information.</span>
@@ -483,6 +507,8 @@
 
 <span class="sd">        \\Omega(X) &amp;= (2-N)TC(X) + \\sum_{i=1}^{N}TC(X^{-i}) \\\\</span>
 <span class="sd">                   &amp;= TC(X) - DTC(X)</span>
+<span class="sd">    </span>
+<span class="sd">    If you wish to use a Gaussian copula estimator, use the correlation matrix returned by the function :func:`utils.copula_transform`. </span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -529,6 +555,8 @@
 <span class="sd">               &amp;= \\sum_{k=2}^{N}\\bigg[\\bigg(\\frac{k}{N}\\bigg)TC(X) - \\langle TC(X^{k}_{j}) \\rangle_{j}  \\bigg] </span>
 
 <span class="sd">    Runtimes scale very badly with system size (as it requires brute-forcing) all possible bipartitions of the system. If the system is too large, a sub-sampling approach is taken: at each scale, num_samples are drawn from the space of bipartitions.</span>
+<span class="sd">    </span>
+<span class="sd">    If you wish to use a Gaussian copula estimator, use the correlation matrix returned by the function :func:`utils.copula_transform`. </span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -582,11 +610,13 @@
 <div class="viewcode-block" id="description_complexity">
 <a class="viewcode-back" href="../../../api/syntropy.gaussian.html#syntropy.gaussian.description_complexity">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">description_complexity</span><span class="p">(</span>
-    <span class="n">cov</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">],</span> <span class="n">idxs</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,)</span>
+    <span class="n">cov</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">],</span> <span class="n">idxs</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    .. math:: </span>
-<span class="sd">        C(X) = \\frac{DTC(X)}{N} </span>
+<span class="sd">    .. math::</span>
+<span class="sd">        C(X) = \\frac{DTC(X)}{N}</span>
+
+<span class="sd">    If you wish to use a Gaussian copula estimator, use the correlation matrix returned by the function :func:`utils.copula_transform`.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -607,10 +637,10 @@
 <span class="sd">    Multivariate information theory uncovers synergistic subsystems of the human cerebral cortex.</span>
 <span class="sd">    Communications Biology, 6(1), Article 1.</span>
 <span class="sd">    https://doi.org/10.1038/s42003-023-04843-w</span>
-<span class="sd">    </span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="n">N</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">cov</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="k">if</span> <span class="n">idxs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span> <span class="k">else</span> <span class="nb">float</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">idxs</span><span class="p">))</span>
+    <span class="n">N</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">cov</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="k">if</span> <span class="n">idxs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="nb">float</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">idxs</span><span class="p">))</span>
 
     <span class="k">return</span> <span class="n">dual_total_correlation</span><span class="p">(</span><span class="n">cov</span><span class="o">=</span><span class="n">cov</span><span class="p">,</span> <span class="n">idxs</span><span class="o">=</span><span class="n">idxs</span><span class="p">)</span> <span class="o">/</span> <span class="n">N</span></div>
 
@@ -618,8 +648,8 @@
 
 <span class="k">def</span><span class="w"> </span><span class="nf">local_description_complexity</span><span class="p">(</span>
     <span class="n">data</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">],</span>
-    <span class="n">cov</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">]</span> <span class="o">=</span> <span class="n">COV_NULL</span><span class="p">,</span>
-    <span class="n">idxs</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,),</span>
+    <span class="n">cov</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">idxs</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 
@@ -627,6 +657,8 @@
 
 <span class="sd">    .. math::</span>
 <span class="sd">        c(x) = \\frac{dtc(x)}/N</span>
+
+<span class="sd">    If you wish to use a Gaussian copula estimator, use the transformed data and the correlation matrix returned by the function :func:`utils.copula_transform`.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -636,7 +668,7 @@
 <span class="sd">        The covariance matrix that defines the distribution.</span>
 <span class="sd">        If unspecified it is computed directly from the data.</span>
 <span class="sd">    idxs : tuple, optional</span>
-<span class="sd">        The specific subset of variables to compute the total correlation of.</span>
+<span class="sd">        The specific subset of variables to compute the descriptio complexity of.</span>
 <span class="sd">        Defaults to computing the TC of the entire covariance matrix.</span>
 
 <span class="sd">    Returns</span>
@@ -646,9 +678,93 @@
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="n">N</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">cov</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="k">if</span> <span class="n">idxs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span> <span class="k">else</span> <span class="nb">float</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">idxs</span><span class="p">))</span>
+    <span class="n">N</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">cov</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="k">if</span> <span class="n">idxs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="nb">float</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">idxs</span><span class="p">))</span>
 
     <span class="k">return</span> <span class="n">local_delta_k</span><span class="p">(</span><span class="n">k</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">cov</span><span class="o">=</span><span class="n">cov</span><span class="p">,</span> <span class="n">idxs</span><span class="o">=</span><span class="n">idxs</span><span class="p">)</span> <span class="o">/</span> <span class="n">N</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">local_co_information</span><span class="p">(</span>
+    <span class="n">data</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">],</span>
+    <span class="n">cov</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">idxs</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Computes the local co-information, the third generalization of bivariate mutual information. Unlike total correlation and dual total correlation, the cO-information can be negative and is difficult to interpret.</span>
+
+<span class="sd">    .. math::</span>
+<span class="sd">        co(X) = \\sum_{\\xi\\subseteq X}(-1)^{|\\xi|}h(\\xi)</span>
+
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    data : NDArray[np.floating]</span>
+<span class="sd">        The data in channels x time format.</span>
+<span class="sd">    cov : NDArray[np.floating] | None, optional</span>
+<span class="sd">        The covariance matrix that defines the distribution.</span>
+<span class="sd">        If unspecified it is computed directly from the data.</span>
+<span class="sd">    idxs : tuple | None, optional</span>
+<span class="sd">        The specific subset of variables to compute the co-information of.</span>
+<span class="sd">        Defaults to computing the measure for the entire covariance matrix.</span>
+
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    NDArray[np.floating]</span>
+
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">cov_</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">]</span> <span class="o">=</span> <span class="n">check_cov</span><span class="p">(</span><span class="n">cov</span><span class="o">=</span><span class="n">cov</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">)</span>
+    <span class="n">idxs_</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="n">check_idxs</span><span class="p">(</span><span class="n">idxs</span><span class="o">=</span><span class="n">idxs</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">)</span>
+
+    <span class="n">sources</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">]]</span> <span class="o">=</span> <span class="n">local_precompute_sources</span><span class="p">(</span>
+        <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="n">idxs_</span><span class="p">,</span> <span class="p">:],</span> <span class="n">cov</span><span class="o">=</span><span class="n">cov_</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ix_</span><span class="p">(</span><span class="n">idxs_</span><span class="p">,</span> <span class="n">idxs_</span><span class="p">)]</span>
+    <span class="p">)</span>
+
+    <span class="n">co</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span> <span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+
+    <span class="k">for</span> <span class="n">source</span> <span class="ow">in</span> <span class="n">sources</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+        <span class="n">sign</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="o">**</span> <span class="nb">len</span><span class="p">(</span><span class="n">source</span><span class="p">)</span>
+        <span class="n">co</span> <span class="o">-=</span> <span class="n">sign</span> <span class="o">*</span> <span class="n">sources</span><span class="p">[</span><span class="n">source</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="n">co</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">co_information</span><span class="p">(</span><span class="n">cov</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">],</span> <span class="n">idxs</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Computes the average co-information, the third generalization of bivariate mutual information. Unlike total correlation and dual total correlation, the cO-information can be negative and is difficult to interpret.</span>
+
+<span class="sd">    .. math::</span>
+<span class="sd">        Co(X) = \\sum_{\\xi\\subseteq X}(-1)^{|\\xi|}H(\\xi)</span>
+
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    cov : NDArray[np.floating]</span>
+<span class="sd">        The covariance matrix that defines the distribution.</span>
+<span class="sd">    idxs : tuple | None, optional</span>
+<span class="sd">        The specific subset of variables to compute the co-information of.</span>
+<span class="sd">        Defaults to computing the measure for the entire covariance matrix.</span>
+
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    float</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">idxs_</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="n">check_idxs</span><span class="p">(</span><span class="n">idxs</span><span class="p">,</span> <span class="n">cov</span><span class="p">)</span>
+    <span class="n">sources</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">make_powerset</span><span class="p">(</span><span class="n">idxs_</span><span class="p">))</span>
+    <span class="n">sources</span><span class="o">.</span><span class="n">remove</span><span class="p">(())</span>
+
+    <span class="n">co</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span>
+
+    <span class="k">for</span> <span class="n">source</span> <span class="ow">in</span> <span class="n">sources</span><span class="p">:</span>
+        <span class="n">sign</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="o">**</span> <span class="nb">len</span><span class="p">(</span><span class="n">source</span><span class="p">)</span>
+
+        <span class="n">co</span> <span class="o">-=</span> <span class="n">sign</span> <span class="o">*</span> <span class="n">differential_entropy</span><span class="p">(</span><span class="n">cov</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ix_</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">source</span><span class="p">)])</span>
+
+    <span class="k">return</span> <span class="n">co</span>
 </pre></div>
 
           </div>
@@ -686,9 +802,11 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../api/syntropy.gaussian.html">syntropy.gaussian package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../api/syntropy.knn.html">syntropy.knn package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../api/syntropy.neural.html">syntropy.neural package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api/syntropy.mixed.html">syntropy.mixed package</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Additional Information:</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../theory.html">Information Theory Primer</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../contributing.html">Contributing</a></li>
 </ul>
 

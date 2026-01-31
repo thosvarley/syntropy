@@ -38,7 +38,7 @@
 <span id="syntropy-knn-package"></span><h1>syntropy.knn package<a class="headerlink" href="#module-syntropy.knn" title="Link to this heading">¶</a></h1>
 <dl class="py function">
 <dt class="sig sig-object py" id="syntropy.knn.differential_entropy">
-<span class="sig-prename descclassname"><span class="pre">syntropy.knn.</span></span><span class="sig-name descname"><span class="pre">differential_entropy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idxs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(-1,)</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/knn/shannon.html#differential_entropy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.knn.differential_entropy" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">syntropy.knn.</span></span><span class="sig-name descname"><span class="pre">differential_entropy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idxs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">inf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">noise_level</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/knn/shannon.html#differential_entropy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.knn.differential_entropy" title="Link to this definition">¶</a></dt>
 <dd><p>Computes the differential entropy using the Kozachenko-Leoneko estimator.</p>
 <div class="math notranslate nohighlight">
 \[\hat{H}(X) = -\psi(k)+\psi(N) + (1/N)\sum_{i=1}^{N}\log d_i\]</div>
@@ -47,7 +47,14 @@
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>data</strong> (<em>NDArray</em><em>[</em><em>np.floating</em><em>]</em>) – Numpy array of shape (n_variables, n_samples)</p></li>
 <li><p><strong>k</strong> (<em>int</em>) – Number of nearest neighbors</p></li>
-<li><p><strong>idxs</strong> (<em>tuple</em><em>[</em><em>int</em><em>, </em><em>...</em><em>]</em>) – Indices of variables to use (-1 means all)</p></li>
+<li><p><strong>idxs</strong> (<em>tuple</em><em>[</em><em>int</em><em>, </em><em>...</em><em>] </em><em>| </em><em>None</em>) – Indices of channels to use.
+If None, all channels are used.
+The default is None.</p></li>
+<li><p><strong>p</strong> (<em>float</em>) – The order of the norm to use in the nearest neighbor lookup.
+If p = 2, the norm is Euclidean. If p = np.inf, the norm is Chebyshev.
+The default is np.inf.</p></li>
+<li><p><strong>noise_level</strong> (<em>float</em>) – The standard deviation  of the noise to add to the data.
+The default is 0.0</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -73,7 +80,7 @@ Problems of Information Transmission, 23(2), 9.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="syntropy.knn.mutual_information">
-<span class="sig-prename descclassname"><span class="pre">syntropy.knn.</span></span><span class="sig-name descname"><span class="pre">mutual_information</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">idxs_x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idxs_y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">algorithm</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/knn/shannon.html#mutual_information"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.knn.mutual_information" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">syntropy.knn.</span></span><span class="sig-name descname"><span class="pre">mutual_information</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">idxs_x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idxs_y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">algorithm</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">inf</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/knn/shannon.html#mutual_information"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.knn.mutual_information" title="Link to this definition">¶</a></dt>
 <dd><p>A wrapper function for the two KSG mutual information functions.</p>
 <div class="admonition seealso">
 <p class="admonition-title">See also</p>
@@ -93,6 +100,7 @@ Problems of Information Transmission, 23(2), 9.</p>
 <li><p><strong>data</strong> (<em>NDArray</em><em>[</em><em>np.floating</em><em>]</em>) – Numpy array of shape (n_variables, n_samples)</p></li>
 <li><p><strong>algorithm</strong> (<em>int</em>) – Whether to use algorithm 1 or 2.
 Defaults to 1</p></li>
+<li><p><strong>p</strong> (<em>float</em>)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -110,7 +118,7 @@ Defaults to 1</p></li>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="syntropy.knn.conditional_mutual_information">
-<span class="sig-prename descclassname"><span class="pre">syntropy.knn.</span></span><span class="sig-name descname"><span class="pre">conditional_mutual_information</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">idxs_x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idxs_y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idxs_z</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/knn/shannon.html#conditional_mutual_information"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.knn.conditional_mutual_information" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">syntropy.knn.</span></span><span class="sig-name descname"><span class="pre">conditional_mutual_information</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">idxs_x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idxs_y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idxs_z</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">inf</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/knn/shannon.html#conditional_mutual_information"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.knn.conditional_mutual_information" title="Link to this definition">¶</a></dt>
 <dd><p>Computes the conditional mutual information I(X;Y|Z) using the KSG algorithm 1
 as described in Frenzel &amp; Pompe (2007).</p>
 <p>The conditional mutual information is estimated using:</p>
@@ -126,6 +134,7 @@ in the respective subspaces.</p>
 <li><p><strong>idxs_z</strong> (<em>tuple</em><em>[</em><em>int</em><em>, </em><em>...</em><em>]</em>) – Indices of the conditioning variable z.</p></li>
 <li><p><strong>k</strong> (<em>int</em>) – Number of nearest neighbors</p></li>
 <li><p><strong>data</strong> (<em>NDArray</em><em>[</em><em>np.floating</em><em>]</em>) – Numpy array of shape (n_variables, n_samples)</p></li>
+<li><p><strong>p</strong> (<em>float</em>)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -152,7 +161,7 @@ Physical Review E, 69(6), 066138.
 
 <dl class="py function">
 <dt class="sig sig-object py" id="syntropy.knn.total_correlation">
-<span class="sig-prename descclassname"><span class="pre">syntropy.knn.</span></span><span class="sig-name descname"><span class="pre">total_correlation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idxs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(-1,)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">algorithm</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/knn/multivariate_mi.html#total_correlation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.knn.total_correlation" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">syntropy.knn.</span></span><span class="sig-name descname"><span class="pre">total_correlation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idxs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">algorithm</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/knn/multivariate_mi.html#total_correlation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.knn.total_correlation" title="Link to this definition">¶</a></dt>
 <dd><p>A wrapper function for the two TC functions.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -189,7 +198,7 @@ Defaults to 1</p></li>
 <dd class="field-even"><ul class="simple">
 <li><p><strong>data</strong> (<em>ndarray</em><em>[</em><em>tuple</em><em>[</em><em>int</em><em>, </em><em>...</em><em>]</em><em>, </em><em>dtype</em><em>[</em><em>floating</em><em>]</em><em>]</em>)</p></li>
 <li><p><strong>k</strong> (<em>int</em>)</p></li>
-<li><p><strong>idxs</strong> (<em>tuple</em><em>[</em><em>int</em><em>, </em><em>...</em><em>]</em>)</p></li>
+<li><p><strong>idxs</strong> (<em>tuple</em><em>[</em><em>int</em><em>, </em><em>...</em><em>] </em><em>| </em><em>None</em>)</p></li>
 <li><p><strong>algorithm</strong> (<em>int</em>)</p></li>
 </ul>
 </dd>
@@ -201,7 +210,7 @@ Defaults to 1</p></li>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="syntropy.knn.dual_total_correlation">
-<span class="sig-prename descclassname"><span class="pre">syntropy.knn.</span></span><span class="sig-name descname"><span class="pre">dual_total_correlation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idxs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(-1,)</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/knn/multivariate_mi.html#dual_total_correlation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.knn.dual_total_correlation" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">syntropy.knn.</span></span><span class="sig-name descname"><span class="pre">dual_total_correlation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idxs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/knn/multivariate_mi.html#dual_total_correlation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.knn.dual_total_correlation" title="Link to this definition">¶</a></dt>
 <dd><p>Compute dual total correlation using KSG estimation.
 Code adapted from JIDT
 <a class="reference external" href="https://github.com/jlizier/jidt/blob/master/java/source/infodynamics/measures/continuous/kraskov/DualTotalCorrelationCalculatorKraskov.java">https://github.com/jlizier/jidt/blob/master/java/source/infodynamics/measures/continuous/kraskov/DualTotalCorrelationCalculatorKraskov.java</a></p>
@@ -237,7 +246,7 @@ Physical Review E, 100(3), Article 3.
 
 <dl class="py function">
 <dt class="sig sig-object py" id="syntropy.knn.s_information">
-<span class="sig-prename descclassname"><span class="pre">syntropy.knn.</span></span><span class="sig-name descname"><span class="pre">s_information</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idxs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(-1,)</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/knn/multivariate_mi.html#s_information"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.knn.s_information" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">syntropy.knn.</span></span><span class="sig-name descname"><span class="pre">s_information</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idxs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/knn/multivariate_mi.html#s_information"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.knn.s_information" title="Link to this definition">¶</a></dt>
 <dd><p>Compute S-information using KSG estimation.
 Code adapted from JIDT
 <a class="reference external" href="https://github.com/jlizier/jidt/blob/master/java/source/infodynamics/measures/continuous/kraskov/SInfoCalculatorKraskov.java">https://github.com/jlizier/jidt/blob/master/java/source/infodynamics/measures/continuous/kraskov/SInfoCalculatorKraskov.java</a></p>
@@ -273,7 +282,7 @@ Communications Biology, 6(1), Article 1.
 
 <dl class="py function">
 <dt class="sig sig-object py" id="syntropy.knn.o_information">
-<span class="sig-prename descclassname"><span class="pre">syntropy.knn.</span></span><span class="sig-name descname"><span class="pre">o_information</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idxs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(-1,)</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/knn/multivariate_mi.html#o_information"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.knn.o_information" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">syntropy.knn.</span></span><span class="sig-name descname"><span class="pre">o_information</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idxs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/knn/multivariate_mi.html#o_information"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.knn.o_information" title="Link to this definition">¶</a></dt>
 <dd><p>Compute O-information using KSG estimation.
 Code adapted from JIDT
 <a class="reference external" href="https://github.com/jlizier/jidt/blob/master/java/source/infodynamics/measures/continuous/kraskov/OInfoCalculatorKraskov.java">https://github.com/jlizier/jidt/blob/master/java/source/infodynamics/measures/continuous/kraskov/OInfoCalculatorKraskov.java</a></p>
@@ -317,7 +326,7 @@ Communications Biology, 6(1), Article 1.
 <span id="syntropy-knn-multivariate-mi-module"></span><h2>syntropy.knn.multivariate_mi module<a class="headerlink" href="#module-syntropy.knn.multivariate_mi" title="Link to this heading">¶</a></h2>
 <dl class="py function">
 <dt class="sig sig-object py" id="syntropy.knn.multivariate_mi.total_correlation">
-<span class="sig-prename descclassname"><span class="pre">syntropy.knn.multivariate_mi.</span></span><span class="sig-name descname"><span class="pre">total_correlation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idxs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(-1,)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">algorithm</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/knn/multivariate_mi.html#total_correlation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.knn.multivariate_mi.total_correlation" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">syntropy.knn.multivariate_mi.</span></span><span class="sig-name descname"><span class="pre">total_correlation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idxs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">algorithm</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/knn/multivariate_mi.html#total_correlation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.knn.multivariate_mi.total_correlation" title="Link to this definition">¶</a></dt>
 <dd><p>A wrapper function for the two TC functions.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -354,7 +363,7 @@ Defaults to 1</p></li>
 <dd class="field-even"><ul class="simple">
 <li><p><strong>data</strong> (<em>ndarray</em><em>[</em><em>tuple</em><em>[</em><em>int</em><em>, </em><em>...</em><em>]</em><em>, </em><em>dtype</em><em>[</em><em>floating</em><em>]</em><em>]</em>)</p></li>
 <li><p><strong>k</strong> (<em>int</em>)</p></li>
-<li><p><strong>idxs</strong> (<em>tuple</em><em>[</em><em>int</em><em>, </em><em>...</em><em>]</em>)</p></li>
+<li><p><strong>idxs</strong> (<em>tuple</em><em>[</em><em>int</em><em>, </em><em>...</em><em>] </em><em>| </em><em>None</em>)</p></li>
 <li><p><strong>algorithm</strong> (<em>int</em>)</p></li>
 </ul>
 </dd>
@@ -366,7 +375,7 @@ Defaults to 1</p></li>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="syntropy.knn.multivariate_mi.total_correlation_1">
-<span class="sig-prename descclassname"><span class="pre">syntropy.knn.multivariate_mi.</span></span><span class="sig-name descname"><span class="pre">total_correlation_1</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idxs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(-1,)</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/knn/multivariate_mi.html#total_correlation_1"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.knn.multivariate_mi.total_correlation_1" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">syntropy.knn.multivariate_mi.</span></span><span class="sig-name descname"><span class="pre">total_correlation_1</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idxs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/knn/multivariate_mi.html#total_correlation_1"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.knn.multivariate_mi.total_correlation_1" title="Link to this definition">¶</a></dt>
 <dd><p>Computes the Kraskov, Stogbauer, Grassberger estimate of the total correlation using the first algorithm presented Kraskov et. al (2004)</p>
 <div class="math notranslate nohighlight">
 \[\hat{TC}(X) = \psi(k) - (m-1)\psi(N) -\langle \psi(n_{x_{1}}+1) + \ldots + \psi(n_{x_{N}}+1)\rangle\]</div>
@@ -402,7 +411,7 @@ IBM Journal of Research and Development, 4(1), Article 1.
 
 <dl class="py function">
 <dt class="sig sig-object py" id="syntropy.knn.multivariate_mi.total_correlation_2">
-<span class="sig-prename descclassname"><span class="pre">syntropy.knn.multivariate_mi.</span></span><span class="sig-name descname"><span class="pre">total_correlation_2</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idxs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(-1,)</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/knn/multivariate_mi.html#total_correlation_2"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.knn.multivariate_mi.total_correlation_2" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">syntropy.knn.multivariate_mi.</span></span><span class="sig-name descname"><span class="pre">total_correlation_2</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idxs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/knn/multivariate_mi.html#total_correlation_2"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.knn.multivariate_mi.total_correlation_2" title="Link to this definition">¶</a></dt>
 <dd><p>Computes the Kraskov, Stogbauer, Grassberger estimate of the total correlation using the second algorithm presented in Kraskov et. al., (2004).</p>
 <div class="math notranslate nohighlight">
 \[\hat{TC}(X) = \psi(k) - ((m-1)/k) - (m-1)\psi(N) - \langle \psi(n_{x_{1}}) + \ldots + \psi(n_{x_{N}}) \rangle\]</div>
@@ -438,7 +447,7 @@ IBM Journal of Research and Development, 4(1), Article 1.
 
 <dl class="py function">
 <dt class="sig sig-object py" id="syntropy.knn.multivariate_mi.dual_total_correlation">
-<span class="sig-prename descclassname"><span class="pre">syntropy.knn.multivariate_mi.</span></span><span class="sig-name descname"><span class="pre">dual_total_correlation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idxs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(-1,)</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/knn/multivariate_mi.html#dual_total_correlation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.knn.multivariate_mi.dual_total_correlation" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">syntropy.knn.multivariate_mi.</span></span><span class="sig-name descname"><span class="pre">dual_total_correlation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idxs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/knn/multivariate_mi.html#dual_total_correlation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.knn.multivariate_mi.dual_total_correlation" title="Link to this definition">¶</a></dt>
 <dd><p>Compute dual total correlation using KSG estimation.
 Code adapted from JIDT
 <a class="reference external" href="https://github.com/jlizier/jidt/blob/master/java/source/infodynamics/measures/continuous/kraskov/DualTotalCorrelationCalculatorKraskov.java">https://github.com/jlizier/jidt/blob/master/java/source/infodynamics/measures/continuous/kraskov/DualTotalCorrelationCalculatorKraskov.java</a></p>
@@ -474,7 +483,7 @@ Physical Review E, 100(3), Article 3.
 
 <dl class="py function">
 <dt class="sig sig-object py" id="syntropy.knn.multivariate_mi.s_information">
-<span class="sig-prename descclassname"><span class="pre">syntropy.knn.multivariate_mi.</span></span><span class="sig-name descname"><span class="pre">s_information</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idxs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(-1,)</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/knn/multivariate_mi.html#s_information"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.knn.multivariate_mi.s_information" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">syntropy.knn.multivariate_mi.</span></span><span class="sig-name descname"><span class="pre">s_information</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idxs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/knn/multivariate_mi.html#s_information"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.knn.multivariate_mi.s_information" title="Link to this definition">¶</a></dt>
 <dd><p>Compute S-information using KSG estimation.
 Code adapted from JIDT
 <a class="reference external" href="https://github.com/jlizier/jidt/blob/master/java/source/infodynamics/measures/continuous/kraskov/SInfoCalculatorKraskov.java">https://github.com/jlizier/jidt/blob/master/java/source/infodynamics/measures/continuous/kraskov/SInfoCalculatorKraskov.java</a></p>
@@ -510,7 +519,7 @@ Communications Biology, 6(1), Article 1.
 
 <dl class="py function">
 <dt class="sig sig-object py" id="syntropy.knn.multivariate_mi.o_information">
-<span class="sig-prename descclassname"><span class="pre">syntropy.knn.multivariate_mi.</span></span><span class="sig-name descname"><span class="pre">o_information</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idxs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(-1,)</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/knn/multivariate_mi.html#o_information"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.knn.multivariate_mi.o_information" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">syntropy.knn.multivariate_mi.</span></span><span class="sig-name descname"><span class="pre">o_information</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idxs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/knn/multivariate_mi.html#o_information"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.knn.multivariate_mi.o_information" title="Link to this definition">¶</a></dt>
 <dd><p>Compute O-information using KSG estimation.
 Code adapted from JIDT
 <a class="reference external" href="https://github.com/jlizier/jidt/blob/master/java/source/infodynamics/measures/continuous/kraskov/OInfoCalculatorKraskov.java">https://github.com/jlizier/jidt/blob/master/java/source/infodynamics/measures/continuous/kraskov/OInfoCalculatorKraskov.java</a></p>
@@ -552,7 +561,7 @@ Communications Biology, 6(1), Article 1.
 <span id="syntropy-knn-shannon-module"></span><h2>syntropy.knn.shannon module<a class="headerlink" href="#module-syntropy.knn.shannon" title="Link to this heading">¶</a></h2>
 <dl class="py function">
 <dt class="sig sig-object py" id="syntropy.knn.shannon.differential_entropy">
-<span class="sig-prename descclassname"><span class="pre">syntropy.knn.shannon.</span></span><span class="sig-name descname"><span class="pre">differential_entropy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idxs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(-1,)</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/knn/shannon.html#differential_entropy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.knn.shannon.differential_entropy" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">syntropy.knn.shannon.</span></span><span class="sig-name descname"><span class="pre">differential_entropy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idxs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">inf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">noise_level</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/knn/shannon.html#differential_entropy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.knn.shannon.differential_entropy" title="Link to this definition">¶</a></dt>
 <dd><p>Computes the differential entropy using the Kozachenko-Leoneko estimator.</p>
 <div class="math notranslate nohighlight">
 \[\hat{H}(X) = -\psi(k)+\psi(N) + (1/N)\sum_{i=1}^{N}\log d_i\]</div>
@@ -561,7 +570,14 @@ Communications Biology, 6(1), Article 1.
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>data</strong> (<em>NDArray</em><em>[</em><em>np.floating</em><em>]</em>) – Numpy array of shape (n_variables, n_samples)</p></li>
 <li><p><strong>k</strong> (<em>int</em>) – Number of nearest neighbors</p></li>
-<li><p><strong>idxs</strong> (<em>tuple</em><em>[</em><em>int</em><em>, </em><em>...</em><em>]</em>) – Indices of variables to use (-1 means all)</p></li>
+<li><p><strong>idxs</strong> (<em>tuple</em><em>[</em><em>int</em><em>, </em><em>...</em><em>] </em><em>| </em><em>None</em>) – Indices of channels to use.
+If None, all channels are used.
+The default is None.</p></li>
+<li><p><strong>p</strong> (<em>float</em>) – The order of the norm to use in the nearest neighbor lookup.
+If p = 2, the norm is Euclidean. If p = np.inf, the norm is Chebyshev.
+The default is np.inf.</p></li>
+<li><p><strong>noise_level</strong> (<em>float</em>) – The standard deviation  of the noise to add to the data.
+The default is 0.0</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -587,7 +603,7 @@ Problems of Information Transmission, 23(2), 9.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="syntropy.knn.shannon.mutual_information">
-<span class="sig-prename descclassname"><span class="pre">syntropy.knn.shannon.</span></span><span class="sig-name descname"><span class="pre">mutual_information</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">idxs_x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idxs_y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">algorithm</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/knn/shannon.html#mutual_information"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.knn.shannon.mutual_information" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">syntropy.knn.shannon.</span></span><span class="sig-name descname"><span class="pre">mutual_information</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">idxs_x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idxs_y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">algorithm</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">inf</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/knn/shannon.html#mutual_information"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.knn.shannon.mutual_information" title="Link to this definition">¶</a></dt>
 <dd><p>A wrapper function for the two KSG mutual information functions.</p>
 <div class="admonition seealso">
 <p class="admonition-title">See also</p>
@@ -607,6 +623,7 @@ Problems of Information Transmission, 23(2), 9.</p>
 <li><p><strong>data</strong> (<em>NDArray</em><em>[</em><em>np.floating</em><em>]</em>) – Numpy array of shape (n_variables, n_samples)</p></li>
 <li><p><strong>algorithm</strong> (<em>int</em>) – Whether to use algorithm 1 or 2.
 Defaults to 1</p></li>
+<li><p><strong>p</strong> (<em>float</em>)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -624,7 +641,7 @@ Defaults to 1</p></li>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="syntropy.knn.shannon.mutual_information_1">
-<span class="sig-prename descclassname"><span class="pre">syntropy.knn.shannon.</span></span><span class="sig-name descname"><span class="pre">mutual_information_1</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">idxs_x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idxs_y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/knn/shannon.html#mutual_information_1"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.knn.shannon.mutual_information_1" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">syntropy.knn.shannon.</span></span><span class="sig-name descname"><span class="pre">mutual_information_1</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">idxs_x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idxs_y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">inf</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/knn/shannon.html#mutual_information_1"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.knn.shannon.mutual_information_1" title="Link to this definition">¶</a></dt>
 <dd><p>Computes the Kraskov, Stogbauer, Grassberger estimate of the bivariate mutual information
 using the first algorithm presented in Kraskov et. al., (2004)</p>
 <div class="math notranslate nohighlight">
@@ -636,6 +653,7 @@ using the first algorithm presented in Kraskov et. al., (2004)</p>
 <li><p><strong>idxs_y</strong> (<em>tuple</em><em>[</em><em>int</em><em>, </em><em>...</em><em>]</em>) – Indices of the y-variable.</p></li>
 <li><p><strong>k</strong> (<em>int</em>) – Number of nearest neighbors</p></li>
 <li><p><strong>data</strong> (<em>NDArray</em><em>[</em><em>np.floating</em><em>]</em>) – Numpy array of shape (n_variables, n_samples)</p></li>
+<li><p><strong>p</strong> (<em>float</em>)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -658,7 +676,7 @@ Physical Review E, 69(6), 066138.
 
 <dl class="py function">
 <dt class="sig sig-object py" id="syntropy.knn.shannon.mutual_information_2">
-<span class="sig-prename descclassname"><span class="pre">syntropy.knn.shannon.</span></span><span class="sig-name descname"><span class="pre">mutual_information_2</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">idxs_x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idxs_y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/knn/shannon.html#mutual_information_2"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.knn.shannon.mutual_information_2" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">syntropy.knn.shannon.</span></span><span class="sig-name descname"><span class="pre">mutual_information_2</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">idxs_x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idxs_y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">inf</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/knn/shannon.html#mutual_information_2"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.knn.shannon.mutual_information_2" title="Link to this definition">¶</a></dt>
 <dd><p>Computes the Kraskov, Stogbauer, Grassberger estimate of the bivariate mutual information
 using the second algorithm presented in Kraskove et. al., (2004).</p>
 <div class="math notranslate nohighlight">
@@ -670,6 +688,7 @@ using the second algorithm presented in Kraskove et. al., (2004).</p>
 <li><p><strong>idxs_y</strong> (<em>tuple</em><em>[</em><em>int</em><em>, </em><em>...</em><em>]</em>) – Indices of the y-variable.</p></li>
 <li><p><strong>k</strong> (<em>int</em>) – Number of nearest neighbors</p></li>
 <li><p><strong>data</strong> (<em>NDArray</em><em>[</em><em>np.floating</em><em>]</em>) – Numpy array of shape (n_variables, n_samples)</p></li>
+<li><p><strong>p</strong> (<em>float</em>)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -692,7 +711,7 @@ Physical Review E, 69(6), 066138.
 
 <dl class="py function">
 <dt class="sig sig-object py" id="syntropy.knn.shannon.conditional_mutual_information">
-<span class="sig-prename descclassname"><span class="pre">syntropy.knn.shannon.</span></span><span class="sig-name descname"><span class="pre">conditional_mutual_information</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">idxs_x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idxs_y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idxs_z</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/knn/shannon.html#conditional_mutual_information"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.knn.shannon.conditional_mutual_information" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">syntropy.knn.shannon.</span></span><span class="sig-name descname"><span class="pre">conditional_mutual_information</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">idxs_x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idxs_y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idxs_z</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">inf</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/knn/shannon.html#conditional_mutual_information"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.knn.shannon.conditional_mutual_information" title="Link to this definition">¶</a></dt>
 <dd><p>Computes the conditional mutual information I(X;Y|Z) using the KSG algorithm 1
 as described in Frenzel &amp; Pompe (2007).</p>
 <p>The conditional mutual information is estimated using:</p>
@@ -708,6 +727,7 @@ in the respective subspaces.</p>
 <li><p><strong>idxs_z</strong> (<em>tuple</em><em>[</em><em>int</em><em>, </em><em>...</em><em>]</em>) – Indices of the conditioning variable z.</p></li>
 <li><p><strong>k</strong> (<em>int</em>) – Number of nearest neighbors</p></li>
 <li><p><strong>data</strong> (<em>NDArray</em><em>[</em><em>np.floating</em><em>]</em>) – Numpy array of shape (n_variables, n_samples)</p></li>
+<li><p><strong>p</strong> (<em>float</em>)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -736,34 +756,15 @@ Physical Review E, 69(6), 066138.
 <section id="module-syntropy.knn.utils">
 <span id="syntropy-knn-utils-module"></span><h2>syntropy.knn.utils module<a class="headerlink" href="#module-syntropy.knn.utils" title="Link to this heading">¶</a></h2>
 <dl class="py function">
-<dt class="sig sig-object py" id="syntropy.knn.utils.check_idxs">
-<span class="sig-prename descclassname"><span class="pre">syntropy.knn.utils.</span></span><span class="sig-name descname"><span class="pre">check_idxs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">idxs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">N</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/knn/utils.html#check_idxs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.knn.utils.check_idxs" title="Link to this definition">¶</a></dt>
-<dd><p>Checks whether the idxs input is -1, in which case, defaults to all processes.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>idxs</strong> (<em>tuple</em><em>[</em><em>int</em><em>, </em><em>...</em><em>]</em>) – Indices of variables to use (-1 means all)</p></li>
-<li><p><strong>N</strong> (<em>int</em>) – The total number of processes.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Either idxs, or a tuple of all processes.</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>tuple[int, …]</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
 <dt class="sig sig-object py" id="syntropy.knn.utils.build_tree_and_get_distances">
-<span class="sig-prename descclassname"><span class="pre">syntropy.knn.utils.</span></span><span class="sig-name descname"><span class="pre">build_tree_and_get_distances</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/knn/utils.html#build_tree_and_get_distances"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.knn.utils.build_tree_and_get_distances" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">syntropy.knn.utils.</span></span><span class="sig-name descname"><span class="pre">build_tree_and_get_distances</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">inf</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/knn/utils.html#build_tree_and_get_distances"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.knn.utils.build_tree_and_get_distances" title="Link to this definition">¶</a></dt>
 <dd><p>Builds the KNN tree and returns the indices and distances between each point and it’s k-nearest neighbors.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>data</strong> (<em>NDArray</em><em>[</em><em>np.floating</em><em>]</em>) – Data array of shape (n_variables, n_samples)</p></li>
 <li><p><strong>k</strong> (<em>int</em>) – Number of nearest neighbors</p></li>
+<li><p><strong>p</strong> (<em>float</em>)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -782,7 +783,7 @@ Physical Review E, 69(6), 066138.
 
 <dl class="py function">
 <dt class="sig sig-object py" id="syntropy.knn.utils.get_counts_from_tree">
-<span class="sig-prename descclassname"><span class="pre">syntropy.knn.utils.</span></span><span class="sig-name descname"><span class="pre">get_counts_from_tree</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tree</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eps</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strict</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/knn/utils.html#get_counts_from_tree"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.knn.utils.get_counts_from_tree" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">syntropy.knn.utils.</span></span><span class="sig-name descname"><span class="pre">get_counts_from_tree</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tree</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eps</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strict</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">inf</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/knn/utils.html#get_counts_from_tree"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.knn.utils.get_counts_from_tree" title="Link to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -790,6 +791,7 @@ Physical Review E, 69(6), 066138.
 <li><p><strong>data</strong> (<em>ndarray</em><em>[</em><em>tuple</em><em>[</em><em>int</em><em>, </em><em>...</em><em>]</em><em>, </em><em>dtype</em><em>[</em><em>floating</em><em>]</em><em>]</em>)</p></li>
 <li><p><strong>eps</strong> (<em>ndarray</em><em>[</em><em>tuple</em><em>[</em><em>int</em><em>, </em><em>...</em><em>]</em><em>, </em><em>dtype</em><em>[</em><em>floating</em><em>]</em><em>]</em>)</p></li>
 <li><p><strong>strict</strong> (<em>bool</em>)</p></li>
+<li><p><strong>p</strong> (<em>float</em>)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
@@ -837,9 +839,11 @@ Physical Review E, 69(6), 066138.
 <li class="toctree-l1"><a class="reference internal" href="syntropy.gaussian.html">syntropy.gaussian package</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">syntropy.knn package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="syntropy.neural.html">syntropy.neural package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="syntropy.mixed.html">syntropy.mixed package</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Additional Information:</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="../theory.html">Information Theory Primer</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../contributing.html">Contributing</a></li>
 </ul>
 
