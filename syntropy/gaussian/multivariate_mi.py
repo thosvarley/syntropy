@@ -1,13 +1,14 @@
 import numpy as np
-from .shannon import local_differential_entropy
+from .shannon import local_differential_entropy, differential_entropy
 from numpy.typing import NDArray
 from .utils import check_cov
-from ..utils import check_idxs
+from ..utils import check_idxs, make_powerset
+from .decompositions import local_precompute_sources
 
 
 def local_total_correlation(
     data: NDArray[np.floating],
-    cov: NDArray[np.floating] | None,
+    cov: NDArray[np.floating] | None = None,
     idxs: tuple[int, ...] | None = None,
 ) -> NDArray[np.floating]:
     """
@@ -118,9 +119,9 @@ def total_correlation(
 
     cov_: NDArray[np.floating] = cov[np.ix_(idxs_, idxs_)]
     corr: NDArray[np.floating]
-    
-    # Checking to see if the covariance matrix has 
-    # 1s along the diagonal (a correlation matrix). 
+
+    # Checking to see if the covariance matrix has
+    # 1s along the diagonal (a correlation matrix).
     if False in np.isclose(cov_.diagonal(), 1):
         # Converting to a correlation/coherence matrix.
         diag: NDArray[np.floating] = np.sqrt(np.diag(cov_))
@@ -604,7 +605,7 @@ def local_description_complexity(
         The covariance matrix that defines the distribution.
         If unspecified it is computed directly from the data.
     idxs : tuple, optional
-        The specific subset of variables to compute the total correlation of.
+        The specific subset of variables to compute the descriptio complexity of.
         Defaults to computing the TC of the entire covariance matrix.
 
     Returns
@@ -617,3 +618,89 @@ def local_description_complexity(
     N: float = float(cov.shape[0]) if idxs[0] is None else float(len(idxs))
 
     return local_delta_k(k=1, data=data, cov=cov, idxs=idxs) / N
+
+
+def local_co_information(
+    data: NDArray[np.floating],
+    cov: NDArray[np.floating] | None = None,
+    idxs: tuple[int, ...] | None = None,
+) -> NDArray[np.floating]:
+    """
+    Computes the local co-information, the third generalization of bivariate mutual information. Unlike total correlation and dual total correlation, the cO-information can be negative and is difficult to interpret.
+
+    .. math::
+        co(X) = \\sum_{\\xi\\subseteq X}(-1)^{|\\xi|}h(\\xi)
+
+
+    Parameters
+    ----------
+    data : NDArray[np.floating]
+        The data in channels x time format.
+    cov : NDArray[np.floating] | None, optional
+        The covariance matrix that defines the distribution.
+        If unspecified it is computed directly from the data.
+    idxs : tuple | None, optional
+        The specific subset of variables to compute the co-information of.
+        Defaults to computing the measure for the entire covariance matrix.
+
+
+    Returns
+    -------
+    NDArray[np.floating]
+
+
+    """
+
+    cov_: NDArray[np.floating] = check_cov(cov=cov, data=data)
+    idxs_: tuple[int, ...] = check_idxs(idxs=idxs, data=data)
+
+    sources: dict[tuple[int, ...], NDArray[np.floating]] = local_precompute_sources(
+        data=data[idxs_, :], cov=cov_[np.ix_(idxs_, idxs_)]
+    )
+
+    co: NDArray[np.floating] = np.zeros((1, data.shape[1]))
+
+    for source in sources.keys():
+        sign: int = (-1) ** len(source)
+        co -= sign * sources[source]
+
+    return co
+
+
+def co_information(cov: NDArray[np.floating], idxs: tuple[int, ...] | None) -> float:
+    """
+    Computes the average co-information, the third generalization of bivariate mutual information. Unlike total correlation and dual total correlation, the cO-information can be negative and is difficult to interpret.
+
+    .. math::
+        Co(X) = \\sum_{\\xi\\subseteq X}(-1)^{|\\xi|}H(\\xi)
+
+
+    Parameters
+    ----------
+    cov : NDArray[np.floating]
+        The covariance matrix that defines the distribution.
+    idxs : tuple | None, optional
+        The specific subset of variables to compute the co-information of.
+        Defaults to computing the measure for the entire covariance matrix.
+        
+
+    Returns
+    -------
+    float
+        
+    """
+    
+    idxs_: tuple[int, ...] = check_idxs(idxs, cov)
+    sources: list[tuple[int, ...]] = list(make_powerset(idxs_))
+    sources.remove(())
+
+    co: float = 0.0 
+
+    for source in sources:
+        sign: int = (-1)**len(source)
+
+        co -= sign * differential_entropy(cov[np.ix_(source, source)])
+
+    return co
+
+    

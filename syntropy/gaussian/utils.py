@@ -1,36 +1,23 @@
 import numpy as np
 import scipy.stats as stats
-import itertools as it
 from numpy.typing import NDArray
 
-from typing import Iterable
 
 # %% LIBRARY
+
 
 def check_cov(
     cov: NDArray[np.floating] | None, data: NDArray[np.floating]
 ) -> NDArray[np.floating]:
-    
     if cov is None:
         cov_ = np.cov(data, ddof=0)
     else:
-        assert cov.shape[0] == data.shape[0], "The data and given covariance matrix must have the same dimensionality"
+        assert cov.shape[0] == data.shape[0], (
+            "The data and given covariance matrix must have the same dimensionality"
+        )
         cov_ = cov.copy()
 
     return cov_
-
-
-def make_powerset(iterable: Iterable):
-    """
-    Computes the powerset of a collection of elements.
-
-    .. math::
-        \\mathcal{P}(\\{X_1,X_2,X_3\\}) \\to (\\{\\}, \\{X_1\\}, \\{X_2\\}, \\{X_3\\}, \\{X_1,X_2\\}, \\{X_1,X_3\\}, \\{X_1,X_2,X_3\\} )
-
-    """
-    xs: list = list(iterable)
-    # note we return an iterator rather than a list
-    return it.chain.from_iterable(it.combinations(xs, n) for n in range(len(xs) + 1))
 
 
 def correlation_to_mutual_information(

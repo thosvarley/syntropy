@@ -4,8 +4,13 @@ from scipy.special import digamma
 from .utils import build_tree_and_get_distances, get_counts_from_tree
 from ..utils import check_idxs
 
+
 def differential_entropy(
-    data: NDArray[np.floating], k: int, idxs: tuple[int, ...] | None = None
+    data: NDArray[np.floating],
+    k: int,
+    idxs: tuple[int, ...] | None = None,
+    p: float = np.inf,
+    noise_level: float = 0.0,
 ) -> tuple[NDArray[np.floating], float]:
     r"""
     Computes the differential entropy using the Kozachenko-Leoneko estimator.
@@ -19,8 +24,17 @@ def differential_entropy(
         Numpy array of shape (n_variables, n_samples)
     k : int
         Number of nearest neighbors
-    idxs : tuple[int, ...]
-        Indices of variables to use (-1 means all)
+    idxs : tuple[int, ...] | None
+        Indices of channels to use.
+        If None, all channels are used.
+        The default is None.
+    p : float
+        The order of the norm to use in the nearest neighbor lookup.
+        If p = 2, the norm is Euclidean. If p = np.inf, the norm is Chebyshev.
+        The default is np.inf.
+    noise_level : float
+        The standard deviation  of the noise to add to the data.
+        The default is 0.0
 
     Returns
     -------
@@ -50,7 +64,11 @@ def differential_entropy(
     psi_k: float = digamma(k)
     psi_N: float = digamma(N)
 
-    _, distances, _ = build_tree_and_get_distances(data[idxs_, :], k=k)
+    data_idxs: NDArray[np.floating] = data[idxs_, :]
+    if noise_level > 0:
+        data_idxs += np.random.randn(*data_idxs.shape) * noise_level
+
+    _, distances, _ = build_tree_and_get_distances(data_idxs, k=k, p=p)
 
     ptw: NDArray[np.floating] = np.zeros((1, N))
     ptw[0, :] += -psi_k + psi_N + d * np.log(2 * distances[:, -1])
@@ -64,6 +82,7 @@ def mutual_information(
     k: int,
     data: NDArray[np.floating],
     algorithm: int = 1,
+    p: float = np.inf,
 ) -> tuple[NDArray[np.floating], float]:
     """
     A wrapper function for the two KSG mutual information functions.
@@ -99,13 +118,17 @@ def mutual_information(
     assert algorithm in {1, 2}, "Algorithm must be 1 or 2."
 
     if algorithm == 1:
-        return mutual_information_1(idxs_x=idxs_x, idxs_y=idxs_y, k=k, data=data)
+        return mutual_information_1(idxs_x=idxs_x, idxs_y=idxs_y, k=k, data=data, p=p)
     else:
-        return mutual_information_2(idxs_x=idxs_x, idxs_y=idxs_y, k=k, data=data)
+        return mutual_information_2(idxs_x=idxs_x, idxs_y=idxs_y, k=k, data=data, p=p)
 
 
 def mutual_information_1(
-    idxs_x: tuple[int, ...], idxs_y: tuple[int, ...], k: int, data: NDArray[np.floating]
+    idxs_x: tuple[int, ...],
+    idxs_y: tuple[int, ...],
+    k: int,
+    data: NDArray[np.floating],
+    p: float = np.inf,
 ) -> tuple[NDArray[np.floating], float]:
     r"""
     Computes the Kraskov, Stogbauer, Grassberger estimate of the bivariate mutual information
@@ -155,7 +178,7 @@ def mutual_information_1(
     for idxs in (idxs_x, idxs_y):
         tree, _, _ = build_tree_and_get_distances(data[idxs, :], k=k)
         counts: NDArray[np.integer] = get_counts_from_tree(
-            tree, data[idxs, :], distances[:, -1]
+            tree, data[idxs, :], distances[:, -1], p=p
         )
         ptw[0, :] -= digamma(counts + 1)
 
@@ -163,7 +186,11 @@ def mutual_information_1(
 
 
 def mutual_information_2(
-    idxs_x: tuple[int, ...], idxs_y: tuple[int, ...], k: int, data: NDArray[np.floating]
+    idxs_x: tuple[int, ...],
+    idxs_y: tuple[int, ...],
+    k: int,
+    data: NDArray[np.floating],
+    p: float = np.inf,
 ) -> tuple[NDArray[np.floating], float]:
     r"""
     Computes the Kraskov, Stogbauer, Grassberger estimate of the bivariate mutual information
@@ -206,7 +233,7 @@ def mutual_information_2(
     psi_k: float = digamma(k)
     psi_N: float = digamma(N)
 
-    _, distances, indices = build_tree_and_get_distances(data[idxs_xy, :], k=k)
+    _, distances, indices = build_tree_and_get_distances(data[idxs_xy, :], k=k, p=p)
     neighbors: NDArray[np.integer] = indices[:, 1:]
 
     ptw: NDArray[np.floating] = np.full((1, N), psi_k - (1 / k) + psi_N)
@@ -216,12 +243,12 @@ def mutual_information_2(
 
         for j in range(k):
             norm: NDArray[np.floating] = np.linalg.norm(
-                data_idx - data_idx[neighbors[:, j]], ord=np.inf, axis=1
+                data_idx - data_idx[neighbors[:, j]], ord=p, axis=1
             )
             eps = np.maximum(norm, eps)
 
-        tree, distances, _ = build_tree_and_get_distances(data_idx.T, k=k)
-        counts = get_counts_from_tree(tree, data_idx.T, eps, strict=False)
+        tree, distances, _ = build_tree_and_get_distances(data_idx.T, k=k, p=p)
+        counts = get_counts_from_tree(tree, data_idx.T, eps, strict=False, p=p)
         ptw[0, :] -= digamma(counts)
 
     return ptw, ptw.mean()
@@ -233,6 +260,7 @@ def conditional_mutual_information(
     idxs_z: tuple[int, ...],
     k: int,
     data: NDArray[np.floating],
+    p: float = np.inf,
 ) -> tuple[NDArray[np.floating], float]:
     """
     Computes the conditional mutual information I(X;Y|Z) using the KSG algorithm 1
@@ -290,13 +318,13 @@ def conditional_mutual_information(
     ptw: NDArray[np.floating] = np.full((1, N), psi_k)
 
     distances: NDArray[np.floating]
-    _, distances, _ = build_tree_and_get_distances(data=data[idxs_joint, :], k=k)
+    _, distances, _ = build_tree_and_get_distances(data=data[idxs_joint, :], k=k, p=p)
 
     counter: int = 0
     for idxs in (idxs_z, idxs_xz, idxs_yz):
-        tree, _, _ = build_tree_and_get_distances(data[idxs, :], k=k)
+        tree, _, _ = build_tree_and_get_distances(data[idxs, :], k=k, p=p)
         counts: NDArray[np.integer] = get_counts_from_tree(
-            tree, data[idxs, :], distances[:, -1]
+            tree, data[idxs, :], distances[:, -1], p=p
         )
 
         if counter == 0:

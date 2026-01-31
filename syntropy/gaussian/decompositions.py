@@ -2,7 +2,8 @@ import numpy as np
 import networkx as nx
 from .shannon import local_differential_entropy
 
-from .utils import check_cov, make_powerset
+from .utils import check_cov 
+from ..utils import make_powerset
 from ..lattices import LATTICE_2, LATTICE_3, LATTICE_4
 from numpy.typing import NDArray
 from typing import Callable

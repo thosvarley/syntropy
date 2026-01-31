@@ -4,7 +4,7 @@ from scipy.spatial import cKDTree
 
 
 def build_tree_and_get_distances(
-    data: NDArray[np.floating], k: int
+    data: NDArray[np.floating], k: int, p: float = np.inf
 ) -> tuple[cKDTree, NDArray[np.floating], NDArray[np.integer]]:
     """
     Builds the KNN tree and returns the indices and distances between each point and it's k-nearest neighbors.
@@ -30,7 +30,7 @@ def build_tree_and_get_distances(
 
     distances: NDArray[np.floating]
     indices: NDArray[np.integer]
-    distances, indices = tree.query(data.T, k=k + 1, p=np.inf)
+    distances, indices = tree.query(data.T, k=k + 1, p=p)
 
     return tree, distances, indices
 
@@ -40,15 +40,15 @@ def get_counts_from_tree(
     data: NDArray[np.floating],
     eps: NDArray[np.floating],
     strict: bool = True,
+    p: float = np.inf,
 ) -> NDArray[np.integer]:
-
     if strict is True:
         eps_ = np.nextafter(eps, -np.inf)
     else:
         eps_ = eps
     counts: NDArray[np.integer] = np.array(
         [
-            tree.query_ball_point(x_i, eps_i, return_length=True, p=np.inf) - 1
+            tree.query_ball_point(x_i, eps_i, return_length=True, p=p) - 1
             for x_i, eps_i in zip(data.T, eps_)
         ]
     )

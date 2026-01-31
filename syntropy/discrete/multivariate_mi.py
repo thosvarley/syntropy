@@ -275,7 +275,7 @@ def co_information(
     joint_distribution: dict[tuple[int, ...], float],
 ) -> (tuple[dict, float], float):
     """
-    Computes the cO-information, the third generalization of bivariate mutual information. Unlike total correlation and dual total correlation, the cO-information can be negative and is difficult to interpret.
+    Computes the Co-information, the third generalization of bivariate mutual information. Unlike total correlation and dual total correlation, the cO-information can be negative and is difficult to interpret.
 
     .. math::
         Co(X) = \\sum_{\\xi\\subseteq X}(-1)^{|\\xi|}H(\\xi)
