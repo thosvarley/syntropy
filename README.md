@@ -149,13 +149,13 @@ print(f"I(discrete ; continuous) = {mi:.3f} nats")
 | Dual Total Correlation | x | x | x | x |
 | O-Information | x | x | x | x |
 | S-Information | x | x | x | x |
-| Co-Information | x | | | |
+| Co-Information | x | x | | |
 | TSE Complexity | x | x | | | 
 | Partial Info. Decomp. | x | x | | |
 | Partial Entropy Decomp. | x | x | | |
 | Generalized Info. Decomp. | x | x | | |
 | Information Rates | x | x | | |
-| Connected Information | x| | | |
+| Connected Information | x | | | |
 
 ### Optimizations and Utilities
 
