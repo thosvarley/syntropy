@@ -156,7 +156,7 @@ print(f"I(discrete ; continuous) = {mi:.3f} nats")
 | Generalized Info. Decomp. | x | x | | |
 | Information Rates | x | x | | |
 | Connected Information | x | | | |
-| $\alpha$-synergy Decomp. | x | | | |
+| $\alpha$-Synergy Decomp. | x | | | |
 
 ### Optimizations and Utilities
 
