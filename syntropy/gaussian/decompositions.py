@@ -529,10 +529,3 @@ def representational_complexity(
 
 
 # %%
-
-import numpy as np
-import scipy.stats as stats
-
-arr = np.load("/home/thosvarley/Data/hcp_structfunc/bold/100307_bold_s0.npz")["arr_0"]
-cov = np.cov(arr[:3, :], ddof=0)
-data = stats.multivariate_normal(mean=np.zeros(3), cov=cov).rvs(10_000).T

@@ -91,7 +91,7 @@ def local_differential_entropy(
     """
 
     if data.ndim == 1:
-        assert (idxs is None) or (idxs == (0,)), f"There's an indexing mismatch!"
+        assert idxs is None, "Don't try an index a 1D array like that." 
         return -stats.norm.logpdf(
                 x = data, 
                 loc = data.mean(),

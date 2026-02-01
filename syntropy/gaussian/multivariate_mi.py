@@ -1,7 +1,7 @@
 import numpy as np
 from .shannon import local_differential_entropy, differential_entropy
 from numpy.typing import NDArray
-from .utils import check_cov
+from .utils import check_cov, covariance_to_correlation
 from ..utils import check_idxs, make_powerset
 from .decompositions import local_precompute_sources
 
@@ -51,16 +51,13 @@ def local_total_correlation(
 
     """
 
-    idxs_: tuple[int, ...] = check_idxs(idxs, data)
-    cov_: NDArray[np.floating] = check_cov(cov, data)
-
-    N = len(idxs_)
-
-    whole = local_differential_entropy(data[idxs_, :], cov_[np.ix_(idxs_, idxs_)])
+    N: int = len(idxs) if idxs is not None else data.shape[0]
+    whole = local_differential_entropy(data=data, cov=cov, idxs=idxs)
 
     sum_parts = np.zeros_like(whole)
     for i in range(N):
-        sum_parts += local_differential_entropy(data[idxs_[i], :])
+        idx = idxs[i] if idxs is not None else i 
+        sum_parts += local_differential_entropy(data[idx, :])
 
     return sum_parts - whole
 
@@ -124,10 +121,7 @@ def total_correlation(
     # 1s along the diagonal (a correlation matrix).
     if False in np.isclose(cov_.diagonal(), 1):
         # Converting to a correlation/coherence matrix.
-        diag: NDArray[np.floating] = np.sqrt(np.diag(cov_))
-        d_inv: NDArray[np.floating] = np.diag(1.0 / diag)
-
-        corr = d_inv @ cov_ @ d_inv
+        corr = covariance_to_correlation(cov)
     else:
         corr = cov_.copy()
 
@@ -647,7 +641,7 @@ def local_co_information(
     Returns
     -------
     NDArray[np.floating]
-
+        The local co-informations.
 
     """
 
@@ -687,6 +681,7 @@ def co_information(cov: NDArray[np.floating], idxs: tuple[int, ...] | None) -> f
     Returns
     -------
     float
+        The expected co-information.
 
     """
 

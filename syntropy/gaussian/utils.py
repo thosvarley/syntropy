@@ -55,7 +55,9 @@ def copula_transform(
     X: NDArray[np.floating],
 ) -> tuple[NDArray[np.floating], ...]:
     """
-    Transform data to Gaussian copula space and compute the correlation matrix.
+    Transform data to Gaussian copula space and compute the correlation matrix. Useful for copula-based information estimators. 
+
+    The resulting data can be plugged into any local or expected information estimator.  
 
     Parameters
     ----------
@@ -68,6 +70,14 @@ def copula_transform(
         Gaussianized copula data (zero-mean, unit-variance)
     R : NDArray[np.floating]
         Copula correlation matrix
+
+    References
+    ----------
+    Ince, R. A. A., Giordano, B. L., Kayser, C., Rousselet, G. A., Gross, J., & Schyns, P. G. (2016). 
+    A statistical framework for neuroimaging data analysis based on mutual information estimated via a gaussian copula. 
+    Human Brain Mapping, 38(3), 1541–1573. 
+    https://doi.org/10.1002/hbm.23471
+
     """
 
     N0: int
@@ -88,3 +98,29 @@ def copula_transform(
     R: NDArray[np.floating] = np.corrcoef(Z)
 
     return Z, R
+
+
+def covariance_to_correlation(cov: NDArray[np.floating]) -> NDArray[np.floating]:
+    """
+    Converts a non-standardized covariance matrix to a correlation matrix. 
+
+    Parameters
+    ----------
+    cov : NDArray[np.floating]
+        The covariance matrix.     
+
+    Returns
+    -------
+    NDArray[np.floating]
+        The correlation matrix. 
+        
+
+    """
+    diag: NDArray[np.floating] = np.sqrt(np.diag(cov))
+    d_inv: NDArray[np.floating] = np.diag(1.0 / diag)
+
+    return d_inv @ cov @ d_inv
+
+    
+
+
