@@ -537,7 +537,7 @@ def representational_complexity(
 # %%
 
 def idep_partial_information_decomposition(
-    inputs: tuple[int, ...],
+    inputs: tuple[tuple[int, ...], tuple[int,...]],
     target: tuple[int, ...],
     cov: NDArray[np.floating],
 ) -> dict[str, float]:
@@ -551,7 +551,7 @@ def idep_partial_information_decomposition(
     
     Parameters
     ----------
-    inputs : tuple[int, ...]
+    inputs: tuple[tuple[int, ...], tuple[int,...]],
         The indices of the two predictor variables/sets.
         Must have length 2.
     target : tuple[int, ...]
