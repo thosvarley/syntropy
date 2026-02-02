@@ -1,8 +1,12 @@
 import numpy as np
 import networkx as nx
-from .shannon import local_differential_entropy
+from .shannon import (
+    local_differential_entropy,
+    mutual_information,
+    conditional_mutual_information,
+)
 
-from .utils import check_cov 
+from .utils import check_cov, covariance_to_correlation
 from ..utils import make_powerset
 from ..lattices import LATTICE_2, LATTICE_3, LATTICE_4
 from numpy.typing import NDArray
@@ -295,7 +299,9 @@ def mobius_inversion(
                     ]
                 )
 
-    ptw: dict[Atom, NDArray[np.floating]] = {node: lattice.nodes[node][partial_str] for node in lattice.nodes}
+    ptw: dict[Atom, NDArray[np.floating]] = {
+        node: lattice.nodes[node][partial_str] for node in lattice.nodes
+    }
     avg: dict[Atom, float] = {
         node: lattice.nodes[node][partial_str].mean() for node in lattice.nodes
     }
@@ -529,3 +535,132 @@ def representational_complexity(
 
 
 # %%
+
+def idep_partial_information_decomposition(
+    inputs: tuple[int, ...],
+    target: tuple[int, ...],
+    cov: NDArray[np.floating],
+) -> dict[str, float]:
+    """
+    Computes the I_dep partial information decomposition for Gaussian systems
+    using the dependency constraint method from Kay & Ince (2018).
+    
+    Currently only supports 2 predictors (univariate or multivariate).
+
+    Adapted from: https://github.com/robince/partial-info-decomp/blob/master/calc_pi_Idep_mvn.m
+    
+    Parameters
+    ----------
+    inputs : tuple[int, ...]
+        The indices of the two predictor variables/sets.
+        Must have length 2.
+    target : tuple[int, ...]
+        The indices of the target variable(s).
+    data : NDArray[np.floating] | None
+        The data in channels x samples format. Optional if cov provided.
+    cov : NDArray[np.floating] | None
+        The covariance matrix. If None, computed from data.
+        
+    Returns
+    -------
+    dict[str, float]
+        Dictionary with keys: 'unq0', 'unq1', 'red', 'syn'
+        
+    References
+    ----------
+    Kay, J. W., & Ince, R. A. A. (2018). 
+    Exact Partial Information Decompositions for Gaussian Systems 
+    Based on Dependency Constraints. Entropy, 20(4), 240.
+    https://doi.org/10.3390/e20040240
+    """
+    
+    assert len(inputs) == 2, "I_dep currently only supports 2 predictors"
+    
+    # Extract indices
+    input_0 = inputs[0]
+    input_1 = inputs[1]
+
+    n0, n1, nt = len(input_0), len(input_1), len(target)
+    
+    # Extract block covariances
+    C_00 = cov[np.ix_(input_0, input_0)]
+    C_11 = cov[np.ix_(input_1, input_1)]
+    C_tt = cov[np.ix_(target, target)]
+    C_01 = cov[np.ix_(input_0, input_1)]
+    C_0t = cov[np.ix_(input_0, target)]
+    C_1t = cov[np.ix_(input_1, target)]
+    
+    # Cholesky decomposition (upper triangular)
+    # Note: np.linalg.cholesky returns lower triangular, so we transpose
+    chol_00 = np.linalg.cholesky(C_00).T
+    chol_11 = np.linalg.cholesky(C_11).T
+    chol_tt = np.linalg.cholesky(C_tt).T
+    
+    # Compute P, Q, R using Kay & Ince Appendix D (Equation A5)
+    # P = inv(chol_xx)' * Cxy * inv(chol_yy)
+    inv_chol_00 = np.linalg.inv(chol_00)
+    inv_chol_11 = np.linalg.inv(chol_11)
+    inv_chol_tt = np.linalg.inv(chol_tt)
+    
+    P = inv_chol_00.T @ C_01 @ inv_chol_11
+    Q = inv_chol_00.T @ C_0t @ inv_chol_tt
+    R = inv_chol_11.T @ C_1t @ inv_chol_tt
+    
+    # Build standardized covariance matrix for MI calculations
+    
+    # Compute basic mutual informations on ORIGINAL covariance
+    mi_x0_y = mutual_information(idxs_x = input_0, idxs_y = target, cov=cov)
+    mi_x1_y = mutual_information(idxs_x = input_1, idxs_y = target, cov=cov)
+    mi_x01_y = mutual_information(idxs_x = input_0 + input_1, idxs_y = target, cov=cov)
+    
+    # Compute edge values using TRUE identity matrices
+    edge_b = mi_x0_y
+    
+    # Edge i: using identity matrices (Kay & Ince Table 9)
+    eye_n1 = np.eye(n1)
+    eye_n2 = np.eye(nt)
+    
+    numerator_det = np.linalg.slogdet(eye_n1 - R @ Q.T @ Q @ R.T)[1]
+    denom1_det = np.linalg.slogdet(eye_n2 - Q.T @ Q)[1]
+    denom2_det = np.linalg.slogdet(eye_n2 - R.T @ R)[1]
+    
+    edge_i = 0.5 * (numerator_det - denom1_det - denom2_det) - mi_x1_y 
+    
+    # Edge k: build standardized Sigma_Z and compute its determinant
+    Sigma_Z = np.zeros((n0 + n1 + nt, n0 + n1 + nt))
+    Sigma_Z[:n0, :n0] = np.eye(n0)
+    Sigma_Z[n0:n0+n1, n0:n0+n1] = np.eye(n1)
+    Sigma_Z[n0+n1:, n0+n1:] = np.eye(nt)
+    Sigma_Z[:n0, n0:n0+n1] = P
+    Sigma_Z[n0:n0+n1, :n0] = P.T
+    Sigma_Z[:n0, n0+n1:] = Q
+    Sigma_Z[n0+n1:, :n0] = Q.T
+    Sigma_Z[n0:n0+n1, n0+n1:] = R
+    Sigma_Z[n0+n1:, n0:n0+n1] = R.T
+    
+    k_num = 0.5 * np.linalg.slogdet(np.eye(n1) - P.T @ P)[1]
+    k_den = 0.5 * np.linalg.slogdet(Sigma_Z)[1]
+    edge_k = k_num - k_den - mi_x1_y
+    
+    # Unique information from X0 is minimum across all edges adding X0Y
+    unq0 = min(edge_b, edge_i, edge_k)
+    
+    # Derive other components
+    red = mi_x0_y - unq0
+    unq1 = mi_x1_y - red
+    syn = mi_x01_y - mi_x1_y - unq0
+    
+    return {
+        'unq0': unq0,
+        'unq1': unq1, 
+        'red': red,
+        'syn': syn,
+        # # For debugging/analysis
+        # 'I_X0_Y': mi_x0_y,
+        # 'I_X1_Y': mi_x1_y,
+        # 'I_X0X1_Y': mi_x01_y,
+        # 'edges': {'b': edge_b, 'i': edge_i, 'k': edge_k}
+    }
+
+# %%
+

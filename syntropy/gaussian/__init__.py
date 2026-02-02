@@ -29,6 +29,7 @@ from .decompositions import (
     partial_information_decomposition,
     generalized_information_decomposition,
     representational_complexity,
+    idep_partial_information_decomposition,
 )
 
 from .temporal import (
@@ -65,6 +66,7 @@ __all__ = [
     "partial_information_decomposition",
     "generalized_information_decomposition",
     "representational_complexity",
+    "idep_partial_information_decomposition",
     "differential_entropy_rate",
     "mutual_information_rate",
     "total_correlation_rate",

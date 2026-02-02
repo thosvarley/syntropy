@@ -11,6 +11,7 @@ from syntropy.gaussian.decompositions import (
     partial_information_decomposition as pid,
     partial_entropy_decomposition as ped,
     generalized_information_decomposition as gid,
+    idep_partial_information_decomposition as idep,
 )
 from syntropy.gaussian.temporal import (
     differential_entropy_rate,
@@ -44,8 +45,8 @@ def test_differential_entropy():
     assert h1 == pytest.approx(
         shannon.differential_entropy(cov=cov, idxs=(1, 2)), abs=pytest_abs
     )
-    
-    h = shannon.differential_entropy(cov[np.ix_((2,),(2,))])
+
+    h = shannon.differential_entropy(cov[np.ix_((2,), (2,))])
     c = shannon.conditional_entropy((2,), (1,), cov)
 
     assert h1 - h == pytest.approx(c, abs=pytest_abs)
@@ -208,3 +209,78 @@ def test_oinfo_rate():
     _, oir = o_information_rate((0, 1, 2), noise, nperseg=2**13)
 
     assert oir == pytest.approx(mi_1 + mi_2 - mi_joint, abs=pytest_abs)
+
+
+def test_idep_univariate():
+    """
+    Unit test from Kay and Ince (2018), Example 4 (p. 12).
+    Lower tolerance used because fewer digits are used.
+    Results in Kay and Ince are given in bits rather than nats, so we convert.
+    """
+    p, q, r = -0.2, 0.7, -0.7
+
+    cov = np.array([[1.0, p, q], [p, 1.0, r], [q, r, 1.0]])
+
+    result = idep(inputs=((0,), (1,)), target=(2,), cov=cov)
+
+    # Convert from nats to bits
+    bits_conversion = 1.0 / np.log(2)
+
+    assert result["unq0"] * bits_conversion == pytest.approx(0.2877, abs=1e-3)
+    assert result["unq1"] * bits_conversion == pytest.approx(0.2877, abs=1e-3)
+    assert result["red"] * bits_conversion == pytest.approx(0.1981, abs=1e-3)
+    assert result["syn"] * bits_conversion == pytest.approx(0.4504, abs=1e-3)
+
+    mi_joint = shannon.mutual_information(idxs_x=(0, 1), idxs_y=(2,), cov=cov)
+
+    assert sum(result.values()) == pytest.approx(mi_joint, abs=pytest_abs)
+
+
+def test_idep_multivariate():
+    """
+    Test Idep PID on multivariate example from Kay & Ince (2018), p 24.
+    Setup: (n0, n1, n2) = (3, 4, 3), (p, q, r) = (-0.15, 0.15, 0.15)
+    Uses equi-correlation structure from Equation 63.
+
+    Once again, must convert from nats to bits, more relaxed abs.
+    """
+    n0, n1, n2 = 3, 4, 3
+    p, q, r = -0.15, 0.15, 0.15
+
+    # Build P, Q, R with equi-correlation structure (Equation 63)
+    P = p * np.ones((n0, n1))
+    Q = q * np.ones((n0, n2))
+    R = r * np.ones((n1, n2))
+
+    # Build full covariance matrix
+    cov = np.zeros((10, 10))
+
+    # Diagonal blocks are identity
+    cov[:n0, :n0] = np.eye(n0)
+    cov[n0 : n0 + n1, n0 : n0 + n1] = np.eye(n1)
+    cov[n0 + n1 :, n0 + n1 :] = np.eye(n2)
+
+    # Off-diagonal blocks
+    cov[:n0, n0 : n0 + n1] = P
+    cov[n0 : n0 + n1, :n0] = P.T
+    cov[:n0, n0 + n1 :] = Q
+    cov[n0 + n1 :, :n0] = Q.T
+    cov[n0 : n0 + n1, n0 + n1 :] = R
+    cov[n0 + n1 :, n0 : n0 + n1] = R.T
+
+    result = idep(inputs=((0, 1, 2), (3, 4, 5, 6)), target=(7, 8, 9), cov=cov)
+
+    # Convert from nats to bits
+    bits_conversion = 1.0 / np.log(2)
+
+    # Assert matches (slightly looser tolerance for multivariate)
+    assert result["unq0"] * bits_conversion == pytest.approx(0.1227, abs=1e-3)
+    assert result["unq1"] * bits_conversion == pytest.approx(0.1865, abs=1e-3)
+    assert result["red"] * bits_conversion == pytest.approx(0.0406, abs=1e-3)
+    assert result["syn"] * bits_conversion == pytest.approx(2.4772, abs=1e-3)
+
+    # Verify PID constraint
+    total = result["red"] + result["unq0"] + result["unq1"] + result["syn"]
+    mi_joint = shannon.mutual_information(idxs_x=(0,1,2,3,4,5,6), idxs_y=(7,8,9), cov=cov)
+
+    assert total == pytest.approx(mi_joint, abs=pytest_abs)
