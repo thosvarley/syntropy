@@ -32,14 +32,16 @@
             
   <h1>Source code for syntropy.discrete.shannon</h1><div class="highlight"><pre>
 <span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_marginal_distribution</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_marginal_distribution</span><span class="p">,</span> <span class="n">flatten_nested_tuple</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span>
 
 <span class="n">DiscreteDist</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span> <span class="nb">float</span><span class="p">]</span>
 
-<span class="k">def</span><span class="w"> </span><span class="nf">add</span><span class="p">(</span><span class="n">x</span><span class="p">:</span><span class="nb">int</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span><span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">add</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
     <span class="k">return</span> <span class="n">x</span> <span class="o">+</span> <span class="n">y</span>
+
 
 <div class="viewcode-block" id="shannon_entropy">
 <a class="viewcode-back" href="../../../api/syntropy.discrete.html#syntropy.discrete.shannon_entropy">[docs]</a>
@@ -265,7 +267,7 @@
 <span class="sd">    Computes the Kullback-Leibler divergence from a prior distribution P(X) and</span>
 <span class="sd">    and posterior distribution Q(X).</span>
 
-<span class="sd">    .. math:: </span>
+<span class="sd">    .. math::</span>
 <span class="sd">        D_{KL}(P||Q) = \\sum_{x} P(x) \\log \\frac{P(x)}{Q(x)}</span>
 
 <span class="sd">    Parameters</span>
@@ -299,6 +301,9 @@
         <span class="n">ptw</span><span class="p">[</span><span class="n">state</span><span class="p">]</span> <span class="o">=</span> <span class="n">log_ratio</span>
 
     <span class="k">return</span> <span class="n">ptw</span><span class="p">,</span> <span class="n">avg</span></div>
+
+
+
 
 </pre></div>
 

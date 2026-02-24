@@ -465,7 +465,7 @@ Physical Review Letters, 91(23), 238701.
 
 <dl class="py function">
 <dt class="sig sig-object py" id="syntropy.discrete.partial_entropy_decomposition">
-<span class="sig-prename descclassname"><span class="pre">syntropy.discrete.</span></span><span class="sig-name descname"><span class="pre">partial_entropy_decomposition</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">redundancy</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">joint_distribution</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/discrete/decompositions.html#partial_entropy_decomposition"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.discrete.partial_entropy_decomposition" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">syntropy.discrete.</span></span><span class="sig-name descname"><span class="pre">partial_entropy_decomposition</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">joint_distribution</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">redundancy_function</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/discrete/decompositions.html#partial_entropy_decomposition"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.discrete.partial_entropy_decomposition" title="Link to this definition">¶</a></dt>
 <dd><p>Computes the partial entropy decomposition of a joint distribution
 with up to four elements.</p>
 <p>The available redundancy functions are h_min from Finn and Lizier
@@ -476,10 +476,11 @@ and h_sx from Varley et al.,</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>redundancy</strong> (<em>str</em>) – The redundnacy function to use.
-“hmin” for the measure from Finn and Lizier,
-“hsx” for the measure from Varley et al.,</p></li>
-<li><p><strong>joint_distribution</strong> (<em>dict</em><em>[</em><em>tuple</em><em>,</em><em>float</em><em>]</em>) – The joint distribution object.</p></li>
+<li><p><strong>joint_distribution</strong> (<em>DiscreteDist</em>) – The joint probability distribution.
+Keys are tuples corresponding to the state of each element.
+The valules are the probabilities.</p></li>
+<li><p><strong>redundancy_function</strong> (<em>str</em>) – The localizable redundancy function.
+Options are: hmin and hsx.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -492,7 +493,7 @@ Each inner dictionary is the lookup of partial entropy atoms.</p></li>
 </p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>(&lt;class ‘dict’&gt;, &lt;class ‘dict’&gt;)</p>
+<dd class="field-odd"><p>tuple[dict[tuple[int, …], dict[tuple[tuple[int, …], …], float]], dict[tuple[tuple[int, …], …], float]]</p>
 </dd>
 </dl>
 <p class="rubric">References</p>
@@ -510,37 +511,27 @@ Proceedings of the National Academy of Sciences,
 
 <dl class="py function">
 <dt class="sig sig-object py" id="syntropy.discrete.partial_information_decomposition">
-<span class="sig-prename descclassname"><span class="pre">syntropy.discrete.</span></span><span class="sig-name descname"><span class="pre">partial_information_decomposition</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">redundancy</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inputs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">joint_distribution</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/discrete/decompositions.html#partial_information_decomposition"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.discrete.partial_information_decomposition" title="Link to this definition">¶</a></dt>
-<dd><p>Computes the partial information decomposition for up to four input variables
-onto one (potentially joint) target variable.</p>
-<p>The available redundancy functions are <span class="math notranslate nohighlight">\(i_{\min}\)</span> from Finn and Lizier and <span class="math notranslate nohighlight">\(i_{sx}\)</span> from Makkeh et al..</p>
+<span class="sig-prename descclassname"><span class="pre">syntropy.discrete.</span></span><span class="sig-name descname"><span class="pre">partial_information_decomposition</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inputs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">joint_distribution</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">redundancy_function</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/discrete/decompositions.html#partial_information_decomposition"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.discrete.partial_information_decomposition" title="Link to this definition">¶</a></dt>
+<dd><p>Computes the partial information decomposition for up to four input variables onto one (potentially joint) target variable.</p>
+<p>The available redundancy functions are <span class="math notranslate nohighlight">\(MMI\)</span>, <span class="math notranslate nohighlight">\(i_{pm}\)</span> from Finn and Lizier and <span class="math notranslate nohighlight">\(i_{sx}\)</span> from Makkeh et al..</p>
 <div class="math notranslate nohighlight">
-\[\begin{split}i_{\min}(\alpha;t) &amp;= \min h(\alpha_i) - \min h(\alpha_i|t) \\
-   i_{sx}(\alpha;t) &amp;= \log\frac{P(t)-P(t\cap(\alpha_1\cup ...\cup\alpha_k))}{1-P(\bar\alpha_1\cap ...\cap\alpha_N)}\end{split}\]</div>
+\[\begin{split}i_{pm}(\alpha;t) &amp;= \min h(\alpha_i) - \min h(\alpha_i|t) \\
+   i_{sx}(\alpha;t) &amp;= \log\frac{P(t)-P(t\cap(\alpha_1\cup ...\cup\alpha_k))}{1-P(\bar\alpha_1\cap ...\cap\alpha_N)} \\
+   i_{MMI}(\alpha;t) &amp;= \min_i I(\alpha_i;T)\end{split}\]</div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>redundancy</strong> (<em>str</em>) – The redundancy function.
-“imin” for the Finn and Lizier measure
-“isx” for the Makkeh et al., measure</p></li>
-<li><p><strong>inputs</strong> (<em>tuple</em>) – The set of up to four input elements.</p></li>
-<li><p><strong>target</strong> (<em>tuple</em>) – The set of target elements.
-If len(target) &gt; 1, then the target is the joint
-state of all elements</p></li>
-<li><p><strong>joint_distribution</strong> (<em>dict</em><em>[</em><em>tuple</em><em>,</em><em>float</em><em>]</em>) – The joint distribution object.</p></li>
+<li><p><strong>inputs</strong> (<em>tuple</em><em>[</em><em>int</em><em>, </em><em>...</em><em>]</em>) – The indices of the input elements.</p></li>
+<li><p><strong>target</strong> (<em>tuple</em><em>[</em><em>int</em><em>, </em><em>...</em><em>]</em>) – The indices of the target element(s)</p></li>
+<li><p><strong>joint_distribution</strong> (<em>DiscreteDist</em>) – The joint probability distribution.
+Keys are tuples corresponding to the state of each element.
+The valules are the probabilities.</p></li>
+<li><p><strong>redundancy_function</strong> (<em>str</em>) – The localizable redundancy function.
+Options are: hmin and hsx.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p><ul class="simple">
-<li><p><strong>ptw</strong> (<em>dict</em>) – A dictionary of dictionaries,
-The outer dictionary has one key for each joint state.
-Each inner dictionary is the lookup of partial information atoms.</p></li>
-<li><p><strong>avg</strong> (<em>dict</em>) – The expected value for each partial information atom.</p></li>
-</ul>
-</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>(&lt;class ‘dict’&gt;, &lt;class ‘dict’&gt;)</p>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>Any</p>
 </dd>
 </dl>
 <p class="rubric">References</p>
@@ -562,22 +553,22 @@ Physical Review E, 103(3), 032149.
 
 <dl class="py function">
 <dt class="sig sig-object py" id="syntropy.discrete.generalized_information_decomposition">
-<span class="sig-prename descclassname"><span class="pre">syntropy.discrete.</span></span><span class="sig-name descname"><span class="pre">generalized_information_decomposition</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">redundancy</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">posterior_distribution</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prior_distribution</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/discrete/decompositions.html#generalized_information_decomposition"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.discrete.generalized_information_decomposition" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">syntropy.discrete.</span></span><span class="sig-name descname"><span class="pre">generalized_information_decomposition</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">posterior_distribution</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prior_distribution</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">redundancy_function</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/discrete/decompositions.html#generalized_information_decomposition"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.discrete.generalized_information_decomposition" title="Link to this definition">¶</a></dt>
 <dd><p>Computes the generalized information decomposition from Varley et al.
 The GID is a decomposition of the Kullback-Leibler divergence of a
 posterior distribution from a prior distribution.</p>
-<p>Available redundnacy functions are “hmin” and “hsx”. See
+<p>Available redundancy functions are “hmin” and “hsx”. See
 the documentation for the partial_entropy_decomposition() function
 for details.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>redundancy</strong> (<em>str</em>) – The localizable redundancy function.
-Options are: hmin and hsx.</p></li>
-<li><p><strong>posterior_distribution</strong> (<em>dict</em><em>[</em><em>tuple</em><em>, </em><em>float</em><em>]</em>) – The posterior distribution.
+<li><p><strong>posterior_distribution</strong> (<em>DiscreteDist</em>) – The posterior distribution.
 The support set of this distribution must be a subset of
 the supppirt set of the prior distribution.</p></li>
-<li><p><strong>prior_distribution</strong> (<em>dict</em><em>[</em><em>tuple</em><em>, </em><em>float</em><em>]</em>) – The prior distribution.</p></li>
+<li><p><strong>prior_distribution</strong> (<em>DicreteDist</em>) – The prior distribution.</p></li>
+<li><p><strong>redundancy_function</strong> (<em>str</em>) – The localizable redundancy function.
+Options are: hmin and hsx.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -597,6 +588,42 @@ The local Kullback-Leibler divergence for each atom for each state.</p></li>
 Generalized decomposition of multivariate information.
 PLOS ONE, 19(2), e0297128.
 <a class="reference external" href="https://doi.org/10.1371/journal.pone.0297128">https://doi.org/10.1371/journal.pone.0297128</a></p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="syntropy.discrete.integrated_information_decomposition">
+<span class="sig-prename descclassname"><span class="pre">syntropy.discrete.</span></span><span class="sig-name descname"><span class="pre">integrated_information_decomposition</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inputs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">joint_distribution</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">redundancy_function</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/discrete/decompositions.html#integrated_information_decomposition"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.discrete.integrated_information_decomposition" title="Link to this definition">¶</a></dt>
+<dd><p>Computes the integrated information decomposition introduced by Rosas, Mediano, et al.
+The PhiID relaxes the requirement of only having a single target, and instead allows for
+redundant-redundant, synergistic-synergistic, etc interactions.</p>
+<dl class="simple">
+<dt>Available redundancy functions are:</dt><dd><dl class="simple">
+<dt>i_{pm}(alpha;beta) &amp;= min_i h(alpha_i) + min_i h(beta_i) - min h(alpha_i, beta_i) \</dt><dd><p>i_{tsx}(alpha;beta) &amp;= h_{sx}(alpha) + h_{sx}(beta) - h_{sx}(alphacapbeta)
+i_{MMI}(alpha;beta) &amp;= min_{ij} I(alpha_i;beta_j)</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>inputs</strong> (<em>tuple</em><em>[</em><em>int</em><em>, </em><em>...</em><em>]</em>) – The indices of the input elements.</p></li>
+<li><p><strong>target</strong> (<em>tuple</em><em>[</em><em>int</em><em>, </em><em>...</em><em>]</em>) – The indices of the target element(s)</p></li>
+<li><p><strong>joint_distribution</strong> (<em>DiscreteDist</em>) – The joint probability distribution.
+Keys are tuples corresponding to the state of each element.
+The valules are the probabilities.</p></li>
+<li><p><strong>redundancy_function</strong> (<em>str</em>) – The localizable redundancy function.
+Options are: hmin and hsx.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>Any</p>
+</dd>
+</dl>
+<p class="rubric">References</p>
+<p>Mediano, P. A. M., Rosas, F. E., Luppi, A. I., Carhart-Harris, R. L., Bor, D., Seth, A. K., &amp; Barrett, A. B. (2025). Toward a unified taxonomy of information dynamics via Integrated Information Decomposition. Proceedings of the National Academy of Sciences, 122(39), e2423297122. <a class="reference external" href="https://doi.org/10.1073/pnas.2423297122">https://doi.org/10.1073/pnas.2423297122</a></p>
+<p>Rosas, F. E., Mediano, P. A. M., Jensen, H. J., Seth, A. K., Barrett, A. B., Carhart-Harris, R. L., &amp; Bor, D. (2020). Reconciling emergences: An information-theoretic approach to identify causal emergence in multivariate data. PLOS Computational Biology, 16(12), Article 12. <a class="reference external" href="https://doi.org/10.1371/journal.pcbi.1008289">https://doi.org/10.1371/journal.pcbi.1008289</a></p>
+<p>Varley, T. F. (2023). Decomposing past and future: Integrated information decomposition based on shared probability mass exclusions. PLOS ONE, 18(3), e0282950. <a class="reference external" href="https://doi.org/10.1371/journal.pone.0282950">https://doi.org/10.1371/journal.pone.0282950</a></p>
 </dd></dl>
 
 <dl class="py function">
@@ -1106,6 +1133,19 @@ Proceedings. IEEE International Symposium on Information Theory, 352–352.
 <span class="sig-prename descclassname"><span class="pre">syntropy.discrete.utils.</span></span><span class="sig-name descname"><span class="pre">make_powerset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">iterable</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/discrete/utils.html#make_powerset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.discrete.utils.make_powerset" title="Link to this definition">¶</a></dt>
 <dd><p>A utility function for quickly making powersets,</p>
 <p>powerset([1,2,3]) –&gt; () (1,) (2,) (3,) (1,2) (1,3) (2,3) (1,2,3)</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="syntropy.discrete.utils.flatten_nested_tuple">
+<span class="sig-prename descclassname"><span class="pre">syntropy.discrete.utils.</span></span><span class="sig-name descname"><span class="pre">flatten_nested_tuple</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/syntropy/discrete/utils.html#flatten_nested_tuple"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syntropy.discrete.utils.flatten_nested_tuple" title="Link to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>x</strong> (<em>tuple</em><em>[</em><em>tuple</em><em>[</em><em>Any</em><em>, </em><em>...</em><em>]</em><em>, </em><em>...</em><em>]</em>)</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>tuple[<em>Any</em>, …]</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py function">

@@ -58,6 +58,7 @@ for discrete, Gaussian, and general continuous distributions.</p>
 <li class="toctree-l2"><a class="reference internal" href="syntropy.discrete.html#syntropy.discrete.partial_entropy_decomposition"><code class="docutils literal notranslate"><span class="pre">partial_entropy_decomposition()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="syntropy.discrete.html#syntropy.discrete.partial_information_decomposition"><code class="docutils literal notranslate"><span class="pre">partial_information_decomposition()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="syntropy.discrete.html#syntropy.discrete.generalized_information_decomposition"><code class="docutils literal notranslate"><span class="pre">generalized_information_decomposition()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="syntropy.discrete.html#syntropy.discrete.integrated_information_decomposition"><code class="docutils literal notranslate"><span class="pre">integrated_information_decomposition()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="syntropy.discrete.html#syntropy.discrete.representational_complexity"><code class="docutils literal notranslate"><span class="pre">representational_complexity()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="syntropy.discrete.html#syntropy.discrete.lempel_ziv_complexity"><code class="docutils literal notranslate"><span class="pre">lempel_ziv_complexity()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="syntropy.discrete.html#syntropy.discrete.lempel_ziv_mutual_information"><code class="docutils literal notranslate"><span class="pre">lempel_ziv_mutual_information()</span></code></a></li>
@@ -86,6 +87,7 @@ for discrete, Gaussian, and general continuous distributions.</p>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="syntropy.discrete.html#module-syntropy.discrete.utils">syntropy.discrete.utils module</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="syntropy.discrete.html#syntropy.discrete.utils.make_powerset"><code class="docutils literal notranslate"><span class="pre">make_powerset()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="syntropy.discrete.html#syntropy.discrete.utils.flatten_nested_tuple"><code class="docutils literal notranslate"><span class="pre">flatten_nested_tuple()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="syntropy.discrete.html#syntropy.discrete.utils.clean_distribution"><code class="docutils literal notranslate"><span class="pre">clean_distribution()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="syntropy.discrete.html#syntropy.discrete.utils.reduce_state"><code class="docutils literal notranslate"><span class="pre">reduce_state()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="syntropy.discrete.html#syntropy.discrete.utils.construct_joint_distribution"><code class="docutils literal notranslate"><span class="pre">construct_joint_distribution()</span></code></a></li>
@@ -99,47 +101,13 @@ for discrete, Gaussian, and general continuous distributions.</p>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="syntropy.gaussian.html">syntropy.gaussian package</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="syntropy.gaussian.html#syntropy.gaussian.differential_entropy"><code class="docutils literal notranslate"><span class="pre">differential_entropy()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="syntropy.gaussian.html#syntropy.gaussian.local_differential_entropy"><code class="docutils literal notranslate"><span class="pre">local_differential_entropy()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="syntropy.gaussian.html#syntropy.gaussian.conditional_entropy"><code class="docutils literal notranslate"><span class="pre">conditional_entropy()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="syntropy.gaussian.html#syntropy.gaussian.local_conditional_entropy"><code class="docutils literal notranslate"><span class="pre">local_conditional_entropy()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="syntropy.gaussian.html#syntropy.gaussian.mutual_information"><code class="docutils literal notranslate"><span class="pre">mutual_information()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="syntropy.gaussian.html#syntropy.gaussian.local_mutual_information"><code class="docutils literal notranslate"><span class="pre">local_mutual_information()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="syntropy.gaussian.html#syntropy.gaussian.conditional_mutual_information"><code class="docutils literal notranslate"><span class="pre">conditional_mutual_information()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="syntropy.gaussian.html#syntropy.gaussian.local_conditional_mutual_information"><code class="docutils literal notranslate"><span class="pre">local_conditional_mutual_information()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="syntropy.gaussian.html#syntropy.gaussian.kullback_leibler_divergence"><code class="docutils literal notranslate"><span class="pre">kullback_leibler_divergence()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="syntropy.gaussian.html#syntropy.gaussian.local_kullback_leibler_divergence"><code class="docutils literal notranslate"><span class="pre">local_kullback_leibler_divergence()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="syntropy.gaussian.html#syntropy.gaussian.local_total_correlation"><code class="docutils literal notranslate"><span class="pre">local_total_correlation()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="syntropy.gaussian.html#syntropy.gaussian.total_correlation"><code class="docutils literal notranslate"><span class="pre">total_correlation()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="syntropy.gaussian.html#syntropy.gaussian.local_dual_total_correlation"><code class="docutils literal notranslate"><span class="pre">local_dual_total_correlation()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="syntropy.gaussian.html#syntropy.gaussian.dual_total_correlation"><code class="docutils literal notranslate"><span class="pre">dual_total_correlation()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="syntropy.gaussian.html#syntropy.gaussian.local_s_information"><code class="docutils literal notranslate"><span class="pre">local_s_information()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="syntropy.gaussian.html#syntropy.gaussian.s_information"><code class="docutils literal notranslate"><span class="pre">s_information()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="syntropy.gaussian.html#syntropy.gaussian.local_o_information"><code class="docutils literal notranslate"><span class="pre">local_o_information()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="syntropy.gaussian.html#syntropy.gaussian.o_information"><code class="docutils literal notranslate"><span class="pre">o_information()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="syntropy.gaussian.html#syntropy.gaussian.tse_complexity"><code class="docutils literal notranslate"><span class="pre">tse_complexity()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="syntropy.gaussian.html#syntropy.gaussian.description_complexity"><code class="docutils literal notranslate"><span class="pre">description_complexity()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="syntropy.gaussian.html#syntropy.gaussian.partial_entropy_decomposition"><code class="docutils literal notranslate"><span class="pre">partial_entropy_decomposition()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="syntropy.gaussian.html#syntropy.gaussian.partial_information_decomposition"><code class="docutils literal notranslate"><span class="pre">partial_information_decomposition()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="syntropy.gaussian.html#syntropy.gaussian.generalized_information_decomposition"><code class="docutils literal notranslate"><span class="pre">generalized_information_decomposition()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="syntropy.gaussian.html#syntropy.gaussian.representational_complexity"><code class="docutils literal notranslate"><span class="pre">representational_complexity()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="syntropy.gaussian.html#syntropy.gaussian.differential_entropy_rate"><code class="docutils literal notranslate"><span class="pre">differential_entropy_rate()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="syntropy.gaussian.html#syntropy.gaussian.mutual_information_rate"><code class="docutils literal notranslate"><span class="pre">mutual_information_rate()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="syntropy.gaussian.html#syntropy.gaussian.total_correlation_rate"><code class="docutils literal notranslate"><span class="pre">total_correlation_rate()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="syntropy.gaussian.html#syntropy.gaussian.dual_total_correlation_rate"><code class="docutils literal notranslate"><span class="pre">dual_total_correlation_rate()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="syntropy.gaussian.html#syntropy.gaussian.s_information_rate"><code class="docutils literal notranslate"><span class="pre">s_information_rate()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="syntropy.gaussian.html#syntropy.gaussian.o_information_rate"><code class="docutils literal notranslate"><span class="pre">o_information_rate()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="syntropy.gaussian.html#submodules">Submodules</a></li>
-<li class="toctree-l2"><a class="reference internal" href="syntropy.gaussian.html#module-syntropy.gaussian.optimization">syntropy.gaussian.optimization module</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="syntropy.gaussian.html#syntropy.gaussian.optimization.neg_o_information"><code class="docutils literal notranslate"><span class="pre">neg_o_information()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="syntropy.gaussian.html#syntropy.gaussian.optimization.simulated_annealing"><code class="docutils literal notranslate"><span class="pre">simulated_annealing()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="syntropy.gaussian.html#syntropy.gaussian.optimization.irreducible_synergy"><code class="docutils literal notranslate"><span class="pre">irreducible_synergy()</span></code></a></li>
-</ul>
-</li>
+<li class="toctree-l2"><a class="reference internal" href="syntropy.gaussian.html#syntropy-gaussian-optimization-module">syntropy.gaussian.optimization module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="syntropy.gaussian.html#module-syntropy.gaussian.utils">syntropy.gaussian.utils module</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="syntropy.gaussian.html#syntropy.gaussian.utils.check_cov"><code class="docutils literal notranslate"><span class="pre">check_cov()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="syntropy.gaussian.html#syntropy.gaussian.utils.correlation_to_mutual_information"><code class="docutils literal notranslate"><span class="pre">correlation_to_mutual_information()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="syntropy.gaussian.html#syntropy.gaussian.utils.copula_transform"><code class="docutils literal notranslate"><span class="pre">copula_transform()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="syntropy.gaussian.html#syntropy.gaussian.utils.covariance_to_correlation"><code class="docutils literal notranslate"><span class="pre">covariance_to_correlation()</span></code></a></li>
 </ul>
 </li>
 </ul>

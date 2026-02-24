@@ -1,12 +1,14 @@
 import numpy as np
-from .utils import get_marginal_distribution
+from .utils import get_marginal_distribution, flatten_nested_tuple
 
 from typing import Any
 
 DiscreteDist = dict[tuple[Any, ...], float]
 
-def add(x:int, y:int) -> int:
+
+def add(x: int, y: int) -> int:
     return x + y
+
 
 def shannon_entropy(joint_distribution: DiscreteDist) -> tuple[dict, float]:
     """
@@ -218,7 +220,7 @@ def kullback_leibler_divergence(
     Computes the Kullback-Leibler divergence from a prior distribution P(X) and
     and posterior distribution Q(X).
 
-    .. math:: 
+    .. math::
         D_{KL}(P||Q) = \\sum_{x} P(x) \\log \\frac{P(x)}{Q(x)}
 
     Parameters
@@ -252,3 +254,6 @@ def kullback_leibler_divergence(
         ptw[state] = log_ratio
 
     return ptw, avg
+
+
+

@@ -23,6 +23,13 @@ OR_DIST: dict[tuple[int, int, int], float] = {
     (1, 1, 1): 1 / 4,
 }
 
+RDNERR_DIST: dict[tuple[int, int, int], float] = {
+        (0,0,0): 3/8,
+        (1,1,1): 3/8,
+        (0,1,0): 1/8,
+        (1,0,1): 1/8
+        }
+
 ONE_HOT_2_DIST: dict[tuple[int, int], float] = {(0, 1): 1 / 2, (1, 0): 1 / 2}
 
 ONE_HOT_3_DIST: dict[tuple[int, int, int], float] = {

@@ -96,7 +96,9 @@
     <span class="n">X</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">],</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">],</span> <span class="o">...</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Transform data to Gaussian copula space and compute the correlation matrix.</span>
+<span class="sd">    Transform data to Gaussian copula space and compute the correlation matrix. Useful for copula-based information estimators. </span>
+
+<span class="sd">    The resulting data can be plugged into any local or expected information estimator.  </span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -109,6 +111,14 @@
 <span class="sd">        Gaussianized copula data (zero-mean, unit-variance)</span>
 <span class="sd">    R : NDArray[np.floating]</span>
 <span class="sd">        Copula correlation matrix</span>
+
+<span class="sd">    References</span>
+<span class="sd">    ----------</span>
+<span class="sd">    Ince, R. A. A., Giordano, B. L., Kayser, C., Rousselet, G. A., Gross, J., &amp; Schyns, P. G. (2016). </span>
+<span class="sd">    A statistical framework for neuroimaging data analysis based on mutual information estimated via a gaussian copula. </span>
+<span class="sd">    Human Brain Mapping, 38(3), 1541–1573. </span>
+<span class="sd">    https://doi.org/10.1002/hbm.23471</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">N0</span><span class="p">:</span> <span class="nb">int</span>
@@ -129,6 +139,35 @@
     <span class="n">R</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">corrcoef</span><span class="p">(</span><span class="n">Z</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">Z</span><span class="p">,</span> <span class="n">R</span></div>
+
+
+
+<div class="viewcode-block" id="covariance_to_correlation">
+<a class="viewcode-back" href="../../../api/syntropy.gaussian.html#syntropy.gaussian.utils.covariance_to_correlation">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">covariance_to_correlation</span><span class="p">(</span><span class="n">cov</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Converts a non-standardized covariance matrix to a correlation matrix. </span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    cov : NDArray[np.floating]</span>
+<span class="sd">        The covariance matrix.     </span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    NDArray[np.floating]</span>
+<span class="sd">        The correlation matrix. </span>
+<span class="sd">        </span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">diag</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="n">cov</span><span class="p">))</span>
+    <span class="n">d_inv</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="mf">1.0</span> <span class="o">/</span> <span class="n">diag</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">d_inv</span> <span class="o">@</span> <span class="n">cov</span> <span class="o">@</span> <span class="n">d_inv</span></div>
+
+
+    
+
 
 </pre></div>
 

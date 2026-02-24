@@ -28,6 +28,7 @@ from .decompositions import (
     partial_entropy_decomposition,
     partial_information_decomposition,
     generalized_information_decomposition,
+    integrated_information_decomposition,
     representational_complexity,
     idep_partial_information_decomposition,
 )
@@ -65,6 +66,7 @@ __all__ = [
     "partial_entropy_decomposition",
     "partial_information_decomposition",
     "generalized_information_decomposition",
+    "integrated_information_decomposition",
     "representational_complexity",
     "idep_partial_information_decomposition",
     "differential_entropy_rate",

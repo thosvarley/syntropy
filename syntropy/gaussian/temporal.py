@@ -27,7 +27,7 @@ def construct_csd_tensor(
 
     """
     N: int = len(idxs)
-    S: NDArray[np.floating] = np.zeros((nperseg, N, N))
+    S: NDArray[np.complexfloating] = np.zeros((nperseg, N, N), dtype=np.complex128)
 
     for i in range(N):
         for j in range(i + 1):
@@ -39,8 +39,8 @@ def construct_csd_tensor(
                 nperseg=nperseg,
             )
             Pij = np.fft.fftshift(Pij)
-            S[:, i, j] = Pij.real
-            S[:, j, i] = np.conj(Pij).real
+            S[:, i, j] = Pij
+            S[:, j, i] = np.conj(Pij)
 
     omega = 2 * np.pi * f / fs
     omega = np.fft.fftshift(omega)
@@ -471,3 +471,6 @@ def o_information_rate(
         idxs=idxs, k=2, data=data, fs=fs, nperseg=nperseg, verbose=verbose
     )
     return -ptw_o, -avg_o
+
+def fftfreqs_hz(nperseg: int, fs: int) -> NDArray[np.floating]:
+    return np.fft.fftshift(np.fft.fftfreq(nperseg, d=1.0 / fs))

@@ -1,39 +1,16 @@
 import numpy as np
 import networkx as nx
-from typing import Callable
+from typing import Callable, Any
 from .utils import make_powerset, reduce_state
+from .shannon import mutual_information
+from ..lattices import load_lattice, mobius_inversion
 
-from ..lattices import LATTICE_2, LATTICE_3, LATTICE_4
+Atom = tuple[tuple[int, ...], ...]
+DiscreteDist = dict[tuple[Any, ...], float]
+Sources = dict[tuple[Any, ...], dict[tuple[int, ...], float]]
 
-BOTTOM_2: tuple = ((0,), (1,))
-BOTTOM_3: tuple = ((0,), (1,), (2,))
-BOTTOM_4: tuple = ((0,), (1,), (2,), (3,))
 
-PATHS_2: dict = nx.shortest_paths.shortest_path_length(
-    LATTICE_2, source=None, target=BOTTOM_2
-)
-LAYERS_2: dict = {
-    val: {key for key in PATHS_2.keys() if PATHS_2[key] == val}
-    for val in set(PATHS_2.values())
-}
-
-PATHS_3: dict = nx.shortest_paths.shortest_path_length(
-    LATTICE_3, source=None, target=BOTTOM_3
-)
-LAYERS_3: dict = {
-    val: {key for key in PATHS_3.keys() if PATHS_3[key] == val}
-    for val in set(PATHS_3.values())
-}
-
-PATHS_4: dict = nx.shortest_paths.shortest_path_length(
-    LATTICE_4, source=None, target=BOTTOM_4
-)
-LAYERS_4: dict = {
-    val: {key for key in PATHS_4.keys() if PATHS_4[key] == val}
-    for val in set(PATHS_4.values())
-}
-
-def local_precompute_sources(joint_distribution: dict[tuple, float]) -> dict:
+def local_precompute_sources(joint_distribution: DiscreteDist) -> Sources:
     """
     A utility function that computes the local entropy of each subset of
     elements. This speeds up the computation using the hmin function
@@ -41,7 +18,7 @@ def local_precompute_sources(joint_distribution: dict[tuple, float]) -> dict:
 
     Parameters
     ----------
-    joint_distribution: dict[tuple, float]
+    joint_distribution: DiscreteDist
         The joint probability distribution.
         Keys are tuples corresponding to the state of each element.
         The valules are the probabilities.
@@ -62,12 +39,10 @@ def local_precompute_sources(joint_distribution: dict[tuple, float]) -> dict:
         state: {source: {} for source in sources} for state in joint_distribution.keys()
     }
 
-    state: tuple
+    state: tuple[Any, ...]
     for state in local_entropies.keys():
-
         source: tuple
         for source in local_entropies[state]:
-
             # For a given state x, and a given source s, computes the total probability mass of the joint
             # distribution consistent with the state of the source.
             # E.g. if state = (0,0,0) and source = (0,1), probability_mass = P(X0=0 AND X1=0)
@@ -82,15 +57,15 @@ def local_precompute_sources(joint_distribution: dict[tuple, float]) -> dict:
             if probability_mass > 0:
                 local_entropies[state][source] = -np.log2(probability_mass)
             else:
-                local_entropies[state][
-                    source
-                ] = 0  # Set log2(0) to 0 since impossible events contain no information.
+                local_entropies[state][source] = (
+                    0  # Set log2(0) to 0 since impossible events contain no information.
+                )
 
     return local_entropies
 
 
 def hmin_discrete_redundancy(
-    atom: tuple, state: tuple, sources: dict, joint_distribution: dict[tuple, float]
+    atom: tuple, state: tuple[Any, ...], sources: dict, joint_distribution: DiscreteDist
 ) -> float:
     """
     For a collection of sources :math:`\\alpha=\\{a_1, a_2, \\ldots, a_k\\}`, computes
@@ -107,14 +82,14 @@ def hmin_discrete_redundancy(
 
     Parameters
     ----------
-    atom : tuple
+    atom : Atom
         The partial entropy atom.
-    state : tuple
+    state : tuple[Any, ...]
         The state of the system.
-    sources : dict
+    sources : Sources
         The pre-computed local entropies constructed by the
         precompute_local_entropies() function.
-    joint_distribution: dict[tuple, float]
+    joint_distribution: DiscreteDist
         The joint probability distribution.
         Keys are tuples corresponding to the state of each element.
         The valules are the probabilities.
@@ -129,79 +104,11 @@ def hmin_discrete_redundancy(
     if joint_distribution[state] == 0:
         return 0
     else:
-        return min(sources[state][source] for source in atom)
-
-
-def imin_discrete_redundancy(
-    atom: tuple,
-    state: tuple,
-    inputs: tuple,
-    target: tuple,
-    sources: dict,
-    joint_distribution: dict[tuple, float],
-) -> float:
-    """
-    For a collection of sources :math:`\\alpha = \\{a_{1}, a_{2}, \\ldots, a_{k}\\}` and a target :math:`t` the redundancy is defined as:
-
-    :math:`i_{min}(\\alpha;t) = \\min_{i}h(a_i) - \\min_{i}h(a_i|t)`
-
-    See:
-        Finn, C., & Lizier, J. T. (2020).
-        Generalised Measures of Multivariate Information Content.
-        Entropy, 22(2), Article 2.
-        https://doi.org/10.3390/e22020216
-
-
-    Parameters
-    ----------
-    atom : tuple
-        The partial information atom.
-    state : tuple
-        The joint-state of the systems.
-    inputs : tuple
-        The indices of the input variables.
-    target : tuple
-        The indices of the target variable. May be multivariate.
-    sources : dict
-        The pre-computed local entropies
-        for the joint state of the source and the target.
-    joint_distribution: dict[tuple, float]
-        The joint probability distribution.
-        Keys are tuples corresponding to the state of each element.
-        The valules are the probabilities.
-
-    Returns
-    -------
-    float
-        The local redundant mutual information.
-
-    """
-
-    i_plus: float = np.inf
-    i_minus: float = np.inf
-
-    h_target: float = sources[state][target]
-
-    for source in atom:
-
-        input_source: tuple = tuple(inputs[x] for x in source)
-        h_input_source: float = sources[state][input_source]
-
-        if i_plus > h_input_source:
-            i_plus = h_input_source
-
-        joint_source: tuple = tuple(sorted(input_source + target))
-
-        h_conditional: float = sources[state][joint_source] - h_target
-
-        if i_minus > h_conditional:
-            i_minus = h_conditional
-
-    return i_plus - i_minus
+        return min(sources[state][a] for a in atom)
 
 
 def hsx_discrete_redundancy(
-    atom: tuple, state: tuple, joint_distribution: dict[tuple, float]
+    atom: Atom, state: tuple[Any, ...], joint_distribution: DiscreteDist
 ) -> float:
     """
     Computes the redundant entropy shared by a set of sources using the :math:`h_{sx}` function.
@@ -219,11 +126,11 @@ def hsx_discrete_redundancy(
 
     Parameters
     ----------
-    atom : tuple
+    atom : Atom
         The partial entropy atom.
-    state : tuple
+    state : tuple[Any, ...]
         The state of the system.
-    joint_distribution: dict[tuple, float]
+    joint_distribution: DiscreteDist
         The joint probability distribution.
         Keys are tuples corresponding to the state of each element.
         The valules are the probabilities.
@@ -241,7 +148,6 @@ def hsx_discrete_redundancy(
 
         source: tuple
         for source in atom:
-
             state_source: tuple = reduce_state(state, source)
             state_set.update(
                 {
@@ -258,285 +164,399 @@ def hsx_discrete_redundancy(
         return redundant_entropy
 
 
-def isx_discrete_redundancy(
-    atom: tuple,
-    state: tuple,
-    inputs: tuple,
-    target: tuple,
-    joint_distribution: dict[tuple, float],
+def mmi_discrete_redundancy(
+    atom: Atom,
+    inputs: tuple[int, ...],
+    target: tuple[int, ...],
+    joint_distribution: DiscreteDist,
+    single_target_flag: bool = True,
 ) -> float:
     """
-    For a collection of sources :math:`\\alpha = \\{a_{1}, a_{2}, \\ldots, a_{k}\\}` and a target :math:`t` the redundancy is defined as:
-
-    :math:`i_{sx}(\\alpha;t) = \\log_{2}\\frac{P(t) - P(t \\cap (\\bar{a}_1 \\cap \\ldots \\cap \\bar{a}_k)}{1 - P(\\bar{a}_1 \\cap \\ldots \\cap \\bar{a}_{k})} - \\log_2 P(t)`
 
     Parameters
     ----------
-    atom : tuple
-        The partial information atom.
-    state : tuple
-        The joint-state of the systems.
-    inputs : tuple
-        The indices of the input variables.
-    target : tuple
-        The indices of the target variable. May be multivariate.
-    sources : dict
-        The pre-computed local entropies
-        for the joint state of the source and the target.
-    joint_distribution: dict[tuple, float]
+    atom : Atom
+        The partial information or integrated information atom.
+
+    inputs : tuple[int, ...]
+        The indices of the input elements.
+
+    target : tuple[int, ...]
+        The indices of the target element(s)
+
+    joint_distribution: DiscreteDist
         The joint probability distribution.
         Keys are tuples corresponding to the state of each element.
         The valules are the probabilities.
+
+    single_target_flag : bool
+        Whether the do a single-target PID or a multi-target Phi-ID.
+
 
     Returns
     -------
     float
-        The redundant mutual informations.
+
 
     """
-
-    # i_sx^+
-    # -log2(1 / a1 U a2 U ... U ak)
-
-    state_set: set = set()
-    source: tuple
-    for source in atom:
-
-        input_source = tuple(inputs[x] for x in source)
-        state_source: tuple = reduce_state(state, input_source)
-        state_set.update(
-            {
-                key
-                for key in joint_distribution.keys()
-                if reduce_state(key, input_source) == state_source
-            }
-        )
-
-    i_plus = np.log2(1 / sum(joint_distribution[x] for x in state_set))
-
-    # i_sx^-
-    # -log2( P(t) / t ^ (a1 U a2 U ... U ak))
-    target_state: tuple = reduce_state(state, target)
-    p_target: float = sum(
-        [
-            joint_distribution[key]
-            for key in joint_distribution.keys()
-            if reduce_state(key, target) == target_state
-        ]
-    )
-
-    state_set: set = set()
-    for source in atom:
-
-        input_source = tuple(inputs[x] for x in source)
-        state_source: tuple = reduce_state(state, input_source)
-        state_set.update(
-            {
-                key
-                for key in joint_distribution.keys()
-                if reduce_state(key, input_source) == state_source
-            }
-        )
-
-    state_set = {key for key in state_set if reduce_state(key, target) == target_state}
-
-    i_minus = np.log2(p_target / sum([joint_distribution[x] for x in state_set]))
-
-    return i_plus - i_minus
+    mn: float = np.inf
+    if single_target_flag is True:  # PID
+        atom_inputs = tuple(tuple(inputs[x] for x in a) for a in atom)
+        for idxs_x in atom_inputs:
+            _, mi = mutual_information(
+                idxs_x=idxs_x, idxs_y=target, joint_distribution=joint_distribution
+            )
+            if mi < mn:
+                mn = mi
+    elif single_target_flag is False:  # Phi-ID
+        atom_inputs = tuple(tuple(inputs[x] for x in a) for a in atom[0])
+        atom_target = tuple(tuple(target[x] for x in a) for a in atom[1])
+        for idxs_x in atom_inputs:
+            for idxs_y in atom_target:
+                _, mi = mutual_information(
+                    idxs_x=idxs_x, idxs_y=idxs_y, joint_distribution=joint_distribution
+                )
+                if mi < mn:
+                    mn = mi
+    return mn
 
 
-def mobius_inversion(
-    decomposition: str,
-    joint_distribution: dict[tuple, float],
-    redundancy: str,
-    inputs: tuple = (None,),
-    target: tuple = (None,),
-) -> tuple[dict, dict]:
+def ipm_discrete_redundancy(
+    atom: Atom,
+    inputs: tuple[int, ...],
+    target: tuple[int, ...],
+    state: tuple[Any, ...],
+    sources: Sources,
+    joint_distribution: DiscreteDist,
+    single_target_flag: bool = True,
+) -> float:
     """
-    Computes the Mobius inversion on the antichain lattice.
+    For a collection of sources :math:`\\alpha = \\{a_{1}, a_{2}, \\ldots, a_{k}\\}` and a target :math:`t` the redundancy is defined as:
 
+    :math:`i_{min}(\\alpha;t) = \\min_{i}h(a_i) - \\min_{i}h(a_i|t)`
+
+    For a pair of atoms
     Parameters
     ----------
-    decomposition : str
-        Which decomposition to use:
-            For partial information decomposition use "pid".
-            For partial entropy decomposition use "ped".
-    joint_distribution: dict[tuple, float]
+    atom : Atom
+        The partial information or integrated information atom.
+
+    inputs : tuple[int, ...]
+        The indices of the input elements.
+
+    target : tuple[int, ...]
+        The indices of the target element(s)
+
+    state : tuple[Any, ...]
+
+    sources : Sources
+
+    joint_distribution: DiscreteDist
         The joint probability distribution.
         Keys are tuples corresponding to the state of each element.
         The valules are the probabilities.
-    redundancy : str
-        The redundancy function.
-    inputs : tuple, optional
-        The indicies of the inputs. The default is (None,)
-    target : tuple, optional
-        The (potentially multivariate) indices of the target.
-        The default is (None,).
+
+    single_target_flag : bool
+        Whether the do a single-target PID or a multi-target Phi-ID.
+
 
     Returns
     -------
-    (dict, dict)
-        The pointwise and average partial information atom dictionaries.
+    float
+
+
+    References
+    ----------
+    Finn, C., & Lizier, J. T. (2020).
+    Generalised Measures of Multivariate Information Content.
+    Entropy, 22(2), Article 2.
+    https://doi.org/10.3390/e22020216
+
 
     """
+    if single_target_flag is True:
+        atom_inputs: Atom = tuple(tuple(inputs[x] for x in a) for a in atom)
+        mn_inputs: float = hmin_discrete_redundancy(
+            atom=atom_inputs,
+            state=state,
+            sources=sources,
+            joint_distribution=joint_distribution,
+        )
+        h_target: float = sources[state][target]
+        mn_joint: float = hmin_discrete_redundancy(
+            atom=tuple(tuple(set(a + target)) for a in atom_inputs),
+            state=state,
+            sources=sources,
+            joint_distribution=joint_distribution,
+        )
+        lmi: float = mn_inputs + h_target - mn_joint
+    elif single_target_flag is False:
+        atom_inputs: Atom = tuple(tuple(inputs[x] for x in a) for a in atom[0])
+        atom_target: Atom = tuple(tuple(target[x] for x in a) for a in atom[1])
+
+        mn_inputs: float = hmin_discrete_redundancy(
+            atom=atom_inputs,
+            state=state,
+            sources=sources,
+            joint_distribution=joint_distribution,
+        )
+        mn_target: float = hmin_discrete_redundancy(
+            atom=atom_target,
+            state=state,
+            sources=sources,
+            joint_distribution=joint_distribution,
+        )
+        mn_joint: float = np.inf
+        for s1 in atom_inputs:
+            for s2 in atom_target:
+                mn_joint = min(mn_joint, sources[state][tuple(set(s1 + s2))])
+        lmi: float = mn_inputs + mn_target - mn_joint
+
+    return lmi
 
 
-    decomposition_lower = decomposition.lower()
-    assert decomposition_lower in {
-        "pid",
-        "ped",
-    }, "You must specify a decomposition: PID or PED."
+def isx_discrete_redundancy(
+    atom: Atom,
+    inputs: tuple[int, ...],
+    target: tuple[int, ...],
+    state: tuple[Any, ...],
+    sources: Sources,
+    joint_distribution: DiscreteDist,
+    single_target_flag: bool = True,
+) -> float:
+    """
+    Computes the redundant entropy shared by a set of sources using the :math:`h_{sx}` function.
 
-    if decomposition_lower == "pid":
-        assert redundancy in {
-            "isx",
-            "imin",
-        }, "The implemented redundancy functions are 'imin' and 'hsx'."
-        assert target != (None,), "You must specify a target."
-        if redundancy == "isx":
-            redundancy_function = isx_discrete_redundancy
-        elif redundancy == "imin":
-            redundancy_function = imin_discrete_redundancy
-        total_str: str = "total_information"
-        partial_str: str = "pi"
-    elif decomposition_lower == "ped":
-        assert redundancy in {
-            "hsx",
-            "hmin",
-        }, "The implemented redundancy functions are 'hxs' and 'hmin'."
-        if redundancy == "hsx":
-            redundancy_function = hsx_discrete_redundancy
-        elif redundancy == "hmin":
-            redundancy_function = hmin_discrete_redundancy
-        total_str: str = "total_entropy"
-        partial_str: str = "pe"
+    For a collection of sources :math:`\\alpha = \\{a_{1}, a_{2}, \\ldots, a_{k}\\}`,
+    the redundancy is defined as
 
-    if inputs == (None,):  # If no inputs are specified, all elements are inputs
-        N = {len(x) for x in joint_distribution.keys()}.pop()
-    else:
-        N = len(inputs)
+    :math:`h^{sx}_{\cap}(\\alpha) = -\\log_{2} P(a_{1} \\cup a_{2} \\cup \\ldots \\cup a_{k})`.
 
-    if N == 2:
-        lattice, bottom, layers = LATTICE_2, BOTTOM_2, LAYERS_2
-    elif N == 3:  #    |
-        lattice, bottom, layers = LATTICE_3, BOTTOM_3, LAYERS_3
-    else:  #                      |
-        lattice, bottom, layers = LATTICE_4, BOTTOM_4, LAYERS_4
+    Parameters
+    ----------
+    atom : Atom
+        The partial information or integrated information atom.
 
-    # Pre-computing all the local h_{\partial}(source) values
-    # this saves a lot of time.
+    inputs : tuple[int, ...]
+        The indices of the input elements.
 
-    if "min" in redundancy:
-        sources: dict = local_precompute_sources(joint_distribution)
+    target : tuple[int, ...]
+        The indices of the target element(s)
 
-    ptw: dict = {state: dict() for state in joint_distribution.keys()}
+    state : tuple[Any, ...]
+        The state of the system.
 
-    for state in joint_distribution.keys():
-        for layer in layers:
-            for atom in layers[layer]:
-                if decomposition_lower == "pid":
+    sources : Sources
+        A dictionary of dictionaries.
+        The first level is all system states.
+        The second level is the local entropies of all subsets of
+        the system in that state.
 
-                    if redundancy == "imin":
-                        args = {
-                            "atom": atom,
-                            "state": state,
-                            "inputs": inputs,
-                            "target": target,
-                            "sources": sources,
-                            "joint_distribution": joint_distribution,
-                        }
-                    elif redundancy == "isx":
-                        args = {
-                            "atom": atom,
-                            "state": state,
-                            "inputs": inputs,
-                            "target": target,
-                            "joint_distribution": joint_distribution,
-                        }
+    joint_distribution: DiscreteDist
+        The joint probability distribution.
+        Keys are tuples corresponding to the state of each element.
+        The valules are the probabilities.
 
-                    lattice.nodes[atom][total_str] = redundancy_function(**args)
-                elif decomposition_lower == "ped":
+    single_target_flag : bool
+        Whether the do a single-target PID or a multi-target Phi-ID.
 
-                    if redundancy == "hmin":
-                        args = {
-                            "atom": atom,
-                            "state": state,
-                            "sources": sources,
-                            "joint_distribution": joint_distribution,
-                        }
-                    elif redundancy == "hsx":
-                        args = {
-                            "atom": atom,
-                            "state": state,
-                            "joint_distribution": joint_distribution,
-                        }
 
-                    lattice.nodes[atom][total_str] = redundancy_function(**args)
+    Returns
+    -------
+    float
 
-                if atom == bottom:
-                    lattice.nodes[atom][partial_str] = lattice.nodes[atom][total_str]
-                else:
-                    lattice.nodes[atom][partial_str] = lattice.nodes[atom][
-                        total_str
-                    ] - sum(
-                        [
-                            lattice.nodes[d][partial_str]
-                            for d in lattice.nodes[atom]["descendants"]
-                        ]
-                    )
 
-        local_ptw: dict = {
-            node: lattice.nodes[node][partial_str] for node in lattice.nodes
-        }
-        ptw[state] = local_ptw
+    References
+    ----------
+    Varley, T. F., Pope, M., Maria Grazia, P., Joshua, F., & Sporns, O. (2023).
+    Partial entropy decomposition reveals higher-order information structures in human brain activity.
+    Proceedings of the National Academy of Sciences, 120(30), e2300888120.
+    https://doi.org/10.1073/pnas.2300888120
 
-    avg = {}
-    for node in lattice.nodes:
-        avg[node] = sum(
-            [joint_distribution[state] * ptw[state][node] for state in ptw.keys()]
+    """
+    if single_target_flag is True:  # PID
+        atom_inputs = tuple(tuple(inputs[x] for x in a) for a in atom)
+        sx_inputs = hsx_discrete_redundancy(
+            atom=atom_inputs, state=state, joint_distribution=joint_distribution
+        )
+        h_target = sources[state][target]
+        sx_joint = hsx_discrete_redundancy(
+            atom=tuple(tuple(set(a + target)) for a in atom_inputs),
+            state=state,
+            joint_distribution=joint_distribution,
+        )
+        lmi: float = sx_inputs + h_target - sx_joint
+    elif single_target_flag is False:  # PED
+        atom_inputs: Atom = tuple(tuple(inputs[x] for x in a) for a in atom[0])
+        atom_target: Atom = tuple(tuple(target[x] for x in a) for a in atom[1])
+
+        sx_inputs: float = hsx_discrete_redundancy(
+            atom=atom_inputs, state=state, joint_distribution=joint_distribution
+        )
+        sx_target: float = hsx_discrete_redundancy(
+            atom=atom_target, state=state, joint_distribution=joint_distribution
+        )
+        atom_joint = []
+        for s1 in atom_inputs:
+            for s2 in atom_target:
+                atom_joint.append(tuple(set(s1 + s2)))
+        atom_joint: Atom = tuple(atom_joint)
+        sx_joint: float = hsx_discrete_redundancy(
+            atom=atom_joint, state=state, joint_distribution=joint_distribution
         )
 
-    return ptw, avg
-def partial_information_decomposition(
-    redundancy: str,
-    inputs: tuple,
-    target: tuple,
-    joint_distribution: dict[tuple[int, ...], float],
-) -> (dict, dict):
-    """
-    Computes the partial information decomposition for up to four input variables
-    onto one (potentially joint) target variable.
+        lmi: float = sx_inputs + sx_target - sx_joint
 
-    The available redundancy functions are :math:`i_{\\min}` from Finn and Lizier and :math:`i_{sx}` from Makkeh et al..
+    return lmi
+
+
+def _pid(
+    inputs: tuple[int, ...],
+    target: tuple[int, ...],
+    joint_distribution: DiscreteDist,
+    redundancy_function: str,
+    single_target_flag: bool = True,
+) -> Any:
+    """
+    A utility function that computes the actual PID/PhiID depending on the state of single_target_flag.
+
+    Parameters
+    ----------
+    inputs : tuple[int, ...]
+        The indices of the input elements.
+
+    target : tuple[int, ...]
+        The indices of the target element(s)
+
+    joint_distribution: DiscreteDist
+        The joint probability distribution.
+        Keys are tuples corresponding to the state of each element.
+        The valules are the probabilities.
+
+    redundancy_function : str
+        The localizable redundancy function.
+        Options are: hmin and hsx.
+
+    single_target_flag : bool
+        Whether the do a single-target PID or a multi-target Phi-ID.
+
+
+    Returns
+    -------
+    Any
+
+
+    """
+    assert redundancy_function in {"mmi", "ipm", "isx"}, (
+        "The available redundancy functions are Finn and Lizier's i_pm, Makkeh et al.'s i_sx, and the minimum mutual information."
+    )
+
+    num_inputs = len(inputs)
+    assert num_inputs in (2, 3, 4), (
+        "Currently, syntropy only supports PIDs on 2, 3, and 4 inputs."
+    )
+    num_target = len(target)
+    if single_target_flag is False:
+        assert num_target in (2, 3, 4), (
+            "Currently syntropy only supports \Phi-IDs on 2, 3, and 4 targets."
+        )
+        lattice: nx.DiGraph = load_lattice(num_inputs=num_inputs, num_target=num_target)
+    elif single_target_flag is True:
+        lattice: nx.DiGraph = load_lattice(num_inputs=num_inputs)
+
+    kwargs: dict[str, Any] = {
+        "inputs": inputs,
+        "target": target,
+        "joint_distribution": joint_distribution,
+        "single_target_flag": single_target_flag,
+    }
+
+    if redundancy_function == "mmi":
+        redundancy_func: Callable = mmi_discrete_redundancy
+
+        result = mobius_inversion(
+            redundancy_func=redundancy_func, lattice=lattice.copy(), kwargs=kwargs
+        )
+        avg: dict[Atom, float] = {
+            node: result.nodes[node]["pi"] for node in result.nodes
+        }
+        return avg
+
+    elif redundancy_function in {"isx", "ipm"}:
+        sources: Sources = local_precompute_sources(joint_distribution)
+        kwargs["sources"] = sources
+        if redundancy_function == "isx":
+            redundancy_func: Callable = isx_discrete_redundancy
+        elif redundancy_function == "ipm":
+            redundancy_func: Callable = ipm_discrete_redundancy
+
+        ptw: dict = {}
+        state_mapping: dict = {}
+        for state in joint_distribution.keys():
+            kwargs["state"] = state
+            result = mobius_inversion(redundancy_func, lattice.copy(), kwargs)
+
+            state_inputs = tuple(state[i] for i in inputs)
+            state_targets = tuple(state[i] for i in target)
+
+            ptw[(state_inputs, state_targets)] = {
+                node: result.nodes[node]["pi"] for node in result.nodes
+            }
+
+            state_mapping[(state_inputs, state_targets)] = state
+
+        atoms: list[Atom] = list(lattice.nodes)
+        avg: dict = {}
+        for a in atoms:
+            avg[a] = np.sum(
+                [
+                    joint_distribution[state_mapping[state]] * ptw[state][a]
+                    for state in ptw.keys()
+                ]
+            )
+
+        return ptw, avg
+
+
+def partial_information_decomposition(
+    inputs: tuple[int, ...],
+    target: tuple[int, ...],
+    joint_distribution: DiscreteDist,
+    redundancy_function: str,
+) -> Any:
+    """
+    Computes the partial information decomposition for up to four input variables onto one (potentially joint) target variable.
+
+    The available redundancy functions are :math:`MMI`, :math:`i_{pm}` from Finn and Lizier and :math:`i_{sx}` from Makkeh et al..
 
     .. math:: 
 
-        i_{\\min}(\\alpha;t) &= \\min h(\\alpha_i) - \min h(\\alpha_i|t) \\\\
-           i_{sx}(\\alpha;t) &= \\log\\frac{P(t)-P(t\\cap(\\alpha_1\\cup ...\\cup\\alpha_k))}{1-P(\\bar\\alpha_1\\cap ...\\cap\\alpha_N)}
+        i_{pm}(\\alpha;t) &= \\min h(\\alpha_i) - \min h(\\alpha_i|t) \\\\
+           i_{sx}(\\alpha;t) &= \\log\\frac{P(t)-P(t\\cap(\\alpha_1\\cup ...\\cup\\alpha_k))}{1-P(\\bar\\alpha_1\\cap ...\\cap\\alpha_N)} \\\\
+           i_{MMI}(\\alpha;t) &= \\min_i I(\\alpha_i;T) 
     
     Parameters
     ----------
-    redundancy : str
-        The redundancy function.
-        "imin" for the Finn and Lizier measure
-        "isx" for the Makkeh et al., measure
-    inputs : tuple
-        The set of up to four input elements.
-    target : tuple
-        The set of target elements.
-        If len(target) > 1, then the target is the joint
-        state of all elements
-    joint_distribution : dict[tuple,float]
-        The joint distribution object.
+    inputs : tuple[int, ...]
+        The indices of the input elements.
+
+    target : tuple[int, ...]
+        The indices of the target element(s)
+        
+    joint_distribution: DiscreteDist
+        The joint probability distribution.
+        Keys are tuples corresponding to the state of each element.
+        The valules are the probabilities.
+        
+    redundancy_function : str
+        The localizable redundancy function.
+        Options are: hmin and hsx.
+        
 
     Returns
     -------
-    ptw : dict
-        A dictionary of dictionaries,
-        The outer dictionary has one key for each joint state.
-        Each inner dictionary is the lookup of partial information atoms.
-    avg : dict
-        The expected value for each partial information atom.
+    Any
+
 
     References
     ----------
@@ -556,23 +576,76 @@ def partial_information_decomposition(
     shared information.
     Physical Review E, 103(3), 032149.
     https://doi.org/10.1103/PhysRevE.103.032149
-    
-    """
+        
 
-    ptw, avg = mobius_inversion(
-        decomposition="pid",
-        joint_distribution=joint_distribution,
+    """
+    return _pid(
         inputs=inputs,
-        redundancy=redundancy,
         target=target,
+        joint_distribution=joint_distribution,
+        redundancy_function=redundancy_function,
+        single_target_flag=True,
     )
 
-    return ptw, avg
+
+def integrated_information_decomposition(
+    inputs: tuple[int, ...],
+    target: tuple[int, ...],
+    joint_distribution: DiscreteDist,
+    redundancy_function: str,
+) -> Any:
+    """
+    Computes the integrated information decomposition introduced by Rosas, Mediano, et al.
+    The PhiID relaxes the requirement of only having a single target, and instead allows for 
+    redundant-redundant, synergistic-synergistic, etc interactions. 
+
+    Available redundancy functions are: 
+        i_{pm}(\\alpha;\\beta) &= \\min_i h(\\alpha_i) + \\min_i h(\\beta_i) - \min h(\\alpha_i, \\beta_i) \\\\
+                i_{tsx}(\\alpha;\\beta) &= h_{sx}(\\alpha) + h_{sx}(\\beta) - h_{sx}(\\alpha\\cap\\beta)
+                i_{MMI}(\\alpha;\\beta) &= \\min_{ij} I(\\alpha_i;\\beta_j) 
+
+
+    Parameters
+    ----------
+    inputs : tuple[int, ...]
+        The indices of the input elements.
+    target : tuple[int, ...]
+        The indices of the target element(s)
+    joint_distribution: DiscreteDist
+        The joint probability distribution.
+        Keys are tuples corresponding to the state of each element.
+        The valules are the probabilities.
+    redundancy_function : str
+        The localizable redundancy function.
+        Options are: hmin and hsx.
+
+
+    Returns
+    -------
+    Any
+
+    References
+    ----------
+    Mediano, P. A. M., Rosas, F. E., Luppi, A. I., Carhart-Harris, R. L., Bor, D., Seth, A. K., & Barrett, A. B. (2025). Toward a unified taxonomy of information dynamics via Integrated Information Decomposition. Proceedings of the National Academy of Sciences, 122(39), e2423297122. https://doi.org/10.1073/pnas.2423297122
+
+    Rosas, F. E., Mediano, P. A. M., Jensen, H. J., Seth, A. K., Barrett, A. B., Carhart-Harris, R. L., & Bor, D. (2020). Reconciling emergences: An information-theoretic approach to identify causal emergence in multivariate data. PLOS Computational Biology, 16(12), Article 12. https://doi.org/10.1371/journal.pcbi.1008289
+
+    Varley, T. F. (2023). Decomposing past and future: Integrated information decomposition based on shared probability mass exclusions. PLOS ONE, 18(3), e0282950. https://doi.org/10.1371/journal.pone.0282950
+
+    """
+    return _pid(
+        inputs=inputs,
+        target=target,
+        joint_distribution=joint_distribution,
+        redundancy_function=redundancy_function,
+        single_target_flag=False,
+    )
 
 
 def partial_entropy_decomposition(
-    redundancy: str, joint_distribution: dict[tuple[int, ...], float]
-) -> (dict, dict):
+    joint_distribution: DiscreteDist,
+    redundancy_function: str,
+) -> tuple[dict[tuple[int, ...], dict[Atom, float]], dict[Atom, float]]:
     """
     Computes the partial entropy decomposition of a joint distribution
     with up to four elements.
@@ -583,15 +656,17 @@ def partial_entropy_decomposition(
     .. math:: 
         h_{\\min}(\\alpha) &= \\min(\\alpha_i) \\\\
            h_{sx}(\\alpha) &= \\log\\frac{1}{P(\\alpha_1\\cup ... \\cup\\alpha_N)}
-
+    
     Parameters
     ----------
-    redundancy : str
-        The redundnacy function to use.
-        "hmin" for the measure from Finn and Lizier,
-        "hsx" for the measure from Varley et al.,
-    joint_distribution : dict[tuple,float]
-        The joint distribution object.
+    joint_distribution: DiscreteDist
+        The joint probability distribution.
+        Keys are tuples corresponding to the state of each element.
+        The valules are the probabilities.
+
+    redundancy_function : str
+        The localizable redundancy function.
+        Options are: hmin and hsx.
 
     Returns
     -------
@@ -617,41 +692,69 @@ def partial_entropy_decomposition(
     https://doi.org/10.1073/pnas.2300888120
 
     """
-
-    ptw, avg = mobius_inversion(
-        decomposition="ped",
-        joint_distribution=joint_distribution,
-        redundancy=redundancy,
+    N: int = len(next(iter(joint_distribution)))
+    assert N in (2, 3, 4), (
+        "Currently, syntropy only supports PEDs on 2, 3, and 4-dimensional distributions."
     )
+
+    assert redundancy_function in {"hsx", "hmin"}, (
+        "The available redundancy functions are Varley's h_sx and Finn and Lizier's h_min."
+    )
+
+    kwargs: dict[str, Any] = {"joint_distribution": joint_distribution}
+    sources: Sources = local_precompute_sources(joint_distribution)
+
+    if redundancy_function == "hsx":
+        redundancy_func = hsx_discrete_redundancy
+    elif redundancy_function == "hmin":
+        redundancy_func = hmin_discrete_redundancy
+        kwargs["sources"] = sources
+
+    lattice: nx.DiGraph = load_lattice(num_inputs=N)
+
+    ptw: dict[tuple[int, ...], dict[Atom, float]] = dict()
+    for state in joint_distribution.keys():
+        kwargs["state"] = state
+
+        result = mobius_inversion(
+            redundancy_func=redundancy_func, lattice=lattice, kwargs=kwargs
+        )
+        ptw[state] = {node: result.nodes[node]["pi"] for node in result.nodes}
+
+    avg: dict[Atom, float] = dict()
+    for a in lattice.nodes:
+        avg[a] = np.sum([joint_distribution[key] * ptw[key][a] for key in ptw.keys()])
 
     return ptw, avg
 
 
 def generalized_information_decomposition(
-    redundancy: str,
-    posterior_distribution: dict[tuple[int, ...], float],
-    prior_distribution: dict[tuple[int, ...], float],
+    posterior_distribution: DiscreteDist,
+    prior_distribution: DiscreteDist,
+    redundancy_function: str,
 ) -> (dict, dict):
     """
     Computes the generalized information decomposition from Varley et al.
     The GID is a decomposition of the Kullback-Leibler divergence of a
     posterior distribution from a prior distribution.
 
-    Available redundnacy functions are "hmin" and "hsx". See
+    Available redundancy functions are "hmin" and "hsx". See
     the documentation for the partial_entropy_decomposition() function
     for details.
 
     Parameters
     ----------
-    redundancy : str
-        The localizable redundancy function.
-        Options are: hmin and hsx.
-    posterior_distribution : dict[tuple, float]
+    posterior_distribution : DiscreteDist
         The posterior distribution.
         The support set of this distribution must be a subset of
         the supppirt set of the prior distribution.
-    prior_distribution : dict[tuple, float]
+
+    prior_distribution : DicreteDist
         The prior distribution.
+
+    redundancy_function : str
+        The localizable redundancy function.
+        Options are: hmin and hsx.
 
     Returns
     -------
@@ -674,21 +777,19 @@ def generalized_information_decomposition(
     ), (
         "The support set of the prior must be a superset of the support set of the posterior."
     )
-    assert redundancy.lower() in {
+    assert redundancy_function.lower() in {
         "hmin",
         "hsx",
     }, "The supported redundancy functions are hmin and hsx."
 
-    ptw_prior, _ = mobius_inversion(
-        decomposition="ped",
+    ptw_prior, _ = partial_entropy_decomposition(
         joint_distribution=prior_distribution,
-        redundancy=redundancy,
+        redundancy_function=redundancy_function,
     )
 
-    ptw_posterior, _ = mobius_inversion(
-        decomposition="ped",
+    ptw_posterior, _ = partial_entropy_decomposition(
         joint_distribution=posterior_distribution,
-        redundancy=redundancy,
+        redundancy_function=redundancy_function,
     )
 
     nodes = list(ptw_prior[list(prior_distribution.keys())[0]].keys())

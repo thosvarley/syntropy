@@ -33,40 +33,17 @@
   <h1>Source code for syntropy.discrete.decompositions</h1><div class="highlight"><pre>
 <span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">networkx</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">nx</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Callable</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Any</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">make_powerset</span><span class="p">,</span> <span class="n">reduce_state</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.shannon</span><span class="w"> </span><span class="kn">import</span> <span class="n">mutual_information</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..lattices</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_lattice</span><span class="p">,</span> <span class="n">mobius_inversion</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">..lattices</span><span class="w"> </span><span class="kn">import</span> <span class="n">LATTICE_2</span><span class="p">,</span> <span class="n">LATTICE_3</span><span class="p">,</span> <span class="n">LATTICE_4</span>
+<span class="n">Atom</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span> <span class="o">...</span><span class="p">]</span>
+<span class="n">DiscreteDist</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span> <span class="nb">float</span><span class="p">]</span>
+<span class="n">Sources</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span> <span class="nb">float</span><span class="p">]]</span>
 
-<span class="n">BOTTOM_2</span><span class="p">:</span> <span class="nb">tuple</span> <span class="o">=</span> <span class="p">((</span><span class="mi">0</span><span class="p">,),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,))</span>
-<span class="n">BOTTOM_3</span><span class="p">:</span> <span class="nb">tuple</span> <span class="o">=</span> <span class="p">((</span><span class="mi">0</span><span class="p">,),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,),</span> <span class="p">(</span><span class="mi">2</span><span class="p">,))</span>
-<span class="n">BOTTOM_4</span><span class="p">:</span> <span class="nb">tuple</span> <span class="o">=</span> <span class="p">((</span><span class="mi">0</span><span class="p">,),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,),</span> <span class="p">(</span><span class="mi">2</span><span class="p">,),</span> <span class="p">(</span><span class="mi">3</span><span class="p">,))</span>
 
-<span class="n">PATHS_2</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">shortest_paths</span><span class="o">.</span><span class="n">shortest_path_length</span><span class="p">(</span>
-    <span class="n">LATTICE_2</span><span class="p">,</span> <span class="n">source</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="n">BOTTOM_2</span>
-<span class="p">)</span>
-<span class="n">LAYERS_2</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="n">val</span><span class="p">:</span> <span class="p">{</span><span class="n">key</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">PATHS_2</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="k">if</span> <span class="n">PATHS_2</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">==</span> <span class="n">val</span><span class="p">}</span>
-    <span class="k">for</span> <span class="n">val</span> <span class="ow">in</span> <span class="nb">set</span><span class="p">(</span><span class="n">PATHS_2</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
-<span class="p">}</span>
-
-<span class="n">PATHS_3</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">shortest_paths</span><span class="o">.</span><span class="n">shortest_path_length</span><span class="p">(</span>
-    <span class="n">LATTICE_3</span><span class="p">,</span> <span class="n">source</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="n">BOTTOM_3</span>
-<span class="p">)</span>
-<span class="n">LAYERS_3</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="n">val</span><span class="p">:</span> <span class="p">{</span><span class="n">key</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">PATHS_3</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="k">if</span> <span class="n">PATHS_3</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">==</span> <span class="n">val</span><span class="p">}</span>
-    <span class="k">for</span> <span class="n">val</span> <span class="ow">in</span> <span class="nb">set</span><span class="p">(</span><span class="n">PATHS_3</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
-<span class="p">}</span>
-
-<span class="n">PATHS_4</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">shortest_paths</span><span class="o">.</span><span class="n">shortest_path_length</span><span class="p">(</span>
-    <span class="n">LATTICE_4</span><span class="p">,</span> <span class="n">source</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="n">BOTTOM_4</span>
-<span class="p">)</span>
-<span class="n">LAYERS_4</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="n">val</span><span class="p">:</span> <span class="p">{</span><span class="n">key</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">PATHS_4</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="k">if</span> <span class="n">PATHS_4</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">==</span> <span class="n">val</span><span class="p">}</span>
-    <span class="k">for</span> <span class="n">val</span> <span class="ow">in</span> <span class="nb">set</span><span class="p">(</span><span class="n">PATHS_4</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
-<span class="p">}</span>
-
-<span class="k">def</span><span class="w"> </span><span class="nf">local_precompute_sources</span><span class="p">(</span><span class="n">joint_distribution</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">tuple</span><span class="p">,</span> <span class="nb">float</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">local_precompute_sources</span><span class="p">(</span><span class="n">joint_distribution</span><span class="p">:</span> <span class="n">DiscreteDist</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Sources</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A utility function that computes the local entropy of each subset of</span>
 <span class="sd">    elements. This speeds up the computation using the hmin function</span>
@@ -74,7 +51,7 @@
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    joint_distribution: dict[tuple, float]</span>
+<span class="sd">    joint_distribution: DiscreteDist</span>
 <span class="sd">        The joint probability distribution.</span>
 <span class="sd">        Keys are tuples corresponding to the state of each element.</span>
 <span class="sd">        The valules are the probabilities.</span>
@@ -95,12 +72,10 @@
         <span class="n">state</span><span class="p">:</span> <span class="p">{</span><span class="n">source</span><span class="p">:</span> <span class="p">{}</span> <span class="k">for</span> <span class="n">source</span> <span class="ow">in</span> <span class="n">sources</span><span class="p">}</span> <span class="k">for</span> <span class="n">state</span> <span class="ow">in</span> <span class="n">joint_distribution</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
     <span class="p">}</span>
 
-    <span class="n">state</span><span class="p">:</span> <span class="nb">tuple</span>
+    <span class="n">state</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span>
     <span class="k">for</span> <span class="n">state</span> <span class="ow">in</span> <span class="n">local_entropies</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
-
         <span class="n">source</span><span class="p">:</span> <span class="nb">tuple</span>
         <span class="k">for</span> <span class="n">source</span> <span class="ow">in</span> <span class="n">local_entropies</span><span class="p">[</span><span class="n">state</span><span class="p">]:</span>
-
             <span class="c1"># For a given state x, and a given source s, computes the total probability mass of the joint</span>
             <span class="c1"># distribution consistent with the state of the source.</span>
             <span class="c1"># E.g. if state = (0,0,0) and source = (0,1), probability_mass = P(X0=0 AND X1=0)</span>
@@ -115,15 +90,15 @@
             <span class="k">if</span> <span class="n">probability_mass</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="n">local_entropies</span><span class="p">[</span><span class="n">state</span><span class="p">][</span><span class="n">source</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">log2</span><span class="p">(</span><span class="n">probability_mass</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">local_entropies</span><span class="p">[</span><span class="n">state</span><span class="p">][</span>
-                    <span class="n">source</span>
-                <span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>  <span class="c1"># Set log2(0) to 0 since impossible events contain no information.</span>
+                <span class="n">local_entropies</span><span class="p">[</span><span class="n">state</span><span class="p">][</span><span class="n">source</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="mi">0</span>  <span class="c1"># Set log2(0) to 0 since impossible events contain no information.</span>
+                <span class="p">)</span>
 
     <span class="k">return</span> <span class="n">local_entropies</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">hmin_discrete_redundancy</span><span class="p">(</span>
-    <span class="n">atom</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">,</span> <span class="n">state</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">,</span> <span class="n">sources</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">joint_distribution</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">tuple</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span>
+    <span class="n">atom</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">,</span> <span class="n">state</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span> <span class="n">sources</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">joint_distribution</span><span class="p">:</span> <span class="n">DiscreteDist</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    For a collection of sources :math:`\\alpha=\\{a_1, a_2, \\ldots, a_k\\}`, computes</span>
@@ -140,14 +115,14 @@
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    atom : tuple</span>
+<span class="sd">    atom : Atom</span>
 <span class="sd">        The partial entropy atom.</span>
-<span class="sd">    state : tuple</span>
+<span class="sd">    state : tuple[Any, ...]</span>
 <span class="sd">        The state of the system.</span>
-<span class="sd">    sources : dict</span>
+<span class="sd">    sources : Sources</span>
 <span class="sd">        The pre-computed local entropies constructed by the</span>
 <span class="sd">        precompute_local_entropies() function.</span>
-<span class="sd">    joint_distribution: dict[tuple, float]</span>
+<span class="sd">    joint_distribution: DiscreteDist</span>
 <span class="sd">        The joint probability distribution.</span>
 <span class="sd">        Keys are tuples corresponding to the state of each element.</span>
 <span class="sd">        The valules are the probabilities.</span>
@@ -162,79 +137,11 @@
     <span class="k">if</span> <span class="n">joint_distribution</span><span class="p">[</span><span class="n">state</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
         <span class="k">return</span> <span class="mi">0</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="k">return</span> <span class="nb">min</span><span class="p">(</span><span class="n">sources</span><span class="p">[</span><span class="n">state</span><span class="p">][</span><span class="n">source</span><span class="p">]</span> <span class="k">for</span> <span class="n">source</span> <span class="ow">in</span> <span class="n">atom</span><span class="p">)</span>
-
-
-<span class="k">def</span><span class="w"> </span><span class="nf">imin_discrete_redundancy</span><span class="p">(</span>
-    <span class="n">atom</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">,</span>
-    <span class="n">state</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">,</span>
-    <span class="n">inputs</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">,</span>
-    <span class="n">target</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">,</span>
-    <span class="n">sources</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span>
-    <span class="n">joint_distribution</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">tuple</span><span class="p">,</span> <span class="nb">float</span><span class="p">],</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    For a collection of sources :math:`\\alpha = \\{a_{1}, a_{2}, \\ldots, a_{k}\\}` and a target :math:`t` the redundancy is defined as:</span>
-
-<span class="sd">    :math:`i_{min}(\\alpha;t) = \\min_{i}h(a_i) - \\min_{i}h(a_i|t)`</span>
-
-<span class="sd">    See:</span>
-<span class="sd">        Finn, C., &amp; Lizier, J. T. (2020).</span>
-<span class="sd">        Generalised Measures of Multivariate Information Content.</span>
-<span class="sd">        Entropy, 22(2), Article 2.</span>
-<span class="sd">        https://doi.org/10.3390/e22020216</span>
-
-
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    atom : tuple</span>
-<span class="sd">        The partial information atom.</span>
-<span class="sd">    state : tuple</span>
-<span class="sd">        The joint-state of the systems.</span>
-<span class="sd">    inputs : tuple</span>
-<span class="sd">        The indices of the input variables.</span>
-<span class="sd">    target : tuple</span>
-<span class="sd">        The indices of the target variable. May be multivariate.</span>
-<span class="sd">    sources : dict</span>
-<span class="sd">        The pre-computed local entropies</span>
-<span class="sd">        for the joint state of the source and the target.</span>
-<span class="sd">    joint_distribution: dict[tuple, float]</span>
-<span class="sd">        The joint probability distribution.</span>
-<span class="sd">        Keys are tuples corresponding to the state of each element.</span>
-<span class="sd">        The valules are the probabilities.</span>
-
-<span class="sd">    Returns</span>
-<span class="sd">    -------</span>
-<span class="sd">    float</span>
-<span class="sd">        The local redundant mutual information.</span>
-
-<span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="n">i_plus</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span>
-    <span class="n">i_minus</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span>
-
-    <span class="n">h_target</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">sources</span><span class="p">[</span><span class="n">state</span><span class="p">][</span><span class="n">target</span><span class="p">]</span>
-
-    <span class="k">for</span> <span class="n">source</span> <span class="ow">in</span> <span class="n">atom</span><span class="p">:</span>
-
-        <span class="n">input_source</span><span class="p">:</span> <span class="nb">tuple</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">inputs</span><span class="p">[</span><span class="n">x</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">source</span><span class="p">)</span>
-        <span class="n">h_input_source</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">sources</span><span class="p">[</span><span class="n">state</span><span class="p">][</span><span class="n">input_source</span><span class="p">]</span>
-
-        <span class="k">if</span> <span class="n">i_plus</span> <span class="o">&gt;</span> <span class="n">h_input_source</span><span class="p">:</span>
-            <span class="n">i_plus</span> <span class="o">=</span> <span class="n">h_input_source</span>
-
-        <span class="n">joint_source</span><span class="p">:</span> <span class="nb">tuple</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">input_source</span> <span class="o">+</span> <span class="n">target</span><span class="p">))</span>
-
-        <span class="n">h_conditional</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">sources</span><span class="p">[</span><span class="n">state</span><span class="p">][</span><span class="n">joint_source</span><span class="p">]</span> <span class="o">-</span> <span class="n">h_target</span>
-
-        <span class="k">if</span> <span class="n">i_minus</span> <span class="o">&gt;</span> <span class="n">h_conditional</span><span class="p">:</span>
-            <span class="n">i_minus</span> <span class="o">=</span> <span class="n">h_conditional</span>
-
-    <span class="k">return</span> <span class="n">i_plus</span> <span class="o">-</span> <span class="n">i_minus</span>
+        <span class="k">return</span> <span class="nb">min</span><span class="p">(</span><span class="n">sources</span><span class="p">[</span><span class="n">state</span><span class="p">][</span><span class="n">a</span><span class="p">]</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">atom</span><span class="p">)</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">hsx_discrete_redundancy</span><span class="p">(</span>
-    <span class="n">atom</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">,</span> <span class="n">state</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">,</span> <span class="n">joint_distribution</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">tuple</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span>
+    <span class="n">atom</span><span class="p">:</span> <span class="n">Atom</span><span class="p">,</span> <span class="n">state</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span> <span class="n">joint_distribution</span><span class="p">:</span> <span class="n">DiscreteDist</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Computes the redundant entropy shared by a set of sources using the :math:`h_{sx}` function.</span>
@@ -252,11 +159,11 @@
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    atom : tuple</span>
+<span class="sd">    atom : Atom</span>
 <span class="sd">        The partial entropy atom.</span>
-<span class="sd">    state : tuple</span>
+<span class="sd">    state : tuple[Any, ...]</span>
 <span class="sd">        The state of the system.</span>
-<span class="sd">    joint_distribution: dict[tuple, float]</span>
+<span class="sd">    joint_distribution: DiscreteDist</span>
 <span class="sd">        The joint probability distribution.</span>
 <span class="sd">        Keys are tuples corresponding to the state of each element.</span>
 <span class="sd">        The valules are the probabilities.</span>
@@ -274,7 +181,6 @@
 
         <span class="n">source</span><span class="p">:</span> <span class="nb">tuple</span>
         <span class="k">for</span> <span class="n">source</span> <span class="ow">in</span> <span class="n">atom</span><span class="p">:</span>
-
             <span class="n">state_source</span><span class="p">:</span> <span class="nb">tuple</span> <span class="o">=</span> <span class="n">reduce_state</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">source</span><span class="p">)</span>
             <span class="n">state_set</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
                 <span class="p">{</span>
@@ -291,287 +197,401 @@
         <span class="k">return</span> <span class="n">redundant_entropy</span>
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">isx_discrete_redundancy</span><span class="p">(</span>
-    <span class="n">atom</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">,</span>
-    <span class="n">state</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">,</span>
-    <span class="n">inputs</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">,</span>
-    <span class="n">target</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">,</span>
-    <span class="n">joint_distribution</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">tuple</span><span class="p">,</span> <span class="nb">float</span><span class="p">],</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">mmi_discrete_redundancy</span><span class="p">(</span>
+    <span class="n">atom</span><span class="p">:</span> <span class="n">Atom</span><span class="p">,</span>
+    <span class="n">inputs</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span>
+    <span class="n">target</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span>
+    <span class="n">joint_distribution</span><span class="p">:</span> <span class="n">DiscreteDist</span><span class="p">,</span>
+    <span class="n">single_target_flag</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    For a collection of sources :math:`\\alpha = \\{a_{1}, a_{2}, \\ldots, a_{k}\\}` and a target :math:`t` the redundancy is defined as:</span>
-
-<span class="sd">    :math:`i_{sx}(\\alpha;t) = \\log_{2}\\frac{P(t) - P(t \\cap (\\bar{a}_1 \\cap \\ldots \\cap \\bar{a}_k)}{1 - P(\\bar{a}_1 \\cap \\ldots \\cap \\bar{a}_{k})} - \\log_2 P(t)`</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    atom : tuple</span>
-<span class="sd">        The partial information atom.</span>
-<span class="sd">    state : tuple</span>
-<span class="sd">        The joint-state of the systems.</span>
-<span class="sd">    inputs : tuple</span>
-<span class="sd">        The indices of the input variables.</span>
-<span class="sd">    target : tuple</span>
-<span class="sd">        The indices of the target variable. May be multivariate.</span>
-<span class="sd">    sources : dict</span>
-<span class="sd">        The pre-computed local entropies</span>
-<span class="sd">        for the joint state of the source and the target.</span>
-<span class="sd">    joint_distribution: dict[tuple, float]</span>
+<span class="sd">    atom : Atom</span>
+<span class="sd">        The partial information or integrated information atom.</span>
+
+<span class="sd">    inputs : tuple[int, ...]</span>
+<span class="sd">        The indices of the input elements.</span>
+
+<span class="sd">    target : tuple[int, ...]</span>
+<span class="sd">        The indices of the target element(s)</span>
+
+<span class="sd">    joint_distribution: DiscreteDist</span>
 <span class="sd">        The joint probability distribution.</span>
 <span class="sd">        Keys are tuples corresponding to the state of each element.</span>
 <span class="sd">        The valules are the probabilities.</span>
+
+<span class="sd">    single_target_flag : bool</span>
+<span class="sd">        Whether the do a single-target PID or a multi-target Phi-ID.</span>
+
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    float</span>
-<span class="sd">        The redundant mutual informations.</span>
+
 
 <span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="c1"># i_sx^+</span>
-    <span class="c1"># -log2(1 / a1 U a2 U ... U ak)</span>
-
-    <span class="n">state_set</span><span class="p">:</span> <span class="nb">set</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
-    <span class="n">source</span><span class="p">:</span> <span class="nb">tuple</span>
-    <span class="k">for</span> <span class="n">source</span> <span class="ow">in</span> <span class="n">atom</span><span class="p">:</span>
-
-        <span class="n">input_source</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">inputs</span><span class="p">[</span><span class="n">x</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">source</span><span class="p">)</span>
-        <span class="n">state_source</span><span class="p">:</span> <span class="nb">tuple</span> <span class="o">=</span> <span class="n">reduce_state</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">input_source</span><span class="p">)</span>
-        <span class="n">state_set</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
-            <span class="p">{</span>
-                <span class="n">key</span>
-                <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">joint_distribution</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
-                <span class="k">if</span> <span class="n">reduce_state</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">input_source</span><span class="p">)</span> <span class="o">==</span> <span class="n">state_source</span>
-            <span class="p">}</span>
-        <span class="p">)</span>
-
-    <span class="n">i_plus</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log2</span><span class="p">(</span><span class="mi">1</span> <span class="o">/</span> <span class="nb">sum</span><span class="p">(</span><span class="n">joint_distribution</span><span class="p">[</span><span class="n">x</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">state_set</span><span class="p">))</span>
-
-    <span class="c1"># i_sx^-</span>
-    <span class="c1"># -log2( P(t) / t ^ (a1 U a2 U ... U ak))</span>
-    <span class="n">target_state</span><span class="p">:</span> <span class="nb">tuple</span> <span class="o">=</span> <span class="n">reduce_state</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">target</span><span class="p">)</span>
-    <span class="n">p_target</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span>
-        <span class="p">[</span>
-            <span class="n">joint_distribution</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
-            <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">joint_distribution</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
-            <span class="k">if</span> <span class="n">reduce_state</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">target</span><span class="p">)</span> <span class="o">==</span> <span class="n">target_state</span>
-        <span class="p">]</span>
-    <span class="p">)</span>
-
-    <span class="n">state_set</span><span class="p">:</span> <span class="nb">set</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
-    <span class="k">for</span> <span class="n">source</span> <span class="ow">in</span> <span class="n">atom</span><span class="p">:</span>
-
-        <span class="n">input_source</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">inputs</span><span class="p">[</span><span class="n">x</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">source</span><span class="p">)</span>
-        <span class="n">state_source</span><span class="p">:</span> <span class="nb">tuple</span> <span class="o">=</span> <span class="n">reduce_state</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">input_source</span><span class="p">)</span>
-        <span class="n">state_set</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
-            <span class="p">{</span>
-                <span class="n">key</span>
-                <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">joint_distribution</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
-                <span class="k">if</span> <span class="n">reduce_state</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">input_source</span><span class="p">)</span> <span class="o">==</span> <span class="n">state_source</span>
-            <span class="p">}</span>
-        <span class="p">)</span>
-
-    <span class="n">state_set</span> <span class="o">=</span> <span class="p">{</span><span class="n">key</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">state_set</span> <span class="k">if</span> <span class="n">reduce_state</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">target</span><span class="p">)</span> <span class="o">==</span> <span class="n">target_state</span><span class="p">}</span>
-
-    <span class="n">i_minus</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log2</span><span class="p">(</span><span class="n">p_target</span> <span class="o">/</span> <span class="nb">sum</span><span class="p">([</span><span class="n">joint_distribution</span><span class="p">[</span><span class="n">x</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">state_set</span><span class="p">]))</span>
-
-    <span class="k">return</span> <span class="n">i_plus</span> <span class="o">-</span> <span class="n">i_minus</span>
+    <span class="n">mn</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span>
+    <span class="k">if</span> <span class="n">single_target_flag</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>  <span class="c1"># PID</span>
+        <span class="n">atom_inputs</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">tuple</span><span class="p">(</span><span class="n">inputs</span><span class="p">[</span><span class="n">x</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">a</span><span class="p">)</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">atom</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">idxs_x</span> <span class="ow">in</span> <span class="n">atom_inputs</span><span class="p">:</span>
+            <span class="n">_</span><span class="p">,</span> <span class="n">mi</span> <span class="o">=</span> <span class="n">mutual_information</span><span class="p">(</span>
+                <span class="n">idxs_x</span><span class="o">=</span><span class="n">idxs_x</span><span class="p">,</span> <span class="n">idxs_y</span><span class="o">=</span><span class="n">target</span><span class="p">,</span> <span class="n">joint_distribution</span><span class="o">=</span><span class="n">joint_distribution</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="n">mi</span> <span class="o">&lt;</span> <span class="n">mn</span><span class="p">:</span>
+                <span class="n">mn</span> <span class="o">=</span> <span class="n">mi</span>
+    <span class="k">elif</span> <span class="n">single_target_flag</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>  <span class="c1"># Phi-ID</span>
+        <span class="n">atom_inputs</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">tuple</span><span class="p">(</span><span class="n">inputs</span><span class="p">[</span><span class="n">x</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">a</span><span class="p">)</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">atom</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">atom_target</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">tuple</span><span class="p">(</span><span class="n">target</span><span class="p">[</span><span class="n">x</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">a</span><span class="p">)</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">atom</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+        <span class="k">for</span> <span class="n">idxs_x</span> <span class="ow">in</span> <span class="n">atom_inputs</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">idxs_y</span> <span class="ow">in</span> <span class="n">atom_target</span><span class="p">:</span>
+                <span class="n">_</span><span class="p">,</span> <span class="n">mi</span> <span class="o">=</span> <span class="n">mutual_information</span><span class="p">(</span>
+                    <span class="n">idxs_x</span><span class="o">=</span><span class="n">idxs_x</span><span class="p">,</span> <span class="n">idxs_y</span><span class="o">=</span><span class="n">idxs_y</span><span class="p">,</span> <span class="n">joint_distribution</span><span class="o">=</span><span class="n">joint_distribution</span>
+                <span class="p">)</span>
+                <span class="k">if</span> <span class="n">mi</span> <span class="o">&lt;</span> <span class="n">mn</span><span class="p">:</span>
+                    <span class="n">mn</span> <span class="o">=</span> <span class="n">mi</span>
+    <span class="k">return</span> <span class="n">mn</span>
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">mobius_inversion</span><span class="p">(</span>
-    <span class="n">decomposition</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-    <span class="n">joint_distribution</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">tuple</span><span class="p">,</span> <span class="nb">float</span><span class="p">],</span>
-    <span class="n">redundancy</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-    <span class="n">inputs</span><span class="p">:</span> <span class="nb">tuple</span> <span class="o">=</span> <span class="p">(</span><span class="kc">None</span><span class="p">,),</span>
-    <span class="n">target</span><span class="p">:</span> <span class="nb">tuple</span> <span class="o">=</span> <span class="p">(</span><span class="kc">None</span><span class="p">,),</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">dict</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">ipm_discrete_redundancy</span><span class="p">(</span>
+    <span class="n">atom</span><span class="p">:</span> <span class="n">Atom</span><span class="p">,</span>
+    <span class="n">inputs</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span>
+    <span class="n">target</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span>
+    <span class="n">state</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span>
+    <span class="n">sources</span><span class="p">:</span> <span class="n">Sources</span><span class="p">,</span>
+    <span class="n">joint_distribution</span><span class="p">:</span> <span class="n">DiscreteDist</span><span class="p">,</span>
+    <span class="n">single_target_flag</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Computes the Mobius inversion on the antichain lattice.</span>
+<span class="sd">    For a collection of sources :math:`\\alpha = \\{a_{1}, a_{2}, \\ldots, a_{k}\\}` and a target :math:`t` the redundancy is defined as:</span>
 
+<span class="sd">    :math:`i_{min}(\\alpha;t) = \\min_{i}h(a_i) - \\min_{i}h(a_i|t)`</span>
+
+<span class="sd">    For a pair of atoms</span>
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    decomposition : str</span>
-<span class="sd">        Which decomposition to use:</span>
-<span class="sd">            For partial information decomposition use &quot;pid&quot;.</span>
-<span class="sd">            For partial entropy decomposition use &quot;ped&quot;.</span>
-<span class="sd">    joint_distribution: dict[tuple, float]</span>
+<span class="sd">    atom : Atom</span>
+<span class="sd">        The partial information or integrated information atom.</span>
+
+<span class="sd">    inputs : tuple[int, ...]</span>
+<span class="sd">        The indices of the input elements.</span>
+
+<span class="sd">    target : tuple[int, ...]</span>
+<span class="sd">        The indices of the target element(s)</span>
+
+<span class="sd">    state : tuple[Any, ...]</span>
+
+<span class="sd">    sources : Sources</span>
+
+<span class="sd">    joint_distribution: DiscreteDist</span>
 <span class="sd">        The joint probability distribution.</span>
 <span class="sd">        Keys are tuples corresponding to the state of each element.</span>
 <span class="sd">        The valules are the probabilities.</span>
-<span class="sd">    redundancy : str</span>
-<span class="sd">        The redundancy function.</span>
-<span class="sd">    inputs : tuple, optional</span>
-<span class="sd">        The indicies of the inputs. The default is (None,)</span>
-<span class="sd">    target : tuple, optional</span>
-<span class="sd">        The (potentially multivariate) indices of the target.</span>
-<span class="sd">        The default is (None,).</span>
+
+<span class="sd">    single_target_flag : bool</span>
+<span class="sd">        Whether the do a single-target PID or a multi-target Phi-ID.</span>
+
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
-<span class="sd">    (dict, dict)</span>
-<span class="sd">        The pointwise and average partial information atom dictionaries.</span>
+<span class="sd">    float</span>
+
+
+<span class="sd">    References</span>
+<span class="sd">    ----------</span>
+<span class="sd">    Finn, C., &amp; Lizier, J. T. (2020).</span>
+<span class="sd">    Generalised Measures of Multivariate Information Content.</span>
+<span class="sd">    Entropy, 22(2), Article 2.</span>
+<span class="sd">    https://doi.org/10.3390/e22020216</span>
+
 
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">single_target_flag</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
+        <span class="n">atom_inputs</span><span class="p">:</span> <span class="n">Atom</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">tuple</span><span class="p">(</span><span class="n">inputs</span><span class="p">[</span><span class="n">x</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">a</span><span class="p">)</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">atom</span><span class="p">)</span>
+        <span class="n">mn_inputs</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">hmin_discrete_redundancy</span><span class="p">(</span>
+            <span class="n">atom</span><span class="o">=</span><span class="n">atom_inputs</span><span class="p">,</span>
+            <span class="n">state</span><span class="o">=</span><span class="n">state</span><span class="p">,</span>
+            <span class="n">sources</span><span class="o">=</span><span class="n">sources</span><span class="p">,</span>
+            <span class="n">joint_distribution</span><span class="o">=</span><span class="n">joint_distribution</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">h_target</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">sources</span><span class="p">[</span><span class="n">state</span><span class="p">][</span><span class="n">target</span><span class="p">]</span>
+        <span class="n">mn_joint</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">hmin_discrete_redundancy</span><span class="p">(</span>
+            <span class="n">atom</span><span class="o">=</span><span class="nb">tuple</span><span class="p">(</span><span class="nb">tuple</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">a</span> <span class="o">+</span> <span class="n">target</span><span class="p">))</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">atom_inputs</span><span class="p">),</span>
+            <span class="n">state</span><span class="o">=</span><span class="n">state</span><span class="p">,</span>
+            <span class="n">sources</span><span class="o">=</span><span class="n">sources</span><span class="p">,</span>
+            <span class="n">joint_distribution</span><span class="o">=</span><span class="n">joint_distribution</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">lmi</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">mn_inputs</span> <span class="o">+</span> <span class="n">h_target</span> <span class="o">-</span> <span class="n">mn_joint</span>
+    <span class="k">elif</span> <span class="n">single_target_flag</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
+        <span class="n">atom_inputs</span><span class="p">:</span> <span class="n">Atom</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">tuple</span><span class="p">(</span><span class="n">inputs</span><span class="p">[</span><span class="n">x</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">a</span><span class="p">)</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">atom</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">atom_target</span><span class="p">:</span> <span class="n">Atom</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">tuple</span><span class="p">(</span><span class="n">target</span><span class="p">[</span><span class="n">x</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">a</span><span class="p">)</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">atom</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+
+        <span class="n">mn_inputs</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">hmin_discrete_redundancy</span><span class="p">(</span>
+            <span class="n">atom</span><span class="o">=</span><span class="n">atom_inputs</span><span class="p">,</span>
+            <span class="n">state</span><span class="o">=</span><span class="n">state</span><span class="p">,</span>
+            <span class="n">sources</span><span class="o">=</span><span class="n">sources</span><span class="p">,</span>
+            <span class="n">joint_distribution</span><span class="o">=</span><span class="n">joint_distribution</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">mn_target</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">hmin_discrete_redundancy</span><span class="p">(</span>
+            <span class="n">atom</span><span class="o">=</span><span class="n">atom_target</span><span class="p">,</span>
+            <span class="n">state</span><span class="o">=</span><span class="n">state</span><span class="p">,</span>
+            <span class="n">sources</span><span class="o">=</span><span class="n">sources</span><span class="p">,</span>
+            <span class="n">joint_distribution</span><span class="o">=</span><span class="n">joint_distribution</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">mn_joint</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span>
+        <span class="k">for</span> <span class="n">s1</span> <span class="ow">in</span> <span class="n">atom_inputs</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">s2</span> <span class="ow">in</span> <span class="n">atom_target</span><span class="p">:</span>
+                <span class="n">mn_joint</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">mn_joint</span><span class="p">,</span> <span class="n">sources</span><span class="p">[</span><span class="n">state</span><span class="p">][</span><span class="nb">tuple</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">s1</span> <span class="o">+</span> <span class="n">s2</span><span class="p">))])</span>
+        <span class="n">lmi</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">mn_inputs</span> <span class="o">+</span> <span class="n">mn_target</span> <span class="o">-</span> <span class="n">mn_joint</span>
+
+    <span class="k">return</span> <span class="n">lmi</span>
 
 
-    <span class="n">decomposition_lower</span> <span class="o">=</span> <span class="n">decomposition</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
-    <span class="k">assert</span> <span class="n">decomposition_lower</span> <span class="ow">in</span> <span class="p">{</span>
-        <span class="s2">&quot;pid&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;ped&quot;</span><span class="p">,</span>
-    <span class="p">},</span> <span class="s2">&quot;You must specify a decomposition: PID or PED.&quot;</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">isx_discrete_redundancy</span><span class="p">(</span>
+    <span class="n">atom</span><span class="p">:</span> <span class="n">Atom</span><span class="p">,</span>
+    <span class="n">inputs</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span>
+    <span class="n">target</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span>
+    <span class="n">state</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span>
+    <span class="n">sources</span><span class="p">:</span> <span class="n">Sources</span><span class="p">,</span>
+    <span class="n">joint_distribution</span><span class="p">:</span> <span class="n">DiscreteDist</span><span class="p">,</span>
+    <span class="n">single_target_flag</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Computes the redundant entropy shared by a set of sources using the :math:`h_{sx}` function.</span>
 
-    <span class="k">if</span> <span class="n">decomposition_lower</span> <span class="o">==</span> <span class="s2">&quot;pid&quot;</span><span class="p">:</span>
-        <span class="k">assert</span> <span class="n">redundancy</span> <span class="ow">in</span> <span class="p">{</span>
-            <span class="s2">&quot;isx&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;imin&quot;</span><span class="p">,</span>
-        <span class="p">},</span> <span class="s2">&quot;The implemented redundancy functions are &#39;imin&#39; and &#39;hsx&#39;.&quot;</span>
-        <span class="k">assert</span> <span class="n">target</span> <span class="o">!=</span> <span class="p">(</span><span class="kc">None</span><span class="p">,),</span> <span class="s2">&quot;You must specify a target.&quot;</span>
-        <span class="k">if</span> <span class="n">redundancy</span> <span class="o">==</span> <span class="s2">&quot;isx&quot;</span><span class="p">:</span>
-            <span class="n">redundancy_function</span> <span class="o">=</span> <span class="n">isx_discrete_redundancy</span>
-        <span class="k">elif</span> <span class="n">redundancy</span> <span class="o">==</span> <span class="s2">&quot;imin&quot;</span><span class="p">:</span>
-            <span class="n">redundancy_function</span> <span class="o">=</span> <span class="n">imin_discrete_redundancy</span>
-        <span class="n">total_str</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;total_information&quot;</span>
-        <span class="n">partial_str</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;pi&quot;</span>
-    <span class="k">elif</span> <span class="n">decomposition_lower</span> <span class="o">==</span> <span class="s2">&quot;ped&quot;</span><span class="p">:</span>
-        <span class="k">assert</span> <span class="n">redundancy</span> <span class="ow">in</span> <span class="p">{</span>
-            <span class="s2">&quot;hsx&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;hmin&quot;</span><span class="p">,</span>
-        <span class="p">},</span> <span class="s2">&quot;The implemented redundancy functions are &#39;hxs&#39; and &#39;hmin&#39;.&quot;</span>
-        <span class="k">if</span> <span class="n">redundancy</span> <span class="o">==</span> <span class="s2">&quot;hsx&quot;</span><span class="p">:</span>
-            <span class="n">redundancy_function</span> <span class="o">=</span> <span class="n">hsx_discrete_redundancy</span>
-        <span class="k">elif</span> <span class="n">redundancy</span> <span class="o">==</span> <span class="s2">&quot;hmin&quot;</span><span class="p">:</span>
-            <span class="n">redundancy_function</span> <span class="o">=</span> <span class="n">hmin_discrete_redundancy</span>
-        <span class="n">total_str</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;total_entropy&quot;</span>
-        <span class="n">partial_str</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;pe&quot;</span>
+<span class="sd">    For a collection of sources :math:`\\alpha = \\{a_{1}, a_{2}, \\ldots, a_{k}\\}`,</span>
+<span class="sd">    the redundancy is defined as</span>
 
-    <span class="k">if</span> <span class="n">inputs</span> <span class="o">==</span> <span class="p">(</span><span class="kc">None</span><span class="p">,):</span>  <span class="c1"># If no inputs are specified, all elements are inputs</span>
-        <span class="n">N</span> <span class="o">=</span> <span class="p">{</span><span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">joint_distribution</span><span class="o">.</span><span class="n">keys</span><span class="p">()}</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">N</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">inputs</span><span class="p">)</span>
+<span class="sd">    :math:`h^{sx}_{\cap}(\\alpha) = -\\log_{2} P(a_{1} \\cup a_{2} \\cup \\ldots \\cup a_{k})`.</span>
 
-    <span class="k">if</span> <span class="n">N</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
-        <span class="n">lattice</span><span class="p">,</span> <span class="n">bottom</span><span class="p">,</span> <span class="n">layers</span> <span class="o">=</span> <span class="n">LATTICE_2</span><span class="p">,</span> <span class="n">BOTTOM_2</span><span class="p">,</span> <span class="n">LAYERS_2</span>
-    <span class="k">elif</span> <span class="n">N</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>  <span class="c1">#    |</span>
-        <span class="n">lattice</span><span class="p">,</span> <span class="n">bottom</span><span class="p">,</span> <span class="n">layers</span> <span class="o">=</span> <span class="n">LATTICE_3</span><span class="p">,</span> <span class="n">BOTTOM_3</span><span class="p">,</span> <span class="n">LAYERS_3</span>
-    <span class="k">else</span><span class="p">:</span>  <span class="c1">#                      |</span>
-        <span class="n">lattice</span><span class="p">,</span> <span class="n">bottom</span><span class="p">,</span> <span class="n">layers</span> <span class="o">=</span> <span class="n">LATTICE_4</span><span class="p">,</span> <span class="n">BOTTOM_4</span><span class="p">,</span> <span class="n">LAYERS_4</span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    atom : Atom</span>
+<span class="sd">        The partial information or integrated information atom.</span>
 
-    <span class="c1"># Pre-computing all the local h_{\partial}(source) values</span>
-    <span class="c1"># this saves a lot of time.</span>
+<span class="sd">    inputs : tuple[int, ...]</span>
+<span class="sd">        The indices of the input elements.</span>
 
-    <span class="k">if</span> <span class="s2">&quot;min&quot;</span> <span class="ow">in</span> <span class="n">redundancy</span><span class="p">:</span>
-        <span class="n">sources</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="n">local_precompute_sources</span><span class="p">(</span><span class="n">joint_distribution</span><span class="p">)</span>
+<span class="sd">    target : tuple[int, ...]</span>
+<span class="sd">        The indices of the target element(s)</span>
 
-    <span class="n">ptw</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="p">{</span><span class="n">state</span><span class="p">:</span> <span class="nb">dict</span><span class="p">()</span> <span class="k">for</span> <span class="n">state</span> <span class="ow">in</span> <span class="n">joint_distribution</span><span class="o">.</span><span class="n">keys</span><span class="p">()}</span>
+<span class="sd">    state : tuple[Any, ...]</span>
+<span class="sd">        The state of the system.</span>
 
-    <span class="k">for</span> <span class="n">state</span> <span class="ow">in</span> <span class="n">joint_distribution</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
-        <span class="k">for</span> <span class="n">layer</span> <span class="ow">in</span> <span class="n">layers</span><span class="p">:</span>
-            <span class="k">for</span> <span class="n">atom</span> <span class="ow">in</span> <span class="n">layers</span><span class="p">[</span><span class="n">layer</span><span class="p">]:</span>
-                <span class="k">if</span> <span class="n">decomposition_lower</span> <span class="o">==</span> <span class="s2">&quot;pid&quot;</span><span class="p">:</span>
+<span class="sd">    sources : Sources</span>
+<span class="sd">        A dictionary of dictionaries.</span>
+<span class="sd">        The first level is all system states.</span>
+<span class="sd">        The second level is the local entropies of all subsets of</span>
+<span class="sd">        the system in that state.</span>
 
-                    <span class="k">if</span> <span class="n">redundancy</span> <span class="o">==</span> <span class="s2">&quot;imin&quot;</span><span class="p">:</span>
-                        <span class="n">args</span> <span class="o">=</span> <span class="p">{</span>
-                            <span class="s2">&quot;atom&quot;</span><span class="p">:</span> <span class="n">atom</span><span class="p">,</span>
-                            <span class="s2">&quot;state&quot;</span><span class="p">:</span> <span class="n">state</span><span class="p">,</span>
-                            <span class="s2">&quot;inputs&quot;</span><span class="p">:</span> <span class="n">inputs</span><span class="p">,</span>
-                            <span class="s2">&quot;target&quot;</span><span class="p">:</span> <span class="n">target</span><span class="p">,</span>
-                            <span class="s2">&quot;sources&quot;</span><span class="p">:</span> <span class="n">sources</span><span class="p">,</span>
-                            <span class="s2">&quot;joint_distribution&quot;</span><span class="p">:</span> <span class="n">joint_distribution</span><span class="p">,</span>
-                        <span class="p">}</span>
-                    <span class="k">elif</span> <span class="n">redundancy</span> <span class="o">==</span> <span class="s2">&quot;isx&quot;</span><span class="p">:</span>
-                        <span class="n">args</span> <span class="o">=</span> <span class="p">{</span>
-                            <span class="s2">&quot;atom&quot;</span><span class="p">:</span> <span class="n">atom</span><span class="p">,</span>
-                            <span class="s2">&quot;state&quot;</span><span class="p">:</span> <span class="n">state</span><span class="p">,</span>
-                            <span class="s2">&quot;inputs&quot;</span><span class="p">:</span> <span class="n">inputs</span><span class="p">,</span>
-                            <span class="s2">&quot;target&quot;</span><span class="p">:</span> <span class="n">target</span><span class="p">,</span>
-                            <span class="s2">&quot;joint_distribution&quot;</span><span class="p">:</span> <span class="n">joint_distribution</span><span class="p">,</span>
-                        <span class="p">}</span>
+<span class="sd">    joint_distribution: DiscreteDist</span>
+<span class="sd">        The joint probability distribution.</span>
+<span class="sd">        Keys are tuples corresponding to the state of each element.</span>
+<span class="sd">        The valules are the probabilities.</span>
 
-                    <span class="n">lattice</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">atom</span><span class="p">][</span><span class="n">total_str</span><span class="p">]</span> <span class="o">=</span> <span class="n">redundancy_function</span><span class="p">(</span><span class="o">**</span><span class="n">args</span><span class="p">)</span>
-                <span class="k">elif</span> <span class="n">decomposition_lower</span> <span class="o">==</span> <span class="s2">&quot;ped&quot;</span><span class="p">:</span>
+<span class="sd">    single_target_flag : bool</span>
+<span class="sd">        Whether the do a single-target PID or a multi-target Phi-ID.</span>
 
-                    <span class="k">if</span> <span class="n">redundancy</span> <span class="o">==</span> <span class="s2">&quot;hmin&quot;</span><span class="p">:</span>
-                        <span class="n">args</span> <span class="o">=</span> <span class="p">{</span>
-                            <span class="s2">&quot;atom&quot;</span><span class="p">:</span> <span class="n">atom</span><span class="p">,</span>
-                            <span class="s2">&quot;state&quot;</span><span class="p">:</span> <span class="n">state</span><span class="p">,</span>
-                            <span class="s2">&quot;sources&quot;</span><span class="p">:</span> <span class="n">sources</span><span class="p">,</span>
-                            <span class="s2">&quot;joint_distribution&quot;</span><span class="p">:</span> <span class="n">joint_distribution</span><span class="p">,</span>
-                        <span class="p">}</span>
-                    <span class="k">elif</span> <span class="n">redundancy</span> <span class="o">==</span> <span class="s2">&quot;hsx&quot;</span><span class="p">:</span>
-                        <span class="n">args</span> <span class="o">=</span> <span class="p">{</span>
-                            <span class="s2">&quot;atom&quot;</span><span class="p">:</span> <span class="n">atom</span><span class="p">,</span>
-                            <span class="s2">&quot;state&quot;</span><span class="p">:</span> <span class="n">state</span><span class="p">,</span>
-                            <span class="s2">&quot;joint_distribution&quot;</span><span class="p">:</span> <span class="n">joint_distribution</span><span class="p">,</span>
-                        <span class="p">}</span>
 
-                    <span class="n">lattice</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">atom</span><span class="p">][</span><span class="n">total_str</span><span class="p">]</span> <span class="o">=</span> <span class="n">redundancy_function</span><span class="p">(</span><span class="o">**</span><span class="n">args</span><span class="p">)</span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    float</span>
 
-                <span class="k">if</span> <span class="n">atom</span> <span class="o">==</span> <span class="n">bottom</span><span class="p">:</span>
-                    <span class="n">lattice</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">atom</span><span class="p">][</span><span class="n">partial_str</span><span class="p">]</span> <span class="o">=</span> <span class="n">lattice</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">atom</span><span class="p">][</span><span class="n">total_str</span><span class="p">]</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="n">lattice</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">atom</span><span class="p">][</span><span class="n">partial_str</span><span class="p">]</span> <span class="o">=</span> <span class="n">lattice</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">atom</span><span class="p">][</span>
-                        <span class="n">total_str</span>
-                    <span class="p">]</span> <span class="o">-</span> <span class="nb">sum</span><span class="p">(</span>
-                        <span class="p">[</span>
-                            <span class="n">lattice</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">d</span><span class="p">][</span><span class="n">partial_str</span><span class="p">]</span>
-                            <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">lattice</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">atom</span><span class="p">][</span><span class="s2">&quot;descendants&quot;</span><span class="p">]</span>
-                        <span class="p">]</span>
-                    <span class="p">)</span>
 
-        <span class="n">local_ptw</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="n">node</span><span class="p">:</span> <span class="n">lattice</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">node</span><span class="p">][</span><span class="n">partial_str</span><span class="p">]</span> <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">lattice</span><span class="o">.</span><span class="n">nodes</span>
-        <span class="p">}</span>
-        <span class="n">ptw</span><span class="p">[</span><span class="n">state</span><span class="p">]</span> <span class="o">=</span> <span class="n">local_ptw</span>
+<span class="sd">    References</span>
+<span class="sd">    ----------</span>
+<span class="sd">    Varley, T. F., Pope, M., Maria Grazia, P., Joshua, F., &amp; Sporns, O. (2023).</span>
+<span class="sd">    Partial entropy decomposition reveals higher-order information structures in human brain activity.</span>
+<span class="sd">    Proceedings of the National Academy of Sciences, 120(30), e2300888120.</span>
+<span class="sd">    https://doi.org/10.1073/pnas.2300888120</span>
 
-    <span class="n">avg</span> <span class="o">=</span> <span class="p">{}</span>
-    <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">lattice</span><span class="o">.</span><span class="n">nodes</span><span class="p">:</span>
-        <span class="n">avg</span><span class="p">[</span><span class="n">node</span><span class="p">]</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span>
-            <span class="p">[</span><span class="n">joint_distribution</span><span class="p">[</span><span class="n">state</span><span class="p">]</span> <span class="o">*</span> <span class="n">ptw</span><span class="p">[</span><span class="n">state</span><span class="p">][</span><span class="n">node</span><span class="p">]</span> <span class="k">for</span> <span class="n">state</span> <span class="ow">in</span> <span class="n">ptw</span><span class="o">.</span><span class="n">keys</span><span class="p">()]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">single_target_flag</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>  <span class="c1"># PID</span>
+        <span class="n">atom_inputs</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">tuple</span><span class="p">(</span><span class="n">inputs</span><span class="p">[</span><span class="n">x</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">a</span><span class="p">)</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">atom</span><span class="p">)</span>
+        <span class="n">sx_inputs</span> <span class="o">=</span> <span class="n">hsx_discrete_redundancy</span><span class="p">(</span>
+            <span class="n">atom</span><span class="o">=</span><span class="n">atom_inputs</span><span class="p">,</span> <span class="n">state</span><span class="o">=</span><span class="n">state</span><span class="p">,</span> <span class="n">joint_distribution</span><span class="o">=</span><span class="n">joint_distribution</span>
+        <span class="p">)</span>
+        <span class="n">h_target</span> <span class="o">=</span> <span class="n">sources</span><span class="p">[</span><span class="n">state</span><span class="p">][</span><span class="n">target</span><span class="p">]</span>
+        <span class="n">sx_joint</span> <span class="o">=</span> <span class="n">hsx_discrete_redundancy</span><span class="p">(</span>
+            <span class="n">atom</span><span class="o">=</span><span class="nb">tuple</span><span class="p">(</span><span class="nb">tuple</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">a</span> <span class="o">+</span> <span class="n">target</span><span class="p">))</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">atom_inputs</span><span class="p">),</span>
+            <span class="n">state</span><span class="o">=</span><span class="n">state</span><span class="p">,</span>
+            <span class="n">joint_distribution</span><span class="o">=</span><span class="n">joint_distribution</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">lmi</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">sx_inputs</span> <span class="o">+</span> <span class="n">h_target</span> <span class="o">-</span> <span class="n">sx_joint</span>
+    <span class="k">elif</span> <span class="n">single_target_flag</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>  <span class="c1"># PED</span>
+        <span class="n">atom_inputs</span><span class="p">:</span> <span class="n">Atom</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">tuple</span><span class="p">(</span><span class="n">inputs</span><span class="p">[</span><span class="n">x</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">a</span><span class="p">)</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">atom</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">atom_target</span><span class="p">:</span> <span class="n">Atom</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">tuple</span><span class="p">(</span><span class="n">target</span><span class="p">[</span><span class="n">x</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">a</span><span class="p">)</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">atom</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+
+        <span class="n">sx_inputs</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">hsx_discrete_redundancy</span><span class="p">(</span>
+            <span class="n">atom</span><span class="o">=</span><span class="n">atom_inputs</span><span class="p">,</span> <span class="n">state</span><span class="o">=</span><span class="n">state</span><span class="p">,</span> <span class="n">joint_distribution</span><span class="o">=</span><span class="n">joint_distribution</span>
+        <span class="p">)</span>
+        <span class="n">sx_target</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">hsx_discrete_redundancy</span><span class="p">(</span>
+            <span class="n">atom</span><span class="o">=</span><span class="n">atom_target</span><span class="p">,</span> <span class="n">state</span><span class="o">=</span><span class="n">state</span><span class="p">,</span> <span class="n">joint_distribution</span><span class="o">=</span><span class="n">joint_distribution</span>
+        <span class="p">)</span>
+        <span class="n">atom_joint</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">s1</span> <span class="ow">in</span> <span class="n">atom_inputs</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">s2</span> <span class="ow">in</span> <span class="n">atom_target</span><span class="p">:</span>
+                <span class="n">atom_joint</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">tuple</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">s1</span> <span class="o">+</span> <span class="n">s2</span><span class="p">)))</span>
+        <span class="n">atom_joint</span><span class="p">:</span> <span class="n">Atom</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">atom_joint</span><span class="p">)</span>
+        <span class="n">sx_joint</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">hsx_discrete_redundancy</span><span class="p">(</span>
+            <span class="n">atom</span><span class="o">=</span><span class="n">atom_joint</span><span class="p">,</span> <span class="n">state</span><span class="o">=</span><span class="n">state</span><span class="p">,</span> <span class="n">joint_distribution</span><span class="o">=</span><span class="n">joint_distribution</span>
         <span class="p">)</span>
 
-    <span class="k">return</span> <span class="n">ptw</span><span class="p">,</span> <span class="n">avg</span>
+        <span class="n">lmi</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">sx_inputs</span> <span class="o">+</span> <span class="n">sx_target</span> <span class="o">-</span> <span class="n">sx_joint</span>
+
+    <span class="k">return</span> <span class="n">lmi</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_pid</span><span class="p">(</span>
+    <span class="n">inputs</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span>
+    <span class="n">target</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span>
+    <span class="n">joint_distribution</span><span class="p">:</span> <span class="n">DiscreteDist</span><span class="p">,</span>
+    <span class="n">redundancy_function</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">single_target_flag</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A utility function that computes the actual PID/PhiID depending on the state of single_target_flag.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    inputs : tuple[int, ...]</span>
+<span class="sd">        The indices of the input elements.</span>
+
+<span class="sd">    target : tuple[int, ...]</span>
+<span class="sd">        The indices of the target element(s)</span>
+
+<span class="sd">    joint_distribution: DiscreteDist</span>
+<span class="sd">        The joint probability distribution.</span>
+<span class="sd">        Keys are tuples corresponding to the state of each element.</span>
+<span class="sd">        The valules are the probabilities.</span>
+
+<span class="sd">    redundancy_function : str</span>
+<span class="sd">        The localizable redundancy function.</span>
+<span class="sd">        Options are: hmin and hsx.</span>
+
+<span class="sd">    single_target_flag : bool</span>
+<span class="sd">        Whether the do a single-target PID or a multi-target Phi-ID.</span>
+
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    Any</span>
+
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">assert</span> <span class="n">redundancy_function</span> <span class="ow">in</span> <span class="p">{</span><span class="s2">&quot;mmi&quot;</span><span class="p">,</span> <span class="s2">&quot;ipm&quot;</span><span class="p">,</span> <span class="s2">&quot;isx&quot;</span><span class="p">},</span> <span class="p">(</span>
+        <span class="s2">&quot;The available redundancy functions are Finn and Lizier&#39;s i_pm, Makkeh et al.&#39;s i_sx, and the minimum mutual information.&quot;</span>
+    <span class="p">)</span>
+
+    <span class="n">num_inputs</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">inputs</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">num_inputs</span> <span class="ow">in</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span> <span class="p">(</span>
+        <span class="s2">&quot;Currently, syntropy only supports PIDs on 2, 3, and 4 inputs.&quot;</span>
+    <span class="p">)</span>
+    <span class="n">num_target</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">target</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">single_target_flag</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
+        <span class="k">assert</span> <span class="n">num_target</span> <span class="ow">in</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span> <span class="p">(</span>
+            <span class="s2">&quot;Currently syntropy only supports \Phi-IDs on 2, 3, and 4 targets.&quot;</span>
+        <span class="p">)</span>
+        <span class="n">lattice</span><span class="p">:</span> <span class="n">nx</span><span class="o">.</span><span class="n">DiGraph</span> <span class="o">=</span> <span class="n">load_lattice</span><span class="p">(</span><span class="n">num_inputs</span><span class="o">=</span><span class="n">num_inputs</span><span class="p">,</span> <span class="n">num_target</span><span class="o">=</span><span class="n">num_target</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">single_target_flag</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
+        <span class="n">lattice</span><span class="p">:</span> <span class="n">nx</span><span class="o">.</span><span class="n">DiGraph</span> <span class="o">=</span> <span class="n">load_lattice</span><span class="p">(</span><span class="n">num_inputs</span><span class="o">=</span><span class="n">num_inputs</span><span class="p">)</span>
+
+    <span class="n">kwargs</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;inputs&quot;</span><span class="p">:</span> <span class="n">inputs</span><span class="p">,</span>
+        <span class="s2">&quot;target&quot;</span><span class="p">:</span> <span class="n">target</span><span class="p">,</span>
+        <span class="s2">&quot;joint_distribution&quot;</span><span class="p">:</span> <span class="n">joint_distribution</span><span class="p">,</span>
+        <span class="s2">&quot;single_target_flag&quot;</span><span class="p">:</span> <span class="n">single_target_flag</span><span class="p">,</span>
+    <span class="p">}</span>
+
+    <span class="k">if</span> <span class="n">redundancy_function</span> <span class="o">==</span> <span class="s2">&quot;mmi&quot;</span><span class="p">:</span>
+        <span class="n">redundancy_func</span><span class="p">:</span> <span class="n">Callable</span> <span class="o">=</span> <span class="n">mmi_discrete_redundancy</span>
+
+        <span class="n">result</span> <span class="o">=</span> <span class="n">mobius_inversion</span><span class="p">(</span>
+            <span class="n">redundancy_func</span><span class="o">=</span><span class="n">redundancy_func</span><span class="p">,</span> <span class="n">lattice</span><span class="o">=</span><span class="n">lattice</span><span class="o">.</span><span class="n">copy</span><span class="p">(),</span> <span class="n">kwargs</span><span class="o">=</span><span class="n">kwargs</span>
+        <span class="p">)</span>
+        <span class="n">avg</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">Atom</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="n">node</span><span class="p">:</span> <span class="n">result</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">node</span><span class="p">][</span><span class="s2">&quot;pi&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">result</span><span class="o">.</span><span class="n">nodes</span>
+        <span class="p">}</span>
+        <span class="k">return</span> <span class="n">avg</span>
+
+    <span class="k">elif</span> <span class="n">redundancy_function</span> <span class="ow">in</span> <span class="p">{</span><span class="s2">&quot;isx&quot;</span><span class="p">,</span> <span class="s2">&quot;ipm&quot;</span><span class="p">}:</span>
+        <span class="n">sources</span><span class="p">:</span> <span class="n">Sources</span> <span class="o">=</span> <span class="n">local_precompute_sources</span><span class="p">(</span><span class="n">joint_distribution</span><span class="p">)</span>
+        <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;sources&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">sources</span>
+        <span class="k">if</span> <span class="n">redundancy_function</span> <span class="o">==</span> <span class="s2">&quot;isx&quot;</span><span class="p">:</span>
+            <span class="n">redundancy_func</span><span class="p">:</span> <span class="n">Callable</span> <span class="o">=</span> <span class="n">isx_discrete_redundancy</span>
+        <span class="k">elif</span> <span class="n">redundancy_function</span> <span class="o">==</span> <span class="s2">&quot;ipm&quot;</span><span class="p">:</span>
+            <span class="n">redundancy_func</span><span class="p">:</span> <span class="n">Callable</span> <span class="o">=</span> <span class="n">ipm_discrete_redundancy</span>
+
+        <span class="n">ptw</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">state_mapping</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">state</span> <span class="ow">in</span> <span class="n">joint_distribution</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;state&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">state</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="n">mobius_inversion</span><span class="p">(</span><span class="n">redundancy_func</span><span class="p">,</span> <span class="n">lattice</span><span class="o">.</span><span class="n">copy</span><span class="p">(),</span> <span class="n">kwargs</span><span class="p">)</span>
+
+            <span class="n">state_inputs</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">state</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">inputs</span><span class="p">)</span>
+            <span class="n">state_targets</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">state</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">target</span><span class="p">)</span>
+
+            <span class="n">ptw</span><span class="p">[(</span><span class="n">state_inputs</span><span class="p">,</span> <span class="n">state_targets</span><span class="p">)]</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="n">node</span><span class="p">:</span> <span class="n">result</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">node</span><span class="p">][</span><span class="s2">&quot;pi&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">result</span><span class="o">.</span><span class="n">nodes</span>
+            <span class="p">}</span>
+
+            <span class="n">state_mapping</span><span class="p">[(</span><span class="n">state_inputs</span><span class="p">,</span> <span class="n">state_targets</span><span class="p">)]</span> <span class="o">=</span> <span class="n">state</span>
+
+        <span class="n">atoms</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Atom</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">lattice</span><span class="o">.</span><span class="n">nodes</span><span class="p">)</span>
+        <span class="n">avg</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">atoms</span><span class="p">:</span>
+            <span class="n">avg</span><span class="p">[</span><span class="n">a</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span>
+                <span class="p">[</span>
+                    <span class="n">joint_distribution</span><span class="p">[</span><span class="n">state_mapping</span><span class="p">[</span><span class="n">state</span><span class="p">]]</span> <span class="o">*</span> <span class="n">ptw</span><span class="p">[</span><span class="n">state</span><span class="p">][</span><span class="n">a</span><span class="p">]</span>
+                    <span class="k">for</span> <span class="n">state</span> <span class="ow">in</span> <span class="n">ptw</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+                <span class="p">]</span>
+            <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">ptw</span><span class="p">,</span> <span class="n">avg</span>
+
+
 <div class="viewcode-block" id="partial_information_decomposition">
 <a class="viewcode-back" href="../../../api/syntropy.discrete.html#syntropy.discrete.partial_information_decomposition">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">partial_information_decomposition</span><span class="p">(</span>
-    <span class="n">redundancy</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-    <span class="n">inputs</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">,</span>
-    <span class="n">target</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">,</span>
-    <span class="n">joint_distribution</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span> <span class="nb">float</span><span class="p">],</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="p">(</span><span class="nb">dict</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+    <span class="n">inputs</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span>
+    <span class="n">target</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span>
+    <span class="n">joint_distribution</span><span class="p">:</span> <span class="n">DiscreteDist</span><span class="p">,</span>
+    <span class="n">redundancy_function</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Computes the partial information decomposition for up to four input variables</span>
-<span class="sd">    onto one (potentially joint) target variable.</span>
+<span class="sd">    Computes the partial information decomposition for up to four input variables onto one (potentially joint) target variable.</span>
 
-<span class="sd">    The available redundancy functions are :math:`i_{\\min}` from Finn and Lizier and :math:`i_{sx}` from Makkeh et al..</span>
+<span class="sd">    The available redundancy functions are :math:`MMI`, :math:`i_{pm}` from Finn and Lizier and :math:`i_{sx}` from Makkeh et al..</span>
 
 <span class="sd">    .. math:: </span>
 
-<span class="sd">        i_{\\min}(\\alpha;t) &amp;= \\min h(\\alpha_i) - \min h(\\alpha_i|t) \\\\</span>
-<span class="sd">           i_{sx}(\\alpha;t) &amp;= \\log\\frac{P(t)-P(t\\cap(\\alpha_1\\cup ...\\cup\\alpha_k))}{1-P(\\bar\\alpha_1\\cap ...\\cap\\alpha_N)}</span>
+<span class="sd">        i_{pm}(\\alpha;t) &amp;= \\min h(\\alpha_i) - \min h(\\alpha_i|t) \\\\</span>
+<span class="sd">           i_{sx}(\\alpha;t) &amp;= \\log\\frac{P(t)-P(t\\cap(\\alpha_1\\cup ...\\cup\\alpha_k))}{1-P(\\bar\\alpha_1\\cap ...\\cap\\alpha_N)} \\\\</span>
+<span class="sd">           i_{MMI}(\\alpha;t) &amp;= \\min_i I(\\alpha_i;T) </span>
 <span class="sd">    </span>
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    redundancy : str</span>
-<span class="sd">        The redundancy function.</span>
-<span class="sd">        &quot;imin&quot; for the Finn and Lizier measure</span>
-<span class="sd">        &quot;isx&quot; for the Makkeh et al., measure</span>
-<span class="sd">    inputs : tuple</span>
-<span class="sd">        The set of up to four input elements.</span>
-<span class="sd">    target : tuple</span>
-<span class="sd">        The set of target elements.</span>
-<span class="sd">        If len(target) &gt; 1, then the target is the joint</span>
-<span class="sd">        state of all elements</span>
-<span class="sd">    joint_distribution : dict[tuple,float]</span>
-<span class="sd">        The joint distribution object.</span>
+<span class="sd">    inputs : tuple[int, ...]</span>
+<span class="sd">        The indices of the input elements.</span>
+
+<span class="sd">    target : tuple[int, ...]</span>
+<span class="sd">        The indices of the target element(s)</span>
+<span class="sd">        </span>
+<span class="sd">    joint_distribution: DiscreteDist</span>
+<span class="sd">        The joint probability distribution.</span>
+<span class="sd">        Keys are tuples corresponding to the state of each element.</span>
+<span class="sd">        The valules are the probabilities.</span>
+<span class="sd">        </span>
+<span class="sd">    redundancy_function : str</span>
+<span class="sd">        The localizable redundancy function.</span>
+<span class="sd">        Options are: hmin and hsx.</span>
+<span class="sd">        </span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
-<span class="sd">    ptw : dict</span>
-<span class="sd">        A dictionary of dictionaries,</span>
-<span class="sd">        The outer dictionary has one key for each joint state.</span>
-<span class="sd">        Each inner dictionary is the lookup of partial information atoms.</span>
-<span class="sd">    avg : dict</span>
-<span class="sd">        The expected value for each partial information atom.</span>
+<span class="sd">    Any</span>
+
 
 <span class="sd">    References</span>
 <span class="sd">    ----------</span>
@@ -591,26 +611,82 @@
 <span class="sd">    shared information.</span>
 <span class="sd">    Physical Review E, 103(3), 032149.</span>
 <span class="sd">    https://doi.org/10.1103/PhysRevE.103.032149</span>
-<span class="sd">    </span>
+<span class="sd">        </span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="n">ptw</span><span class="p">,</span> <span class="n">avg</span> <span class="o">=</span> <span class="n">mobius_inversion</span><span class="p">(</span>
-        <span class="n">decomposition</span><span class="o">=</span><span class="s2">&quot;pid&quot;</span><span class="p">,</span>
-        <span class="n">joint_distribution</span><span class="o">=</span><span class="n">joint_distribution</span><span class="p">,</span>
+    <span class="k">return</span> <span class="n">_pid</span><span class="p">(</span>
         <span class="n">inputs</span><span class="o">=</span><span class="n">inputs</span><span class="p">,</span>
-        <span class="n">redundancy</span><span class="o">=</span><span class="n">redundancy</span><span class="p">,</span>
         <span class="n">target</span><span class="o">=</span><span class="n">target</span><span class="p">,</span>
-    <span class="p">)</span>
+        <span class="n">joint_distribution</span><span class="o">=</span><span class="n">joint_distribution</span><span class="p">,</span>
+        <span class="n">redundancy_function</span><span class="o">=</span><span class="n">redundancy_function</span><span class="p">,</span>
+        <span class="n">single_target_flag</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span></div>
 
-    <span class="k">return</span> <span class="n">ptw</span><span class="p">,</span> <span class="n">avg</span></div>
+
+
+<div class="viewcode-block" id="integrated_information_decomposition">
+<a class="viewcode-back" href="../../../api/syntropy.discrete.html#syntropy.discrete.integrated_information_decomposition">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">integrated_information_decomposition</span><span class="p">(</span>
+    <span class="n">inputs</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span>
+    <span class="n">target</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span>
+    <span class="n">joint_distribution</span><span class="p">:</span> <span class="n">DiscreteDist</span><span class="p">,</span>
+    <span class="n">redundancy_function</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Computes the integrated information decomposition introduced by Rosas, Mediano, et al.</span>
+<span class="sd">    The PhiID relaxes the requirement of only having a single target, and instead allows for </span>
+<span class="sd">    redundant-redundant, synergistic-synergistic, etc interactions. </span>
+
+<span class="sd">    Available redundancy functions are: </span>
+<span class="sd">        i_{pm}(\\alpha;\\beta) &amp;= \\min_i h(\\alpha_i) + \\min_i h(\\beta_i) - \min h(\\alpha_i, \\beta_i) \\\\</span>
+<span class="sd">                i_{tsx}(\\alpha;\\beta) &amp;= h_{sx}(\\alpha) + h_{sx}(\\beta) - h_{sx}(\\alpha\\cap\\beta)</span>
+<span class="sd">                i_{MMI}(\\alpha;\\beta) &amp;= \\min_{ij} I(\\alpha_i;\\beta_j) </span>
+
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    inputs : tuple[int, ...]</span>
+<span class="sd">        The indices of the input elements.</span>
+<span class="sd">    target : tuple[int, ...]</span>
+<span class="sd">        The indices of the target element(s)</span>
+<span class="sd">    joint_distribution: DiscreteDist</span>
+<span class="sd">        The joint probability distribution.</span>
+<span class="sd">        Keys are tuples corresponding to the state of each element.</span>
+<span class="sd">        The valules are the probabilities.</span>
+<span class="sd">    redundancy_function : str</span>
+<span class="sd">        The localizable redundancy function.</span>
+<span class="sd">        Options are: hmin and hsx.</span>
+
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    Any</span>
+
+<span class="sd">    References</span>
+<span class="sd">    ----------</span>
+<span class="sd">    Mediano, P. A. M., Rosas, F. E., Luppi, A. I., Carhart-Harris, R. L., Bor, D., Seth, A. K., &amp; Barrett, A. B. (2025). Toward a unified taxonomy of information dynamics via Integrated Information Decomposition. Proceedings of the National Academy of Sciences, 122(39), e2423297122. https://doi.org/10.1073/pnas.2423297122</span>
+
+<span class="sd">    Rosas, F. E., Mediano, P. A. M., Jensen, H. J., Seth, A. K., Barrett, A. B., Carhart-Harris, R. L., &amp; Bor, D. (2020). Reconciling emergences: An information-theoretic approach to identify causal emergence in multivariate data. PLOS Computational Biology, 16(12), Article 12. https://doi.org/10.1371/journal.pcbi.1008289</span>
+
+<span class="sd">    Varley, T. F. (2023). Decomposing past and future: Integrated information decomposition based on shared probability mass exclusions. PLOS ONE, 18(3), e0282950. https://doi.org/10.1371/journal.pone.0282950</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">_pid</span><span class="p">(</span>
+        <span class="n">inputs</span><span class="o">=</span><span class="n">inputs</span><span class="p">,</span>
+        <span class="n">target</span><span class="o">=</span><span class="n">target</span><span class="p">,</span>
+        <span class="n">joint_distribution</span><span class="o">=</span><span class="n">joint_distribution</span><span class="p">,</span>
+        <span class="n">redundancy_function</span><span class="o">=</span><span class="n">redundancy_function</span><span class="p">,</span>
+        <span class="n">single_target_flag</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span></div>
 
 
 
 <div class="viewcode-block" id="partial_entropy_decomposition">
 <a class="viewcode-back" href="../../../api/syntropy.discrete.html#syntropy.discrete.partial_entropy_decomposition">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">partial_entropy_decomposition</span><span class="p">(</span>
-    <span class="n">redundancy</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">joint_distribution</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span> <span class="nb">float</span><span class="p">]</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="p">(</span><span class="nb">dict</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+    <span class="n">joint_distribution</span><span class="p">:</span> <span class="n">DiscreteDist</span><span class="p">,</span>
+    <span class="n">redundancy_function</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span> <span class="nb">dict</span><span class="p">[</span><span class="n">Atom</span><span class="p">,</span> <span class="nb">float</span><span class="p">]],</span> <span class="nb">dict</span><span class="p">[</span><span class="n">Atom</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Computes the partial entropy decomposition of a joint distribution</span>
 <span class="sd">    with up to four elements.</span>
@@ -621,15 +697,17 @@
 <span class="sd">    .. math:: </span>
 <span class="sd">        h_{\\min}(\\alpha) &amp;= \\min(\\alpha_i) \\\\</span>
 <span class="sd">           h_{sx}(\\alpha) &amp;= \\log\\frac{1}{P(\\alpha_1\\cup ... \\cup\\alpha_N)}</span>
-
+<span class="sd">    </span>
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    redundancy : str</span>
-<span class="sd">        The redundnacy function to use.</span>
-<span class="sd">        &quot;hmin&quot; for the measure from Finn and Lizier,</span>
-<span class="sd">        &quot;hsx&quot; for the measure from Varley et al.,</span>
-<span class="sd">    joint_distribution : dict[tuple,float]</span>
-<span class="sd">        The joint distribution object.</span>
+<span class="sd">    joint_distribution: DiscreteDist</span>
+<span class="sd">        The joint probability distribution.</span>
+<span class="sd">        Keys are tuples corresponding to the state of each element.</span>
+<span class="sd">        The valules are the probabilities.</span>
+
+<span class="sd">    redundancy_function : str</span>
+<span class="sd">        The localizable redundancy function.</span>
+<span class="sd">        Options are: hmin and hsx.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -655,12 +733,38 @@
 <span class="sd">    https://doi.org/10.1073/pnas.2300888120</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="n">ptw</span><span class="p">,</span> <span class="n">avg</span> <span class="o">=</span> <span class="n">mobius_inversion</span><span class="p">(</span>
-        <span class="n">decomposition</span><span class="o">=</span><span class="s2">&quot;ped&quot;</span><span class="p">,</span>
-        <span class="n">joint_distribution</span><span class="o">=</span><span class="n">joint_distribution</span><span class="p">,</span>
-        <span class="n">redundancy</span><span class="o">=</span><span class="n">redundancy</span><span class="p">,</span>
+    <span class="n">N</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="nb">next</span><span class="p">(</span><span class="nb">iter</span><span class="p">(</span><span class="n">joint_distribution</span><span class="p">)))</span>
+    <span class="k">assert</span> <span class="n">N</span> <span class="ow">in</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span> <span class="p">(</span>
+        <span class="s2">&quot;Currently, syntropy only supports PEDs on 2, 3, and 4-dimensional distributions.&quot;</span>
     <span class="p">)</span>
+
+    <span class="k">assert</span> <span class="n">redundancy_function</span> <span class="ow">in</span> <span class="p">{</span><span class="s2">&quot;hsx&quot;</span><span class="p">,</span> <span class="s2">&quot;hmin&quot;</span><span class="p">},</span> <span class="p">(</span>
+        <span class="s2">&quot;The available redundancy functions are Varley&#39;s h_sx and Finn and Lizier&#39;s h_min.&quot;</span>
+    <span class="p">)</span>
+
+    <span class="n">kwargs</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;joint_distribution&quot;</span><span class="p">:</span> <span class="n">joint_distribution</span><span class="p">}</span>
+    <span class="n">sources</span><span class="p">:</span> <span class="n">Sources</span> <span class="o">=</span> <span class="n">local_precompute_sources</span><span class="p">(</span><span class="n">joint_distribution</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">redundancy_function</span> <span class="o">==</span> <span class="s2">&quot;hsx&quot;</span><span class="p">:</span>
+        <span class="n">redundancy_func</span> <span class="o">=</span> <span class="n">hsx_discrete_redundancy</span>
+    <span class="k">elif</span> <span class="n">redundancy_function</span> <span class="o">==</span> <span class="s2">&quot;hmin&quot;</span><span class="p">:</span>
+        <span class="n">redundancy_func</span> <span class="o">=</span> <span class="n">hmin_discrete_redundancy</span>
+        <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;sources&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">sources</span>
+
+    <span class="n">lattice</span><span class="p">:</span> <span class="n">nx</span><span class="o">.</span><span class="n">DiGraph</span> <span class="o">=</span> <span class="n">load_lattice</span><span class="p">(</span><span class="n">num_inputs</span><span class="o">=</span><span class="n">N</span><span class="p">)</span>
+
+    <span class="n">ptw</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span> <span class="nb">dict</span><span class="p">[</span><span class="n">Atom</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">state</span> <span class="ow">in</span> <span class="n">joint_distribution</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+        <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;state&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">state</span>
+
+        <span class="n">result</span> <span class="o">=</span> <span class="n">mobius_inversion</span><span class="p">(</span>
+            <span class="n">redundancy_func</span><span class="o">=</span><span class="n">redundancy_func</span><span class="p">,</span> <span class="n">lattice</span><span class="o">=</span><span class="n">lattice</span><span class="p">,</span> <span class="n">kwargs</span><span class="o">=</span><span class="n">kwargs</span>
+        <span class="p">)</span>
+        <span class="n">ptw</span><span class="p">[</span><span class="n">state</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="n">node</span><span class="p">:</span> <span class="n">result</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">node</span><span class="p">][</span><span class="s2">&quot;pi&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">result</span><span class="o">.</span><span class="n">nodes</span><span class="p">}</span>
+
+    <span class="n">avg</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">Atom</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">lattice</span><span class="o">.</span><span class="n">nodes</span><span class="p">:</span>
+        <span class="n">avg</span><span class="p">[</span><span class="n">a</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">([</span><span class="n">joint_distribution</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">*</span> <span class="n">ptw</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="n">a</span><span class="p">]</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">ptw</span><span class="o">.</span><span class="n">keys</span><span class="p">()])</span>
 
     <span class="k">return</span> <span class="n">ptw</span><span class="p">,</span> <span class="n">avg</span></div>
 
@@ -669,30 +773,32 @@
 <div class="viewcode-block" id="generalized_information_decomposition">
 <a class="viewcode-back" href="../../../api/syntropy.discrete.html#syntropy.discrete.generalized_information_decomposition">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">generalized_information_decomposition</span><span class="p">(</span>
-    <span class="n">redundancy</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-    <span class="n">posterior_distribution</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span> <span class="nb">float</span><span class="p">],</span>
-    <span class="n">prior_distribution</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span> <span class="nb">float</span><span class="p">],</span>
+    <span class="n">posterior_distribution</span><span class="p">:</span> <span class="n">DiscreteDist</span><span class="p">,</span>
+    <span class="n">prior_distribution</span><span class="p">:</span> <span class="n">DiscreteDist</span><span class="p">,</span>
+    <span class="n">redundancy_function</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="p">(</span><span class="nb">dict</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Computes the generalized information decomposition from Varley et al.</span>
 <span class="sd">    The GID is a decomposition of the Kullback-Leibler divergence of a</span>
 <span class="sd">    posterior distribution from a prior distribution.</span>
 
-<span class="sd">    Available redundnacy functions are &quot;hmin&quot; and &quot;hsx&quot;. See</span>
+<span class="sd">    Available redundancy functions are &quot;hmin&quot; and &quot;hsx&quot;. See</span>
 <span class="sd">    the documentation for the partial_entropy_decomposition() function</span>
 <span class="sd">    for details.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    redundancy : str</span>
-<span class="sd">        The localizable redundancy function.</span>
-<span class="sd">        Options are: hmin and hsx.</span>
-<span class="sd">    posterior_distribution : dict[tuple, float]</span>
+<span class="sd">    posterior_distribution : DiscreteDist</span>
 <span class="sd">        The posterior distribution.</span>
 <span class="sd">        The support set of this distribution must be a subset of</span>
 <span class="sd">        the supppirt set of the prior distribution.</span>
-<span class="sd">    prior_distribution : dict[tuple, float]</span>
+
+<span class="sd">    prior_distribution : DicreteDist</span>
 <span class="sd">        The prior distribution.</span>
+
+<span class="sd">    redundancy_function : str</span>
+<span class="sd">        The localizable redundancy function.</span>
+<span class="sd">        Options are: hmin and hsx.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -715,21 +821,19 @@
     <span class="p">),</span> <span class="p">(</span>
         <span class="s2">&quot;The support set of the prior must be a superset of the support set of the posterior.&quot;</span>
     <span class="p">)</span>
-    <span class="k">assert</span> <span class="n">redundancy</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">in</span> <span class="p">{</span>
+    <span class="k">assert</span> <span class="n">redundancy_function</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">in</span> <span class="p">{</span>
         <span class="s2">&quot;hmin&quot;</span><span class="p">,</span>
         <span class="s2">&quot;hsx&quot;</span><span class="p">,</span>
     <span class="p">},</span> <span class="s2">&quot;The supported redundancy functions are hmin and hsx.&quot;</span>
 
-    <span class="n">ptw_prior</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">mobius_inversion</span><span class="p">(</span>
-        <span class="n">decomposition</span><span class="o">=</span><span class="s2">&quot;ped&quot;</span><span class="p">,</span>
+    <span class="n">ptw_prior</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">partial_entropy_decomposition</span><span class="p">(</span>
         <span class="n">joint_distribution</span><span class="o">=</span><span class="n">prior_distribution</span><span class="p">,</span>
-        <span class="n">redundancy</span><span class="o">=</span><span class="n">redundancy</span><span class="p">,</span>
+        <span class="n">redundancy_function</span><span class="o">=</span><span class="n">redundancy_function</span><span class="p">,</span>
     <span class="p">)</span>
 
-    <span class="n">ptw_posterior</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">mobius_inversion</span><span class="p">(</span>
-        <span class="n">decomposition</span><span class="o">=</span><span class="s2">&quot;ped&quot;</span><span class="p">,</span>
+    <span class="n">ptw_posterior</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">partial_entropy_decomposition</span><span class="p">(</span>
         <span class="n">joint_distribution</span><span class="o">=</span><span class="n">posterior_distribution</span><span class="p">,</span>
-        <span class="n">redundancy</span><span class="o">=</span><span class="n">redundancy</span><span class="p">,</span>
+        <span class="n">redundancy_function</span><span class="o">=</span><span class="n">redundancy_function</span><span class="p">,</span>
     <span class="p">)</span>
 
     <span class="n">nodes</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">ptw_prior</span><span class="p">[</span><span class="nb">list</span><span class="p">(</span><span class="n">prior_distribution</span><span class="o">.</span><span class="n">keys</span><span class="p">())[</span><span class="mi">0</span><span class="p">]]</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
@@ -834,9 +938,11 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../api/syntropy.gaussian.html">syntropy.gaussian package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../api/syntropy.knn.html">syntropy.knn package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../api/syntropy.neural.html">syntropy.neural package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api/syntropy.mixed.html">syntropy.mixed package</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Additional Information:</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../theory.html">Information Theory Primer</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../contributing.html">Contributing</a></li>
 </ul>
 

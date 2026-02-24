@@ -1,6 +1,7 @@
 # import pickle
 import numpy as np
 import itertools
+from typing import Any
 
 
 def make_powerset(iterable):
@@ -13,6 +14,11 @@ def make_powerset(iterable):
     xs: list = list(iterable)
     # note we return an iterator rather than a list
     return itertools.chain.from_iterable(itertools.combinations(xs, n) for n in range(len(xs) + 1))
+
+
+def flatten_nested_tuple(x: tuple[tuple[Any, ...], ...]) -> tuple[Any, ...]:
+
+    return tuple(itertools.chain(*x))
 
 
 def clean_distribution(joint_distribution: dict[tuple, float]) -> dict:

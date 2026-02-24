@@ -34,7 +34,7 @@
 <span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.shannon</span><span class="w"> </span><span class="kn">import</span> <span class="n">local_differential_entropy</span><span class="p">,</span> <span class="n">differential_entropy</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">numpy.typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">NDArray</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">check_cov</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">check_cov</span><span class="p">,</span> <span class="n">covariance_to_correlation</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">..utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">check_idxs</span><span class="p">,</span> <span class="n">make_powerset</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.decompositions</span><span class="w"> </span><span class="kn">import</span> <span class="n">local_precompute_sources</span>
 
@@ -86,16 +86,13 @@
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="n">idxs_</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="n">check_idxs</span><span class="p">(</span><span class="n">idxs</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
-    <span class="n">cov_</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">]</span> <span class="o">=</span> <span class="n">check_cov</span><span class="p">(</span><span class="n">cov</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
-
-    <span class="n">N</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">idxs_</span><span class="p">)</span>
-
-    <span class="n">whole</span> <span class="o">=</span> <span class="n">local_differential_entropy</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">idxs_</span><span class="p">,</span> <span class="p">:],</span> <span class="n">cov_</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ix_</span><span class="p">(</span><span class="n">idxs_</span><span class="p">,</span> <span class="n">idxs_</span><span class="p">)])</span>
+    <span class="n">N</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">idxs</span><span class="p">)</span> <span class="k">if</span> <span class="n">idxs</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">whole</span> <span class="o">=</span> <span class="n">local_differential_entropy</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">cov</span><span class="o">=</span><span class="n">cov</span><span class="p">,</span> <span class="n">idxs</span><span class="o">=</span><span class="n">idxs</span><span class="p">)</span>
 
     <span class="n">sum_parts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">whole</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">):</span>
-        <span class="n">sum_parts</span> <span class="o">+=</span> <span class="n">local_differential_entropy</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">idxs_</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="p">:])</span>
+        <span class="n">idx</span> <span class="o">=</span> <span class="n">idxs</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">if</span> <span class="n">idxs</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">i</span> 
+        <span class="n">sum_parts</span> <span class="o">+=</span> <span class="n">local_differential_entropy</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">idx</span><span class="p">,</span> <span class="p">:])</span>
 
     <span class="k">return</span> <span class="n">sum_parts</span> <span class="o">-</span> <span class="n">whole</span></div>
 
@@ -162,10 +159,7 @@
     <span class="c1"># 1s along the diagonal (a correlation matrix).</span>
     <span class="k">if</span> <span class="kc">False</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">cov_</span><span class="o">.</span><span class="n">diagonal</span><span class="p">(),</span> <span class="mi">1</span><span class="p">):</span>
         <span class="c1"># Converting to a correlation/coherence matrix.</span>
-        <span class="n">diag</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="n">cov_</span><span class="p">))</span>
-        <span class="n">d_inv</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="mf">1.0</span> <span class="o">/</span> <span class="n">diag</span><span class="p">)</span>
-
-        <span class="n">corr</span> <span class="o">=</span> <span class="n">d_inv</span> <span class="o">@</span> <span class="n">cov_</span> <span class="o">@</span> <span class="n">d_inv</span>
+        <span class="n">corr</span> <span class="o">=</span> <span class="n">covariance_to_correlation</span><span class="p">(</span><span class="n">cov</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">corr</span> <span class="o">=</span> <span class="n">cov_</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
 
@@ -710,7 +704,7 @@
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    NDArray[np.floating]</span>
-
+<span class="sd">        The local co-informations.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -750,6 +744,7 @@
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    float</span>
+<span class="sd">        The expected co-information.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
 

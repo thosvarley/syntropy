@@ -20,6 +20,7 @@ from .multivariate_mi import (
 from .decompositions import (
     partial_entropy_decomposition,
     partial_information_decomposition,
+    integrated_information_decomposition,
     generalized_information_decomposition,
     representational_complexity,
 )
@@ -48,6 +49,7 @@ __all__ = [
     "partial_entropy_decomposition",
     "partial_information_decomposition",
     "generalized_information_decomposition",
+    "integrated_information_decomposition",
     "representational_complexity",
     "lempel_ziv_complexity",
     "lempel_ziv_mutual_information",

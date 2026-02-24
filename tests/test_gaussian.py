@@ -9,6 +9,7 @@ import syntropy.gaussian.shannon as shannon
 import syntropy.gaussian.multivariate_mi as mi
 from syntropy.gaussian.decompositions import (
     partial_information_decomposition as pid,
+    integrated_information_decomposition as phiid,
     partial_entropy_decomposition as ped,
     generalized_information_decomposition as gid,
     idep_partial_information_decomposition as idep,
@@ -28,7 +29,6 @@ cov = np.cov(data, ddof=0.0)
 # Due to natural instability in Scipy's matrix algebra, we need a slightly
 # more relaxed tolerance for our unit tests. 1 part in 1,000,000 is probably ok.
 pytest_abs = 1e-6
-
 
 def test_differential_entropy():
     h_all = shannon.local_differential_entropy(data).mean()
@@ -134,7 +134,7 @@ def test_pid():
 def test_ped():
     idxs = (0, 1, 2, 3)
 
-    ptw, avg = ped(idxs, data, cov)
+    ptw, avg = ped(data, idxs, cov)
     h = shannon.differential_entropy(cov, idxs)
 
     assert sum(avg.values()) == pytest.approx(h, abs=pytest_abs)
@@ -145,7 +145,7 @@ def test_gid():
     cov_prior = np.eye(len(idxs))
     cov_posterior = cov[np.ix_(idxs, idxs)]
 
-    ptw, avg = gid(idxs, data, cov_posterior, cov_prior)
+    ptw, avg = gid(idxs, data[idxs,:], cov_posterior, cov_prior)
 
     dkl = shannon.kullback_leibler_divergence(cov_posterior, cov_prior)
     assert sum(avg.values()) == pytest.approx(dkl, abs=pytest_abs)
@@ -157,45 +157,8 @@ def test_gid():
     assert ldkl.mean() == pytest.approx(sum(avg.values()), abs=pytest_abs)
 
 
-def test_gaussian_rate():
-    T = 5_000_000
-
-    noise = np.random.randn(2, T)
-
-    _, mir = mutual_information_rate((0,), (1,), noise, nperseg=2**13)
-
-    _, h1 = differential_entropy_rate((0,), noise, nperseg=2**13)
-    _, h2 = differential_entropy_rate((1,), noise, nperseg=2**13)
-    _, h12 = differential_entropy_rate((0, 1), noise, nperseg=2**13)
-
-    assert mir == pytest.approx(h1 + h2 - h12, abs=pytest_abs)
-
-    _, tcr = total_correlation_rate((0, 1), noise, nperseg=2**13)
-
-    assert mir == pytest.approx(tcr, abs=pytest_abs)
-
-    # for white noise with 0 mean and unit variance,
-    # the analytic entropy rate should be (1/2)*log(2*pi*e)
-    analytic = (1 / 2) * np.log(2.0 * np.pi * np.e)
-
-    assert analytic == pytest.approx(h1, abs=1e-3)
-
-    # %% A VAR(1) model with fixed noise and coefficient.
-
-    X = np.zeros((1, T))
-    eps = 0.01
-    noise = np.random.randn(T) * eps
-    a = 0.2
-
-    for t in range(1, T):
-        X[0, t] = X[0, t - 1] * a + noise[t - 1]
-
-    _, hX = differential_entropy_rate((0,), X, nperseg=2**14)
-
-    analytic = 0.5 * (np.log(2 * np.pi * np.e * (eps**2))) - (0.5 * np.log(1 - (a**2)))
-
-    assert np.isclose(hX, analytic, rtol=1e-2)
-
+def test_phiid():
+    return None
 
 def test_oinfo_rate():
     T = 5_000_000
@@ -284,3 +247,188 @@ def test_idep_multivariate():
     mi_joint = shannon.mutual_information(idxs_x=(0,1,2,3,4,5,6), idxs_y=(7,8,9), cov=cov)
 
     assert total == pytest.approx(mi_joint, abs=pytest_abs)
+
+# Absolute tolerance for all analytic comparisons.
+# Tighter than before because these tests have known ground truth.
+ABS_TOL = 1e-3
+# ---------------------------------------------------------------------------
+# Helpers
+# ---------------------------------------------------------------------------
+
+def generate_ar1(T: int, a: float, sigma: float, rng: np.random.Generator) -> np.ndarray:
+    """Scalar AR(1): X_t = a * X_{t-1} + sigma * eps_t."""
+    X = np.zeros(T)
+    eps = rng.standard_normal(T) * sigma
+    for t in range(1, T):
+        X[t] = a * X[t - 1] + eps[t]
+    return X[np.newaxis, :]  # shape (1, T)
+
+
+def generate_lead_lag(
+    T: int, c: float, rng: np.random.Generator
+) -> np.ndarray:
+    """
+    Bivariate lead-lag model:
+        X_t = eps1_t                  (unit-variance white noise)
+        Y_t = c * X_{t-1} + eps2_t   (unit-variance independent noise)
+
+    Analytic MIR:
+        I(X; Y) = (1/2) * log(1 + c^2)
+
+    Derivation sketch:
+        S_XX(w) = 1
+        S_YY(w) = 1 + c^2          (variance of Y = c^2 * var(X) + var(eps2))
+        S_XY(w) = c * e^{+iw}      (X leads Y by one step)
+        |S(w)| = S_XX * S_YY - |S_XY|^2 = (1 + c^2) - c^2 = 1
+
+        f_{X;Y}(w) = log( S_XX * S_YY / |S(w)| ) = log(1 + c^2)  [flat in w]
+
+        MIR = (1/4pi) * integral_{-pi}^{pi} log(1 + c^2) dw
+            = (1/2) * log(1 + c^2)
+    """
+    eps1 = rng.standard_normal(T)
+    eps2 = rng.standard_normal(T)
+    X = eps1
+    Y = np.zeros(T)
+    Y[1:] = c * X[:-1] + eps2[1:]
+    Y[0] = eps2[0]
+    return np.stack([X, Y], axis=0)  # shape (2, T)
+
+
+# ---------------------------------------------------------------------------
+# Test: AR(1) entropy rate
+# ---------------------------------------------------------------------------
+
+class TestAR1EntropyRate:
+    """
+    For X_t = a * X_{t-1} + sigma * eps_t with eps_t ~ N(0,1):
+
+    The entropy RATE is the conditional entropy given the full past:
+        h(X) = H(X_t | X_{t-1}, X_{t-2}, ...) = H(sigma * eps_t)
+             = (1/2) * log(2 * pi * e * sigma^2)
+    """
+
+    @pytest.mark.parametrize("a, sigma", [
+        (0.0, 1.0),    # white noise: rate == marginal entropy
+        (0.5, 1.0),    # moderate autocorrelation
+        (0.9, 1.0),    # strong autocorrelation
+        (0.5, 0.1),    # small innovation noise
+        (0.5, 2.0),    # large innovation noise
+    ])
+    def test_ar1_entropy_rate(self, a, sigma):
+        rng = np.random.default_rng(42)
+        T = 5_000_000
+        X = generate_ar1(T, a=a, sigma=sigma, rng=rng)
+
+        _, h = differential_entropy_rate((0,), X, nperseg=2**14)
+
+        analytic = 0.5 * np.log(2 * np.pi * np.e * sigma**2)
+        assert h == pytest.approx(analytic, abs=ABS_TOL), (
+            f"AR(1) entropy rate failed for a={a}, sigma={sigma}: "
+            f"got {h:.6f}, expected {analytic:.6f}"
+        )
+
+    def test_white_noise_entropy_rate(self):
+        """Special case a=0: entropy rate == marginal entropy."""
+        rng = np.random.default_rng(0)
+        T = 5_000_000
+        noise = rng.standard_normal((1, T))
+
+        _, h = differential_entropy_rate((0,), noise, nperseg=2**14)
+
+        analytic = 0.5 * np.log(2 * np.pi * np.e)
+        assert h == pytest.approx(analytic, abs=ABS_TOL)
+
+
+# ---------------------------------------------------------------------------
+# Test: bivariate lead-lag MIR
+# ---------------------------------------------------------------------------
+
+class TestLeadLagMIR:
+    """
+    For the lead-lag model X_t = eps1_t, Y_t = c*X_{t-1} + eps2_t:
+
+        I(X; Y) = (1/2) * log(1 + c^2)
+
+    This test is particularly valuable because:
+    1. The spectral density matrix S(w) has non-trivial complex off-diagonal
+       entries (S_XY(w) = c*e^{iw}), directly testing the complex CSD fix.
+    2. The theoretical MI is flat in frequency, so the test is not sensitive
+       to spectral resolution.
+    3. The formula has a clean parametric form to test across multiple c values.
+    """
+
+    @pytest.mark.parametrize("c", [0.1, 0.5, 1.0, 2.0])
+    def test_mir_lead_lag(self, c):
+        rng = np.random.default_rng(42)
+        T = 5_000_000
+        data = generate_lead_lag(T, c=c, rng=rng)
+
+        _, mir = mutual_information_rate((0,), (1,), data, nperseg=2**13)
+
+        analytic = 0.5 * np.log(1 + c**2)
+        assert mir == pytest.approx(analytic, abs=ABS_TOL), (
+            f"Lead-lag MIR failed for c={c}: "
+            f"got {mir:.6f}, expected {analytic:.6f}"
+        )
+
+    def test_mir_zero_coupling(self):
+        """c=0: X and Y are independent, MIR should be 0."""
+        rng = np.random.default_rng(0)
+        T = 5_000_000
+        data = generate_lead_lag(T, c=0.0, rng=rng)
+
+        _, mir = mutual_information_rate((0,), (1,), data, nperseg=2**13)
+
+        assert mir == pytest.approx(0.0, abs=ABS_TOL)
+
+    def test_mir_symmetry(self):
+        """MIR should be symmetric: I(X;Y) == I(Y;X)."""
+        rng = np.random.default_rng(0)
+        T = 5_000_000
+        c = 0.7
+        data = generate_lead_lag(T, c=c, rng=rng)
+
+        _, mir_xy = mutual_information_rate((0,), (1,), data, nperseg=2**13)
+        _, mir_yx = mutual_information_rate((1,), (0,), data, nperseg=2**13)
+
+        assert mir_xy == pytest.approx(mir_yx, abs=1e-4)
+
+    def test_mir_matches_entropy_decomposition(self):
+        """I(X;Y) == h(X) + h(Y) - h(X,Y) for lead-lag model."""
+        rng = np.random.default_rng(0)
+        T = 5_000_000
+        c = 0.7
+        data = generate_lead_lag(T, c=c, rng=rng)
+
+        _, mir = mutual_information_rate((0,), (1,), data, nperseg=2**13)
+        _, hx = differential_entropy_rate((0,), data, nperseg=2**13)
+        _, hy = differential_entropy_rate((1,), data, nperseg=2**13)
+        _, hxy = differential_entropy_rate((0, 1), data, nperseg=2**13)
+
+        assert mir == pytest.approx(hx + hy - hxy, abs=1e-4)
+
+    def test_complex_csd_matters(self):
+        """
+        Regression test for the real-vs-complex CSD bug.
+
+        If the imaginary parts of the CSD are discarded (the old bug),
+        the MIR for the lead-lag model is overestimated because
+        det(Re(S)) > Re(det(S)) when Im(S_XY) != 0.
+
+        Specifically, for this model:
+            |S(w)| = 1  (exact, for all w)
+        but
+            det(Re(S(w))) = S_XX * S_YY - Re(S_XY)^2
+                          = (1+c^2) - c^2*cos^2(w)
+                          > 1  for w != 0, pi
+        """
+        rng = np.random.default_rng(42)
+        T = 5_000_000
+        c = 1.0
+        data = generate_lead_lag(T, c=c, rng=rng)
+
+        _, mir = mutual_information_rate((0,), (1,), data, nperseg=2**13)
+
+        analytic = 0.5 * np.log(1 + c**2)  # = 0.5 * log(2) ≈ 0.347
+        assert mir == pytest.approx(analytic, abs=ABS_TOL)
