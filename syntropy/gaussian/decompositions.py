@@ -260,8 +260,8 @@ def _pid(
 
     num_target = len(target)
     if single_target_flag is False:
-        assert num_target in (2, 3, 4), (
-            "Currently syntropy only supports \Phi-IDs on 2, 3, and 4 targets."
+        assert num_target in (2, 3), (
+            "Currently syntropy only supports \Phi-IDs on 2, and 3 targets."
         )
         lattice: nx.DiGraph = load_lattice(num_inputs=num_inputs, num_target=num_target)
     elif single_target_flag is True:
