@@ -125,20 +125,11 @@ def get_marginal_distribution(
 
     """
 
-    states: list = list(joint_distribution.keys())
-
-    reduced_states: set = {reduce_state(state, idxs) for state in states}
-    reduced_distribution: dict = {r_state: 0.0 for r_state in reduced_states}
-
-    for r_state in reduced_states:
-        reduced_distribution[r_state] = sum(
-            joint_distribution[state]
-            for state in joint_distribution.keys()
-            if reduce_state(state, idxs) == r_state
-        )
-
+    reduced_distribution = {}
+    for state, prob in joint_distribution.items():
+        r_state = reduce_state(state, idxs)
+        reduced_distribution[r_state] = reduced_distribution.get(r_state, 0.0) + prob
     return reduced_distribution
-
 
 def marginalize_out(idxs: tuple, joint_distribution: dict[tuple, float]) -> dict:
     """

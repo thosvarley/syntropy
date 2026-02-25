@@ -92,12 +92,8 @@ def local_differential_entropy(
     """
 
     if data.ndim == 1:
-        assert idxs is None, "Don't try an index a 1D array like that." 
-        return -stats.norm.logpdf(
-                x = data, 
-                loc = data.mean(),
-                scale = data.std()
-                )
+        assert idxs is None, "Don't try an index a 1D array like that."
+        return -stats.norm.logpdf(x=data, loc=data.mean(), scale=data.std())
     else:
         idxs_: tuple[int, ...] = check_idxs(idxs, data)
         cov_: NDArray[np.floating] = check_cov(cov, data)
@@ -188,6 +184,7 @@ def local_conditional_entropy(
 
     return h_joint - h_y
 
+
 def mutual_information(
     idxs_x: tuple[int, ...], idxs_y: tuple[int, ...], cov: NDArray[np.floating]
 ) -> float:
@@ -229,9 +226,9 @@ def mutual_information(
     """
     joint: tuple[int, ...] = idxs_x + idxs_y
 
-    h_x = differential_entropy(cov=cov, idxs=idxs_x) 
+    h_x = differential_entropy(cov=cov, idxs=idxs_x)
     h_y = differential_entropy(cov=cov, idxs=idxs_y)
-    h_joint = differential_entropy(cov=cov, idxs=joint) 
+    h_joint = differential_entropy(cov=cov, idxs=joint)
 
     return h_x + h_y - h_joint
 
@@ -380,7 +377,10 @@ def local_conditional_mutual_information(
 
 
 def kullback_leibler_divergence(
-    cov_posterior: NDArray[np.floating], cov_prior: NDArray[np.floating]
+    cov_posterior: NDArray[np.floating],
+    cov_prior: NDArray[np.floating],
+    mu_posterior: NDArray[np.floating] | int = 0,
+    mu_prior: NDArray[np.floating] | int = 0,
 ) -> float:
     """
     Computes the Gaussian Kullback-Leibler divergence between two :math:`k`-dimensional multivariate Gaussians parameterized by covariance matrices.
@@ -401,17 +401,31 @@ def kullback_leibler_divergence(
     float
 
     """
-    N: int = cov_prior.shape[0]  # Dimensionality
+    k = cov_posterior.shape[0]
+    
+    if mu_posterior == 0:
+        mu_posterior = np.zeros(cov_posterior.shape[0])
+    if mu_prior == 0:
+        mu_prior = np.zeros(cov_prior.shape[0])
+    
+    # Mean difference
+    d = mu_prior - mu_posterior
 
-    assert N == cov_posterior.shape[0], "The covariance matrices must be the same size"
+    # 1. Trace term: tr(cov_prior^-1 * cov_posterior)
+    # Efficiently compute cov_prior^-1 * cov_posterior using solve
+    trace_term = np.trace(np.linalg.solve(cov_prior, cov_posterior))
 
-    inv_prior = np.linalg.inv(cov_prior)  # Inverse of Sigma2
-    trace_term = np.trace(inv_prior @ cov_posterior)  # tr(Sigma2^{-1} Sigma1)
-    log_det_term = (
-        np.linalg.slogdet(cov_prior)[1] - np.linalg.slogdet(cov_posterior)[1]
-    )  # log(det(Sigma2)/det(Sigma1))
+    # 2. Quadratic term: (mu_prior-mu_posterior)^T * cov_prior^-1 * (mu_prior-mu_posterior)
+    # Solve cov_prior * x = d, then compute d^T * x
+    quad_term = d.T @ np.linalg.solve(cov_prior, d)
 
-    return 0.5 * (trace_term - N + log_det_term)
+    # 3. Log-determinant term: ln(|cov_prior| / |cov_posterior|)
+    _, logdet0 = np.linalg.slogdet(cov_posterior)
+    _, logdet1 = np.linalg.slogdet(cov_prior)
+    det_term = logdet1 - logdet0
+
+    # Final KL formula
+    return 0.5 * (trace_term + quad_term - k + det_term)
 
 
 def local_kullback_leibler_divergence(
