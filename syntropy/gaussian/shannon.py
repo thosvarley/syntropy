@@ -1,12 +1,13 @@
+import math
 import numpy as np
 import scipy.stats as stats
 from numpy.typing import NDArray
 from .utils import check_cov
 from ..utils import check_idxs
 
-LN_TWO_PI_E: float = np.log(2.0 * np.pi * np.e)
-TWO_PI: float = 2.0 * np.pi
-SQRT_TWO_PI: float = np.sqrt(TWO_PI)
+LN_TWO_PI_E: float = math.log(2.0 * math.pi * math.e)
+TWO_PI: float = 2.0 * math.pi
+SQRT_TWO_PI: float = math.sqrt(TWO_PI)
 
 
 def differential_entropy(
@@ -187,7 +188,6 @@ def local_conditional_entropy(
 
     return h_joint - h_y
 
-
 def mutual_information(
     idxs_x: tuple[int, ...], idxs_y: tuple[int, ...], cov: NDArray[np.floating]
 ) -> float:
@@ -229,27 +229,11 @@ def mutual_information(
     """
     joint: tuple[int, ...] = idxs_x + idxs_y
 
-    cov_idxs_x: NDArray[np.floating] = cov[np.ix_(idxs_x, idxs_x)]
-    cov_idxs_y: NDArray[np.floating] = cov[np.ix_(idxs_y, idxs_y)]
-    cov_joint: NDArray[np.floating] = cov[np.ix_(joint, joint)]
+    h_x = differential_entropy(cov=cov, idxs=idxs_x) 
+    h_y = differential_entropy(cov=cov, idxs=idxs_y)
+    h_joint = differential_entropy(cov=cov, idxs=joint) 
 
-    det_idxs_x: float = 0.0
-    if len(idxs_x) == 1:
-        det_idxs_x += np.linalg.det([[cov_idxs_x]])
-    else:
-        det_idxs_x += np.linalg.det(cov_idxs_x)
-
-    det_idxs_y: float = 0.0
-    if len(idxs_y) == 1:
-        det_idxs_y += np.linalg.det([[cov_idxs_y]])
-    else:
-        det_idxs_y += np.linalg.det(cov_idxs_y)
-
-    det_joint: float = np.linalg.det(cov_joint)
-
-    dets: float = (det_idxs_x * det_idxs_y) / det_joint
-
-    return (np.log(dets) / 2).item()
+    return h_x + h_y - h_joint
 
 
 def local_mutual_information(

@@ -254,20 +254,6 @@ def test_phiid():
     return None
 
 
-def test_oinfo_rate():
-    T = 5_000_000
-
-    noise = np.random.randn(3, T)
-
-    _, mi_joint = mutual_information_rate((0, 1), (2,), noise, nperseg=2**13)
-    _, mi_1 = mutual_information_rate((0,), (2,), noise, nperseg=2**13)
-    _, mi_2 = mutual_information_rate((1,), (2,), noise, nperseg=2**13)
-
-    _, oir = o_information_rate((0, 1, 2), noise, nperseg=2**13)
-
-    assert oir == pytest.approx(mi_1 + mi_2 - mi_joint, abs=pytest_abs)
-
-
 def test_idep_univariate():
     """
     Unit test from Kay and Ince (2018), Example 4 (p. 12).

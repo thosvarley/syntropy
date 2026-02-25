@@ -104,18 +104,20 @@ def simulated_annealing(
         print("Initializing annealing...")
 
     num_steps: int = (
-        math.ceil(np.log(min_temperature / temperature) / np.log(cooling_rate)) + 1
+        math.ceil(math.log(min_temperature / temperature) / math.log(cooling_rate)) + 1
     )
-    
+
     chosen_set: set[int] = set(np.random.choice(cov.shape[0], size=size, replace=False))
     best_set: set[int] = chosen_set.copy()
     available_set: set[int] = {i for i in range(cov.shape[0]) if i not in chosen_set}
-    
+
     value: float = function((cov, tuple(chosen_set)))
-    best_value: float = 1*value
+    best_value: float = 1 * value
     values: NDArray[np.floating] = np.zeros(num_steps)
 
     convergence: bool = False
+
+    cache: dict[tuple[int, ...], float] = {tuple(sorted(chosen_set)): value}
 
     counter: int = 1
     if verbose:
@@ -134,12 +136,19 @@ def simulated_annealing(
 
             chosen_set.add(swap[1])
             available_set.add(swap[0])
+            
+            # For looking up in the cache
+            tup_chosen_set: tuple[int, ...] = tuple(sorted(chosen_set))
+            
+            if tup_chosen_set in cache:
+                new_value: float = cache[tup_chosen_set]
+            else:
+                new_value: float = function((cov, tup_chosen_set))
+                cache[tup_chosen_set] = new_value
 
-            new_value: float = function((cov, tuple(chosen_set)))
-
-            diff: float = (new_value - value) / abs(
+            diff: float = (new_value - value) / (abs(
                 value
-            )  # I assume this will never *actually* be 0 exactly.
+            ) + 1e-9)  # Small noise to avoid divide-by-zero errors.
 
             if new_value > best_value:
                 best_value = new_value

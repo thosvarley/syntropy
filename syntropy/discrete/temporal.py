@@ -1,11 +1,13 @@
-import numpy as np
-from typing import Any
+import math
+from numpy.typing import NDArray
+from typing import Any, Iterable
+
 
 def lempel_ziv_complexity(
-    X: list[Any], return_dictionary: bool = False
+    X: Iterable[Any], return_dictionary: bool = False
 ) -> float | tuple[float, set]:
     """
-    Uses the classic Lempel-Ziv compression algorithm to estimate the entropy rate of a one-dimensional array with :math:`N` samples. 
+    Uses the classic Lempel-Ziv compression algorithm to estimate the entropy rate of a one-dimensional array with :math:`N` samples.
     If each element in X is a multi-dimensional tuple, then the result is equivalent to the joint entropy rate.
 
     The extension to multivariate Lempel-Ziv is straightforward and involves representing the joint state of each element at time t as a tuple (X(t), Y(t)) and treating the two sources as a single joint source.
@@ -33,9 +35,9 @@ def lempel_ziv_complexity(
     References
     ----------
 
-    Schartner, M. M., Carhart-Harris, R. L., Barrett, A. B., Seth, A. K., & Muthukumaraswamy, S. D. (2017). 
-    Increased spontaneous MEG signal diversity for psychoactive doses of ketamine, LSD and psilocybin. 
-    Scientific Reports, 7, 46421. 
+    Schartner, M. M., Carhart-Harris, R. L., Barrett, A. B., Seth, A. K., & Muthukumaraswamy, S. D. (2017).
+    Increased spontaneous MEG signal diversity for psychoactive doses of ketamine, LSD and psilocybin.
+    Scientific Reports, 7, 46421.
     https://doi.org/10.1038/srep46421
 
     Blanc, J.-L., Schmidt, N., Bonnier, L., Pezard, L., & Lesne, A. (2008).
@@ -43,7 +45,7 @@ def lempel_ziv_complexity(
     Deuxième conférence française de Neurosciences Computationnelles,
     Marseille, France.
     https://hal.science/hal-00331599/document
-    
+
     Zozor, S., Ravier, P., & Buttelli, O. (2005).
     On Lempel–Ziv complexity for multidimensional data analysis.
     Physica A: Statistical Mechanics and Its Applications, 345(1), 285–302.
@@ -54,17 +56,17 @@ def lempel_ziv_complexity(
     N: int = len(tuples)
     i = 0
 
-    dictionary = {tuples[0]}  # Store unique substrings
-
-    while i < N - 1:  # Scanning the string
+    # dictionary = {tuples[0]}  # Store unique substrings
+    dictionary = set()
+    while i < N:
         j = i + 1
-        while j < N and tuples[i : j + 1] in dictionary:
+        while j <= N and tuples[i:j] in dictionary:
             j += 1
-        dictionary.add(tuples[i : j + 1])
+        dictionary.add(tuples[i:j])
         i = j  # Move index to next position
 
     c = len(dictionary)
-    complexity = (c * np.log2(c)) / N  # The +1 is removed for consistency w/ Coutinho
+    complexity = (c * math.log2(c)) / N  # The +1 is removed for consistency w/ Coutinho
 
     if return_dictionary is True:
         return complexity, dictionary
@@ -72,7 +74,7 @@ def lempel_ziv_complexity(
         return complexity
 
 
-def lempel_ziv_mutual_information(X: list, Y: list) -> float:
+def lempel_ziv_mutual_information(X: Iterable[Any], Y: Iterable[Any]) -> float:
     """
     Estimates the discrete mutual information rate for two channels X and Y with the Lempel-Ziv compression algorithm.
     This measure can be transiently negative, although in the limit it approximates the discrete information rate.
@@ -82,11 +84,11 @@ def lempel_ziv_mutual_information(X: list, Y: list) -> float:
 
     Parameters
     ----------
-    X : list
-        A discrete list. Can contain digits 0-9 and/or
+    X : Iterable[Any]
+        An iterable of discrete RVs. Can contain digits 0-9 and/or
         single-character strings ("A", "a", "B", "b", etc.)..
-    Y : list
-        A discrete list. Can contain digits 0-9 and/or
+    Y : Iterable[Any]
+        An iterable of dicrete RVs. Can contain digits 0-9 and/or
         single-character strings ("A", "a", "B", "b", etc.)..
 
     Returns
@@ -118,7 +120,7 @@ def lempel_ziv_mutual_information(X: list, Y: list) -> float:
     )
 
 
-def conditional_lempel_ziv_complexity(X: list, Y: list) -> float:
+def conditional_lempel_ziv_complexity(X: Iterable[Any], Y: Iterable[Any]) -> float:
     """
     The conditional entropy rate estimated with the Lempel-Ziv algorithm.
 
@@ -127,12 +129,12 @@ def conditional_lempel_ziv_complexity(X: list, Y: list) -> float:
 
     Parameters
     ----------
-    X : list
-        A discrete list. Can contain digits 0-9 and/or
-        single-character strings ("A", "a", "B", "b", etc.).
-    Y : list
-        A discrete list. Can contain digits 0-9 and/or
-        single-character strings ("A", "a", "B", "b", etc.).
+    X : Iterable[Any]
+        An iterable of discrete RVs. Can contain digits 0-9 and/or
+        single-character strings ("A", "a", "B", "b", etc.)..
+    Y : Iterable[Any]
+        An iterable of dicrete RVs. Can contain digits 0-9 and/or
+        single-character strings ("A", "a", "B", "b", etc.)..
 
     Returns
     -------
@@ -153,18 +155,18 @@ def conditional_lempel_ziv_complexity(X: list, Y: list) -> float:
     return lempel_ziv_complexity(joint) - lempel_ziv_complexity(Y)
 
 
-def lempel_ziv_total_correlation(data: np.ndarray) -> float:
+def lempel_ziv_total_correlation(data: NDArray[Any]) -> float:
     """
     A straightforward generalization of the mutual information rate given by
     Zozor et al., and Blanc et al.,
 
-    .. math:: 
+    .. math::
         TC_{LZ}(X) = \\sum_{i=1}^{N} LZ(X_i) - LZ(X)
 
 
     Parameters
     ----------
-    data : np.ndarray
+    data : NDArray[Any]
         A multi-dimensional discrete array, assumed to be in
         channels x time format.
 
@@ -209,10 +211,10 @@ def cross_lempel_ziv_complexity(X: list, Y: list) -> int:
 
     Parameters
     ----------
-    X : np.ndarray
+    X : NDArray[Any]
         A discrete array. Can contain digits 0-9 and/or
         single-character strings ("A", "a", "B", "b", etc.).
-    Y : np.ndarray
+    Y : NDArray[Any]
         A discrete array. Can contain digits 0-9 and/or
         single-character strings ("A", "a", "B", "b", etc.).
 
@@ -246,6 +248,6 @@ def cross_lempel_ziv_complexity(X: list, Y: list) -> int:
         c += 1  # A new additions
         i = j  # Move forward
 
-    complexity = c * np.log2(c) / N_X
+    complexity = c * math.log2(c) / N_X
 
     return complexity

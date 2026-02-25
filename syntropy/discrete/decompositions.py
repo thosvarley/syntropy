@@ -1,4 +1,5 @@
 import numpy as np
+import math
 import networkx as nx
 from typing import Callable, Any
 from .utils import make_powerset, reduce_state
@@ -55,7 +56,7 @@ def local_precompute_sources(joint_distribution: DiscreteDist) -> Sources:
             )
 
             if probability_mass > 0:
-                local_entropies[state][source] = -np.log2(probability_mass)
+                local_entropies[state][source] = -math.log2(probability_mass)
             else:
                 local_entropies[state][source] = (
                     0  # Set log2(0) to 0 since impossible events contain no information.
@@ -157,7 +158,7 @@ def hsx_discrete_redundancy(
                 }
             )
 
-        redundant_entropy: float = -np.log2(
+        redundant_entropy: float = -math.log2(
             sum(joint_distribution[s] for s in state_set)
         )
 

@@ -1,4 +1,5 @@
 import numpy as np
+import math
 from .utils import get_marginal_distribution, flatten_nested_tuple
 
 from typing import Any
@@ -38,7 +39,7 @@ def shannon_entropy(joint_distribution: DiscreteDist) -> tuple[dict, float]:
     """
 
     ptw: dict = {
-        state: -np.log2(joint_distribution[state])
+        state: -math.log2(joint_distribution[state])
         for state in joint_distribution.keys()
         if joint_distribution[state] > 0.0
     }
@@ -90,7 +91,7 @@ def conditional_entropy(
     for state in marginal_xy.keys():
         if marginal_xy[state] > 0.0:
             p_y: float = marginal_y[state[Nx:]]
-            h: float = -np.log2(marginal_xy[state] / p_y)
+            h: float = -math.log2(marginal_xy[state] / p_y)
             ptw[((state[:Nx]), (state[Nx:]))] = h
 
             avg += marginal_xy[state] * h
@@ -149,7 +150,7 @@ def mutual_information(
             p_x: float = marginal_x[state[:Nx]]
             p_y: float = marginal_y[state[Nx:]]
 
-            mi = np.log2(marginal_xy[state] / (p_x * p_y))
+            mi = math.log2(marginal_xy[state] / (p_x * p_y))
 
             ptw[((state[:Nx]), (state[Nx:]))] = mi
 
@@ -246,7 +247,7 @@ def kullback_leibler_divergence(
     avg: float = 0
     ptw: dict = {state: 0 for state in posterior_distribution.keys()}
     for state in posterior_distribution.keys():
-        log_ratio: float = np.log2(
+        log_ratio: float = math.log2(
             posterior_distribution[state] / prior_distribution[state]
         )
 
