@@ -154,6 +154,7 @@ print(f"I(discrete ; continuous) = {mi:.3f} nats")
 | Partial Info. Decomp. | x | x | | |
 | Partial Entropy Decomp. | x | x | | |
 | Generalized Info. Decomp. | x | x | | |
+| Integrated ($\Phi$) Info. Decomp. | x | x | | |
 | Information Rates | x | x | | |
 | Connected Information | x | | | |
 | $\alpha$-Synergy Decomp. | x | | | |
