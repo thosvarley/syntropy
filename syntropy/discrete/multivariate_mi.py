@@ -112,6 +112,11 @@ def delta_k(
     for i in range(N):
         residuals: tuple = tuple(j for j in range(N) if j != i)
 
+        reduced_to_full: dict = {}
+        for s in states:
+            r = reduce_state(s, residuals)
+            reduced_to_full.setdefault(r, []).append(s)
+
         reduced_distribution: dict = marginalize_out((i,), joint_distribution)
 
         ptw_r: dict
@@ -120,11 +125,9 @@ def delta_k(
 
         avg_sum_parts += avg_r
 
-        for state in ptw_r:
-            full_states = {s for s in states if reduce_state(s, residuals) == state}
-
-            for full_state in full_states:
-                ptw_sum_parts[full_state] += ptw_r[state]
+        for state, val in ptw_r.items():
+            for full_state in reduced_to_full.get(state, ()):
+                ptw_sum_parts[full_state] += val
 
     ptw: dict = {state: ptw_whole[state] - ptw_sum_parts[state] for state in states}
     avg: float = avg_whole - avg_sum_parts
