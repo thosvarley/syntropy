@@ -152,7 +152,7 @@ def marginalize_out(idxs: tuple, joint_distribution: dict[tuple, float]) -> dict
 
     """
 
-    N: int = len(list(joint_distribution.keys())[0])
+    N: int = len(next(iter(joint_distribution)))
 
     residuals: tuple = tuple(i for i in range(N) if i not in idxs)
 
@@ -187,7 +187,7 @@ def get_all_marginal_distributions(
 
     """
 
-    N: int = len(list(joint_distribution.keys())[0])
+    N: int = len(next(iter(joint_distribution)))
 
     sources: list = list(make_powerset(range(N)))
     sources.remove(())

@@ -23,8 +23,7 @@ def dirichlet_probabilities(
     data : NDArray[Any]
         2D array of shape (channels, samples) containing discrete observations.
     prior : str | Sequence[float]
-        Either a named prior ('mle', 'laplace', 'jeffreys', 'perks') or a 
-        custom vector of pseudocounts with length matching the alphabet size.
+        Either a named prior ('mle', 'laplace', 'jeffreys', 'perks') or a custom vector of pseudocounts with length matching the alphabet size.
     alphabet : Sequence[Any] | None
         Optional full alphabet of possible states. If None, uses only observed states.
 

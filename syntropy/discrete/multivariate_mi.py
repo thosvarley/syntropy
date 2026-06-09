@@ -366,7 +366,7 @@ def tse_complexity(
     https://doi.org/10.1038/s42003-023-04843-w
 
     """
-    N: int = len(list(joint_distribution.keys())[0])
+    N: int = len(next(iter(joint_distribution)))
 
     tc_whole: float = total_correlation(joint_distribution)[1]
 
@@ -441,7 +441,7 @@ def description_complexity(
 
     """
 
-    N = float(len(list(joint_distribution.keys())[0]))
+    N = float(len(next(iter(joint_distribution))))
 
     ptw: dict
     avg: float
@@ -493,7 +493,7 @@ def connected_information(
 
     """
 
-    N: int = len(list(joint_distribution.keys())[0])
+    N: int = len(next(iter(joint_distribution)))
     if maximum_order == -1:
         maximum_order = N
     

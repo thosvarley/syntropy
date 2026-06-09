@@ -2,7 +2,7 @@ import numpy as np
 import math
 import networkx as nx
 from typing import Callable, Any
-from .utils import make_powerset, reduce_state
+from .utils import make_powerset, reduce_state, get_marginal_distribution
 from .shannon import mutual_information
 from ..lattices import load_lattice, mobius_inversion
 
@@ -31,36 +31,19 @@ def local_precompute_sources(joint_distribution: DiscreteDist) -> Sources:
 
     """
 
-    N: int = len(list(joint_distribution.keys())[0])
+    N: int = len(next(iter(joint_distribution)))
 
-    sources: list = list(make_powerset(range(N)))
-    sources.remove(())
+    sources: list = [s for s in make_powerset(range(N)) if s]
 
-    local_entropies: dict = {
-        state: {source: {} for source in sources} for state in joint_distribution.keys()
-    }
+    marginals: dict = {src: get_marginal_distribution(src, joint_distribution) for src in sources}
 
-    state: tuple[Any, ...]
-    for state in local_entropies.keys():
-        source: tuple
-        for source in local_entropies[state]:
-            # For a given state x, and a given source s, computes the total probability mass of the joint
-            # distribution consistent with the state of the source.
-            # E.g. if state = (0,0,0) and source = (0,1), probability_mass = P(X0=0 AND X1=0)
-            probability_mass = sum(
-                [
-                    joint_distribution[key]
-                    for key in joint_distribution.keys()
-                    if reduce_state(key, source) == reduce_state(state, source)
-                ]
-            )
-
-            if probability_mass > 0:
-                local_entropies[state][source] = -math.log2(probability_mass)
-            else:
-                local_entropies[state][source] = (
-                    0  # Set log2(0) to 0 since impossible events contain no information.
-                )
+    local_entropies: dict = {}
+    for state in joint_distribution:
+        state_entry = {}
+        for source in sources:
+            p = marginals[source].get(reduce_state(state, source), 0.0)
+            state_entry[source] = -math.log2(p) if p > 0 else 0
+        local_entropies[state] = state_entry
 
     return local_entropies
 

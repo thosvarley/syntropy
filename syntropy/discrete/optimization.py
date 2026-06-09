@@ -43,7 +43,7 @@ def constrained_maximum_entropy_distributions(
         order == -1
     ), "Give just one: fixed constraints or marginal order."
 
-    N = len(list(joint_distribution.keys())[0])
+    N = len(next(iter(joint_distribution)))
 
     if order != -1:
         marginal_constraints = list(it.combinations(range(N), r=order))
@@ -79,37 +79,31 @@ def constrained_maximum_entropy_distributions(
     else:  # Otherwise do the IPF algorithm.
         maxent = {state: 1 / len(maxent_states) for state in maxent_states}
 
+        state_to_reduced = {m: {state: reduce_state(state, m) for state in maxent_states} for m in marginal_constraints}
+
         for _ in range(max_iters):
 
             prev = maxent.copy()
             for m in marginal_constraints:
-
+                s2r = state_to_reduced[m]
                 target_marg = marginals[m]
-                maxent_marg = get_marginal_distribution(m, maxent)
+
+                maxent_marg: dict = {}
+                for state, prob in maxent.items():
+                    r = s2r[state]
+                    maxent_marg[r] = maxent_marg.get(r, 0.0) + prob
 
                 scaling_factors = {
-                    key: (
-                        target_marg[key] / maxent_marg[key]
-                        if maxent_marg[key] > 0
-                        else 0
-                    )
-                    for key in target_marg.keys()
+                    key: target_marg[key] / maxent_marg[key]
+                    for key in target_marg
+                    if maxent_marg.get(key, 0) > 0
                 }
 
-                maxent = {
-                    state: (
-                        maxent[state] * scaling_factors[reduce_state(state, m)]
-                        if reduce_state(state, m) in scaling_factors
-                        else maxent[state]
-                    )
-                    for state in maxent.keys()
-                }
-                maxent = {
-                    state: maxent[state] / sum(maxent.values())
-                    for state in maxent.keys()
-                }
+                maxent = {state: maxent[state] * scaling_factors.get(s2r[state], 1.0) for state in maxent}
+                total = sum(maxent.values())
+                maxent = {state: v / total for state, v in maxent.items()}
 
-            if sum([abs(prev[key] - maxent[key]) for key in maxent.keys()]) < tol:
+            if sum(abs(prev[key] - maxent[key]) for key in maxent) < tol:
                 break
 
     return maxent
