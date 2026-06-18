@@ -1,7 +1,7 @@
 import math
 from numpy.typing import NDArray
 from typing import Any, Iterable
-
+from __future__ import annotations
 
 def lempel_ziv_complexity(
     X: Iterable[Any], return_dictionary: bool = False

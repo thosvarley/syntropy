@@ -4,7 +4,7 @@ from scipy.special import digamma
 from scipy.spatial import cKDTree
 from .utils import build_tree_and_get_distances, get_counts_from_tree
 from ..utils import check_idxs
-
+from __future__ import annotations
 
 def total_correlation(
     data: NDArray[np.floating],

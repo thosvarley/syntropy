@@ -3,7 +3,7 @@ from numpy.typing import NDArray
 from scipy.special import digamma
 from .utils import build_tree_and_get_distances, get_counts_from_tree
 from ..utils import check_idxs
-
+from __future__ import annotations
 
 def differential_entropy(
     data: NDArray[np.floating],

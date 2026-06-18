@@ -4,6 +4,7 @@ import scipy.stats as stats
 from numpy.typing import NDArray
 from .utils import check_cov
 from ..utils import check_idxs
+from __future__ import annotations 
 
 LN_TWO_PI_E: float = math.log(2.0 * math.pi * math.e)
 TWO_PI: float = 2.0 * math.pi
