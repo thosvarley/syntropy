@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import torch
 import torch.optim as optim
 from torch.utils.data import DataLoader, TensorDataset
@@ -9,7 +11,6 @@ from nflows.transforms.autoregressive import MaskedAffineAutoregressiveTransform
 from nflows.transforms.base import CompositeTransform
 from nflows.transforms.permutations import RandomPermutation
 
-from __future__ import annotations
 
 def initialize_flow(
     dim: int,

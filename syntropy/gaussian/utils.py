@@ -1,7 +1,8 @@
+from __future__ import annotations
+
 import numpy as np
 import scipy.stats as stats
 from numpy.typing import NDArray
-from __future__ import annotations
 
 # %% LIBRARY
 

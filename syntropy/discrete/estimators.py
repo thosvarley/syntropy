@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import numpy as np
 
 from scipy.special import digamma
@@ -6,7 +8,6 @@ from typing import Any, Sequence, Callable
 
 from .shannon import shannon_entropy, mutual_information
 from .utils import get_marginal_distribution
-from __future__ import annotations
 DiscreteDist = dict[tuple[Any, ...], float]
 
 

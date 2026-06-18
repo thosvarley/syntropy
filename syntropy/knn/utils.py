@@ -2,7 +2,6 @@ import numpy as np
 from numpy.typing import NDArray
 from scipy.spatial import cKDTree
 
-
 def build_tree_and_get_distances(
     data: NDArray[np.floating], k: int, p: float = np.inf
 ) -> tuple[cKDTree, NDArray[np.floating], NDArray[np.integer]]:

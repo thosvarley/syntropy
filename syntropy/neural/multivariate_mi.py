@@ -1,6 +1,7 @@
+from __future__ import annotations
+
 import torch
 from .shannon import differential_entropy
-from __future__ import annotations
 
 # %%
 def total_correlation(

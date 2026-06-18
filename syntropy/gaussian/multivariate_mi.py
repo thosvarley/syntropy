@@ -1,10 +1,11 @@
+from __future__ import annotations
+
 import numpy as np
 from .shannon import local_differential_entropy, differential_entropy
 from numpy.typing import NDArray
 from .utils import check_cov, covariance_to_correlation
 from ..utils import check_idxs, make_powerset
 from .decompositions import local_precompute_sources
-from __future__ import annotations
 
 def local_total_correlation(
     data: NDArray[np.floating],

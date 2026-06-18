@@ -1,8 +1,9 @@
+from __future__ import annotations
+
 import torch
 import nflows
 from .utils import initialize_flow, train_flow, evaluate_flow
 from typing import Any
-from __future__ import annotations
 
 def differential_entropy(
     idxs: tuple[int, ...],

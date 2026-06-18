@@ -1,8 +1,9 @@
+from __future__ import annotations
+
 import numpy as np 
 from numpy.typing import NDArray
 from typing import Iterable
 import itertools as it 
-from __future__ import annotations
 
 def check_idxs(idxs: tuple[int, ...] | None, data: NDArray[np.floating]) -> tuple[int, ...]:
     
