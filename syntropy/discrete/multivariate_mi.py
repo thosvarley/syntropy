@@ -1,3 +1,4 @@
+import math
 import numpy as np
 import itertools as it
 from scipy.special import comb
@@ -98,16 +99,25 @@ def delta_k(
     states: list[tuple[int, ...]] = list(joint_distribution.keys())
     N: int = len(states[0])
 
-    ptw_tc: dict
-    avg_tc: float
+    first_order_marginals: list[dict] = [
+        get_marginal_distribution((j,), joint_distribution) for j in range(N)
+    ]
 
-    ptw_tc, avg_tc = total_correlation(joint_distribution)
+    ptw_tc: dict = {}
+    avg_tc: float = 0.0
+    for state, prob in joint_distribution.items():
+        log_q: float = sum(
+            math.log2(first_order_marginals[j][(state[j],)]) for j in range(N)
+        )
+        val: float = math.log2(prob) - log_q
+        ptw_tc[state] = val
+        avg_tc += prob * val
 
     avg_whole: float = (N - k) * avg_tc
     avg_sum_parts: float = 0.0
 
     ptw_whole = {state: ptw_tc[state] * (N - k) for state in states}
-    ptw_sum_parts = {state: 0 for state in states}
+    ptw_sum_parts = {state: 0.0 for state in states}
 
     for i in range(N):
         residuals: tuple = tuple(j for j in range(N) if j != i)
@@ -119,9 +129,16 @@ def delta_k(
 
         reduced_distribution: dict = marginalize_out((i,), joint_distribution)
 
-        ptw_r: dict
-        avg_r: dict
-        ptw_r, avg_r = total_correlation(reduced_distribution)
+        ptw_r: dict = {}
+        avg_r: float = 0.0
+        for state_r, prob in reduced_distribution.items():
+            log_q = sum(
+                math.log2(first_order_marginals[residuals[m]][(state_r[m],)])
+                for m in range(N - 1)
+            )
+            val = math.log2(prob) - log_q
+            ptw_r[state_r] = val
+            avg_r += prob * val
 
         avg_sum_parts += avg_r
 

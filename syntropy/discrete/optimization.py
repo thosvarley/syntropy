@@ -1,6 +1,7 @@
 import numpy as np
 import itertools as it
 from .utils import get_marginal_distribution, reduce_state
+import math
 
 
 def constrained_maximum_entropy_distributions(
@@ -71,7 +72,7 @@ def constrained_maximum_entropy_distributions(
         maxent = {}
 
         for state in maxent_states:
-            maxent[state] = np.prod(
+            maxent[state] = math.prod(
                 [first_order_marginals[i][(state[i],)] for i in range(N)]
             )
 
