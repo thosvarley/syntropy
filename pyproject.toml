@@ -30,12 +30,22 @@ classifiers = [
 ]
 license = "MIT"
 license-files = ["LICEN[CS]E*"]
+
 dependencies = [
     "numpy>=1.20.0",
     "scipy>=1.7.0",
     "networkx>=2.6.0",
+]
+
+[project.optional-dependencies]
+neural = [
     "torch>=1.9.0",
-    "nflows>=0.14"
+    "nflows>=0.14",
+]
+dev = [
+    "pytest>=7.0.0",
+    "pytest-cov>=4.0.0",
+    "pandas>=1.3.0",
 ]
 
 [project.urls]
@@ -43,12 +53,6 @@ Homepage = "https://github.com/thosvarley/syntropy"
 Repository = "https://github.com/thosvarley/syntropy"
 Documentation = "https://syntropyx.readthedocs.io"
 Issues = "https://github.com/thosvarley/syntropy/issues"
-
-[project.optional-dependencies]
-dev = [
-    "pytest>=7.0.0",
-    "pytest-cov>=4.0.0",
-]
 
 [tool.hatch.build.targets.wheel]
 packages = ["syntropy"]

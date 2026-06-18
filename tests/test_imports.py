@@ -1,18 +1,17 @@
-# test_imports.py
-print("Testing discrete...")
-import syntropy.discrete
-print("✓ discrete OK")
+"""Smoke test: every public submodule imports cleanly."""
+import importlib
+import pytest
 
-print("Testing gaussian...")
-import syntropy.gaussian  
-print("✓ gaussian OK")
+CORE = ["syntropy.discrete", "syntropy.gaussian", "syntropy.knn",
+        "syntropy.mixed", "syntropy.lattices"]
 
-print("Testing knn...")
-import syntropy.knn
-print("✓ knn OK")
 
-print("Testing neural...")
-import syntropy.neural
-print("✓ neural OK")
+@pytest.mark.parametrize("module", CORE)
+def test_core_imports(module):
+    assert importlib.import_module(module) is not None
 
-print("\n✓ All imports successful - no circular dependencies!")
+
+def test_neural_imports():
+    pytest.importorskip("torch")
+    pytest.importorskip("nflows")
+    assert importlib.import_module("syntropy.neural") is not None
