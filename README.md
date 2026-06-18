@@ -3,6 +3,7 @@
 [![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Documentation](https://readthedocs.org/projects/syntropy/badge/?version=latest)](https://syntropy.readthedocs.io/en/latest/)
+![Tests](https://github.com/thosvarley/syntropy/actions/workflows/test.yml/badge.svg)
 
 **Syntropy** is a Python library for multivariate information-theoretic analysis of discrete and continuous data. It provides efficient implementations of information measures ranging from basic quantities like entropy and mutual information to modern constructs like the partial information decomposition, O-information, and information rates for time series.
 
