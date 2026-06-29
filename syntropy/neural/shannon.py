@@ -149,8 +149,6 @@ def mutual_information(
         The tuple of indices for the y variable.
     data : torch.Tensor
         The training data, in samples x features format.
-    context : None | tuple[int]
-        If not None, the indices of the conditioning variables.
     data_test : None | torch.Tensor
         If not None, the testing data in samples x features format.
     flow_kwargs : dict
@@ -215,8 +213,6 @@ def conditional_mutual_information(
         The tuple of indices for the y variable.
     data : torch.Tensor
         The training data, in samples x features format.
-    context : None | tuple[int]
-        If not None, the indices of the conditioning variables.
     data_test : None | torch.Tensor
         If not None, the testing data in samples x features format.
     flow_kwargs : dict

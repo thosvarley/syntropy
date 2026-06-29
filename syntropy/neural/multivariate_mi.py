@@ -98,8 +98,6 @@ def higher_order_information(
         The tuple of indices the differential entropy is computed for.
     data : torch.Tensor
         The training data, in samples x features format.
-    context : None | tuple[int]
-        If not None, the indices of the conditioning variables.
     data_test : None | torch.Tensor
         If not None, the testing data in samples x features format.
     flow_kwargs : dict

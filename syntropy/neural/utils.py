@@ -49,7 +49,7 @@ def initialize_flow(
             MaskedAffineAutoregressiveTransform(
                 features=dim,
                 hidden_features=hidden_features,
-                context_features=dim_context,
+                context_features=dim_context or None,
                 dropout_probability=dropout_probability,
             )
         )
