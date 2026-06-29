@@ -23,23 +23,27 @@ Examples
    #############################################################
    from syntropy.discrete import mutual_information, kullback_leibler_divergence, o_information, partial_information_decomposition
    from syntropy.discrete.distributions import XOR_DIST, MAXENT_DIST_3
-
+   
+   # Mutual information
    ptw, avg = mutual_information(
         idxs_x = (0,1), 
         idxs_y = (2,), 
         joint_distribution=XOR_DIST
         )
    print(f"I(X1,X2 ; Y) = {avg}") # Equal to 1 bit. 
-
+   
+   # Kullback-Leibler divergence
    ptw, avg = kullback_leibler_divergence(
         posterior_distribution = XOR_DIST,
         prior_distribution = MAXENT_DIST_3
    )
    print(f"D_KL(XOR || MAXENT) = {avg}") # Equal to 1 bit. 
-
+   
+   # O-information
    ptw, avg = o_information(XOR_DIST)
    print(f"O-information(XOR) = {avg}") # Equal to -1 bit.
-
+   
+   # Partial information decomposition
    ptw, avg = partial_information_decomposition(
         inputs = (0,1),
         target = (2,),
@@ -56,7 +60,8 @@ Examples
    import numpy as np 
    from scipy.stats import multivariate_normal
    from syntropy.gaussian import mutual_information, local_mutual_information, kullback_leibler_divergence, partial_information_decomposition, o_information, local_o_information
-
+   
+   # Generating some data
    num_samples = 1_000_000
    cov = np.array([
         [0.99999999, 0.24404644, 0.65847509],
@@ -69,12 +74,16 @@ Examples
         size=num_samples
         ).T
    emp = np.cov(data, ddof=0) # Empirical covariance for finite-sample estimates.
+
+   # Mutual information
    avg = mutual_information(
         idxs_x = (0,1),
         idxs_y = (2,),
         cov = emp
         )
    print(f"I(X;Y) = {avg:.3} nat")
+
+   # Local mutual information.
    local = local_mutual_information(
         idxs_x=(0,1),
         idxs_y = (2,),
@@ -89,12 +98,14 @@ Examples
         [0.0, 0.0, 1.0]
         ])
 
+   # Kullback-Leibler divergence
    dkl = kullback_leibler_divergence(
         cov_posterior = cov,
         cov_prior = maxent
         )
    print(f"D_KL(cov || I) = {dkl:.3} nat")
-
+   
+   # O-information + local O-information
    oinfo = o_information(
         cov = emp
         )
@@ -104,6 +115,15 @@ Examples
    print(f"O-information(X) = {oinfo:.3} nat")
    print(f"E[local_o] = oinfo: {np.isclose(oinfo, local_o.mean())}")
    
+   # Partial information decomposition
+   ptw, avg = partial_information_decomposition(
+       inputs = (0,1),
+       target = (2,),
+       data = data,
+       redundancy_function = "ipm"
+   )
+   print(f"Redundancy: {avg[((0,),(1,))]}\nUnique 0: {avg[((0,),)]}\nUnique 1: {avg[((1,),)]}\nSynergy: {avg[((0,1),)]}")
+
    #############################################################
    # Example with Kraskov estimator
    #############################################################
@@ -113,6 +133,8 @@ Examples
    # Note that there is no KNN-based DKL or PID.
    
    data = data[:,:100_000] # Reducing the number of data points.
+   
+   # Mutual information 
    ptw, avg = mutual_information(
         idxs_x=(0,1),
         idxs_y=(2,),
@@ -121,7 +143,8 @@ Examples
         algorithm = 1 # Whether to use the KSG1 or KSG2 MI estimator.
    )
    print(f"I(X;Y) = {avg:.3} nat") # Should be similar to the Gaussian MI above.
-
+   
+   # O-information
    ptw, avg = o_information(
         data = data, 
         k = 5,
