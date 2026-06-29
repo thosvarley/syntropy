@@ -155,6 +155,8 @@ Examples
    :maxdepth: 2
    :caption: Getting Started:
 
+   statement_of_need
+   overview
    installation
    quickstart
 

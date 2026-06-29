@@ -71,7 +71,7 @@ def shannon_entropy(
             ptw[:, mask] += ptw_conditional
             conditional_entropy += probs[i] * ptw_conditional.mean()
 
-        elif continuous_estimator == "knn":
+        else:  # "knn"
             ptw_conditional, avg_conditional = knn.differential_entropy(
                 continuous_conditional, k=k
             )
@@ -142,14 +142,12 @@ def conditional_entropy(
     if conditional == "continuous":
         if continuous_estimator == "gaussian":
             cov: NDArray[np.floating] = np.atleast_2d(np.cov(continuous_vars, ddof=0))
-            ptw_marginal = gaussian.local_differential_entropy(
-                continuous_vars, cov=cov
-            )
+            ptw_marginal = gaussian.local_differential_entropy(continuous_vars, cov=cov)
             avg_marginal = ptw_marginal.mean()
-        elif continuous_estimator == "knn": 
+        else:  # "knn"
             ptw_marginal, avg_marginal = knn.differential_entropy(continuous_vars, k)
 
-    elif conditional == "discrete":
+    else:  # "discrete"
         unq: NDArray[np.integer]
         counts: NDArray[np.integer]
         unq, counts = np.unique(discrete_vars, axis=1, return_counts=True)
@@ -172,10 +170,16 @@ def conditional_entropy(
 
 
 def mutual_information(
-    discrete_vars: NDArray[np.integer], continuous_vars: NDArray[np.floating]
+    discrete_vars: NDArray[np.integer],
+    continuous_vars: NDArray[np.floating],
+    continuous_estimator: str = "gaussian",
+    k: int = 5,
 ) -> tuple[NDArray[np.floating], float]:
     """
     Returns the local and average mutual information between two (potentially multivariate) discrete and continuous random variables.
+
+    Computed as :math:`I(D; C) = H(C) - H(C | D)`, where the continuous
+    entropies are estimated with either a Gaussian or a KNN-based estimator.
 
     Parameters
     ----------
@@ -183,27 +187,38 @@ def mutual_information(
         Numpy array of the discrete variables, of shape (n_variables, n_samples)
     continuous_vars : NDArray[np.floating]
         Numpy array of the continuous variables, of shape (n_variables, n_samples)
+    continuous_estimator : str
+        Whether to use a Gaussian or KNN-based estimator of the continuous entropy. Options are "gaussian" or "knn".
+    k : int (optional)
+        If a KNN-based estimator is selected, sets the k-value. Defaults to 5.
 
 
     Returns
     -------
     NDArray[np.floating]
-        The local entropy for each sample.
+        The local mutual information for each sample.
     floating
-        The expected entropy over all samples.
+        The expected mutual information over all samples.
 
 
     """
     assert discrete_vars.shape[1] == continuous_vars.shape[1], (
         "The discrete and continuous variables must have the same number of samples."
     )
+    assert continuous_estimator in {
+        "gaussian",
+        "knn",
+    }, "Continuous estimator options are 'gaussian' or 'knn'."
 
-    cov: NDArray[np.floating] = np.atleast_2d(np.cov(continuous_vars, ddof=0))
-
-    avg: float = gaussian.differential_entropy(cov)
-    ptw: NDArray[np.floating] = gaussian.local_differential_entropy(
-        continuous_vars, cov
-    )
+    # Marginal continuous entropy H(C).
+    avg: float
+    ptw: NDArray[np.floating]
+    if continuous_estimator == "gaussian":
+        cov: NDArray[np.floating] = np.atleast_2d(np.cov(continuous_vars, ddof=0))
+        avg = gaussian.differential_entropy(cov)
+        ptw = gaussian.local_differential_entropy(continuous_vars, cov)
+    else:  # "knn"
+        ptw, avg = knn.differential_entropy(continuous_vars, k=k)
 
     unq: NDArray[np.integer]
     counts: NDArray[np.integer]
@@ -214,15 +229,25 @@ def mutual_information(
     for i in range(unq.shape[1]):
         state: NDArray[np.integer] = unq[:, [i]]
         mask: NDArray[np.bool_] = np.all(discrete_vars == state, axis=0)
+        continuous_conditional: NDArray[np.floating] = continuous_vars[:, mask]
 
-        cov_conditional: NDArray[np.floating] = np.atleast_2d(
-            np.cov(continuous_vars[:, mask], ddof=0)
-        )
-        conditional_entropy += probs[i] * gaussian.differential_entropy(cov_conditional)
+        local_conditional: NDArray[np.floating]
+        if continuous_estimator == "gaussian":
+            cov_conditional: NDArray[np.floating] = np.atleast_2d(
+                np.cov(continuous_conditional, ddof=0)
+            )
+            conditional_entropy += probs[i] * gaussian.differential_entropy(
+                cov_conditional
+            )
+            local_conditional = gaussian.local_differential_entropy(
+                continuous_conditional, cov_conditional
+            )
+        else:  # "knn"
+            local_conditional, avg_conditional = knn.differential_entropy(
+                continuous_conditional, k=k
+            )
+            conditional_entropy += probs[i] * avg_conditional
 
-        local_conditional: NDArray[np.floating] = gaussian.local_differential_entropy(
-            continuous_vars[:, mask], cov_conditional
-        )
         ptw[:, mask] -= local_conditional
 
     avg -= conditional_entropy
