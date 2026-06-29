@@ -54,11 +54,11 @@ def differential_entropy_rate(
     fs: int = 1,
     nperseg: int = 1024,
 ) -> tuple[NDArray[np.floating], float]:
-    """
+    r"""
     Computes the differential entropy rate of a potentially multivariate stochastic process.
 
     .. math::
-        H(X)=\\frac{1}{4\\pi} \int_{-\\pi}^{\\pi} \\log \\left( (2\\pi e)^N |S_X(\\omega)| \\right) \\, d\\omega
+        H(X)=\frac{1}{4\pi} \int_{-\pi}^{\pi} \log \left( (2\pi e)^N |S_X(\omega)| \right) \, d\omega
 
     Parameters
     ----------
@@ -101,11 +101,11 @@ def mutual_information_rate(
     fs: int = 1,
     nperseg: int = 1024,
 ) -> tuple[NDArray[np.floating], float]:
-    """
+    r"""
     Computes the mutual information rate between two (potentially multivariate) Gaussian processes.
 
-    .. math:: 
-        I(X; Y) = \\frac{1}{4\\pi} \\int_{-\\pi}^{\\pi} \\log \\left( \\frac{  |S_X(\\omega)||S_Y(\\omega)| }{ |S_{XY}(\\omega)| } \\right) d\\omega
+    .. math::
+        I(X; Y) = \frac{1}{4\pi} \int_{-\pi}^{\pi} \log \left( \frac{  |S_X(\omega)||S_Y(\omega)| }{ |S_{XY}(\omega)| } \right) d\omega
 
     Parameters
     ----------
@@ -172,11 +172,11 @@ def total_correlation_rate(
     fs: int = 1,
     nperseg: int = 1024,
 ) -> tuple[NDArray[np.floating], float]:
-    """
+    r"""
     A straightforward extension of the mutual information rate to the total correlation.
 
-    .. math:: 
-        TC(X,Y,\\ldots,Z) = \\frac{1}{4\\pi} \\int_{-\\pi}^{\\pi} \\log \\left( \\frac{  |S_X(\\omega)||S_Y(\\omega)|\\ldots|S_Z(\\omega)| }{ |S_{XY\\ldots Z}(\\omega)| } \\right) d\\omega
+    .. math::
+        TC(X,Y,\ldots,Z) = \frac{1}{4\pi} \int_{-\pi}^{\pi} \log \left( \frac{  |S_X(\omega)||S_Y(\omega)|\ldots|S_Z(\omega)| }{ |S_{XY\ldots Z}(\omega)| } \right) d\omega
 
     WARNING: As far as I know this TC rate idea has never been formally explored before. It should work fine as a natural generalization of the MI, but it hasn't ever been published or peer reviewed.
 

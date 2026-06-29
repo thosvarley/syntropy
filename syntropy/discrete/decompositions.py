@@ -94,13 +94,13 @@ def hmin_discrete_redundancy(
 def hsx_discrete_redundancy(
     atom: Atom, state: tuple[Any, ...], joint_distribution: DiscreteDist
 ) -> float:
-    """
+    r"""
     Computes the redundant entropy shared by a set of sources using the :math:`h_{sx}` function.
 
-    For a collection of sources :math:`\\alpha = \\{a_{1}, a_{2}, \\ldots, a_{k}\\}`,
+    For a collection of sources :math:`\alpha = \{a_{1}, a_{2}, \ldots, a_{k}\}`,
     the redundancy is defined as
 
-    :math:`h^{sx}_{\cap}(\\alpha) = -\\log_{2} P(a_{1} \\cup a_{2} \\cup \\ldots \\cup a_{k})`.
+    :math:`h^{sx}_{\cap}(\alpha) = -\log_{2} P(a_{1} \cup a_{2} \cup \ldots \cup a_{k})`.
 
     See:
         Varley, T. F., Pope, M., Maria Grazia, P., Joshua, F., & Sporns, O. (2023).
@@ -308,13 +308,13 @@ def isx_discrete_redundancy(
     joint_distribution: DiscreteDist,
     single_target_flag: bool = True,
 ) -> float:
-    """
+    r"""
     Computes the redundant entropy shared by a set of sources using the :math:`h_{sx}` function.
 
-    For a collection of sources :math:`\\alpha = \\{a_{1}, a_{2}, \\ldots, a_{k}\\}`,
+    For a collection of sources :math:`\alpha = \{a_{1}, a_{2}, \ldots, a_{k}\}`,
     the redundancy is defined as
 
-    :math:`h^{sx}_{\cap}(\\alpha) = -\\log_{2} P(a_{1} \\cup a_{2} \\cup \\ldots \\cup a_{k})`.
+    :math:`h^{sx}_{\cap}(\alpha) = -\log_{2} P(a_{1} \cup a_{2} \cup \ldots \cup a_{k})`.
 
     Parameters
     ----------
@@ -442,7 +442,7 @@ def _pid(
     num_target = len(target)
     if single_target_flag is False:
         assert num_target in (2, 3), (
-            "Currently syntropy only supports \Phi-IDs on 2 and 3 targets."
+            r"Currently syntropy only supports \Phi-IDs on 2 and 3 targets."
         )
         lattice: nx.DiGraph = load_lattice(num_inputs=num_inputs, num_target=num_target)
     elif single_target_flag is True:
@@ -508,16 +508,16 @@ def partial_information_decomposition(
     joint_distribution: DiscreteDist,
     redundancy_function: str,
 ) -> Any:
-    """
+    r"""
     Computes the partial information decomposition for up to four input variables onto one (potentially joint) target variable.
 
     The available redundancy functions are :math:`MMI`, :math:`i_{pm}` from Finn and Lizier and :math:`i_{sx}` from Makkeh et al..
 
-    .. math:: 
+    .. math::
 
-        i_{pm}(\\alpha;t) &= \\min h(\\alpha_i) - \min h(\\alpha_i|t) \\\\
-           i_{sx}(\\alpha;t) &= \\log\\frac{P(t)-P(t\\cap(\\alpha_1\\cup ...\\cup\\alpha_k))}{1-P(\\bar\\alpha_1\\cap ...\\cap\\alpha_N)} \\\\
-           i_{MMI}(\\alpha;t) &= \\min_i I(\\alpha_i;T) 
+        i_{pm}(\alpha;t) &= \min h(\alpha_i) - \min h(\alpha_i|t) \\
+           i_{sx}(\alpha;t) &= \log\frac{P(t)-P(t\cap(\alpha_1\cup ...\cup\alpha_k))}{1-P(\bar\alpha_1\cap ...\cap\alpha_N)} \\
+           i_{MMI}(\alpha;t) &= \min_i I(\alpha_i;T)
     
     Parameters
     ----------
@@ -578,15 +578,15 @@ def integrated_information_decomposition(
     joint_distribution: DiscreteDist,
     redundancy_function: str,
 ) -> Any:
-    """
+    r"""
     Computes the integrated information decomposition introduced by Rosas, Mediano, et al.
-    The PhiID relaxes the requirement of only having a single target, and instead allows for 
-    redundant-redundant, synergistic-synergistic, etc interactions. 
+    The PhiID relaxes the requirement of only having a single target, and instead allows for
+    redundant-redundant, synergistic-synergistic, etc interactions.
 
-    Available redundancy functions are: 
-        i_{pm}(\\alpha;\\beta) &= \\min_i h(\\alpha_i) + \\min_i h(\\beta_i) - \min h(\\alpha_i, \\beta_i) \\\\
-                i_{tsx}(\\alpha;\\beta) &= h_{sx}(\\alpha) + h_{sx}(\\beta) - h_{sx}(\\alpha\\cap\\beta)
-                i_{MMI}(\\alpha;\\beta) &= \\min_{ij} I(\\alpha_i;\\beta_j) 
+    Available redundancy functions are:
+        i_{pm}(\alpha;\beta) &= \min_i h(\alpha_i) + \min_i h(\beta_i) - \min h(\alpha_i, \beta_i) \\
+                i_{tsx}(\alpha;\beta) &= h_{sx}(\alpha) + h_{sx}(\beta) - h_{sx}(\alpha\cap\beta)
+                i_{MMI}(\alpha;\beta) &= \min_{ij} I(\alpha_i;\beta_j)
 
 
     Parameters

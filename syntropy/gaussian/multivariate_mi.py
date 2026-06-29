@@ -347,15 +347,16 @@ def local_dual_total_correlation(
 def dual_total_correlation(
     cov: NDArray[np.floating], idxs: tuple[int, ...] | None = None
 ) -> float:
-    """
+    r"""
     Computes the dual total correlation using Gaussian estimation.
 
-    .. math:: 
+    .. math::
 
-        DTC(X) &= H(X) - \\sum_{i=1}^{N}H(X_i|X^{-i}) \\\\
-               &= (N-1)\\times TC(X) - \\sum_{i=1}^{N}TC(X^{-i})
-    
-    If you wish to use a Gaussian copula estimator, use the correlation matrix returned by the function :func:`utils.copula_transform`. 
+        DTC(X) &= H(X) - \sum_{i=1}^{N}H(X_i|X^{-i}) \\
+               &= (N-1)\times TC(X) - \sum_{i=1}^{N}TC(X^{-i})
+
+    If you wish to use a Gaussian copula estimator, use the correlation matrix returned by the function :func:`utils.copula_transform`.
+
     Parameters
     ----------
     data : NDArray[np.floating]

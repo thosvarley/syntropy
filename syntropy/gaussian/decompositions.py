@@ -262,7 +262,7 @@ def _pid(
     num_target = len(target)
     if single_target_flag is False:
         assert num_target in (2, 3), (
-            "Currently syntropy only supports \Phi-IDs on 2, and 3 targets."
+            r"Currently syntropy only supports \Phi-IDs on 2, and 3 targets."
         )
         lattice: nx.DiGraph = load_lattice(num_inputs=num_inputs, num_target=num_target)
     elif single_target_flag is True:
@@ -307,15 +307,15 @@ def partial_information_decomposition(
     cov: NDArray[np.floating] | None = None,
     redundancy_function: str = "ipm",
     ) -> Any:
-    """
+    r"""
     Computes the partial information decomposition for up to four input variables onto one (potentially joint) target variable.
 
-    The available redundancy functions are :math:`MMI` and :math:`i_{\\min}` from Finn and Lizier. 
+    The available redundancy functions are :math:`MMI` and :math:`i_{\min}` from Finn and Lizier.
 
     .. math::
 
-        i_{pm}(\\alpha;t) &= \\min h(\\alpha_i) - \min h(\\alpha_i|t) \\\\
-           i_{MMI}(\\alpha;t) &= \\min_i I(\\alpha_i;T) 
+        i_{pm}(\alpha;t) &= \min h(\alpha_i) - \min h(\alpha_i|t) \\
+           i_{MMI}(\alpha;t) &= \min_i I(\alpha_i;T)
    
     Parameters
     ----------
@@ -371,17 +371,17 @@ def integrated_information_decomposition(
     cov: NDArray[np.floating] | None = None,
     redundancy_function: str = "ipm",
 ) -> Any:
-    """
+    r"""
     Computes the integrated information decomposition introduced by Rosas, Mediano, et al.
-    The PhiID relaxes the requirement of only having a single target, and instead allows for 
-    redundant-redundant, synergistic-synergistic, etc interactions. 
+    The PhiID relaxes the requirement of only having a single target, and instead allows for
+    redundant-redundant, synergistic-synergistic, etc interactions.
 
-    Available redundancy functions are: 
-    
+    Available redundancy functions are:
+
     .. math::
 
-        i_{pm}(\\alpha;\\beta) &= \\min_i h(\\alpha_i) + \\min_i h(\\beta_i) - \min h(\\alpha_i, \\beta_i) \\\\
-                i_{MMI}(\\alpha;\\beta) &= \\min_{ij} I(\\alpha_i;\\beta_j) 
+        i_{pm}(\alpha;\beta) &= \min_i h(\alpha_i) + \min_i h(\beta_i) - \min h(\alpha_i, \beta_i) \\
+                i_{MMI}(\alpha;\beta) &= \min_{ij} I(\alpha_i;\beta_j)
 
     Parameters
     ----------
