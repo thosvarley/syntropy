@@ -61,8 +61,8 @@ def shannon_entropy(
         continuous_conditional: NDArray[np.floating] = continuous_vars[:, mask]
 
         if continuous_estimator == "gaussian":
-            cov_conditional: NDArray[np.floating] = np.cov(
-                continuous_conditional, ddof=0
+            cov_conditional: NDArray[np.floating] = np.atleast_2d(
+                np.cov(continuous_conditional, ddof=0)
             )
             ptw_conditional: NDArray[np.floating] = gaussian.local_differential_entropy(
                 continuous_conditional, cov_conditional
@@ -141,7 +141,7 @@ def conditional_entropy(
 
     if conditional == "continuous":
         if continuous_estimator == "gaussian":
-            cov: NDArray[np.floating] = np.cov(continuous_vars, ddof=0)
+            cov: NDArray[np.floating] = np.atleast_2d(np.cov(continuous_vars, ddof=0))
             ptw_marginal = gaussian.local_differential_entropy(
                 continuous_vars, cov=cov
             )
@@ -198,7 +198,7 @@ def mutual_information(
         "The discrete and continuous variables must have the same number of samples."
     )
 
-    cov: NDArray[np.floating] = np.cov(continuous_vars, ddof=0)
+    cov: NDArray[np.floating] = np.atleast_2d(np.cov(continuous_vars, ddof=0))
 
     avg: float = gaussian.differential_entropy(cov)
     ptw: NDArray[np.floating] = gaussian.local_differential_entropy(
@@ -215,7 +215,9 @@ def mutual_information(
         state: NDArray[np.integer] = unq[:, [i]]
         mask: NDArray[np.bool_] = np.all(discrete_vars == state, axis=0)
 
-        cov_conditional: NDArray[np.floating] = np.cov(continuous_vars[:, mask], ddof=0)
+        cov_conditional: NDArray[np.floating] = np.atleast_2d(
+            np.cov(continuous_vars[:, mask], ddof=0)
+        )
         conditional_entropy += probs[i] * gaussian.differential_entropy(cov_conditional)
 
         local_conditional: NDArray[np.floating] = gaussian.local_differential_entropy(

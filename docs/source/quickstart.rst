@@ -6,8 +6,8 @@ This guide will walk you through the basics of the different classes of estimato
 Discrete estimators
 -------------------
 
-The basic form of the discrete estimators is a Python dictionary, which represents the joint probability distribution over some set of elements. 
-The keys are tuples (which can be intergers, strings, tuples, anything), and the values are the probabilities.
+The discrete estimators operate on a joint probability distribution, which is represented as a Python dictionary over some set of elements.
+The keys are tuples (which can be integers, strings, tuples, anything), and the values are the probabilities.
 
 .. code-block:: python
    
@@ -52,15 +52,22 @@ The pointwise dictionary keys are a tuple of tuples, indicating the states of al
    lmi = {
         ((1, 0), (0,)): 0.415,
         ((0, 0), (0,)): 0.415,
-        ((1, 1), (1,)): 2.0),
+        ((1, 1), (1,)): 2.0,
         ((0, 1), (0,)): 0.415
         }
+
+The expected (average) values are floats. For this distribution:
+
+.. code-block:: python
+
+   ce   # 0.6887 bits
+   mi   # 0.8113 bits
 
 Gaussian estimators 
 -------------------
 
 The Gaussian estimators are computed from continuous, multidimensional numpy arrays. 
-Unlike the discrete and KNN estimators, there are separate functions for expected and local measures - this was done because, in my cases, expected values can be computed from the covariance matrix directly, which is much more efficient than vectorized local computation
+Unlike the discrete and KNN estimators, there are separate functions for expected and local measures - this was done because, in many cases, expected values can be computed from the covariance matrix directly, which is much more efficient than vectorized local computation.
 
 .. code-block:: python 
 
@@ -73,9 +80,9 @@ Unlike the discrete and KNN estimators, there are separate functions for expecte
    num_samples = 100_000
    rand = np.random.randn(num_samples)
    data = np.zeros((3, num_samples))
-   data[0,:] = rand 
-   data[1,:] = 0.5 * data[0,:] + np.sqrt(1 - 0.5**2) + np.random.randn(num_samples)
-   data[2,:] = -0.3 * data[0,:] + np.sqrt(1 - -0.3**2) + np.random.randn(num_samples)
+   data[0,:] = rand
+   data[1,:] = 0.5 * data[0,:] + np.sqrt(1 - 0.5**2) * np.random.randn(num_samples)
+   data[2,:] = -0.3 * data[0,:] + np.sqrt(1 - 0.3**2) * np.random.randn(num_samples)
 
    cov = np.cov(data, ddof=0.0)
    mi = mutual_information(
@@ -89,7 +96,8 @@ Unlike the discrete and KNN estimators, there are separate functions for expecte
         data = data
         )
 
-The average mutual information is a floating point value, while the local mutual information is a 1-dimensional Numpy array, with one cell for each sample
+The average mutual information is a floating point value, while the local mutual information is a 1-dimensional Numpy array, with one cell for each sample.
+For the data generated above, ``mi`` is approximately ``0.047`` nats (results will vary slightly between runs because the data are randomly sampled).
 
 KNN estimators 
 --------------
@@ -104,19 +112,20 @@ K-nearest neighbors estimators behave similarly to the local Gaussian estimators
    num_samples = 10_000
    rand = np.random.randn(num_samples)
    data = np.zeros((3, num_samples))
-   data[0,:] = rand 
-   data[1,:] = 0.5 * data[0,:] + np.sqrt(1 - 0.5**2) + np.random.randn(num_samples)
-   data[2,:] = -0.3 * data[0,:] + np.sqrt(1 - -0.3**2) + np.random.randn(num_samples)
-  
+   data[0,:] = rand
+   data[1,:] = 0.5 * data[0,:] + np.sqrt(1 - 0.5**2) * np.random.randn(num_samples)
+   data[2,:] = -0.3 * data[0,:] + np.sqrt(1 - 0.3**2) * np.random.randn(num_samples)
+
    lmi, mi = mutual_information(
         idxs_x = (0,1),
         idxs_y = (2,),
-        data = data, 
+        data = data,
         k=4,
         algorithm = 1
    )
 
-Once again, the `lmi` object is a Numpy array, while mi is a floating point value
+Once again, the `lmi` object is a Numpy array, while mi is a floating point value.
+For the data generated above, ``mi`` is approximately ``0.05`` nats (the KNN estimate of the same quantity as the Gaussian example above).
 
 Neural estimators
 -----------------
@@ -155,8 +164,8 @@ For multivariate measures like total correlation and O-information:
 
 .. code-block:: python
 
-   # Compute total correlation
-   tc = total_correlation(
+   # Compute total correlation (returns pointwise tensor and average float)
+   ptw_tc, tc = total_correlation(
        idxs=(0, 1, 2),
        data=data,
        verbose=True
@@ -168,10 +177,11 @@ For multivariate measures like total correlation and O-information:
        data=data,
        verbose=True
    )
-   print(results["o_information"])
-   print(results["s_information"])
-   print(results["total_correlation"])
-   print(results["dual_total_correlation"])
+   # Each entry is a dict with "ptw" (pointwise tensor) and "avg" (float) keys.
+   print("O-information:", results["oinfo"]["avg"])
+   print("S-information:", results["sinfo"]["avg"])
+   print("Total correlation:", results["tc"]["avg"])
+   print("Dual total correlation:", results["dtc"]["avg"])
 
 Customizing the normalizing flow
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -219,11 +229,13 @@ Mixed estimators estimate the entropy or mutual information between a discrete a
    num_samples = 10_000
    rand = np.random.randn(num_samples)
    data = np.zeros((2, num_samples))
-   data[0,:] = rand 
-   data[1,:] = 0.5 * data[0,:] + np.sqrt(1 - 0.5**2) + np.random.randn(num_samples)
+   data[0,:] = rand
+   data[1,:] = 0.5 * data[0,:] + np.sqrt(1 - 0.5**2) * np.random.randn(num_samples)
 
    continuous = data[[0],:]
    discrete = (data[[1],:] > 0).astype(int)
 
-   ptw, mi = mutual_information(discrete_vars = discrete, continuous_vars = 
-   continuous). 
+   ptw, mi = mutual_information(discrete_vars = discrete, continuous_vars = continuous)
+
+The ``ptw`` object is a Numpy array and ``mi`` is a floating point value.
+For the data generated above, ``mi`` is approximately ``0.09`` nats.
