@@ -75,17 +75,12 @@ Example
 
    installation
    quickstart
-   examples
 
 .. toctree::
-   :maxdepth: 1
+   :maxdepth: 2
    :caption: API Reference:
 
-   api/syntropy.discrete
-   api/syntropy.gaussian
-   api/syntropy.knn
-   api/syntropy.neural
-   api/syntropy.mixed
+   api/syntropy
 
 .. toctree::
    :maxdepth: 1
