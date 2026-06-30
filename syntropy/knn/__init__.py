@@ -11,6 +11,11 @@ from .multivariate_mi import (
     o_information,
 )
 
+from .temporal import (
+        sample_entropy,
+        cross_sample_entropy
+        )
+
 __all__ = [
     "differential_entropy",
     "mutual_information",
@@ -19,4 +24,6 @@ __all__ = [
     "dual_total_correlation",
     "s_information",
     "o_information",
+    "sample_entropy",
+    "cross_sample_entropy"
 ]
