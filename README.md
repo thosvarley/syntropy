@@ -135,6 +135,16 @@ discrete = (continuous > 0).astype(int)
 
 ptw, mi = mutual_information(discrete_vars=discrete, continuous_vars=continuous)
 print(f"I(discrete ; continuous) = {mi:.3f} nats")
+
+# The continuous entropies can be estimated with a Gaussian (default) or a
+# KNN estimator. The KNN option recovers the true mutual information when the
+# continuous marginal is non-Gaussian:
+ptw, mi = mutual_information(
+    discrete_vars=discrete,
+    continuous_vars=continuous,
+    continuous_estimator="knn",
+    k=5,
+)
 ```
 
 ## Available Measures
