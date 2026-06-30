@@ -35,7 +35,9 @@ def local_precompute_sources(joint_distribution: DiscreteDist) -> Sources:
 
     sources: list = [s for s in make_powerset(range(N)) if s]
 
-    marginals: dict = {src: get_marginal_distribution(src, joint_distribution) for src in sources}
+    marginals: dict = {
+        src: get_marginal_distribution(src, joint_distribution) for src in sources
+    }
 
     local_entropies: dict = {}
     for state in joint_distribution:

@@ -1,6 +1,5 @@
-import numpy as np
 import math
-from .utils import get_marginal_distribution, flatten_nested_tuple
+from .utils import get_marginal_distribution
 
 from typing import Any
 
@@ -251,6 +250,3 @@ def kullback_leibler_divergence(
         ptw[state] = log_ratio
 
     return ptw, avg
-
-
-

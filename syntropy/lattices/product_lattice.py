@@ -1,7 +1,5 @@
-import pickle
 import networkx as nx
 
-from .lattices import LATTICE_2, LATTICE_3, LATTICE_4
 
 Atom = tuple[tuple[int, ...], ...]
 
@@ -14,6 +12,7 @@ ATTRS = {
     "distance_from_top": None,
 }
 # %%
+
 
 def construct_product_lattice(
     lattice_1: nx.DiGraph(), lattice_2: nx.DiGraph()

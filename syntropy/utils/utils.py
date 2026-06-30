@@ -1,18 +1,21 @@
 from __future__ import annotations
 
-import numpy as np 
+import numpy as np
 from numpy.typing import NDArray
 from typing import Iterable
-import itertools as it 
+import itertools as it
 
-def check_idxs(idxs: tuple[int, ...] | None, data: NDArray[np.floating]) -> tuple[int, ...]:
-    
+
+def check_idxs(
+    idxs: tuple[int, ...] | None, data: NDArray[np.floating]
+) -> tuple[int, ...]:
     if idxs is None:
         idxs_ = tuple(i for i in range(data.shape[0]))
     else:
-        idxs_ = idxs 
+        idxs_ = idxs
 
     return idxs_
+
 
 def make_powerset(iterable: Iterable):
     """

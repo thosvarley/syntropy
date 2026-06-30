@@ -1,4 +1,4 @@
-from __future__ import annotations 
+from __future__ import annotations
 import numpy as np
 import networkx as nx
 
@@ -79,7 +79,7 @@ def hmin_differential_redundancy(
     atom : tuple
         The partial information atom. In the form :math:`((a_1,),(a_2,)\\ldots)`.
     sources : dict
-        The pre-computed collection of sources returned by 
+        The pre-computed collection of sources returned by
         `precompute_local_entropies`.
 
     Returns
@@ -212,30 +212,30 @@ def _pid(
     single_target_flag: bool = True,
 ) -> dict[Atom, float] | tuple[dict[Atom, float], dict[Atom, NDArray[np.floating]]]:
     """
-    A utility function that computes the guts of the PID/PhiID, depending 
-    the value of single_target_flag. 
+    A utility function that computes the guts of the PID/PhiID, depending
+    the value of single_target_flag.
 
     Parameters
     ----------
     inputs : tuple[int, ...]
-        The indices of the input elements. 
-        
+        The indices of the input elements.
+
     target : tuple[int, ...]
-        The indices of the target elements. 
-        
+        The indices of the target elements.
+
     data : NDArray[np.floating]
         The numpy array, assumed to be in channels x time format.
-    
+
     cov : NDArray[np.floating], optional
         The covariance matrix. If none is not provided, it is computed
         from the data directly.
-        
+
     redundancy_function : str
-        The redundancy function. 
+        The redundancy function.
         Options are `ipm` and `mmi`
 
     single_target_flag : bool
-        Whether to do the PID or PhiID. 
+        Whether to do the PID or PhiID.
 
     Returns
     -------
@@ -306,7 +306,7 @@ def partial_information_decomposition(
     data: NDArray[np.floating] | None,
     cov: NDArray[np.floating] | None = None,
     redundancy_function: str = "ipm",
-    ) -> Any:
+) -> Any:
     r"""
     Computes the partial information decomposition for up to four input variables onto one (potentially joint) target variable.
 
@@ -589,8 +589,8 @@ def representational_complexity(
 def idep_partial_information_decomposition(
     inputs: tuple[tuple[int, ...], tuple[int, ...]],
     target: tuple[int, ...],
-    cov: NDArray[np.floating] | None, 
-    data: NDArray[np.floating] | None = None
+    cov: NDArray[np.floating] | None,
+    data: NDArray[np.floating] | None = None,
 ) -> dict[str, float]:
     """
     Computes the I_dep partial information decomposition for Gaussian systems
@@ -598,7 +598,7 @@ def idep_partial_information_decomposition(
 
     Currently only supports 2 predictors (univariate or multivariate).
 
-    Adapted from: 
+    Adapted from:
         https://github.com/robince/partial-info-decomp/blob/master/calc_pi_Idep_mvn.m
 
 
@@ -628,7 +628,7 @@ def idep_partial_information_decomposition(
     """
 
     assert len(inputs) == 2, "I_dep currently only supports 2 predictors"
-    
+
     if cov is None:
         assert data is not None, "You must provide something"
         cov = np.cov(data, ddof=0)

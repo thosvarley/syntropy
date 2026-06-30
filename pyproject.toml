@@ -47,6 +47,7 @@ dev = [
     "pytest>=7.0.0",
     "pytest-cov>=4.0.0",
     "pandas>=1.3.0",
+    "ruff>=0.6",
 ]
 
 [project.urls]
@@ -72,3 +73,13 @@ exclude_lines = [
     "def __repr__",
     "raise NotImplementedError",
 ]
+
+[tool.ruff]
+line-length = 88
+target-version = "py39"
+
+[tool.ruff.lint.per-file-ignores]
+# Re-exported names in package __init__ files are intentionally "unused".
+"__init__.py" = ["F401"]
+# Test modules import after pytest.importorskip(), which must run first.
+"tests/**" = ["E402"]

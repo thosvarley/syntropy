@@ -4,6 +4,7 @@ import math
 from numpy.typing import NDArray
 from typing import Any, Iterable
 
+
 def lempel_ziv_complexity(
     X: Iterable[Any], return_dictionary: bool = False
 ) -> float | tuple[float, set]:

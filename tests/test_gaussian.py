@@ -12,11 +12,11 @@ from syntropy.gaussian.decompositions import (
     partial_entropy_decomposition as ped,
     generalized_information_decomposition as gid,
     idep_partial_information_decomposition as idep,
+    integrated_information_decomposition as phiid,
 )
 from syntropy.gaussian.temporal import (
     differential_entropy_rate,
     mutual_information_rate,
-    o_information_rate,
 )
 
 data_path = pathlib.Path(__file__).parent
@@ -27,6 +27,7 @@ cov = np.cov(data, ddof=0.0)
 # Due to natural instability in Scipy's matrix algebra, we need a slightly
 # more relaxed tolerance for our unit tests. 1 part in 1,000,000 is probably ok.
 pytest_abs = 1e-6
+
 
 # Various helpers
 def equicorr_matrix(N: int, rho: float) -> np.ndarray:
@@ -104,18 +105,25 @@ def test_mutual_information():
             lmi = shannon.local_mutual_information((m,), (n,), data)
             assert i == pytest.approx(lmi.mean(), abs=pytest_abs)
 
-            tc = mi.total_correlation(cov[np.ix_((m,n),(m,n))])
+            tc = mi.total_correlation(cov[np.ix_((m, n), (m, n))])
             assert i == pytest.approx(tc, abs=pytest_abs)
 
 
 class TestTotalCorrelation:
-
-    @pytest.mark.parametrize("N, rho", [
-        (2, 0.1), (2, 0.5), (2, 0.9),
-        (3, 0.1), (3, 0.5), (3, 0.9),
-        (4, 0.3), (4, 0.7),
-        (5, 0.5),
-    ])
+    @pytest.mark.parametrize(
+        "N, rho",
+        [
+            (2, 0.1),
+            (2, 0.5),
+            (2, 0.9),
+            (3, 0.1),
+            (3, 0.5),
+            (3, 0.9),
+            (4, 0.3),
+            (4, 0.7),
+            (5, 0.5),
+        ],
+    )
     def test_tc_equicorrelation(self, N, rho):
         cov = equicorr_matrix(N, rho)
         tc_numeric = mi.total_correlation(cov)
@@ -143,13 +151,20 @@ class TestTotalCorrelation:
 # Numerical tests: O-information against analytic formula
 # ---------------------------------------------------------------------------
 
-class TestOInformation:
 
-    @pytest.mark.parametrize("N, rho", [
-        (3, 0.1), (3, 0.5), (3, 0.9),
-        (4, 0.1), (4, 0.5), (4, 0.9),
-        (5, 0.3),
-    ])
+class TestOInformation:
+    @pytest.mark.parametrize(
+        "N, rho",
+        [
+            (3, 0.1),
+            (3, 0.5),
+            (3, 0.9),
+            (4, 0.1),
+            (4, 0.5),
+            (4, 0.9),
+            (5, 0.3),
+        ],
+    )
     def test_o_info_equicorrelation(self, N, rho):
         cov = equicorr_matrix(N, rho)
         o_numeric = mi.o_information(cov)
@@ -173,10 +188,14 @@ class TestOInformation:
 
 
 class TestHigherOrderIdentities:
-
-    @pytest.mark.parametrize("N, rho", [
-        (3, 0.3), (4, 0.5), (5, 0.7),
-    ])
+    @pytest.mark.parametrize(
+        "N, rho",
+        [
+            (3, 0.3),
+            (4, 0.5),
+            (5, 0.7),
+        ],
+    )
     def test_all_measures_analytic(self, N, rho):
         """All four measures match their analytic values simultaneously."""
         cov = equicorr_matrix(N, rho)
@@ -208,7 +227,7 @@ class TestHigherOrderIdentities:
         for rho in (0.1, 0.3, 0.5, 0.7, 0.9):
             cov = equicorr_matrix(2, rho)
             mi_numeric = shannon.mutual_information((0,), (1,), cov)
-            mi_analytic = -0.5 * np.log(1 - rho ** 2)
+            mi_analytic = -0.5 * np.log(1 - rho**2)
             assert mi_numeric == pytest.approx(mi_analytic, abs=ABS_TOL)
 
 
@@ -251,6 +270,56 @@ def test_gid():
 
 
 def test_phiid():
+    mi = shannon.mutual_information(idxs_x=(0, 1), idxs_y=(2, 3), cov=cov)
+    mi_y2 = shannon.mutual_information(idxs_x=(0, 1), idxs_y=(2,), cov=cov)
+    mi_y3 = shannon.mutual_information(idxs_x=(0, 1), idxs_y=(3,), cov=cov)
+    avg = phiid(
+        inputs=(0, 1), target=(2, 3), data=data, cov=cov, redundancy_function="mmi"
+    )
+    assert sum(avg.values()) == pytest.approx(mi, abs=pytest_abs)
+    assert sum([avg[key] for key in avg.keys() if (0,) in key[1]]) == pytest.approx(
+        mi_y2, abs=pytest_abs
+    )
+    assert sum([avg[key] for key in avg.keys() if (1,) in key[1]]) == pytest.approx(
+        mi_y3, abs=pytest_abs
+    )
+
+    ptw, avg = phiid(
+        inputs=(0, 1), target=(2, 3), data=data, cov=cov, redundancy_function="ipm"
+    )
+    assert sum(avg.values()) == pytest.approx(mi, abs=pytest_abs)
+    assert sum([avg[key] for key in avg.keys() if (0,) in key[1]]) == pytest.approx(
+        mi_y2, abs=pytest_abs
+    )
+    assert sum([avg[key] for key in avg.keys() if (1,) in key[1]]) == pytest.approx(
+        mi_y3, abs=pytest_abs
+    )
+
+    assert ptw[
+        (
+            (
+                (
+                    0,
+                    1,
+                ),
+            ),
+            ((0, 1),),
+        )
+    ].mean() == pytest.approx(
+        avg[
+            (
+                (
+                    (
+                        0,
+                        1,
+                    ),
+                ),
+                ((0, 1),),
+            )
+        ],
+        abs=pytest_abs,
+    )
+
     return None
 
 

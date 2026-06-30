@@ -6,8 +6,9 @@ from scipy.special import digamma
 from numpy.typing import NDArray
 from typing import Any, Sequence, Callable
 
-from .shannon import shannon_entropy, mutual_information
+from .shannon import shannon_entropy, mutual_information as shannon_mutual_information
 from .utils import get_marginal_distribution
+
 DiscreteDist = dict[tuple[Any, ...], float]
 
 
@@ -37,9 +38,9 @@ def dirichlet_probabilities(
     References
     ----------
     Perks, W. (1947). Some observations on inverse probability including a new indifference rule. Journal of the Institute of Actuaries, 73, 285-334.
-    
-    Hausser, J., & Strimmer, K. (2009). Entropy inference and the James-Stein estimator, with application to nonlinear gene association networks. 
-    Journal of Machine Learning Research, 10, 1469-1484. 
+
+    Hausser, J., & Strimmer, K. (2009). Entropy inference and the James-Stein estimator, with application to nonlinear gene association networks.
+    Journal of Machine Learning Research, 10, 1469-1484.
     https://jmlr.org/papers/v10/hausser09a.html
     """
     assert len(data.shape) == 2, "The data must be two-dimensional."
@@ -108,8 +109,8 @@ def plugin_probabilities(data: NDArray[Any]) -> DiscreteDist:
 
     References
     ----------
-    Paninski, L. (2003). Estimation of entropy and mutual information. 
-        Neural Computation, 15(6), 1191-1253. 
+    Paninski, L. (2003). Estimation of entropy and mutual information.
+        Neural Computation, 15(6), 1191-1253.
         https://doi.org/10.1162/089976603321780272
     """
     return dirichlet_probabilities(data, prior="mle")
@@ -119,8 +120,8 @@ def miller_madow_entropy(data: NDArray[Any]) -> float:
     """
     Miller-Madow bias-corrected entropy estimator.
 
-    Applies a first-order analytical correction to the maximum likelihood 
-    entropy estimate: H_MM = H_ML + (K-1)/(2N), where K is the number of 
+    Applies a first-order analytical correction to the maximum likelihood
+    entropy estimate: H_MM = H_ML + (K-1)/(2N), where K is the number of
     observed bins and N is the sample size.
 
     Parameters
@@ -170,7 +171,7 @@ def grassberger_entropy(data: NDArray[Any]) -> float:
 
     References
     ----------
-    Grassberger, P. (2003). Entropy estimates from insufficient samplings. 
+    Grassberger, P. (2003). Entropy estimates from insufficient samplings.
     https://arxiv.org/abs/physics/0307138
     """
 
@@ -195,8 +196,8 @@ def chao_shen_entropy(data: NDArray[Any]) -> float:
     """
     Chao-Shen coverage-adjusted entropy estimator.
 
-    Estimates entropy by adjusting for unseen species using Good-Turing 
-    coverage estimation. Particularly effective for severely undersampled 
+    Estimates entropy by adjusting for unseen species using Good-Turing
+    coverage estimation. Particularly effective for severely undersampled
     distributions where many states may be unobserved.
 
     Parameters
@@ -241,7 +242,7 @@ def dirichlet_entropy(
     """
     Bayesian entropy estimator using Dirichlet prior.
 
-    Computes the posterior mean of entropy under a Dirichlet-Multinomial 
+    Computes the posterior mean of entropy under a Dirichlet-Multinomial
     Bayesian model. Default prior is alpha = 1/K (Perks prior).
 
     Parameters
@@ -251,7 +252,7 @@ def dirichlet_entropy(
     alphabet : Sequence[Any] | None
         Optional full alphabet of possible states. If None, uses only observed states.
     alpha : float | None
-        Symmetric Dirichlet prior pseudocount parameter. If None, defaults to 
+        Symmetric Dirichlet prior pseudocount parameter. If None, defaults to
         1/K (Perks prior).
 
     Returns
@@ -261,13 +262,13 @@ def dirichlet_entropy(
 
     References
     ----------
-    Wolpert, D. H., & Wolf, D. R. (1995). Estimating functions of probability 
-        distributions from a finite set of samples. Physical Review E, 52(6), 
+    Wolpert, D. H., & Wolf, D. R. (1995). Estimating functions of probability
+        distributions from a finite set of samples. Physical Review E, 52(6),
         6841-6851. https://doi.org/10.1103/PhysRevE.52.6841
-    
-    Hausser, J., & Strimmer, K. (2009). Entropy inference and the James-Stein 
-        estimator, with application to nonlinear gene association networks. 
-        Journal of Machine Learning Research, 10, 1469-1484. 
+
+    Hausser, J., & Strimmer, K. (2009). Entropy inference and the James-Stein
+        estimator, with application to nonlinear gene association networks.
+        Journal of Machine Learning Research, 10, 1469-1484.
         https://jmlr.org/papers/v10/hausser09a.html
     """
     assert len(data.shape) == 2, "Data must be 2D: channels x samples"
@@ -308,8 +309,7 @@ def panzeri_treves_mutual_information(
     """
     Panzeri-Treves bias-corrected mutual information estimator.
 
-    Applies an analytical bias correction to the plugin MI estimate based on 
-    the number of bins in the marginal distributions.
+    Applies an analytical bias correction to the plugin MI estimate based on the number of bins in the marginal distributions.
 
     Parameters
     ----------
@@ -327,8 +327,8 @@ def panzeri_treves_mutual_information(
 
     References
     ----------
-    Panzeri, S., & Treves, A. (1996). Analytical estimates of limited sampling biases in different information measures. Network: Computation in Neural Systems, 7(1), 87-107. 
-    10.1080/0954898X.1996.11978656 
+    Panzeri, S., & Treves, A. (1996). Analytical estimates of limited sampling biases in different information measures. Network: Computation in Neural Systems, 7(1), 87-107.
+    10.1080/0954898X.1996.11978656
     """
     joint: tuple[int, ...] = idxs_x + idxs_y
     N: int = len(joint)
@@ -345,7 +345,7 @@ def panzeri_treves_mutual_information(
     r: int = len(dist_x)
     c: int = len(dist_y)
 
-    _, mi = mutual_information(idxs_x, idxs_y, joint_distribution)
+    _, mi = shannon_mutual_information(idxs_x, idxs_y, joint_distribution)
     return mi - ((r - 1) * (c - 1)) / (2 * N)
 
 
@@ -382,7 +382,7 @@ def mutual_information(
 
     References
     ----------
-    Cover, T. M., & Thomas, J. A. (2006). Elements of Information Theory 
+    Cover, T. M., & Thomas, J. A. (2006). Elements of Information Theory
         (2nd ed.). Wiley-Interscience.
     """
     joint: tuple[int, ...] = idxs_x + idxs_y
@@ -430,7 +430,7 @@ def conditional_mutual_information(
 
     References
     ----------
-    Cover, T. M., & Thomas, J. A. (2006). Elements of Information Theory 
+    Cover, T. M., & Thomas, J. A. (2006). Elements of Information Theory
         (2nd ed.). Wiley-Interscience.
     """
     xz: tuple[int, ...] = idxs_x + idxs_z
@@ -475,8 +475,8 @@ def total_correlation(
 
     References
     ----------
-    Watanabe, S. (1960). Information theoretical analysis of multivariate 
-        correlation. IBM Journal of Research and Development, 4(1), 66-82. 
+    Watanabe, S. (1960). Information theoretical analysis of multivariate
+        correlation. IBM Journal of Research and Development, 4(1), 66-82.
         https://doi.org/10.1147/rd.41.0066
     """
     # Sum of marginal entropies

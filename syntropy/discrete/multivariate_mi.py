@@ -513,7 +513,7 @@ def connected_information(
     N: int = len(next(iter(joint_distribution)))
     if maximum_order == -1:
         maximum_order = N
-    
+
     profile: list[float] = []
 
     for order in range(1, maximum_order + 1):
@@ -524,6 +524,6 @@ def connected_information(
         )
         profile.append(shannon_entropy(maxent)[1])
 
-    profile = [profile[i-1] - profile[i] for i in range(1, len(profile))]
+    profile = [profile[i - 1] - profile[i] for i in range(1, len(profile))]
 
     return profile

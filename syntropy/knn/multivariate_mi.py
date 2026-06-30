@@ -7,6 +7,7 @@ from scipy.spatial import cKDTree
 from .utils import build_tree_and_get_distances, get_counts_from_tree
 from ..utils import check_idxs
 
+
 def total_correlation(
     data: NDArray[np.floating],
     k: int,

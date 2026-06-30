@@ -1,4 +1,1 @@
-from .utils import (
-        check_idxs,
-        make_powerset
-        )
+from .utils import check_idxs, make_powerset

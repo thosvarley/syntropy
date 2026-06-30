@@ -136,19 +136,19 @@ def simulated_annealing(
 
             chosen_set.add(swap[1])
             available_set.add(swap[0])
-            
+
             # For looking up in the cache
             tup_chosen_set: tuple[int, ...] = tuple(sorted(chosen_set))
-            
+
             if tup_chosen_set in cache:
                 new_value: float = cache[tup_chosen_set]
             else:
                 new_value: float = function((cov, tup_chosen_set))
                 cache[tup_chosen_set] = new_value
 
-            diff: float = (new_value - value) / (abs(
-                value
-            ) + 1e-9)  # Small noise to avoid divide-by-zero errors.
+            diff: float = (new_value - value) / (
+                abs(value) + 1e-9
+            )  # Small noise to avoid divide-by-zero errors.
 
             if new_value > best_value:
                 best_value = new_value

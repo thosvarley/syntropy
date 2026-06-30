@@ -1,9 +1,15 @@
 """Smoke test: every public submodule imports cleanly."""
+
 import importlib
 import pytest
 
-CORE = ["syntropy.discrete", "syntropy.gaussian", "syntropy.knn",
-        "syntropy.mixed", "syntropy.lattices"]
+CORE = [
+    "syntropy.discrete",
+    "syntropy.gaussian",
+    "syntropy.knn",
+    "syntropy.mixed",
+    "syntropy.lattices",
+]
 
 
 @pytest.mark.parametrize("module", CORE)

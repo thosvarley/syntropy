@@ -1,6 +1,6 @@
 import pytest
 import string
-import numpy as np 
+import numpy as np
 
 from syntropy.discrete.optimization import constrained_maximum_entropy_distributions
 from syntropy.discrete.distributions import (
@@ -24,16 +24,16 @@ from syntropy.discrete.decompositions import (
     integrated_information_decomposition as phiid,
 )
 from syntropy.discrete.alpha_synergy import (
-        partial_entropy_spectra as alpha_ent,
-        partial_total_correlation_spectra as alpha_tc,
-        partial_information_spectra as alpha_pid
-        )
+    partial_entropy_spectra as alpha_ent,
+    partial_total_correlation_spectra as alpha_tc,
+    partial_information_spectra as alpha_pid,
+)
 from syntropy.discrete.temporal import (
-        lempel_ziv_complexity as lzc,
-        lempel_ziv_mutual_information as lzmi,
-        lempel_ziv_total_correlation as lztc,
-        conditional_lempel_ziv_complexity as condlzc
-        )
+    lempel_ziv_complexity as lzc,
+    lempel_ziv_mutual_information as lzmi,
+    lempel_ziv_total_correlation as lztc,
+    conditional_lempel_ziv_complexity as condlzc,
+)
 
 pytest_abs = 1e-6
 
@@ -371,52 +371,51 @@ def test_alpha_synergy():
 
     atcw = alpha_tc(joint_distribution=ONE_HOT_3_DIST)
     for key in atcw.keys():
-        assert atcw[key][0] == pytest.approx(np.log2(3)-1, abs=pytest_abs)
-        assert atcw[key][1] == pytest.approx(np.log2(3)-1, abs=pytest_abs)
-    
+        assert atcw[key][0] == pytest.approx(np.log2(3) - 1, abs=pytest_abs)
+        assert atcw[key][1] == pytest.approx(np.log2(3) - 1, abs=pytest_abs)
+
     atcxor = alpha_tc(joint_distribution=XOR_DIST)
     for key in atcxor.keys():
         assert atcxor[key][0] == pytest.approx(1.0)
         assert atcxor[key][1] == pytest.approx(0.0)
 
-    apidw = alpha_pid(inputs=(0,1), target=(2,), joint_distribution=ONE_HOT_3_DIST)
+    apidw = alpha_pid(inputs=(0, 1), target=(2,), joint_distribution=ONE_HOT_3_DIST)
 
-    assert apidw[0] == pytest.approx(1/3, abs=pytest_abs)
-    assert apidw[1] == pytest.approx(np.log2(3)-1, abs=pytest_abs)
-    
-    apidx = alpha_pid(inputs=(0,1), target=(2,), joint_distribution=XOR_DIST)
+    assert apidw[0] == pytest.approx(1 / 3, abs=pytest_abs)
+    assert apidw[1] == pytest.approx(np.log2(3) - 1, abs=pytest_abs)
+
+    apidx = alpha_pid(inputs=(0, 1), target=(2,), joint_distribution=XOR_DIST)
     assert apidx[0] == pytest.approx(1)
     assert apidx[1] == pytest.approx(0)
 
+
 def test_lzc():
-    # For the kth triangular number T(k), the length of d 
-    # when the string is T(k) repeated 1s should be k-1. So the complexity is (k-1)*log2(k-1)/T(k)  
-    
+    # For the kth triangular number T(k), the length of d
+    # when the string is T(k) repeated 1s should be k-1. So the complexity is (k-1)*log2(k-1)/T(k)
+
     for k in range(3, 50):
-        t_k = sum(range(1,k))
+        t_k = sum(range(1, k))
         X = ["1" for _ in range(t_k)]
         Y = ["0" for _ in range(t_k)]
         Z = ["A" for _ in range(t_k)]
 
         c, d = lzc(X=X, return_dictionary=True)
 
-        assert len(d) == k-1
-        assert c == pytest.approx(((k-1)*np.log2(k-1)) / t_k, abs=pytest_abs)
-        
+        assert len(d) == k - 1
+        assert c == pytest.approx(((k - 1) * np.log2(k - 1)) / t_k, abs=pytest_abs)
+
         cmi = lzmi(X=X, Y=Y)
         assert cmi == pytest.approx(c, abs=pytest_abs)
-        
+
         stack = np.vstack((X, Y, Z))
         ctc = lztc(stack)
-        assert ctc == pytest.approx(2*c, abs=pytest_abs)
+        assert ctc == pytest.approx(2 * c, abs=pytest_abs)
 
         cond = condlzc(X=X, Y=Y)
         assert cond == 0
 
     alphabet = np.array([i for i in string.ascii_uppercase])
-    c, d = lzc(X = alphabet, return_dictionary=True)
+    c, d = lzc(X=alphabet, return_dictionary=True)
 
     assert len(d) == len(alphabet)
     assert c == pytest.approx(np.log2(26), abs=pytest_abs)
-
-

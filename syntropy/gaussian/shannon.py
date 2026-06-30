@@ -1,4 +1,4 @@
-from __future__ import annotations 
+from __future__ import annotations
 
 import math
 import numpy as np
@@ -404,12 +404,12 @@ def kullback_leibler_divergence(
 
     """
     k = cov_posterior.shape[0]
-    
+
     if mu_posterior == 0:
         mu_posterior = np.zeros(cov_posterior.shape[0])
     if mu_prior == 0:
         mu_prior = np.zeros(cov_prior.shape[0])
-    
+
     # Mean difference
     d = mu_prior - mu_posterior
 

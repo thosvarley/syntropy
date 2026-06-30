@@ -1,4 +1,3 @@
-import numpy as np
 import itertools as it
 from .utils import get_marginal_distribution, reduce_state
 import math
@@ -40,9 +39,9 @@ def constrained_maximum_entropy_distributions(
 
     """
 
-    assert (marginal_constraints == [(None,)]) ^ (
-        order == -1
-    ), "Give just one: fixed constraints or marginal order."
+    assert (marginal_constraints == [(None,)]) ^ (order == -1), (
+        "Give just one: fixed constraints or marginal order."
+    )
 
     N = len(next(iter(joint_distribution)))
 
@@ -80,10 +79,12 @@ def constrained_maximum_entropy_distributions(
     else:  # Otherwise do the IPF algorithm.
         maxent = {state: 1 / len(maxent_states) for state in maxent_states}
 
-        state_to_reduced = {m: {state: reduce_state(state, m) for state in maxent_states} for m in marginal_constraints}
+        state_to_reduced = {
+            m: {state: reduce_state(state, m) for state in maxent_states}
+            for m in marginal_constraints
+        }
 
         for _ in range(max_iters):
-
             prev = maxent.copy()
             for m in marginal_constraints:
                 s2r = state_to_reduced[m]
@@ -100,7 +101,10 @@ def constrained_maximum_entropy_distributions(
                     if maxent_marg.get(key, 0) > 0
                 }
 
-                maxent = {state: maxent[state] * scaling_factors.get(s2r[state], 1.0) for state in maxent}
+                maxent = {
+                    state: maxent[state] * scaling_factors.get(s2r[state], 1.0)
+                    for state in maxent
+                }
                 total = sum(maxent.values())
                 maxent = {state: v / total for state, v in maxent.items()}
 

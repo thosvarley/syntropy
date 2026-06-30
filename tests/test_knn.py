@@ -56,15 +56,15 @@ def test_higher_order_mi():
     tc = knn.total_correlation(data=data, k=1)[-1]
     # From JIDT
     assert pytest.approx(tc, pytest_abs) == 5.875549696949821
-    
+
     dtc = knn.dual_total_correlation(data=data, k=1)[-1]
     # From JIDT
     assert pytest.approx(dtc, pytest_abs) == 5.1773775176396235
-    
+
     oinfo = knn.o_information(data=data, k=1)[-1]
     # From JIDT
     assert pytest.approx(oinfo, pytest_abs) == 0.6981721793101983
 
     sinfo = knn.s_information(data=data, k=1)[-1]
-    # From JIDT 
+    # From JIDT
     assert pytest.approx(sinfo, pytest_abs) == 11.052927214589442

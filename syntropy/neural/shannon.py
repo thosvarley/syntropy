@@ -5,6 +5,7 @@ import nflows
 from .utils import initialize_flow, train_flow, evaluate_flow
 from typing import Any
 
+
 def differential_entropy(
     idxs: tuple[int, ...],
     data: torch.Tensor,
@@ -120,7 +121,7 @@ def conditional_entropy(
     )
     # evaluation
     eval_data = data if data_test is None else data_test
-    
+
     ptw: torch.Tensor
     avg: float
 
@@ -137,7 +138,7 @@ def mutual_information(
     flow_kwargs: None | dict[str, Any] = None,
     train_kwargs: None | dict[str, Any] = None,
     verbose: bool = False,
-) -> float:
+) -> tuple[torch.Tensor, float]:
     """
     Computes the mutual information between the elements given by idxs_x and idxs_y.
 
@@ -201,7 +202,7 @@ def conditional_mutual_information(
     flow_kwargs: None | dict[str, Any] = None,
     train_kwargs: None | dict[str, Any] = None,
     verbose: bool = False,
-) -> float:
+) -> tuple[torch.Tensor, float]:
     """
     Computes the mutual information between the elements given by idxs_x and idxs_y.
 

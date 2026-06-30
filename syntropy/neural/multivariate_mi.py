@@ -3,9 +3,10 @@ from __future__ import annotations
 import torch
 from .shannon import differential_entropy
 
+
 # %%
 def total_correlation(
-    idxs: tuple[int],
+    idxs: tuple[int, ...],
     data: torch.Tensor,
     data_test: None | torch.Tensor = None,
     flow_kwargs: dict = None,
@@ -81,13 +82,13 @@ def total_correlation(
 
 
 def higher_order_information(
-    idxs: tuple[int],
+    idxs: tuple[int, ...],
     data: torch.Tensor,
     data_test: None | torch.Tensor = None,
     flow_kwargs: dict = None,
     train_kwargs: dict = None,
     verbose: bool = False,
-) -> dict[str, float]:
+) -> dict[str, dict[str, float | torch.Tensor]]:
     """
     Computes the O-information, S-information, total correlation, and dual total correlation for the data.
     Computing them all as a set is more efficient than computing each one independently.

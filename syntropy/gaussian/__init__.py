@@ -1,10 +1,10 @@
 from .shannon import (
     differential_entropy,
-    local_differential_entropy, 
+    local_differential_entropy,
     conditional_entropy,
     local_conditional_entropy,
     mutual_information,
-    local_mutual_information, 
+    local_mutual_information,
     conditional_mutual_information,
     local_conditional_mutual_information,
     kullback_leibler_divergence,
@@ -39,16 +39,16 @@ from .temporal import (
     total_correlation_rate,
     dual_total_correlation_rate,
     s_information_rate,
-    o_information_rate
+    o_information_rate,
 )
 
 __all__ = [
     "differential_entropy",
-    "local_differential_entropy", 
+    "local_differential_entropy",
     "conditional_entropy",
     "local_conditional_entropy",
     "mutual_information",
-    "local_mutual_information", 
+    "local_mutual_information",
     "conditional_mutual_information",
     "local_conditional_mutual_information",
     "kullback_leibler_divergence",

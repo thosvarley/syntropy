@@ -7,6 +7,7 @@ from .utils import check_cov, covariance_to_correlation
 from ..utils import check_idxs, make_powerset
 from .decompositions import local_precompute_sources
 
+
 def local_total_correlation(
     data: NDArray[np.floating],
     cov: NDArray[np.floating] | None = None,
@@ -57,7 +58,7 @@ def local_total_correlation(
 
     sum_parts = np.zeros_like(whole)
     for i in range(N):
-        idx = idxs[i] if idxs is not None else i 
+        idx = idxs[i] if idxs is not None else i
         sum_parts += local_differential_entropy(data[idx, :])
 
     return sum_parts - whole

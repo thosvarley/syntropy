@@ -13,11 +13,12 @@ def make_powerset(iterable):
     """
     xs: list = list(iterable)
     # note we return an iterator rather than a list
-    return itertools.chain.from_iterable(itertools.combinations(xs, n) for n in range(len(xs) + 1))
+    return itertools.chain.from_iterable(
+        itertools.combinations(xs, n) for n in range(len(xs) + 1)
+    )
 
 
 def flatten_nested_tuple(x: tuple[tuple[Any, ...], ...]) -> tuple[Any, ...]:
-
     return tuple(itertools.chain(*x))
 
 
@@ -131,6 +132,7 @@ def get_marginal_distribution(
         reduced_distribution[r_state] = reduced_distribution.get(r_state, 0.0) + prob
     return reduced_distribution
 
+
 def marginalize_out(idxs: tuple, joint_distribution: dict[tuple, float]) -> dict:
     """
     Returns a distribution with the variables indexed by
@@ -226,36 +228,38 @@ def product_distribution(
     return result
 
 
-def generate_closed_distribution(N: int, seed: int = None) -> dict[tuple[int, ...], float]:
+def generate_closed_distribution(
+    N: int, seed: int = None
+) -> dict[tuple[int, ...], float]:
     """
     Generate a random closed discrete probability distribution on N binary elements.
-    
+
     A distribution is closed iff H(X_i | X^{-i}) = 0 for all i, meaning every
     variable is fully determined by the others. This requires the support to
     have minimum Hamming distance >= 2.
-    
+
     Parameters
     ----------
     N : int
         Number of binary elements.
     seed : int, optional
         Random seed for reproducibility.
-        
+
     Returns
     -------
     dict[tuple[int, ...], float]
         Probability distribution as {state: probability} mapping.
     """
     rng = np.random.default_rng(seed)
-    
+
     # Generate all 2^N possible states
     all_states = list(itertools.product([0, 1], repeat=N))
-    
+
     # Build valid support: greedily add states with Hamming distance >= 2 from all others
     support = []
     candidates = list(all_states)
     rng.shuffle(candidates)
-    
+
     for state in candidates:
         # Check if this state has Hamming distance >= 2 from all states in support
         valid = True
@@ -266,9 +270,9 @@ def generate_closed_distribution(N: int, seed: int = None) -> dict[tuple[int, ..
                 break
         if valid:
             support.append(state)
-    
+
     # Assign random probabilities to support states
     weights = rng.random(len(support))
     weights /= weights.sum()
-    
+
     return {state: float(p) for state, p in zip(support, weights)}

@@ -43,7 +43,6 @@ def make_var_diff(s0, s1, rng, n=N):
 # Analytic ground truths
 # ---------------------------------------------------------------------------
 class TestMixedMutualInformationAnalytic:
-
     @pytest.mark.parametrize(
         "mu, sigma",
         [(1.0, 1.0), (2.0, 1.0), (0.5, 2.0), (1.5, 0.8)],
@@ -106,7 +105,6 @@ def test_local_average_identity():
 # Joint entropy H(D, C) = H(D) + H(C | D)
 # ---------------------------------------------------------------------------
 class TestMixedJointEntropy:
-
     @pytest.mark.parametrize("mu, sigma", [(1.0, 1.0), (2.0, 1.0), (0.5, 2.0)])
     def test_mean_shift(self, mu, sigma):
         """H(D, C) = ln 2 + 1/2 * ln(2*pi*e * sigma^2)."""
@@ -136,7 +134,6 @@ class TestMixedJointEntropy:
 # Conditional entropy of the continuous variable given the discrete: H(C | D)
 # ---------------------------------------------------------------------------
 class TestContinuousGivenDiscrete:
-
     @pytest.mark.parametrize("mu", [0.0, 1.0, 3.0])
     def test_mean_shift_is_mu_invariant(self, mu):
         """
@@ -176,7 +173,6 @@ class TestContinuousGivenDiscrete:
 # Conditional entropy of the discrete variable given the continuous: H(D | C)
 # ---------------------------------------------------------------------------
 class TestDiscreteGivenContinuous:
-
     @pytest.mark.parametrize("mu, sigma", [(1.0, 1.0), (2.0, 1.0)])
     def test_mean_shift(self, mu, sigma):
         """H(D | C) = H(D) - I(D; C) = ln 2 - 1/2 * ln(1 + mu^2 / sigma^2)."""
@@ -201,7 +197,6 @@ class TestDiscreteGivenContinuous:
 # Cross-consistency identities tying the four estimators together
 # ---------------------------------------------------------------------------
 class TestConsistencyIdentities:
-
     def test_chain_rule(self):
         """H(D, C) == H(D) + H(C | D)."""
         rng = np.random.default_rng(SEED)
@@ -253,21 +248,29 @@ class TestGaussianKNNAgreement:
         )
         assert h_gauss == pytest.approx(h_knn, abs=self.KNN_TOL)
 
-    @pytest.mark.parametrize("builder, args", [
-        (make_mean_shift, (1.0, 1.0)),
-        (make_var_diff, (1.0, 2.0)),
-    ])
+    @pytest.mark.parametrize(
+        "builder, args",
+        [
+            (make_mean_shift, (1.0, 1.0)),
+            (make_var_diff, (1.0, 2.0)),
+        ],
+    )
     def test_conditional_entropy_agreement(self, builder, args):
         """H(C | D) is a within-class quantity, so gaussian and KNN agree."""
         rng = np.random.default_rng(SEED)
         d, c = builder(*args, rng, n=self.KNN_N)
         _, h_gauss = conditional_entropy(
-            discrete_vars=d, continuous_vars=c,
-            conditional="discrete", continuous_estimator="gaussian",
+            discrete_vars=d,
+            continuous_vars=c,
+            conditional="discrete",
+            continuous_estimator="gaussian",
         )
         _, h_knn = conditional_entropy(
-            discrete_vars=d, continuous_vars=c,
-            conditional="discrete", continuous_estimator="knn", k=5,
+            discrete_vars=d,
+            continuous_vars=c,
+            conditional="discrete",
+            continuous_estimator="knn",
+            k=5,
         )
         assert h_gauss == pytest.approx(h_knn, abs=self.KNN_TOL)
 
@@ -304,8 +307,10 @@ class TestKNNMutualInformation:
         d = rng.integers(0, 2, size=self.KNN_N)
         c = rng.standard_normal(self.KNN_N)
         _, mi = mutual_information(
-            discrete_vars=d[None, :], continuous_vars=c[None, :],
-            continuous_estimator="knn", k=5,
+            discrete_vars=d[None, :],
+            continuous_vars=c[None, :],
+            continuous_estimator="knn",
+            k=5,
         )
         assert mi == pytest.approx(0.0, abs=self.KNN_TOL)
 

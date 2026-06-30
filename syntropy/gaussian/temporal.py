@@ -129,7 +129,7 @@ def mutual_information_rate(
         The local mutual informations for each frequency band.
     float
         The average mutual information across the whole spectrum.
-    
+
     References
     ----------
     Faes, L., Sparacino, L., Mijatovic, G., Antonacci, Y., Ricci, L., Marinazzo, D., & Stramaglia, S. (2025).
@@ -227,7 +227,7 @@ def k_wms_rate(
 
     Recall that S-information, DTC, and negative O-information can all be written in a general form:
 
-    .. math:: 
+    .. math::
         WMS^{k}(X) = (N-k)TC(X) - \\sum_{i=1}^{N}TC(X^{-i})
 
     WARNING: As far as I know this rate idea has never been formally explored before. It should work fine as a natural generalization of the MI, but it hasn't even been published or peer reviewed.
@@ -252,16 +252,16 @@ def k_wms_rate(
         The local k_wms rate for each frequency band.
     float
         The average k_wms across the whole spectrum.
-    
+
     References
     ----------
     Varley, T. F., Pope, M., Faskowitz, J., & Sporns, O. (2023).
     Multivariate information theory uncovers synergistic subsystems of the human cerebral cortex.
     Communications Biology, 6(1), Article 1.
     https://doi.org/10.1038/s42003-023-04843-w
-    
+
     """
-    
+
     N0: int = len(idxs)
     ptw_whole: NDArray[np.floating]
     avg_whole: float
@@ -270,8 +270,8 @@ def k_wms_rate(
         idxs=idxs, data=data, fs=fs, nperseg=nperseg
     )
 
-    ptw_whole *= (N0 - k)
-    avg_whole *= (N0 - k)
+    ptw_whole *= N0 - k
+    avg_whole *= N0 - k
 
     ptw_sum_parts: NDArray[np.floating] = np.zeros_like(ptw_whole)
     avg_sum_parts: float = 0.0
@@ -304,10 +304,10 @@ def s_information_rate(
 
     The S-information is equivalant to:
 
-    .. math:: 
+    .. math::
         \\Sigma(X) = \\sum_{i=1}^{N}I(X_i;X^{-i})
 
-    .. math:: 
+    .. math::
         \\Sigma(X) = TC(X) + DTC(X)
 
     WARNING: As far as I know this rate idea has never been formally explored before. It should work fine as a natural generalization of the MI, but it hasn't even been published or peer reviewed.
@@ -332,7 +332,7 @@ def s_information_rate(
         The local S-information rate for each frequency band.
     float
         The average S-information across the whole spectrum.
-    
+
     References
     ----------
     Rosas, F., Mediano, P. A. M., Gastpar, M., & Jensen, H. J. (2019).
@@ -365,10 +365,10 @@ def dual_total_correlation_rate(
 
     The dual total correlation is given alternately by:
 
-    .. math:: 
+    .. math::
         DTC(X) = H(X) - \\sum_{i=1}^{N}H(X_i|X^{-i})
 
-    .. math:: 
+    .. math::
         DTC(X) = (N-1)TC(X) - \\sum_{i=1}^{N}TC(X^{-i})
 
     WARNING: As far as I know this rate idea has never been formally explored before. It should work fine as a natural generalization of the MI, but it hasn't even been published or peer reviewed.
@@ -393,7 +393,7 @@ def dual_total_correlation_rate(
         The local dual total correlation rate for each frequency band.
     float
         The average dual total correlation across the whole spectrum.
-    
+
     References
     ----------
     Abdallah, S. A., & Plumbley, M. D. (2012).
@@ -424,10 +424,10 @@ def o_information_rate(
     """
     A straightforward extension of the O-information rate from the total correlation rate.
 
-    .. math::   
-        \\Omega(X) = (2-N)TC(X) + \\sum_{i=1}^{N}TC(X^{-i}) 
+    .. math::
+        \\Omega(X) = (2-N)TC(X) + \\sum_{i=1}^{N}TC(X^{-i})
 
-    .. math:: 
+    .. math::
         \\Omega(X) = TC(X) - DTC(X)
 
     WARNING: As far as I know this rate idea has never been formally explored before. It should work fine as a natural generalization of the MI, but it hasn't even been published or peer reviewed.
@@ -452,7 +452,7 @@ def o_information_rate(
         The local O-information rate for each frequency band.
     float
         The average O-information across the whole spectrum.
-    
+
     References
     ----------
     Rosas, F., Mediano, P. A. M., Gastpar, M., & Jensen, H. J. (2019).
@@ -471,6 +471,7 @@ def o_information_rate(
         idxs=idxs, k=2, data=data, fs=fs, nperseg=nperseg, verbose=verbose
     )
     return -ptw_o, -avg_o
+
 
 def fftfreqs_hz(nperseg: int, fs: int) -> NDArray[np.floating]:
     return np.fft.fftshift(np.fft.fftfreq(nperseg, d=1.0 / fs))

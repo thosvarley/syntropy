@@ -11,6 +11,7 @@ DiscreteDist = dict[tuple[Any, ...], float]
 AlphaSynDist = dict[tuple[Any, ...], float]
 PartialSpectra = dict[tuple[Any, ...], list[float]]
 
+
 def alpha_synergistic_entropy(
     joint_distribution: DiscreteDist,
     alpha: int,
@@ -49,7 +50,7 @@ def alpha_synergistic_entropy(
     higher-order structures in complex systems.
     Npj Complexity, 1(1), 1–11.
     https://doi.org/10.1038/s44260-024-00011-1
-    
+
     """
     assert definition in {
         "min",
@@ -126,7 +127,7 @@ def partial_entropy_spectra(
     definition: str = "min",
 ) -> PartialSpectra:
     """
-    Computes the partial synergy for every value of :math:`alpha` (the spectrum) for each local state. 
+    Computes the partial synergy for every value of :math:`alpha` (the spectrum) for each local state.
 
     Parameters
     ----------
@@ -304,17 +305,18 @@ def partial_information_spectra(
 
         ptw: list[float] = [0 for _ in range(N)]
         for input_key in conditional_entropy_spectra.keys():
-            
             input_spectra: list[float] = input_entropy_spectra[input_key]
             conditional_spectra: list[float] = conditional_entropy_spectra[input_key]
-            target_conditional_entropy: float = target_conditional_distribution[input_key]
+            target_conditional_entropy: float = target_conditional_distribution[
+                input_key
+            ]
 
             for i in range(N):
                 ptw[i] += target_conditional_entropy * (
                     input_spectra[i] - conditional_spectra[i]
                 )
-        
+
         for i in range(N):
             avg[i] += ptw[i] * p_y
-        
+
     return avg

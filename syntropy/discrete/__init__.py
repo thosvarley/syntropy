@@ -54,5 +54,5 @@ __all__ = [
     "lempel_ziv_complexity",
     "lempel_ziv_mutual_information",
     "lempel_ziv_total_correlation",
-    "cross_lempel_ziv_complexity"
+    "cross_lempel_ziv_complexity",
 ]
