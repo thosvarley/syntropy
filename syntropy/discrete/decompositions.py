@@ -857,6 +857,6 @@ def representational_complexity(
     rc: float = 0.0
 
     for atom in avg.keys():
-        rc += avg[atom] * comparator(len(source) for source in atom)
+        rc += avg[atom] * comparator([len(source) for source in atom])
 
     return rc / sum(avg.values())

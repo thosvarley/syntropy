@@ -13,6 +13,7 @@ from syntropy.gaussian.decompositions import (
     generalized_information_decomposition as gid,
     idep_partial_information_decomposition as idep,
     integrated_information_decomposition as phiid,
+    local_precompute_sources,
 )
 from syntropy.gaussian.temporal import (
     differential_entropy_rate,
@@ -589,3 +590,114 @@ class TestLeadLagMIR:
 
         analytic = 0.5 * np.log(1 + c**2)  # = 0.5 * log(2) ≈ 0.347
         assert mir == pytest.approx(analytic, abs=ABS_TOL)
+
+
+# ---------------------------------------------------------------------------
+# Test: local (pointwise) multivariate measures
+#
+# cov = np.cov(data, ddof=0.0) is the *exact* empirical covariance of data
+# (not an independently-specified ground truth being approximated by a
+# finite sample), so local_X(data, cov).mean() should match the static
+# X(cov) to floating-point precision -- the same reasoning already used by
+# test_differential_entropy/test_mutual_information above -- rather than
+# needing a loose Monte Carlo tolerance.
+#
+# local_delta_k and local_description_complexity are not tested directly:
+# local_delta_k is exercised through local_s_information/
+# local_dual_total_correlation/local_o_information below (all three are
+# thin k=0/1/2 wrappers around it, same reasoning as the static delta_k
+# above), and local_description_complexity is just
+# local_dual_total_correlation / N.
+# ---------------------------------------------------------------------------
+
+
+class TestLocalMultivariateMeasures:
+    idxs = (0, 1, 2, 3)
+
+    def test_local_total_correlation(self):
+        ltc = mi.local_total_correlation(data, cov=cov, idxs=self.idxs)
+        assert ltc.mean() == pytest.approx(
+            mi.total_correlation(cov, self.idxs), abs=pytest_abs
+        )
+
+        # tc(x) = sum_i h(x_i) - h(x), reconstructed independently from
+        # local_differential_entropy rather than calling the function itself.
+        whole = shannon.local_differential_entropy(data, cov, idxs=self.idxs)
+        sum_parts = sum(
+            shannon.local_differential_entropy(data[i, :]) for i in self.idxs
+        )
+        assert np.allclose(ltc, sum_parts - whole, atol=1e-9)
+
+    def test_local_s_dtc_o_information(self):
+        ltc = mi.local_total_correlation(data, cov=cov, idxs=self.idxs)
+        ldtc = mi.local_dual_total_correlation(data, cov=cov, idxs=self.idxs)
+        ls = mi.local_s_information(data, cov=cov, idxs=self.idxs)
+        lo = mi.local_o_information(data, cov=cov, idxs=self.idxs)
+
+        assert ls.mean() == pytest.approx(mi.s_information(cov, self.idxs), abs=pytest_abs)
+        assert ldtc.mean() == pytest.approx(
+            mi.dual_total_correlation(cov, self.idxs), abs=pytest_abs
+        )
+        assert lo.mean() == pytest.approx(mi.o_information(cov, self.idxs), abs=pytest_abs)
+
+        # Pointwise identities, exact given the same deterministic data.
+        assert np.allclose(ls, ltc + ldtc, atol=1e-9)
+        assert np.allclose(lo, ltc - ldtc, atol=1e-9)
+
+    def test_local_co_information(self):
+        lco = mi.local_co_information(data, cov=cov, idxs=self.idxs)
+        assert lco.mean() == pytest.approx(
+            mi.co_information(cov, self.idxs), abs=pytest_abs
+        )
+
+        # co(x) = sum over nonempty subsets xi of (-1)^|xi| * h(xi),
+        # reconstructed independently from local_precompute_sources.
+        sources = local_precompute_sources(
+            data=data[list(self.idxs), :], cov=cov[np.ix_(self.idxs, self.idxs)]
+        )
+        manual = np.zeros((1, data.shape[1]))
+        for source, values in sources.items():
+            sign = (-1) ** len(source)
+            manual -= sign * values
+
+        assert np.allclose(lco, manual, atol=1e-9)
+
+
+class TestLocalConditionalMeasures:
+    idxs_x, idxs_y, idxs_z = (0,), (1,), (2, 3)
+
+    def test_local_conditional_entropy(self):
+        joint = self.idxs_x + self.idxs_y
+        lce = shannon.local_conditional_entropy(self.idxs_x, self.idxs_y, data, cov=cov)
+
+        assert lce.mean() == pytest.approx(
+            shannon.conditional_entropy(self.idxs_x, self.idxs_y, cov), abs=pytest_abs
+        )
+
+        manual = shannon.local_differential_entropy(
+            data[joint, :], cov[np.ix_(joint, joint)]
+        ) - shannon.local_differential_entropy(
+            data[self.idxs_y, :], cov[np.ix_(self.idxs_y, self.idxs_y)]
+        )
+        assert np.allclose(lce, manual, atol=1e-9)
+
+    def test_local_conditional_mutual_information(self):
+        lcmi = shannon.local_conditional_mutual_information(
+            self.idxs_x, self.idxs_y, self.idxs_z, data, cov=cov
+        )
+        assert lcmi.mean() == pytest.approx(
+            shannon.conditional_mutual_information(
+                self.idxs_x, self.idxs_y, self.idxs_z, cov
+            ),
+            abs=pytest_abs,
+        )
+
+        # i(x;y|z) = i(x;y,z) - i(x;z), cross-checked against
+        # local_mutual_information -- a different, independently-tested code
+        # path than the one local_conditional_mutual_information itself uses
+        # (local_conditional_entropy).
+        lmi_x_yz = shannon.local_mutual_information(
+            self.idxs_x, self.idxs_y + self.idxs_z, data, cov=cov
+        )
+        lmi_x_z = shannon.local_mutual_information(self.idxs_x, self.idxs_z, data, cov=cov)
+        assert np.allclose(lcmi, lmi_x_yz - lmi_x_z, atol=1e-9)

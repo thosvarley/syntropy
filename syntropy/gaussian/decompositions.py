@@ -152,12 +152,13 @@ def mmi_differential_redundancy(
     """
     mn: float = np.inf
     if single_target_flag is True:
-        for idxs_x in atom:
+        atom_inputs = tuple(tuple(inputs[x] for x in a) for a in atom)
+        for idxs_x in atom_inputs:
             mi = mutual_information(idxs_x=idxs_x, idxs_y=target, cov=cov)
             if mi < mn:
                 mn = mi
     elif single_target_flag is False:
-        atom_inputs = atom[0]
+        atom_inputs = tuple(tuple(inputs[x] for x in a) for a in atom[0])
         atom_targets = list()
 
         for x in atom[1]:
@@ -624,7 +625,7 @@ def representational_complexity(
 
     atom: Atom
     for atom in avg.keys():
-        rc += avg[atom] * comparator(len(source) for source in atom)
+        rc += avg[atom] * comparator([len(source) for source in atom])
 
     return rc / sum(avg.values())
 

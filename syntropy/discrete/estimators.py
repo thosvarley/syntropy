@@ -141,15 +141,21 @@ def miller_madow_entropy(data: NDArray[Any]) -> float:
     N: int = data.shape[1]
 
     joint_distribution: DiscreteDist
-    ent: float
+    ent_bits: float
 
     joint_distribution = plugin_probabilities(data)
 
-    _, ent = shannon_entropy(joint_distribution)
+    # shannon_entropy returns bits (log2); the Miller-Madow correction
+    # (k - 1) / (2N) is derived for the natural-log entropy, so convert the
+    # plugin estimate to nats before applying it. This keeps the estimator
+    # self-consistent and matches the nats convention of the rest of the
+    # module.
+    _, ent_bits = shannon_entropy(joint_distribution)
+    ent_nats: float = ent_bits * np.log(2)
 
     k: int = len(joint_distribution)
 
-    return ent + ((k - 1) / (2 * N))
+    return ent_nats + ((k - 1) / (2 * N))
 
 
 def grassberger_entropy(data: NDArray[Any]) -> float:
@@ -331,13 +337,14 @@ def panzeri_treves_mutual_information(
     10.1080/0954898X.1996.11978656
     """
     joint: tuple[int, ...] = idxs_x + idxs_y
-    N: int = len(joint)
+    num_vars: int = len(joint)
+    num_samples: int = data.shape[1]
 
     joint_distribution: DiscreteDist
     joint_distribution = plugin_probabilities(data[joint, :])
 
     _idxs_x = tuple(i for i in range(len(idxs_x)))
-    _idxs_y = tuple(i for i in range(len(idxs_x), N))
+    _idxs_y = tuple(i for i in range(len(idxs_x), num_vars))
 
     dist_x: DiscreteDist = get_marginal_distribution(_idxs_x, joint_distribution)
     dist_y: DiscreteDist = get_marginal_distribution(_idxs_y, joint_distribution)
@@ -345,8 +352,14 @@ def panzeri_treves_mutual_information(
     r: int = len(dist_x)
     c: int = len(dist_y)
 
-    _, mi = shannon_mutual_information(idxs_x, idxs_y, joint_distribution)
-    return mi - ((r - 1) * (c - 1)) / (2 * N)
+    # shannon_mutual_information returns bits (log2); the Panzeri-Treves
+    # correction (r - 1)(c - 1) / (2N) is derived for the natural-log MI, so
+    # convert to nats before applying it. N here is the number of SAMPLES,
+    # not the number of variables.
+    _, mi_bits = shannon_mutual_information(idxs_x, idxs_y, joint_distribution)
+    mi_nats: float = mi_bits * np.log(2)
+
+    return mi_nats - ((r - 1) * (c - 1)) / (2 * num_samples)
 
 
 def mutual_information(
