@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 # import pickle
 import numpy as np
 import itertools
@@ -254,7 +256,7 @@ def product_distribution(
 
 
 def generate_closed_distribution(
-    N: int, seed: int = None
+    N: int, seed: int | None = None
 ) -> dict[tuple[int, ...], float]:
     """
     Generate a random closed discrete probability distribution on N binary elements.

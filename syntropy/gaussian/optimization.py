@@ -35,7 +35,7 @@ def neg_o_information(x: tuple[NDArray[np.floating], tuple[int, ...]]) -> float:
 
 def simulated_annealing(
     cov: NDArray[np.floating],
-    function: Callable,
+    function: Callable[[tuple[NDArray[np.floating], tuple[int, ...]]], float],
     size: int,
     temperature: float = 1.0,
     cooling_rate: float = 0.999,

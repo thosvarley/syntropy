@@ -15,8 +15,8 @@ ATTRS = {
 
 
 def construct_product_lattice(
-    lattice_1: nx.DiGraph(), lattice_2: nx.DiGraph()
-) -> nx.DiGraph():
+    lattice_1: nx.DiGraph, lattice_2: nx.DiGraph
+) -> nx.DiGraph:
     """
     Constructs the product lattice of two single-target partial information lattices. 
 

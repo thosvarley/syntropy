@@ -181,7 +181,7 @@ def evaluate_flow(
     flow: nflows.flows.base.Flow,
     data: torch.Tensor,
     context: None | torch.Tensor = None,
-) -> tuple[float, float]:
+) -> tuple[torch.Tensor, float]:
     """
     Evaluates a trainied normalizing flow network on the given data.
 

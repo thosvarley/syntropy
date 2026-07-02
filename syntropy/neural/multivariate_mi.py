@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import torch
+from typing import Any
 from .shannon import differential_entropy
 
 
@@ -9,8 +10,8 @@ def total_correlation(
     idxs: tuple[int, ...],
     data: torch.Tensor,
     data_test: None | torch.Tensor = None,
-    flow_kwargs: dict = None,
-    train_kwargs: dict = None,
+    flow_kwargs: None | dict[str, Any] = None,
+    train_kwargs: None | dict[str, Any] = None,
     verbose: bool = False,
 ) -> tuple[torch.Tensor, float]:
     """
@@ -85,15 +86,15 @@ def total_correlation(
         else:
             tc -= lookup[key]
 
-    return tc, tc.mean()
+    return tc, tc.mean().item()
 
 
 def higher_order_information(
     idxs: tuple[int, ...],
     data: torch.Tensor,
     data_test: None | torch.Tensor = None,
-    flow_kwargs: dict = None,
-    train_kwargs: dict = None,
+    flow_kwargs: None | dict[str, Any] = None,
+    train_kwargs: None | dict[str, Any] = None,
     verbose: bool = False,
 ) -> dict[str, dict[str, float | torch.Tensor]]:
     """
@@ -201,10 +202,10 @@ def higher_order_information(
     sinfo: torch.Tensor = (N * tc) - residual_tcs
 
     results: dict[str, dict[str, float | torch.Tensor]] = {
-        "sinfo": {"ptw": sinfo, "avg": sinfo.mean()},
-        "dtc": {"ptw": dtc, "avg": dtc.mean()},
-        "oinfo": {"ptw": oinfo, "avg": oinfo.mean()},
-        "tc": {"ptw": tc, "avg": tc.mean()},
+        "sinfo": {"ptw": sinfo, "avg": sinfo.mean().item()},
+        "dtc": {"ptw": dtc, "avg": dtc.mean().item()},
+        "oinfo": {"ptw": oinfo, "avg": oinfo.mean().item()},
+        "tc": {"ptw": tc, "avg": tc.mean().item()},
     }
 
     return results

@@ -3,7 +3,7 @@ from __future__ import annotations
 import numpy as np
 import math
 import networkx as nx
-from typing import Callable, Any
+from typing import Callable, Any, Iterable
 from .utils import make_powerset, reduce_state, get_marginal_distribution
 from .shannon import mutual_information
 from ..lattices import load_lattice, mobius_inversion
@@ -528,7 +528,7 @@ def partial_information_decomposition(
     target: tuple[int, ...],
     joint_distribution: DiscreteDist,
     redundancy_function: str,
-) -> Any:
+) -> tuple[dict[Atom, float] | None, dict[Atom, float]]:
     r"""
     Computes the partial information decomposition for up to four input variables onto one (potentially joint) target variable.
 
@@ -598,7 +598,7 @@ def integrated_information_decomposition(
     target: tuple[int, ...],
     joint_distribution: DiscreteDist,
     redundancy_function: str,
-) -> Any:
+) -> tuple[dict[Atom, float] | None, dict[Atom, float]]:
     r"""
     Computes the integrated information decomposition introduced by Rosas, Mediano, et al.
     The PhiID relaxes the requirement of only having a single target, and instead allows for
@@ -737,7 +737,7 @@ def generalized_information_decomposition(
     posterior_distribution: DiscreteDist,
     prior_distribution: DiscreteDist,
     redundancy_function: str,
-) -> (dict, dict):
+) -> tuple[dict, dict]:
     """
     Computes the generalized information decomposition from Varley et al.
     The GID is a decomposition of the Kullback-Leibler divergence of a
@@ -815,7 +815,9 @@ def generalized_information_decomposition(
     return ptw, avg
 
 
-def representational_complexity(avg: dict, comparator: Callable = min) -> float:
+def representational_complexity(
+    avg: dict[Atom, float], comparator: Callable[[Iterable[int]], int] = min
+) -> float:
     """
     Computes the representational complexity of a given partial information or entropy lattice.
     The representational complexity is a measure of how

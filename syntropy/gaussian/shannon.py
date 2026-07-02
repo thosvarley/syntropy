@@ -336,7 +336,7 @@ def local_conditional_mutual_information(
     idxs_z: tuple[int, ...],
     data: NDArray[np.floating],
     cov: NDArray[np.floating] | None = None,
-):
+) -> NDArray[np.floating]:
     """
     Computes the local conditional mutual information between
     two sets of variables X and Y, conditional on another set Z.

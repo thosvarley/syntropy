@@ -16,7 +16,7 @@ binom_lookup = {N: {k: comb(N, k, exact=True) for k in range(N)} for N in range(
 
 def total_correlation(
     joint_distribution: dict[tuple[int, ...], float],
-) -> (tuple[dict, float], float):
+) -> tuple[dict, float]:
     """
     Computes the average and pointwise total correlations:
 
@@ -63,7 +63,7 @@ def total_correlation(
 
 def delta_k(
     k: int, joint_distribution: dict[tuple[int, ...], float]
-) -> (tuple[dict, float], float):
+) -> tuple[dict, float]:
     r"""
     S-information, DTC, and negative O-information can all be written in a general form:
 
@@ -154,7 +154,7 @@ def delta_k(
 
 def s_information(
     joint_distribution: dict[tuple[int, ...], float],
-) -> (tuple[dict, float], float):
+) -> tuple[dict, float]:
     """
     Computes the local and expected S-information for the joint distribution.
 
@@ -201,7 +201,7 @@ def s_information(
 
 def dual_total_correlation(
     joint_distribution: dict[tuple[int, ...], float],
-) -> (tuple[dict, float], float):
+) -> tuple[dict, float]:
     """
     Computes the local and expected dual total correlations for the joint distribution.
 
@@ -246,7 +246,7 @@ def dual_total_correlation(
 
 def o_information(
     joint_distribution: dict[tuple[int, ...], float],
-) -> (tuple[dict, float], float):
+) -> tuple[dict, float]:
     """
     Computes the local and expected O-informations for the joint distribution.
     O-information quantifies the balance between redundancy (positive values) and synergy (negative values) in multivariate information.
@@ -293,7 +293,7 @@ def o_information(
 
 def co_information(
     joint_distribution: dict[tuple[int, ...], float],
-) -> (tuple[dict, float], float):
+) -> tuple[dict, float]:
     """
     Computes the Co-information, the third generalization of bivariate mutual information. Unlike total correlation and dual total correlation, the cO-information can be negative and is difficult to interpret.
 
@@ -428,7 +428,7 @@ def tse_complexity(
 
 def description_complexity(
     joint_distribution: dict[tuple[int, ...], float],
-) -> (tuple[dict, float], float):
+) -> tuple[dict, float]:
     """
     The description complexity was proposed by Tononi and Sporns as a
     heuristic, easy-to-compute approximation of the full TSE-Complexity.

@@ -59,8 +59,8 @@ def sample_entropy(
     series: NDArray[np.floating] = data[idx[0], :]
     N: int = series.shape[0] - m
 
-    embed_small: NDArray = sliding_window_view(series, m)[:N]
-    embed_big: NDArray = sliding_window_view(series, m + 1)
+    embed_small: NDArray[np.floating] = sliding_window_view(series, m)[:N]
+    embed_big: NDArray[np.floating] = sliding_window_view(series, m + 1)
 
     tree_small: cKDTree = cKDTree(embed_small)
     tree_big: cKDTree = cKDTree(embed_big)

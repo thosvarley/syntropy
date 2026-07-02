@@ -6,7 +6,7 @@ from numpy.typing import NDArray
 
 def construct_csd_tensor(
     idxs: tuple[int, ...], data: NDArray[np.floating], fs: int = 1, nperseg: int = 1024
-) -> tuple[NDArray[np.floating], NDArray[np.floating]]:
+) -> tuple[NDArray[np.complexfloating], NDArray[np.floating]]:
     """
 
     Parameters
@@ -277,7 +277,7 @@ def k_wms_rate(
     avg_sum_parts: float = 0.0
 
     for i in range(N0):
-        idxs_residual: tuple[idxs, ...] = tuple(idxs[j] for j in range(N0) if j != i)
+        idxs_residual: tuple[int, ...] = tuple(idxs[j] for j in range(N0) if j != i)
 
         ptw_residuals, avg_residuals = total_correlation_rate(
             idxs=idxs_residual, data=data, fs=fs, nperseg=nperseg

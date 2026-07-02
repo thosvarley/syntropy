@@ -1,10 +1,16 @@
+from __future__ import annotations
+
+import numpy as np
 import networkx as nx
+from numpy.typing import NDArray
 from typing import Callable, Any
 from copy import copy
 
 
 def mobius_inversion(
-    redundancy_func: Callable, lattice: nx.DiGraph, kwargs: dict[str, Any]
+    redundancy_func: Callable[..., float | NDArray[np.floating]],
+    lattice: nx.DiGraph,
+    kwargs: dict[str, Any],
 ) -> nx.DiGraph:
     """
     Computes the Mobius inversion on an arbitrary lattice, given an arbitrary redundancy function

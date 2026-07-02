@@ -11,17 +11,17 @@ from .utils import check_cov
 from ..utils import make_powerset
 from ..lattices import load_lattice, mobius_inversion
 from numpy.typing import NDArray
-from typing import Callable, Any
+from typing import Callable, Any, Iterable
 
 Atom = tuple[tuple[int, ...], ...]
 
 
 # %%
-def unpack_atom(atom: Atom) -> set[int, ...]:
+def unpack_atom(atom: Atom) -> set[int]:
     """
     A utitlity function to unpack tuples.
     """
-    varset: set[int, ...] = set()
+    varset: set[int] = set()
     for s in {*atom}:
         varset.update(set(s))
 
@@ -30,7 +30,7 @@ def unpack_atom(atom: Atom) -> set[int, ...]:
 
 def local_precompute_sources(
     data: NDArray[np.floating], cov: NDArray[np.floating] | None = None
-):
+) -> dict[tuple[int, ...], NDArray[np.floating]]:
     """
     A utility function that pre-computes the local entropies
     of every subset of the data. This speeds up the PID/GID/PED
@@ -584,7 +584,7 @@ def generalized_information_decomposition(
 
 
 def representational_complexity(
-    avg: dict[Atom, float], comparator: Callable = min
+    avg: dict[Atom, float], comparator: Callable[[Iterable[int]], int] = min
 ) -> float:
     """
     Computes the representational complexity of a given partial information or entropy lattice.
