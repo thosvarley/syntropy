@@ -575,7 +575,7 @@ def description_complexity(
 
     """
 
-    N: float = float(cov.shape[0]) if idxs[0] is None else float(len(idxs))
+    N: float = float(cov.shape[0]) if idxs is None else float(len(idxs))
 
     return dual_total_correlation(cov=cov, idxs=idxs) / N
 
@@ -612,7 +612,7 @@ def local_description_complexity(
 
     """
 
-    N: float = float(cov.shape[0]) if idxs[0] is None else float(len(idxs))
+    N: float = float(cov.shape[0]) if idxs is None else float(len(idxs))
 
     return local_delta_k(k=1, data=data, cov=cov, idxs=idxs) / N
 

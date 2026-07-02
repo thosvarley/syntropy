@@ -402,7 +402,7 @@ def _pid(
     joint_distribution: DiscreteDist,
     redundancy_function: str,
     single_target_flag: bool = True,
-) -> Any:
+) -> tuple[dict[Atom, float] | None, dict[Atom, float]]:
     """
     A utility function that computes the actual PID/PhiID depending on the state of single_target_flag.
 
@@ -429,7 +429,9 @@ def _pid(
 
     Returns
     -------
-    Any
+    tuple[dict[Atom, float] | None, dict[Atom, float]]
+        The pointwise decomposition (or None, since MMI has no pointwise
+        formulation) and the average decomposition, keyed by information atom.
 
 
     """
@@ -466,7 +468,7 @@ def _pid(
         avg: dict[Atom, float] = {
             node: result.nodes[node]["pi"] for node in result.nodes
         }
-        return avg
+        return None, avg
 
     elif redundancy_function in {"isx", "ipm"}:
         sources: Sources = local_precompute_sources(joint_distribution)

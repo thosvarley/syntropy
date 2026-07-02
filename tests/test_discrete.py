@@ -316,13 +316,13 @@ def test_phiiid():
     assert round(avg[(((1,),), ((1,),))], 3) == 0.152
     assert round(avg[(((0, 1),), ((0, 1),))], 3) == -0.018
 
-    mmi_dis = phiid(
+    _, mmi_dis = phiid(
         inputs=(0, 1),
         target=(2, 3),
         joint_distribution=disintegrated_system,
         redundancy_function="mmi",
     )
-    mmi_int = phiid(
+    _, mmi_int = phiid(
         inputs=(0, 1),
         target=(2, 3),
         joint_distribution=integrated_system,

@@ -41,12 +41,70 @@ pytest
 pytest --cov=syntropy --cov-report=html
 ```
 
-## Code Style
+## Style Guide
 
-- Follow PEP 8 guidelines for Python code
-- Use meaningful variable and function names
-- Add docstrings to all public functions and classes
-- Keep functions focused and modular
+Syntropy follows five core design principles. New contributions should adhere
+to these, and reviewers will check pull requests against them explicitly.
+
+### 1. Functional style
+
+Prefer small, modular, composable, pure functions. Each function should
+implement a single, well-defined mathematical operation, rather than several
+unrelated computations bundled together behind a string flag or an if/elif
+dispatch. In particular, avoid:
+
+- Mutating input arguments in place.
+- Hidden I/O (e.g. `print` statements) inside otherwise-pure numerical routines.
+- One function computing several independently-useful quantities (e.g. don't
+  compute total correlation, dual total correlation, and O-information all
+  inside a single function just because they share intermediate terms --
+  factor the shared work into its own helper instead).
+- Classes or other stateful objects where a plain function would do. The one
+  accepted exception is `syntropy.neural`, where PyTorch `nn.Module`s are the
+  idiomatic way to represent a normalizing flow, and training a flow
+  necessarily updates its parameters in place.
+
+### 2. Minimal global state
+
+Module-level globals should be constants only (named reference distributions,
+mathematical constants such as `LN_TWO_PI_E`, and the like). Functions must
+never read or mutate shared mutable state:
+
+- No module-level mutable containers (`list`, `dict`, `set`) that get written
+  to after import.
+- No `global` statements.
+- Any function that needs randomness must accept an explicit `rng`/`seed`
+  argument (e.g. via `np.random.default_rng(seed)`) rather than calling the
+  global `np.random`/`random` APIs directly. This keeps results reproducible
+  and stops one function's randomness from silently affecting another's.
+
+### 3. Heavy type-hinting
+
+Every function signature -- parameters and return type -- should be fully
+type-hinted. Prefer specific types over bare containers: `dict[tuple[Any,
+...], float]` instead of `dict`, `NDArray[np.floating]` instead of `NDArray`,
+`Callable[[Iterable[int]], int]` instead of bare `Callable`. Arguments that
+default to `None` should be typed `X | None`, not just `X`.
+
+### 4. Heavy documentation, with citations
+
+Every non-trivial function needs a docstring with real Parameters/Returns
+descriptions, not just a repeated type with no prose. If a function
+implements a specific technique from the literature -- an entropy estimator,
+an information decomposition, a redundancy function, a network architecture
+-- its docstring must include a References section citing the original
+paper, in the same format already used throughout the codebase (author,
+year, title, venue, DOI/URL).
+
+### 5. Heavy testing for mathematical correctness
+
+Every function exported in a submodule's `__all__` must have a corresponding
+test with a real numeric assertion: a hand-derived value, a closed-form
+analytic limit, a cross-check against an independent implementation, or a
+known invariant (e.g. `I(X;X) = H(X)`). A test that only checks a function
+runs without raising is not sufficient. Untested code is exactly where bugs
+hide silently -- treat a missing test on an exported function as equivalent
+to a missing implementation.
 
 ## Project Structure
 

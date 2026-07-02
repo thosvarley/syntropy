@@ -25,6 +25,14 @@ syntropy.knn.shannon module
    :show-inheritance:
    :undoc-members:
 
+syntropy.knn.temporal module
+----------------------------
+
+.. automodule:: syntropy.knn.temporal
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
 syntropy.knn.utils module
 -------------------------
 

@@ -15,6 +15,7 @@ from . import gaussian
 from . import knn
 from . import mixed
 from . import lattices
+# from . import ordinal # Not ready yet 
 
 
 # `neural` depends on torch + nflows (heavy, optional). Import it lazily so the
@@ -35,6 +36,7 @@ __all__ = [
     "neural",
     "mixed",
     "lattices",
+    # "ordinal",
     "__version__",
     "__author__",
     "__email__",

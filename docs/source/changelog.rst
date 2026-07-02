@@ -12,6 +12,9 @@ Unreleased
 Added
 ~~~~~
 
+* ``syntropy.knn`` gained sample entropy (``sample_entropy``) and cross-sample
+  entropy (``cross_sample_entropy``): non-parametric, distance-based measures of
+  complexity and dynamical similarity for continuous time series.
 * ``syntropy.mixed.mutual_information`` now accepts a ``continuous_estimator``
   argument (``"gaussian"`` or ``"knn"``, with a ``k`` parameter for the KNN
   option), matching the mixed entropy functions. The KNN estimator recovers the
