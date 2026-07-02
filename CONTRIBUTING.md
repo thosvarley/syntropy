@@ -113,6 +113,8 @@ The Syntropy project is not anti-AI, but it is opposed to mindless cognitive off
 
 ## Project Structure
 
+The Syntropy package is split into arms: each arm corresponds to a class of estimator (Gaussian, KNN-based, discrete, etc).
+
 - `syntropy/discrete/` - Estimators for discrete random variables
 - `syntropy/gaussian/` - Estimators for Gaussian random variables
 - `syntropy/knn/` - k-nearest neighbor estimators for continuous variables
