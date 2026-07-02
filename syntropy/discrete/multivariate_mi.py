@@ -344,7 +344,7 @@ def co_information(
 
 
 def tse_complexity(
-    joint_distribution: dict[tuple[int, ...], float], num_samples
+    joint_distribution: dict[tuple[int, ...], float], num_samples, seed: int = 0
 ) -> float:
     """
     The Tononi-Sporns-Edelman neural complexity measure, which provides a measure of the balance between integration and segregation across scales.
@@ -352,7 +352,7 @@ def tse_complexity(
     .. math::
 
         TSE(X) &= \\sum_{k=1}^{\\lfloor N/2\\rfloor} \\bigg\\langle I(X^{k}_j;X^{-k}_j) \\bigg\\rangle_{j} \\\\
-               &= \\sum_{k=2}^{N}\\bigg[\\bigg(\\frac{k}{N}\\bigg)TC(X) - \\langle TC(X^{k}_{j}) \\rangle_{j}  \\bigg] 
+               &= \\sum_{k=2}^{N}\\bigg[\\bigg(\\frac{k}{N}\\bigg)TC(X) - \\langle TC(X^{k}_{j}) \\rangle_{j}  \\bigg]
 
     Runtimes scale very badly with system size (as it requires brute-forcing) all possible bipartitions of the system. If the system is too large, a sub-sampling approach is taken: at each scale, num_samples are drawn from the space of bipartitions.
 
@@ -364,6 +364,11 @@ def tse_complexity(
         The valules are the probabilities.
     num_samples : int
         The number of samples to do for each subset size..
+    seed : int, optional
+        The seed for the random number generator used to sample bipartitions.
+        Using a local, seeded generator (rather than the global NumPy RNG)
+        keeps results reproducible regardless of what else has run before
+        this call. The default is 0.
 
     Returns
     -------
@@ -383,6 +388,8 @@ def tse_complexity(
     https://doi.org/10.1038/s42003-023-04843-w
 
     """
+    rng: np.random.Generator = np.random.default_rng(seed)
+
     N: int = len(next(iter(joint_distribution)))
 
     tc_whole: float = total_correlation(joint_distribution)[1]
@@ -401,7 +408,7 @@ def tse_complexity(
         ):  # if N-choose-k is greater than the pre-specified number of samples:
             # Samples is a set to avoid repeats.
             samples: set = {
-                tuple(sorted(tuple(np.random.choice(N, size=k, replace=False))))
+                tuple(sorted(tuple(rng.choice(N, size=k, replace=False))))
                 for i in range(num_samples)
             }
         else:

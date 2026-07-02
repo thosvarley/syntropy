@@ -13,6 +13,7 @@ def differential_entropy(
     idxs: tuple[int, ...] | None = None,
     p: float = np.inf,
     noise_level: float = 0.0,
+    seed: int = 0,
 ) -> tuple[NDArray[np.floating], float]:
     r"""
     Computes the differential entropy using the Kozachenko-Leoneko estimator.
@@ -37,6 +38,12 @@ def differential_entropy(
     noise_level : float
         The standard deviation  of the noise to add to the data.
         The default is 0.0
+    seed : int
+        The seed for the random number generator used to draw the noise,
+        only relevant when noise_level > 0. Using a local, seeded
+        generator (rather than the global NumPy RNG) keeps results
+        reproducible regardless of what else has run before this call.
+        The default is 0.
 
     Returns
     -------
@@ -68,7 +75,8 @@ def differential_entropy(
 
     data_idxs: NDArray[np.floating] = data[idxs_, :]
     if noise_level > 0:
-        data_idxs += np.random.randn(*data_idxs.shape) * noise_level
+        rng: np.random.Generator = np.random.default_rng(seed)
+        data_idxs += rng.standard_normal(data_idxs.shape) * noise_level
 
     _, distances, _ = build_tree_and_get_distances(data_idxs, k=k, p=p)
 

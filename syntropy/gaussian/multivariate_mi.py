@@ -482,19 +482,21 @@ def o_information(
     return -delta_k(k=2, cov=cov, idxs=idxs)
 
 
-def tse_complexity(num_samples: int, cov: NDArray[np.floating]) -> float:
+def tse_complexity(
+    num_samples: int, cov: NDArray[np.floating], seed: int = 0
+) -> float:
     """
     Computes the Tononi-Sporns-Edelman complexity using Gaussian
     estimators.
-    
+
     .. math::
 
         TSE(X) &= \\sum_{k=1}^{\\lfloor N/2\\rfloor} \\bigg\\langle I(X^{k}_j;X^{-k}_j) \\bigg\\rangle_{j} \\\\
-               &= \\sum_{k=2}^{N}\\bigg[\\bigg(\\frac{k}{N}\\bigg)TC(X) - \\langle TC(X^{k}_{j}) \\rangle_{j}  \\bigg] 
+               &= \\sum_{k=2}^{N}\\bigg[\\bigg(\\frac{k}{N}\\bigg)TC(X) - \\langle TC(X^{k}_{j}) \\rangle_{j}  \\bigg]
 
     Runtimes scale very badly with system size (as it requires brute-forcing) all possible bipartitions of the system. If the system is too large, a sub-sampling approach is taken: at each scale, num_samples are drawn from the space of bipartitions.
-    
-    If you wish to use a Gaussian copula estimator, use the correlation matrix returned by the function :func:`utils.copula_transform`. 
+
+    If you wish to use a Gaussian copula estimator, use the correlation matrix returned by the function :func:`utils.copula_transform`.
 
     Parameters
     ----------
@@ -502,6 +504,11 @@ def tse_complexity(num_samples: int, cov: NDArray[np.floating]) -> float:
         The number of sample subsets to compute.
     cov : NDArray[np.floating]
         The covariance matrix that defines the distribution.
+    seed : int, optional
+        The seed for the random number generator used to sample
+        bipartitions. Using a local, seeded generator (rather than the
+        global NumPy RNG) keeps results reproducible regardless of what
+        else has run before this call. The default is 0.
 
     Returns
     -------
@@ -517,6 +524,8 @@ def tse_complexity(num_samples: int, cov: NDArray[np.floating]) -> float:
 
     """
 
+    rng: np.random.Generator = np.random.default_rng(seed)
+
     N: int = cov.shape[0]  # Number of channels
 
     tc_whole: float = total_correlation(cov)  # Global total correlation
@@ -530,7 +539,7 @@ def tse_complexity(num_samples: int, cov: NDArray[np.floating]) -> float:
     for k in range(1, N):
         # All of the samples of subsets at scale i
         samples: NDArray[np.floating] = np.array(
-            [np.random.choice(N, size=k, replace=False) for _ in range(num_samples)]
+            [rng.choice(N, size=k, replace=False) for _ in range(num_samples)]
         )
         samples.sort(axis=-1)
 

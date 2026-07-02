@@ -17,6 +17,7 @@ def alpha_synergistic_entropy(
     alpha: int,
     num_samples: int = -1,
     definition: str = "min",
+    seed: int = 0,
 ) -> AlphaSynDist:
     """
     Computes the :math:`\\alpha`-synergistic entropy for a joint distribution
@@ -37,6 +38,11 @@ def alpha_synergistic_entropy(
         The number of samples to trial. The default is -1, in which case, all permutations are trialed.
     definition : str, optional
         How to define the loss of information. Can be "min", "max", or "avg". The default is "min".
+    seed : int, optional
+        The seed for the random number generator used when num_samples is
+        not -1. Using a local, seeded generator (rather than the global
+        NumPy RNG) keeps results reproducible regardless of what else has
+        run before this call. The default is 0.
 
     Returns
     -------
@@ -58,6 +64,8 @@ def alpha_synergistic_entropy(
         "avg",
     }, "The optional definitions are 'min', 'max', or 'avg'."
 
+    rng: np.random.Generator = np.random.default_rng(seed)
+
     N: int = len(next(iter(joint_distribution)))
 
     val: float = 0.0
@@ -75,7 +83,7 @@ def alpha_synergistic_entropy(
     else:  # Randomly sample elements of size alpha.
         sources += list(
             {
-                tuple(sorted(np.random.choice(N, size=alpha, replace=False).tolist()))
+                tuple(sorted(rng.choice(N, size=alpha, replace=False).tolist()))
                 for i in range(num_samples)
             }
         )
@@ -125,6 +133,7 @@ def partial_entropy_spectra(
     joint_distribution: DiscreteDist,
     num_samples: int = -1,
     definition: str = "min",
+    seed: int = 0,
 ) -> PartialSpectra:
     """
     Computes the partial synergy for every value of :math:`alpha` (the spectrum) for each local state.
@@ -137,6 +146,12 @@ def partial_entropy_spectra(
         The number of samples to trial. The default is -1, in which case, all permutations are trialed.
     definition : str, optional
         How to define the loss of information. Can be "min", "max", or "avg". The default is "min".
+    seed : int, optional
+        The seed for the random number generator, only relevant when
+        num_samples != -1. Each value of alpha is offset from this seed
+        (seed + alpha) so that different scales draw decorrelated
+        subsamples, while the whole spectrum stays reproducible from a
+        single seed. The default is 0.
 
     Returns
     -------
@@ -156,6 +171,7 @@ def partial_entropy_spectra(
             alpha=alpha,
             num_samples=num_samples,
             definition=definition,
+            seed=seed + alpha,
         )
 
         for key in alpha_syns.keys():
@@ -169,6 +185,7 @@ def partial_kullback_leibler_spectra(
     prior: DiscreteDist,
     num_samples: int = -1,
     definition: str = "min",
+    seed: int = 0,
 ) -> PartialSpectra:
     """
     Computes the local Kullback-Leibler spectrum for each state
@@ -185,6 +202,13 @@ def partial_kullback_leibler_spectra(
     definition : str, optional
         How to define the loss of information.
         Can be "min", "max", or "avg". The default is "min".
+    seed : int, optional
+        The seed for the random number generator, only relevant when
+        num_samples != -1. The same seed is deliberately used for both the
+        prior and posterior spectra (common random numbers): since the two
+        are subtracted, sharing the same random subsampling scheme cancels
+        out sampling noise instead of adding two independent noise sources
+        to the difference. The default is 0.
 
     Returns
     -------
@@ -195,10 +219,10 @@ def partial_kullback_leibler_spectra(
 
     dkl_spectra: PartialSpectra = {key: [] for key in posterior.keys()}
     prior_spectra: PartialSpectra = partial_entropy_spectra(
-        prior, num_samples=num_samples, definition=definition
+        prior, num_samples=num_samples, definition=definition, seed=seed
     )
     posterior_spectra: PartialSpectra = partial_entropy_spectra(
-        posterior, num_samples=num_samples, definition=definition
+        posterior, num_samples=num_samples, definition=definition, seed=seed
     )
 
     for key in dkl_spectra.keys():
@@ -213,6 +237,7 @@ def partial_total_correlation_spectra(
     joint_distribution: DiscreteDist,
     num_samples: int = -1,
     definition: str = "min",
+    seed: int = 0,
 ) -> PartialSpectra:
     """
     Computes the local total correlation spectrum for each state using the Kullback-Leibler divergence.
@@ -225,6 +250,11 @@ def partial_total_correlation_spectra(
         The number of samples to trial. The default is -1, in which case, all permutations are trialed.
     definition : str, optional
         How to define the loss of information. Can be "min", "max", or "avg". The default is "min".
+    seed : int, optional
+        The seed for the random number generator, only relevant when
+        num_samples != -1. See partial_kullback_leibler_spectra for why the
+        same seed is reused across the compared distributions. The default
+        is 0.
 
     Returns
     -------
@@ -239,7 +269,11 @@ def partial_total_correlation_spectra(
     )
 
     return partial_kullback_leibler_spectra(
-        joint_distribution, prior, num_samples=num_samples, definition=definition
+        joint_distribution,
+        prior,
+        num_samples=num_samples,
+        definition=definition,
+        seed=seed,
     )
 
 
@@ -249,6 +283,7 @@ def partial_information_spectra(
     joint_distribution: DiscreteDist,
     num_samples: int = -1,
     definition: str = "min",
+    seed: int = 0,
 ) -> list[float]:
     """
     Computes the local mutual information spectrum for each state.
@@ -265,6 +300,15 @@ def partial_information_spectra(
         The number of samples to trial. The default is -1, in which case, all permutations are trialed.
     definition : str, optional
         How to define the loss of information. Can be "min", "max", or "avg". The default is "min".
+    seed : int, optional
+        The seed for the random number generator, only relevant when
+        num_samples != -1. The same seed is reused for the unconditional
+        input entropy spectrum and every target-conditional spectrum
+        (common random numbers, see partial_kullback_leibler_spectra):
+        since these are subtracted from each other and then averaged, a
+        shared random subsampling scheme cancels out sampling noise
+        instead of adding an independent noise source per comparison. The
+        default is 0.
 
     Returns
     -------
@@ -284,7 +328,7 @@ def partial_information_spectra(
 
     # The alpha-synergistic entropy decomposition of h(x)
     input_entropy_spectra: PartialSpectra = partial_entropy_spectra(
-        marginal_inputs, num_samples=num_samples, definition=definition
+        marginal_inputs, num_samples=num_samples, definition=definition, seed=seed
     )
 
     avg: list[float] = [0.0 for _ in range(N)]
@@ -301,6 +345,7 @@ def partial_information_spectra(
             target_conditional_distribution,
             num_samples=num_samples,
             definition=definition,
+            seed=seed,
         )
 
         ptw: list[float] = [0 for _ in range(N)]

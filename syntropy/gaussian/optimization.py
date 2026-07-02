@@ -7,7 +7,6 @@ Created on Sun Feb 16 13:01:12 2025
 """
 
 import numpy as np
-import random
 import math
 from numpy.typing import NDArray
 from .multivariate_mi import o_information
@@ -45,6 +44,7 @@ def simulated_annealing(
     convergence_window: int = 100,
     convergence_threshold: float = 1e-6,
     verbose: bool = False,
+    seed: int = 0,
 ) -> tuple[set[int], float, NDArray[np.floating]]:
     """
     Implements a simulated annealing algorithm for optimizing
@@ -88,6 +88,12 @@ def simulated_annealing(
     verbose : bool, optional
         Whether to print progress messages during optimization.
         The default is False.
+    seed : int, optional
+        The seed for the random number generator used to choose the
+        initial set and to drive the annealing swaps/acceptance steps.
+        Using a local, seeded generator (rather than the global NumPy and
+        stdlib random APIs) keeps results reproducible regardless of what
+        else has run before this call. The default is 0.
 
     Returns
     -------
@@ -100,6 +106,8 @@ def simulated_annealing(
     """
     assert min_temperature > 0, "The minimum temperature must be greater than zero."
 
+    rng: np.random.Generator = np.random.default_rng(seed)
+
     if verbose:
         print("Initializing annealing...")
 
@@ -107,7 +115,7 @@ def simulated_annealing(
         math.ceil(math.log(min_temperature / temperature) / math.log(cooling_rate)) + 1
     )
 
-    chosen_set: set[int] = set(np.random.choice(cov.shape[0], size=size, replace=False))
+    chosen_set: set[int] = set(rng.choice(cov.shape[0], size=size, replace=False))
     best_set: set[int] = chosen_set.copy()
     available_set: set[int] = {i for i in range(cov.shape[0]) if i not in chosen_set}
 
@@ -126,8 +134,8 @@ def simulated_annealing(
         for _ in range(iters_per_temperature):
             # Randomly pick an available element and an chosen element
             swap: tuple[int, int] = (
-                random.choice(tuple(chosen_set)),
-                random.choice(tuple(available_set)),
+                rng.choice(tuple(chosen_set)),
+                rng.choice(tuple(available_set)),
             )
 
             # Swap the elements, respectively
@@ -157,7 +165,7 @@ def simulated_annealing(
             # If the new sets are more optimal than the old ones
             # OR the temperature is high enough to accept a sub-optimal configuraiton
             # update the value.
-            if (diff > 0) or random.random() < math.exp(diff / temperature):
+            if (diff > 0) or rng.random() < math.exp(diff / temperature):
                 value = new_value
             else:
                 chosen_set.remove(swap[1])

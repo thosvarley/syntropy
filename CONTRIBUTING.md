@@ -106,6 +106,11 @@ runs without raising is not sufficient. Untested code is exactly where bugs
 hide silently -- treat a missing test on an exported function as equivalent
 to a missing implementation.
 
+## Use of AI
+Contributors are allowed to use AI for help with coding (e.g. Claude Code, Cursor, etc), however, contributors **must** be able to articulate, in their own words, what the added functionality accomplishes, its internal logic, and justify its inclusion in the codebase. 
+
+The Syntropy project is not anti-AI, but it is opposed to mindless cognitive offloading. We reserve the right to revisit this policy in the event that we get deluged with slop-PRs, or we feel that illegible AI-generated code is compromising the maintainability or integrity of the codebase. 
+
 ## Project Structure
 
 - `syntropy/discrete/` - Estimators for discrete random variables
