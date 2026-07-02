@@ -158,6 +158,14 @@ def partial_entropy_spectra(
     dict[tuple,list]
         The alpha-synergistic entropy spectrum for each state.
 
+    References
+    ----------
+    Varley, T. F. (2024).
+    A scalable synergy-first backbone decomposition of
+    higher-order structures in complex systems.
+    Npj Complexity, 1(1), 1-11.
+    https://doi.org/10.1038/s44260-024-00011-1
+
     """
 
     N: int = len(list(joint_distribution.keys())[0])
@@ -215,6 +223,14 @@ def partial_kullback_leibler_spectra(
     dict[tuple,list]
         The alpha-synergistic DKL spectrum for each state.
 
+    References
+    ----------
+    Varley, T. F. (2024).
+    A scalable synergy-first backbone decomposition of
+    higher-order structures in complex systems.
+    Npj Complexity, 1(1), 1-11.
+    https://doi.org/10.1038/s44260-024-00011-1
+
     """
 
     dkl_spectra: PartialSpectra = {key: [] for key in posterior.keys()}
@@ -261,6 +277,13 @@ def partial_total_correlation_spectra(
     dict[tuple,list]
         The alpha-synergistic total correlation spectrum for each state.
 
+    References
+    ----------
+    Varley, T. F. (2024).
+    A scalable synergy-first backbone decomposition of
+    higher-order structures in complex systems.
+    Npj Complexity, 1(1), 1-11.
+    https://doi.org/10.1038/s44260-024-00011-1
 
     """
 
@@ -313,6 +336,17 @@ def partial_information_spectra(
     Returns
     -------
     list[float]
+        The alpha-synergistic mutual information spectrum, one value per
+        scale alpha from 1 to len(inputs).
+
+    References
+    ----------
+    Varley, T. F. (2024).
+    A scalable synergy-first backbone decomposition of
+    higher-order structures in complex systems.
+    Npj Complexity, 1(1), 1-11.
+    https://doi.org/10.1038/s44260-024-00011-1
+
     """
 
     N: int = len(inputs)

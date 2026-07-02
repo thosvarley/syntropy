@@ -401,6 +401,14 @@ def kullback_leibler_divergence(
     Returns
     -------
     float
+        The Kullback-Leibler divergence.
+
+    References
+    ----------
+    Kullback, S., & Leibler, R. A. (1951).
+    On Information and Sufficiency.
+    The Annals of Mathematical Statistics, 22(1), 79-86.
+    https://doi.org/10.1214/aoms/1177729694
 
     """
     k = cov_posterior.shape[0]

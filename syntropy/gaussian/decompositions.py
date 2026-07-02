@@ -114,6 +114,42 @@ def mmi_differential_redundancy(
     cov: NDArray[np.floating],
     single_target_flag: bool = True,
 ) -> float:
+    """
+    Computes the minimum mutual information (MMI) redundancy for a
+    collection of sources and a target, using Gaussian estimation.
+
+    For a collection of sources :math:`\\alpha = \\{a_{1}, a_{2}, \\ldots, a_{k}\\}`
+    and a target :math:`t`, the redundancy is defined as
+
+    :math:`i_{MMI}(\\alpha;t) = \\min_{i} I(a_i;t)`
+
+    Parameters
+    ----------
+    atom : Atom
+        The partial information or integrated information atom.
+    inputs : tuple[int, ...]
+        The indices of the input elements.
+    target : tuple[int, ...]
+        The indices of the target element(s).
+    cov : NDArray[np.floating]
+        The covariance matrix that defines the distribution.
+    single_target_flag : bool
+        Whether to do a single-target PID or a multi-target Phi-ID.
+
+    Returns
+    -------
+    float
+        The MMI redundancy for the given atom.
+
+    References
+    ----------
+    Barrett, A. B. (2015).
+    Exploration of synergistic and redundant information sharing in
+    static and dynamical Gaussian systems.
+    Physical Review E, 91(5), 052802.
+    https://doi.org/10.1103/PhysRevE.91.052802
+
+    """
     mn: float = np.inf
     if single_target_flag is True:
         for idxs_x in atom:
@@ -166,7 +202,14 @@ def ipm_differential_redundancy(
     Returns
     -------
     NDArray[np.floating]
+        The i_pm redundancy for the given atom.
 
+    References
+    ----------
+    Finn, C., & Lizier, J. T. (2020).
+    Generalised Measures of Multivariate Information Content.
+    Entropy, 22(2), Article 2.
+    https://doi.org/10.3390/e22020216
 
     """
     joint: tuple[int, ...] = inputs + target

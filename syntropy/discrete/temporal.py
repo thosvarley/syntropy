@@ -24,8 +24,9 @@ def lempel_ziv_complexity(
     X : list
         A discrete array. Can contain digits 0-9 and/or
         single-character strings ("A", "a", "B", "b", etc.)..
-    return_substrings : bool, optional
-        DESCRIPTION. The default is False.
+    return_dictionary : bool, optional
+        Whether to also return the dictionary of substrings found by the
+        algorithm. The default is False.
 
     Returns
     -------

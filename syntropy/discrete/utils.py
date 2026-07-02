@@ -4,11 +4,22 @@ import itertools
 from typing import Any
 
 
-def make_powerset(iterable):
+def make_powerset(iterable: Any) -> itertools.chain:
     """
     A utility function for quickly making powersets,
 
     powerset([1,2,3]) --> () (1,) (2,) (3,) (1,2) (1,3) (2,3) (1,2,3)
+
+    Parameters
+    ----------
+    iterable : Any
+        Any iterable collection of elements.
+
+    Returns
+    -------
+    itertools.chain
+        An iterator over every subset of the input, from the empty tuple
+        up to the full set of elements.
 
     """
     xs: list = list(iterable)
@@ -19,6 +30,20 @@ def make_powerset(iterable):
 
 
 def flatten_nested_tuple(x: tuple[tuple[Any, ...], ...]) -> tuple[Any, ...]:
+    """
+    Flattens a tuple of tuples into a single, flat tuple.
+
+    Parameters
+    ----------
+    x : tuple[tuple[Any, ...], ...]
+        A tuple whose elements are themselves tuples.
+
+    Returns
+    -------
+    tuple[Any, ...]
+        The concatenation of every inner tuple, in order.
+
+    """
     return tuple(itertools.chain(*x))
 
 

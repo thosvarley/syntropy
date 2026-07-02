@@ -26,6 +26,12 @@ def mobius_inversion(
     nx.DiGraph
         A copy of the lattice, populated with all the right partial information atoms.
 
+    References
+    ----------
+    Williams, P. L., & Beer, R. D. (2010).
+    Nonnegative Decomposition of Multivariate Information.
+    arXiv:1004.2515 [Math-Ph, Physics:Physics, q-Bio].
+    http://arxiv.org/abs/1004.2515
 
     """
     lattice = lattice.copy()

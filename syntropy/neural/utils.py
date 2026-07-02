@@ -40,7 +40,16 @@ def initialize_flow(
 
     Returns
     -------
-        nflows.flows.base.Flow
+    nflows.flows.base.Flow
+        An untrained masked autoregressive flow (MAF), ready for training.
+
+    References
+    ----------
+    Papamakarios, G., Pavlakou, T., & Murray, I. (2017).
+    Masked Autoregressive Flow for Density Estimation.
+    Advances in Neural Information Processing Systems, 30.
+    https://papers.nips.cc/paper/2017/hash/6c1da886822c67822bcf3679d04369fa-Abstract.html
+
     """
     transforms: list = []
 
@@ -110,8 +119,11 @@ def train_flow(
 
     Returns
     -------
-
     nflows.flows.base.Flow
+        The trained flow (the same object passed in as flow, mutated in
+        place by training). Training stops early if convergence_threshold
+        is reached before num_epochs.
+
     """
 
     if context is None:
@@ -185,8 +197,9 @@ def evaluate_flow(
     Returns
     -------
     tuple[float, float]
-        The average entropy (in nat)
-        The standard error of the estimate.
+        The local (pointwise) negative log-probability of each sample
+        under the flow, followed by their mean -- the average entropy
+        estimate, in nats.
 
     """
 

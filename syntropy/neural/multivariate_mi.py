@@ -36,9 +36,16 @@ def total_correlation(
     Returns
     -------
     torch.Tensor
-
+        The local total correlation for each sample.
     float
+        The expected total correlation over all samples.
 
+    References
+    ----------
+    Watanabe, S. (1960).
+    Information theoretical analysis of multivariate correlation.
+    IBM Journal of Research and Development, 4(1), 66-82.
+    https://doi.org/10.1147/rd.41.0066
 
     """
     flow_kwargs = flow_kwargs or {}
@@ -113,6 +120,28 @@ def higher_order_information(
     Returns
     -------
     dict[str, dict[str, float | torch.Tensor]]
+        A dictionary keyed by "sinfo", "dtc", "oinfo", and "tc", each
+        mapping to a dict with keys "ptw" (the local/pointwise values,
+        torch.Tensor) and "avg" (the expected value, float).
+
+    References
+    ----------
+    Watanabe, S. (1960).
+    Information theoretical analysis of multivariate correlation.
+    IBM Journal of Research and Development, 4(1), 66-82.
+    https://doi.org/10.1147/rd.41.0066
+
+    Abdallah, S. A., & Plumbley, M. D. (2012).
+    A measure of statistical complexity based on predictive information
+    with application to finite spin systems.
+    Physics Letters A, 376(4), 275-281.
+    https://doi.org/10.1016/j.physleta.2011.10.066
+
+    Rosas, F., Mediano, P. A. M., Gastpar, M., & Jensen, H. J. (2019).
+    Quantifying High-order Interdependencies via Multivariate
+    Extensions of the Mutual Information.
+    Physical Review E, 100(3), Article 3.
+    https://doi.org/10.1103/PhysRevE.100.032305
 
     """
     flow_kwargs = flow_kwargs or {}

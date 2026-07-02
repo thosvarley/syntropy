@@ -34,6 +34,13 @@ def shannon_entropy(
     floating
         The expected entropy over all samples.
 
+    References
+    ----------
+    Ross, B. C. (2014).
+    Mutual Information between Discrete and Continuous Data Sets.
+    PLoS ONE, 9(2), e87357.
+    https://doi.org/10.1371/journal.pone.0087357
+
     """
     assert discrete_vars.shape[1] == continuous_vars.shape[1], (
         "The discrete and continuous variables must have the same number of samples."
@@ -118,6 +125,13 @@ def conditional_entropy(
     floating
         The expected entropy over all samples.
 
+    References
+    ----------
+    Ross, B. C. (2014).
+    Mutual Information between Discrete and Continuous Data Sets.
+    PLoS ONE, 9(2), e87357.
+    https://doi.org/10.1371/journal.pone.0087357
+
     """
     # %%
     assert discrete_vars.shape[1] == continuous_vars.shape[1], (
@@ -200,6 +214,12 @@ def mutual_information(
     floating
         The expected mutual information over all samples.
 
+    References
+    ----------
+    Ross, B. C. (2014).
+    Mutual Information between Discrete and Continuous Data Sets.
+    PLoS ONE, 9(2), e87357.
+    https://doi.org/10.1371/journal.pone.0087357
 
     """
     assert discrete_vars.shape[1] == continuous_vars.shape[1], (

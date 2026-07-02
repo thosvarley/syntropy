@@ -18,18 +18,26 @@ def construct_product_lattice(
     lattice_1: nx.DiGraph(), lattice_2: nx.DiGraph()
 ) -> nx.DiGraph():
     """
+    Constructs the product lattice of two single-target partial information lattices. 
 
     Parameters
     ----------
     lattice_1 : nx.DiGraph()
-
+        The first single-target redundancy lattice.
     lattice_2 : nx.DiGraph()
-
+        The second single-target redundancy lattice.
 
     Returns
     -------
     nx.DiGraph()
+        The product lattice. 
 
+    References
+    ----------
+    Mediano, P. A. M., Rosas, F., Carhart-Harris, R. L., Seth, A. K., & Barrett, A. B. (2019).
+    Beyond Integrated Information: A Taxonomy of Information Dynamics Phenomena.
+    arXiv:1909.02297 [physics, q-bio].
+    https://arxiv.org/abs/1909.02297
 
     """
     nodes: tuple[Atom, Atom] = [

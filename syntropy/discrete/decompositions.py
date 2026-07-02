@@ -160,6 +160,13 @@ def mmi_discrete_redundancy(
     single_target_flag: bool = True,
 ) -> float:
     """
+    Computes the minimum mutual information (MMI) redundancy for a
+    collection of sources and a target.
+
+    For a collection of sources :math:`\\alpha = \\{a_{1}, a_{2}, \\ldots, a_{k}\\}`
+    and a target :math:`t`, the redundancy is defined as
+
+    :math:`i_{MMI}(\\alpha;t) = \\min_{i} I(a_i;t)`
 
     Parameters
     ----------
@@ -184,7 +191,15 @@ def mmi_discrete_redundancy(
     Returns
     -------
     float
+        The MMI redundancy for the given atom.
 
+    References
+    ----------
+    Barrett, A. B. (2015).
+    Exploration of synergistic and redundant information sharing in
+    static and dynamical Gaussian systems.
+    Physical Review E, 91(5), 052802.
+    https://doi.org/10.1103/PhysRevE.91.052802
 
     """
     mn: float = np.inf

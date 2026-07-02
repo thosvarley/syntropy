@@ -21,7 +21,21 @@ from . import lattices
 # `neural` depends on torch + nflows (heavy, optional). Import it lazily so the
 # core library works without them; `syntropy.neural` triggers the import only
 # when actually accessed.
-def __getattr__(name):
+def __getattr__(name: str) -> object:
+    """
+    Lazily imports optional submodules on first attribute access.
+
+    Parameters
+    ----------
+    name : str
+        The attribute being accessed on the syntropy package.
+
+    Returns
+    -------
+    object
+        The imported submodule, if name is a recognized lazy submodule.
+
+    """
     if name == "neural":
         import importlib
 

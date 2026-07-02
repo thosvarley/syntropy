@@ -29,7 +29,7 @@ def local_total_correlation(
         The covariance matrix used to compute the local entropies.
         If None is provided, it is inferred from the data.
         The default is None.
-    inputs: tuple | None
+    idxs : tuple | None
         The indices of the channels to include.
         If None is provided, all channels are used.
         The default is None.
@@ -278,15 +278,13 @@ def s_information(
     
     Parameters
     ----------
-    data : NDArray[np.floating]
-        The data in channels x samples format.
     cov : NDArray[np.floating]
         The covariance matrix that defines the distribution.
     idxs : tuple, optional
         The specific subset of variables to compute the total correlation of.
         Defaults to computing the TC of the entire covariance matrix.
 
-    Returns:
+    Returns
     -------
     float
         The expected S-information.
@@ -360,8 +358,6 @@ def dual_total_correlation(
 
     Parameters
     ----------
-    data : NDArray[np.floating]
-        The data in channels x samples format.
     cov : NDArray[np.floating]
         The covariance matrix that defines the distribution. .
     idxs : tuple, optional
@@ -453,9 +449,8 @@ def o_information(
 
     Parameters
     ----------
-    cov : NDArray[np.floating], optional
+    cov : NDArray[np.floating]
         The covariance matrix that defines the distribution.
-        If unspecified it is computed directly from the data.
     idxs : tuple, optional
         The specific subset of variables to compute the total correlation of.
         Defaults to computing the TC of the entire covariance matrix.

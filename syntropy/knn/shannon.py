@@ -160,7 +160,7 @@ def mutual_information_1(
 
     Returns
     -------
-    NDArray[np.floating
+    NDArray[np.floating]
         The local mutual information for each sample.
     float
         The expected mutual information over all samples
@@ -222,7 +222,7 @@ def mutual_information_2(
 
     Returns
     -------
-    NDArray[np.floating
+    NDArray[np.floating]
         The local mutual information for each sample.
     float
         The expected mutual information over all samples

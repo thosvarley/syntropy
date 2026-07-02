@@ -37,6 +37,14 @@ def constrained_maximum_entropy_distributions(
     dict[tuple, float]
         The optimized distribution consistent with the given marginal constraints.
 
+    References
+    ----------
+    Deming, W. E., & Stephan, F. F. (1940).
+    On a Least Squares Adjustment of a Sampled Frequency Table When the
+    Expected Marginal Totals are Known.
+    The Annals of Mathematical Statistics, 11(4), 427-444.
+    https://doi.org/10.1214/aoms/1177731829
+
     """
 
     assert (marginal_constraints == [(None,)]) ^ (order == -1), (

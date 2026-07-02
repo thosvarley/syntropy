@@ -31,6 +31,13 @@ def shannon_entropy(joint_distribution: DiscreteDist) -> tuple[dict, float]:
     avg : float
         The average entropy
 
+    References
+    ----------
+    Shannon, C. E. (1948).
+    A Mathematical Theory of Communication.
+    The Bell System Technical Journal, 27(3), 379-423.
+    https://doi.org/10.1002/j.1538-7305.1948.tb01338.x
+
     """
 
     ptw: dict = {
@@ -119,7 +126,6 @@ def mutual_information(
         Keys are tuples corresponding to the state of each element.
         The valules are the probabilities.
 
-
     Returns
     -------
     ptw : dict
@@ -127,6 +133,13 @@ def mutual_information(
     avg : float
         The average mutual information
 
+    References                                              
+    ----------                                              
+    Shannon, C. E. (1948).                                  
+    A Mathematical Theory of Communication.                 
+    The Bell System Technical Journal, 27(3), 379-423.      
+    https://doi.org/10.1002/j.1538-7305.1948.tb01338.x      
+    
     """
 
     Nx: int = len(idxs_x)
@@ -184,6 +197,12 @@ def conditional_mutual_information(
     avg : float
         The average mutual information
 
+    References
+    ----------
+    Cover, T. M., & Thomas, J. A. (2006).
+    Elements of Information Theory (2nd ed.).
+    Wiley-Interscience.
+
     """
 
     Nx: int = len(idxs_x)
@@ -232,6 +251,13 @@ def kullback_leibler_divergence(
         The pointwise Kullback-Leibler divergence for each state in the joint distribution.
     avg : float
         The average Kullback-Leibler divergence.
+
+    References
+    ----------
+    Kullback, S., & Leibler, R. A. (1951).
+    On Information and Sufficiency.
+    The Annals of Mathematical Statistics, 22(1), 79-86.
+    https://doi.org/10.1214/aoms/1177729694
 
     """
 

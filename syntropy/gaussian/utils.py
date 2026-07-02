@@ -10,6 +10,26 @@ from numpy.typing import NDArray
 def check_cov(
     cov: NDArray[np.floating] | None, data: NDArray[np.floating]
 ) -> NDArray[np.floating]:
+    """
+    Normalizes an optional covariance matrix against a data array.
+
+    Parameters
+    ----------
+    cov : NDArray[np.floating] | None
+        The covariance matrix that defines the distribution. If None, it
+        is computed directly from data.
+    data : NDArray[np.floating]
+        Data array of shape (n_variables, n_samples), used to compute the
+        covariance matrix when cov is None, and to validate its
+        dimensionality otherwise.
+
+    Returns
+    -------
+    NDArray[np.floating]
+        cov itself (copied) if given, otherwise the covariance matrix
+        computed from data.
+
+    """
     if cov is None:
         cov_ = np.cov(data, ddof=0)
     else:

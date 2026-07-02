@@ -474,4 +474,22 @@ def o_information_rate(
 
 
 def fftfreqs_hz(nperseg: int, fs: int) -> NDArray[np.floating]:
+    """
+    Computes the (zero-centered) FFT frequency bins, in Hz, for a given
+    segment length and sampling rate.
+
+    Parameters
+    ----------
+    nperseg : int
+        The number of samples per FFT segment.
+    fs : int
+        The sampling rate, in Hz.
+
+    Returns
+    -------
+    NDArray[np.floating]
+        The frequency, in Hz, corresponding to each FFT bin, ordered from
+        most negative to most positive (i.e. fftshift'd).
+
+    """
     return np.fft.fftshift(np.fft.fftfreq(nperseg, d=1.0 / fs))

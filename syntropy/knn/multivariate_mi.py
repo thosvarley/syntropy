@@ -36,7 +36,7 @@ def total_correlation(
 
     Returns
     -------
-    NDArray[np.floating
+    NDArray[np.floating]
         The local total correlation for each sample.
     float
         The expected total correlation over all samples
@@ -71,7 +71,7 @@ def total_correlation_1(
 
     Returns
     -------
-    NDArray[np.floating
+    NDArray[np.floating]
         The local total correlation for each sample.
     float
         The expected total correlation over all samples
@@ -135,7 +135,7 @@ def total_correlation_2(
 
     Returns
     -------
-    NDArray[np.floating
+    NDArray[np.floating]
         The local total correlation for each sample.
     float
         The expected total correlation over all samples
@@ -212,7 +212,7 @@ def dual_total_correlation(
 
     Returns
     -------
-    NDArray[np.floating
+    NDArray[np.floating]
         The local dual total correlation for each sample.
     float
         The expected dual total correlation over all samples
@@ -279,7 +279,7 @@ def s_information(
 
     Returns
     -------
-    NDArray[np.floating
+    NDArray[np.floating]
         The local S-information for each sample.
     float
         The expected S-information over all samples
@@ -357,7 +357,7 @@ def o_information(
 
     Returns
     -------
-    NDArray[np.floating
+    NDArray[np.floating]
         The local O-information for each sample.
     float
         The expected O-information over all samples
