@@ -13,12 +13,15 @@ from syntropy.gaussian.decompositions import (
 from syntropy.gaussian.shannon import local_differential_entropy, mutual_information
 
 pytest_abs = 1e-6
+SEED = 0
 
-rng = np.random.default_rng(0)
-_N = 6
-_A = rng.normal(size=(_N, _N))
-COV = _A @ _A.T + _N * np.eye(_N)
-DATA = rng.multivariate_normal(mean=np.zeros(_N), cov=COV, size=3000).T
+
+def make_covariance_and_data(N, rng, size=3000):
+    """A random positive-definite covariance matrix and a matching sample."""
+    A = rng.normal(size=(N, N))
+    cov = A @ A.T + N * np.eye(N)
+    data = rng.multivariate_normal(mean=np.zeros(N), cov=cov, size=size).T
+    return cov, data
 
 
 def test_unpack_atom():
@@ -28,8 +31,8 @@ def test_unpack_atom():
 
 
 def test_local_precompute_sources():
-    N = 3
-    data, cov = DATA[:N, :], COV[:N, :N]
+    rng = np.random.default_rng(SEED)
+    cov, data = make_covariance_and_data(3, rng)
 
     sources = local_precompute_sources(data, cov=cov)
 
@@ -42,8 +45,9 @@ def test_local_precompute_sources():
 
 
 def test_hmin_differential_redundancy():
-    N = 3
-    sources = local_precompute_sources(DATA[:N, :], cov=COV[:N, :N])
+    rng = np.random.default_rng(SEED)
+    cov, data = make_covariance_and_data(3, rng)
+    sources = local_precompute_sources(data, cov=cov)
 
     result = hmin_differential_redundancy(atom=((0,), (1,)), sources=sources)
     assert np.allclose(result, np.minimum(sources[(0,)], sources[(1,)]), atol=pytest_abs)
@@ -54,13 +58,15 @@ def test_hmin_differential_redundancy():
 
 
 def test_mmi_differential_redundancy_pid():
+    rng = np.random.default_rng(SEED)
+    cov, _ = make_covariance_and_data(6, rng)
     inputs, target = (0, 1), (2,)
 
     result = mmi_differential_redundancy(
-        atom=((0,), (1,)), inputs=inputs, target=target, cov=COV
+        atom=((0,), (1,)), inputs=inputs, target=target, cov=cov
     )
-    mi0 = mutual_information(idxs_x=(0,), idxs_y=target, cov=COV)
-    mi1 = mutual_information(idxs_x=(1,), idxs_y=target, cov=COV)
+    mi0 = mutual_information(idxs_x=(0,), idxs_y=target, cov=cov)
+    mi1 = mutual_information(idxs_x=(1,), idxs_y=target, cov=cov)
     assert result == pytest.approx(min(mi0, mi1), abs=pytest_abs)
 
     # Regression test: mmi_differential_redundancy must resolve atom-local
@@ -71,23 +77,25 @@ def test_mmi_differential_redundancy_pid():
     # whenever `inputs` was not a zero-based contiguous prefix.
     remapped_inputs, remapped_target = (2, 3), (4,)
     remapped = mmi_differential_redundancy(
-        atom=((0,),), inputs=remapped_inputs, target=remapped_target, cov=COV
+        atom=((0,),), inputs=remapped_inputs, target=remapped_target, cov=cov
     )
-    expected = mutual_information(idxs_x=(2,), idxs_y=remapped_target, cov=COV)
-    wrong = mutual_information(idxs_x=(0,), idxs_y=remapped_target, cov=COV)
+    expected = mutual_information(idxs_x=(2,), idxs_y=remapped_target, cov=cov)
+    wrong = mutual_information(idxs_x=(0,), idxs_y=remapped_target, cov=cov)
     assert remapped == pytest.approx(expected, abs=pytest_abs)
     assert remapped != pytest.approx(wrong, abs=pytest_abs)
 
 
 def test_mmi_differential_redundancy_phiid():
+    rng = np.random.default_rng(SEED)
+    cov, _ = make_covariance_and_data(6, rng)
     inputs, target = (1, 2), (4, 5)
     atom = (((0,), (1,)), ((0,), (1,)))
 
     result = mmi_differential_redundancy(
-        atom=atom, inputs=inputs, target=target, cov=COV, single_target_flag=False
+        atom=atom, inputs=inputs, target=target, cov=cov, single_target_flag=False
     )
     manual = min(
-        mutual_information(idxs_x=ix, idxs_y=iy, cov=COV)
+        mutual_information(idxs_x=ix, idxs_y=iy, cov=cov)
         for ix in [(1,), (2,)]
         for iy in [(4,), (5,)]
     )
@@ -100,22 +108,25 @@ def test_mmi_differential_redundancy_phiid():
         atom=remapped_atom,
         inputs=remapped_inputs,
         target=remapped_target,
-        cov=COV,
+        cov=cov,
         single_target_flag=False,
     )
-    expected = mutual_information(idxs_x=(2,), idxs_y=(4,), cov=COV)
+    expected = mutual_information(idxs_x=(2,), idxs_y=(4,), cov=cov)
     assert remapped == pytest.approx(expected, abs=pytest_abs)
 
 
 def test_mmi_differential_redundancy_invariant_to_variable_permutation():
-    # End-to-end check via the public API: the PID result for a given set
-    # of (input, target) variables should not depend on where those
-    # variables happen to sit in the covariance matrix.
-    avg_a = pid(inputs=(2, 3), target=(4,), data=DATA, cov=COV, redundancy_function="mmi")
+    """End-to-end check via the public API: the PID result for a given set
+    of (input, target) variables should not depend on where those
+    variables happen to sit in the covariance matrix."""
+    rng = np.random.default_rng(SEED)
+    cov, data = make_covariance_and_data(6, rng)
+
+    avg_a = pid(inputs=(2, 3), target=(4,), data=data, cov=cov, redundancy_function="mmi")
 
     perm = [2, 3, 4, 0, 1, 5]
-    cov_p = COV[np.ix_(perm, perm)]
-    data_p = DATA[perm, :]
+    cov_p = cov[np.ix_(perm, perm)]
+    data_p = data[perm, :]
     avg_b = pid(inputs=(0, 1), target=(2,), data=data_p, cov=cov_p, redundancy_function="mmi")
 
     for atom in avg_a:
@@ -123,10 +134,10 @@ def test_mmi_differential_redundancy_invariant_to_variable_permutation():
 
 
 def test_ipm_differential_redundancy_matches_manual_formula_pid():
-    inputs = (0, 1)
-    target = (2,)
-    atom = ((0,), (1,))
-    sources = local_precompute_sources(DATA[:3, :], cov=COV[:3, :3])
+    rng = np.random.default_rng(SEED)
+    cov, data = make_covariance_and_data(3, rng)
+    inputs, target, atom = (0, 1), (2,), ((0,), (1,))
+    sources = local_precompute_sources(data, cov=cov)
 
     result = ipm_differential_redundancy(
         atom=atom, inputs=inputs, target=target, sources=sources
@@ -144,10 +155,11 @@ def test_ipm_differential_redundancy_matches_manual_formula_pid():
 
 
 def test_ipm_differential_redundancy_matches_manual_formula_phiid():
-    inputs = (1, 2)
-    target = (4, 5)
+    rng = np.random.default_rng(SEED)
+    cov, data = make_covariance_and_data(6, rng)
+    inputs, target = (1, 2), (4, 5)
     joint = inputs + target
-    sources = local_precompute_sources(DATA[list(joint), :], COV[np.ix_(joint, joint)])
+    sources = local_precompute_sources(data[list(joint), :], cov[np.ix_(joint, joint)])
 
     num_inputs, num_target = len(inputs), len(target)
     target_ = tuple(range(num_inputs, num_inputs + num_target))

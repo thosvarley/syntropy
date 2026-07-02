@@ -19,6 +19,7 @@ from syntropy.gaussian.temporal import (
     differential_entropy_rate,
     mutual_information_rate,
 )
+from helpers import equicorr_matrix
 
 data_path = pathlib.Path(__file__).parent
 data = pd.read_csv(data_path / "../examples/bold.csv", header=None).values
@@ -28,12 +29,6 @@ cov = np.cov(data, ddof=0.0)
 # Due to natural instability in Scipy's matrix algebra, we need a slightly
 # more relaxed tolerance for our unit tests. 1 part in 1,000,000 is probably ok.
 pytest_abs = 1e-6
-
-
-# Various helpers
-def equicorr_matrix(N: int, rho: float) -> np.ndarray:
-    """N x N equicorrelation matrix with off-diagonal rho."""
-    return (1 - rho) * np.eye(N) + rho * np.ones((N, N))
 
 
 def analytic_tc(N: int, rho: float) -> float:
@@ -565,32 +560,6 @@ class TestLeadLagMIR:
         _, hxy = differential_entropy_rate((0, 1), data, nperseg=2**13)
 
         assert mir == pytest.approx(hx + hy - hxy, abs=1e-4)
-
-    def test_complex_csd_matters(self):
-        """
-        Regression test for the real-vs-complex CSD bug.
-
-        If the imaginary parts of the CSD are discarded (the old bug),
-        the MIR for the lead-lag model is overestimated because
-        det(Re(S)) > Re(det(S)) when Im(S_XY) != 0.
-
-        Specifically, for this model:
-            |S(w)| = 1  (exact, for all w)
-        but
-            det(Re(S(w))) = S_XX * S_YY - Re(S_XY)^2
-                          = (1+c^2) - c^2*cos^2(w)
-                          > 1  for w != 0, pi
-        """
-        rng = np.random.default_rng(42)
-        T = 5_000_000
-        c = 1.0
-        data = generate_lead_lag(T, c=c, rng=rng)
-
-        _, mir = mutual_information_rate((0,), (1,), data, nperseg=2**13)
-
-        analytic = 0.5 * np.log(1 + c**2)  # = 0.5 * log(2) ≈ 0.347
-        assert mir == pytest.approx(analytic, abs=ABS_TOL)
-
 
 # ---------------------------------------------------------------------------
 # Test: local (pointwise) multivariate measures

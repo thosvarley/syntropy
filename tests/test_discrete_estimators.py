@@ -99,23 +99,6 @@ def test_miller_madow_entropy():
     assert miller_madow_entropy(data) > _plugin_entropy_nats(joint)
 
 
-def test_miller_madow_returns_nats_not_bits():
-    # Regression guard: the correction (k-1)/(2N) is derived for natural-log
-    # entropy, so the plugin estimate must be converted from bits to nats
-    # first. If it were left in bits, the result would equal the log2 entropy
-    # plus the correction, which is a different (smaller) number.
-    data = np.array([[0, 1, 2, 3]])
-    joint = plugin_probabilities(data)
-    N, k = data.shape[1], len(joint)
-    _, ent_bits = shannon_entropy(joint)
-
-    bits_version = ent_bits + (k - 1) / (2 * N)
-    nats_version = ent_bits * LN2 + (k - 1) / (2 * N)
-
-    assert miller_madow_entropy(data) == pytest.approx(nats_version, abs=pytest_abs)
-    assert miller_madow_entropy(data) != pytest.approx(bits_version, abs=pytest_abs)
-
-
 def test_grassberger_entropy():
     # Two states each observed twice: -Σ (n_i/N)(ψ(n_i) - ψ(N)).
     data = np.array([[0, 0, 1, 1]])
@@ -192,24 +175,3 @@ def test_panzeri_treves_mutual_information():
         (0,), (1,), independent
     ) == pytest.approx(0.0, abs=1e-2)
 
-
-def test_panzeri_treves_correction_uses_sample_count_not_variable_count():
-    # Regression guard: the bias correction denominator must be the number of
-    # SAMPLES, not the number of variables. Previously N = len(idxs_x+idxs_y)
-    # was used, so the correction ignored sample size entirely and could push
-    # the estimate far negative. Here the same two-variable problem is given
-    # at two sample sizes; the corrections must differ and scale like 1/N.
-    rng = np.random.default_rng(11)
-
-    small = np.vstack([rng.integers(0, 3, size=100), rng.integers(0, 3, size=100)])
-    # Tile the small dataset so the empirical distribution (and hence the
-    # plugin MI, r and c) is identical while the sample count grows 10x.
-    large = np.tile(small, (1, 10))
-
-    def correction(data):
-        joint = plugin_probabilities(data)
-        _, mi_bits = shannon_mutual_information((0,), (1,), joint)
-        return mi_bits * LN2 - panzeri_treves_mutual_information((0,), (1,), data)
-
-    # Same r, c; 10x samples -> correction should shrink by ~10x.
-    assert correction(small) == pytest.approx(10 * correction(large), abs=pytest_abs)

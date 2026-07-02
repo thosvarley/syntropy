@@ -7,13 +7,9 @@ from syntropy.gaussian.utils import (
     copula_transform,
     covariance_to_correlation,
 )
+from helpers import equicorr_matrix
 
 pytest_abs = 1e-6
-
-
-def equicorr_matrix(N: int, rho: float) -> np.ndarray:
-    """N x N equicorrelation matrix with off-diagonal rho."""
-    return (1 - rho) * np.eye(N) + rho * np.ones((N, N))
 
 
 def test_check_cov():

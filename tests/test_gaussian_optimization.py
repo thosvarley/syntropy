@@ -7,13 +7,9 @@ from syntropy.gaussian.optimization import (
     irreducible_synergy,
 )
 from syntropy.gaussian.multivariate_mi import o_information
+from helpers import equicorr_matrix
 
 pytest_abs = 1e-9
-
-
-def equicorr_matrix(N: int, rho: float) -> np.ndarray:
-    """N x N equicorrelation matrix with off-diagonal rho."""
-    return (1 - rho) * np.eye(N) + rho * np.ones((N, N))
 
 
 def pos_o_information(x):
@@ -22,9 +18,6 @@ def pos_o_information(x):
     redundancy-dominated subset instead of the most synergy-dominated one.
     """
     return o_information(*x)
-
-
-# %% neg_o_information
 
 
 def test_neg_o_information_is_negation():
@@ -38,53 +31,51 @@ def test_neg_o_information_is_negation():
     )
 
 
-# %% simulated_annealing
-#
-# Strategy: embed a strongly synergistic (or redundant) block of `size`
-# variables inside a larger covariance matrix of otherwise-independent
-# variables, so the embedded block is the unique global optimum of
-# O-information over every size-`size` subset. The annealer should recover
-# exactly that block regardless of where it's not seeded from.
+# simulated_annealing fixtures: embed a strongly synergistic (or redundant)
+# block of BLOCK_SIZE variables inside a larger covariance matrix of
+# otherwise-independent variables, so the embedded block is the unique
+# global optimum of O-information over every size-BLOCK_SIZE subset. The
+# annealer should recover exactly that block regardless of where it's seeded
+# from. Deterministic (no rng involved in building them), so unlike
+# test_gaussian_decompositions.py these are fine to share across tests.
+N_TOTAL = 8
+BLOCK_SIZE = 3
 
-_N_TOTAL = 8
-_BLOCK_SIZE = 3
+COV_SYNERGY = np.eye(N_TOTAL)
+COV_SYNERGY[:BLOCK_SIZE, :BLOCK_SIZE] = equicorr_matrix(BLOCK_SIZE, -0.45)
 
-_COV_SYNERGY = np.eye(_N_TOTAL)
-_COV_SYNERGY[:_BLOCK_SIZE, :_BLOCK_SIZE] = equicorr_matrix(_BLOCK_SIZE, -0.45)
-
-_COV_REDUNDANT = np.eye(_N_TOTAL)
-_COV_REDUNDANT[:_BLOCK_SIZE, :_BLOCK_SIZE] = equicorr_matrix(_BLOCK_SIZE, 0.9)
+COV_REDUNDANT = np.eye(N_TOTAL)
+COV_REDUNDANT[:BLOCK_SIZE, :BLOCK_SIZE] = equicorr_matrix(BLOCK_SIZE, 0.9)
 
 
 @pytest.mark.parametrize("seed", [0, 1, 2, 3, 4])
 def test_simulated_annealing_recovers_known_synergistic_subset(seed):
     best_set, best_value, _ = simulated_annealing(
-        cov=_COV_SYNERGY, function=neg_o_information, size=_BLOCK_SIZE, seed=seed
+        cov=COV_SYNERGY, function=neg_o_information, size=BLOCK_SIZE, seed=seed
     )
 
     assert set(best_set) == {0, 1, 2}
-    assert best_value == pytest.approx(
-        -o_information(_COV_SYNERGY, (0, 1, 2)), abs=1e-4
-    )
+    assert best_value == pytest.approx(-o_information(COV_SYNERGY, (0, 1, 2)), abs=1e-4)
 
 
 def test_simulated_annealing_recovers_known_redundant_subset():
+    """Same search, run in the opposite direction: maximizing the raw (not
+    negated) O-information should recover the most redundancy-dominated
+    subset instead of the most synergy-dominated one."""
     best_set, best_value, _ = simulated_annealing(
-        cov=_COV_REDUNDANT, function=pos_o_information, size=_BLOCK_SIZE, seed=0
+        cov=COV_REDUNDANT, function=pos_o_information, size=BLOCK_SIZE, seed=0
     )
 
     assert set(best_set) == {0, 1, 2}
-    assert best_value == pytest.approx(
-        o_information(_COV_REDUNDANT, (0, 1, 2)), abs=1e-4
-    )
+    assert best_value == pytest.approx(o_information(COV_REDUNDANT, (0, 1, 2)), abs=1e-4)
 
 
 def test_simulated_annealing_best_value_and_trace_invariants():
     best_set, best_value, values = simulated_annealing(
-        cov=_COV_SYNERGY, function=neg_o_information, size=_BLOCK_SIZE, seed=1
+        cov=COV_SYNERGY, function=neg_o_information, size=BLOCK_SIZE, seed=1
     )
 
-    recomputed = neg_o_information((_COV_SYNERGY, tuple(sorted(best_set))))
+    recomputed = neg_o_information((COV_SYNERGY, tuple(sorted(best_set))))
     assert best_value == pytest.approx(recomputed, abs=pytest_abs)
 
     # `values` records the currently-accepted objective value at each
@@ -96,10 +87,10 @@ def test_simulated_annealing_best_value_and_trace_invariants():
 
 def test_simulated_annealing_reproducible_with_fixed_seed():
     result_a = simulated_annealing(
-        cov=_COV_SYNERGY, function=neg_o_information, size=_BLOCK_SIZE, seed=42
+        cov=COV_SYNERGY, function=neg_o_information, size=BLOCK_SIZE, seed=42
     )
     result_b = simulated_annealing(
-        cov=_COV_SYNERGY, function=neg_o_information, size=_BLOCK_SIZE, seed=42
+        cov=COV_SYNERGY, function=neg_o_information, size=BLOCK_SIZE, seed=42
     )
 
     assert result_a[0] == result_b[0]
@@ -110,29 +101,26 @@ def test_simulated_annealing_reproducible_with_fixed_seed():
 def test_simulated_annealing_rejects_nonpositive_min_temperature():
     with pytest.raises(AssertionError):
         simulated_annealing(
-            cov=_COV_SYNERGY,
+            cov=COV_SYNERGY,
             function=neg_o_information,
-            size=_BLOCK_SIZE,
+            size=BLOCK_SIZE,
             min_temperature=0.0,
         )
 
 
-# %% irreducible_synergy
-
-
 def test_irreducible_synergy_true_for_pure_synergy_triplet():
-    # A synergistic triplet where every leave-one-out pair has O = 0 (an
-    # O-information is undefined/neutral for N=2), which is never less than
-    # the triplet's negative O, so no removal can deepen the synergy.
+    """A synergistic triplet where every leave-one-out pair has O = 0 (an
+    O-information is undefined/neutral for N=2), which is never less than
+    the triplet's negative O, so no removal can deepen the synergy."""
     cov = equicorr_matrix(3, -0.45)
     assert o_information(cov, (0, 1, 2)) < 0
     assert irreducible_synergy(cov, (0, 1, 2)) is True
 
 
 def test_irreducible_synergy_false_for_reducible_quadruplet():
-    # A concrete counterexample found by random search: a synergy-dominated
-    # quadruplet where removing variable 0 makes the O-information *more*
-    # negative (deepens the synergy), so the full set is reducible.
+    """A concrete counterexample found by random search: a synergy-dominated
+    quadruplet where removing variable 0 makes the O-information *more*
+    negative (deepens the synergy), so the full set is reducible."""
     cov = np.array(
         [
             [0.6972889103563518, -0.09306668586768825, 0.44837132926085244, -0.47841733920359486],

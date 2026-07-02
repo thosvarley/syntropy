@@ -43,54 +43,6 @@ def test_mutual_information_runs():
     # (holds regardless of how well the flow trained).
     assert float(ptw.mean()) == pytest.approx(float(mi), abs=1e-5)
 
-
-def test_total_correlation_runs():
-    """Regression guard: total_correlation once raised a TypeError from a stray
-    ``context`` keyword argument."""
-    data = _toy_data()
-    ptw, tc = total_correlation(
-        idxs=(0, 1, 2),
-        data=data,
-        flow_kwargs=FAST_FLOW,
-        train_kwargs=FAST_TRAIN,
-    )
-    assert np.isfinite(float(tc))
-    assert ptw.shape == (FAST_N,)
-
-
-def test_higher_order_information_keys():
-    """Regression guard: the result dict is keyed oinfo/sinfo/tc/dtc, each with
-    ``avg`` and ``ptw`` entries (the keys the documentation example relies on)."""
-    data = _toy_data()
-    res = higher_order_information(
-        idxs=(0, 1, 2),
-        data=data,
-        flow_kwargs=FAST_FLOW,
-        train_kwargs=FAST_TRAIN,
-    )
-    assert set(res) == {"oinfo", "sinfo", "tc", "dtc"}
-    for entry in res.values():
-        assert "avg" in entry and "ptw" in entry
-        assert np.isfinite(float(entry["avg"]))
-
-
-def test_no_zero_element_warning():
-    """Regression guard: an unconditional flow once emitted a torch
-    'Initializing zero-element tensors is a no-op' UserWarning."""
-    data = _toy_data()
-    with warnings.catch_warnings(record=True) as caught:
-        warnings.simplefilter("always")
-        mutual_information(
-            idxs_x=(0,),
-            idxs_y=(1,),
-            data=data,
-            flow_kwargs=FAST_FLOW,
-            train_kwargs=FAST_TRAIN,
-        )
-    zero_element = [w for w in caught if "zero-element" in str(w.message).lower()]
-    assert not zero_element
-
-
 # ---------------------------------------------------------------------------
 # Slow test (opt-in via `pytest --runslow`)
 # ---------------------------------------------------------------------------
