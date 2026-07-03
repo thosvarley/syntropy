@@ -7,13 +7,15 @@
 
 **Syntropy** is a Python library for multivariate information-theoretic analysis of discrete and continuous data. It provides efficient implementations of information measures ranging from basic quantities like entropy and mutual information to modern constructs like the partial information decomposition, O-information, and information rates for time series.
 
+The goal of Syntropy is to be the "Networkx" of information theory. In the same that Networkx made network science available to scientists across disciplines, Syntropy aims to make information theory equally accessible. 
+
 ## Features
 
-- **Multiple estimators**: Discrete, Gaussian, KNN (Kraskov), and neural (normalizing flow) estimators
+- **Multiple estimators**: Discrete (with corrections), Gaussian, KNN (Kraskov), neural (normalizing flow), and mixed discrete/continuous estimators
 - **Pointwise measures**: Access local/pointwise values, not just expected values
 - **Higher-order information**: Total correlation, dual total correlation, O-information, S-information
-- **Information decomposition**: Partial information decomposition (PID) and partial entropy decomposition
-- **Time series**: Information rates and Lempel-Ziv complexity measures
+- **Information decomposition**: Discrete and continuous partial information decomposition (PID), partial entropy decomposition (PED), generalized information decomposition (GID), and more. Multiple redundancy functions for each class. 
+- **Time series**: Information rates, Lempel-Ziv complexity, sample entropy.
 - **Consistent API**: Same interface across all estimator types
 
 ## Installation
