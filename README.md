@@ -27,8 +27,8 @@ Then import as:
 import syntropy
 ```
 
-[!IMPORTANT]
-The package is `syntropyx` on PyPI because `syntropy` was already taken. The `x` is just a workaround—the actual library is called Syntropy.
+> [!IMPORTANT]
+> The package is `syntropyx` on PyPI because `syntropy` was already taken. The `x` is just a workaround—the actual library is called Syntropy.
 
 For development:
 ```bash
