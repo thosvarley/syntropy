@@ -169,7 +169,7 @@ ptw, mi = mutual_information(
 | Partial Entropy Decomp. | x | x | | |
 | Generalized Info. Decomp. | x | x | | |
 | Integrated ($\Phi$) Info. Decomp. | x | x | | |
-| Information Rates | x | x | | |
+| Information Rates | x | x | x | |
 | Connected Information | x | | | |
 | $\alpha$-Synergy Decomp. | x | | | |
 | I_dep Decomp. | | x | | |

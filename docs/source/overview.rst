@@ -67,7 +67,7 @@ estimator family. A checkmark (✓) indicates the measure is available.
    "Partial entropy decomposition", "✓", "✓", "", "", ""
    "Generalized information decomposition", "✓", "✓", "", "", ""
    "Integrated (Φ) information decomposition", "✓", "✓", "", "", ""
-   "Information rates", "✓", "✓", "", "", ""
+   "Information rates", "✓", "✓", "✓", "", ""
    "Connected information", "✓", "", "", "", ""
    "α-synergy decomposition", "✓", "", "", "", ""
    "I_dep decomposition", "", "✓", "", "", ""
