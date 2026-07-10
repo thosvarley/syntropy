@@ -11,7 +11,8 @@ Unreleased
 
 Added
 ~~~~~
-
+* ``syntropy.knn`` gained a Kullback-Leibler divergence estimator for estimation 
+  of the DKL between two point clouds
 * ``syntropy.knn`` gained sample entropy (``sample_entropy``) and cross-sample
   entropy (``cross_sample_entropy``): non-parametric, distance-based measures of
   complexity and dynamical similarity for continuous time series.

@@ -3,6 +3,7 @@ from __future__ import annotations
 import numpy as np
 from numpy.typing import NDArray
 from scipy.special import digamma
+from scipy.spatial import cKDTree
 from .utils import build_tree_and_get_distances, get_counts_from_tree
 from ..utils import check_idxs
 
@@ -344,3 +345,60 @@ def conditional_mutual_information(
         counter += 1
 
     return ptw, ptw.mean()
+
+
+def kullback_leibler_divergence(
+    posterior_data: NDArray[np.floating],
+    prior_data: NDArray[np.floating],
+    k: int,
+    p: float = np.inf,
+) -> tuple[NDArray[np.floating], float]:
+    """
+
+    Parameters
+    ----------
+    data_posterior : NDArray[np.floating]
+
+    data_prior : NDArray[np.floating]
+
+    k : int
+
+    p : float
+
+
+    Returns
+    -------
+    NDArray[np.floating]
+        The local relative entropy for each sample. 
+    float
+        The average Kullback-Leibler divergence
+
+    References
+    ----------
+    F. Perez-Cruz, "Kullback-Leibler divergence estimation of continuous distributions," 2008 IEEE International Symposium on Information Theory, Toronto, ON, Canada, 2008
+    https://ieeexplore.ieee.org/document/4595271
+    """
+
+    assert posterior_data.shape[0] == prior_data.shape[0], (
+        "The data must have the same number of dimensions."
+    )
+
+    P: NDArray[np.floating] = posterior_data.T
+    Q: NDArray[np.floating] = prior_data.T
+   
+    n: int
+    d: int
+    m: int
+    n, d = P.shape
+    m, _ = Q.shape
+
+    dists_within, _ = cKDTree(P).query(P, k=k + 1, p=p)
+    dists_between, _ = cKDTree(Q).query(P, k=k, p=p)
+
+    rho: NDArray[np.floating] = dists_within.reshape(P.shape[0], k + 1)[:, -1]
+    nu: NDArray[np.floating] = dists_between.reshape(P.shape[0], k)[:, -1]
+
+    ptw: NDArray[np.floating] = d * np.log(nu / rho) + np.log(m / (n - 1))
+    avg: float = np.mean(ptw)
+
+    return ptw, avg

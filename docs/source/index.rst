@@ -129,8 +129,8 @@ Examples
    #############################################################
    # this uses the same Gaussian data as above 
    # to allow comparability
-   from syntropy.knn import mutual_information, o_information 
-   # Note that there is no KNN-based DKL or PID.
+   from syntropy.knn import mutual_information, o_information, kullback_leibler_divergence 
+   # Note that there is no KNN-based or PID.
    
    data = data[:,:100_000] # Reducing the number of data points.
    
@@ -150,6 +150,12 @@ Examples
         k = 5,
    ) 
    print(f"O-information(data) = {avg:.3} nat") # Should be similar to the Gaussian O-information given above.
+
+   data_maxent = multivariate_normal.rvs(cov=maxent, size=100_000).T
+
+   ptw, avg = kullback_leibler_divergence(data, data_maxent, k=4)
+
+   print(f"DKL(P || Q) = {avg:.3} nat") # Should be similar to the DKL given above for the Gaussians. 
 
 .. toctree::
    :maxdepth: 2

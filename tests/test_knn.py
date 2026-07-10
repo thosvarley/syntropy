@@ -2,6 +2,9 @@ import pytest
 import numpy as np
 
 import syntropy.knn as knn
+import syntropy.gaussian as gaussian
+
+from scipy.stats import multivariate_normal
 
 # df_path = pathlib.Path(__file__).parent
 # df = pd.read_csv(df_path / "../examples/bold.csv", header=None)
@@ -68,3 +71,35 @@ def test_higher_order_mi():
     sinfo = knn.s_information(data=data, k=1)[-1]
     # From JIDT
     assert pytest.approx(sinfo, pytest_abs) == 11.052927214589442
+
+
+def test_dkl():
+    cov_prior = np.array(
+        [
+            [0.99999999, 0.24404644, 0.65847509],
+            [0.24404644, 0.99999985, 0.24163274],
+            [0.65847509, 0.24163274, 0.99999996],
+        ]
+    )
+    cov_posterior = np.array(
+        [
+            [0.99999997, 0.41352921, 0.3885488],
+            [0.41352921, 1.00000004, 0.20463242],
+            [0.3885488, 0.20463242, 0.99999993],
+        ]
+    )
+    prior_data = multivariate_normal.rvs(cov=cov_prior, size=1_000_000).T
+    posterior_data = multivariate_normal.rvs(cov=cov_posterior, size=1_00_000).T
+    dkl = gaussian.kullback_leibler_divergence(
+        cov_posterior=cov_posterior, cov_prior=cov_prior
+    )
+    ptw, avg = knn.kullback_leibler_divergence(posterior_data, prior_data, k=1)
+
+    assert avg == pytest.approx(dkl, 10e-2)
+    
+    dkl = gaussian.kullback_leibler_divergence(
+        cov_posterior=cov_prior, cov_prior=cov_posterior
+    )
+    ptw, avg = knn.kullback_leibler_divergence(prior_data, posterior_data, k=1)
+
+    assert avg == pytest.approx(dkl, 10e-2)
