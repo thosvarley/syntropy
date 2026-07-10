@@ -23,6 +23,8 @@ z = np.mod(x, 2)
 
 data = np.vstack((x, y, z))
 
+SEED = 0
+
 
 def test_kozachenko():
     # Did this one out by hand.
@@ -74,6 +76,7 @@ def test_higher_order_mi():
 
 
 def test_dkl():
+    rng = np.random.default_rng(SEED)
     cov_prior = np.array(
         [
             [0.99999999, 0.24404644, 0.65847509],
@@ -88,15 +91,20 @@ def test_dkl():
             [0.3885488, 0.20463242, 0.99999993],
         ]
     )
-    prior_data = multivariate_normal.rvs(cov=cov_prior, size=1_000_000).T
-    posterior_data = multivariate_normal.rvs(cov=cov_posterior, size=1_00_000).T
+    prior_data = rng.multivariate_normal(
+        mean=[0, 0, 0], cov=cov_prior, size=1_000_000
+    ).T
+    posterior_data = rng.multivariate_normal(
+        mean=[0, 0, 0], cov=cov_posterior, size=1_000_000
+    ).T
+
     dkl = gaussian.kullback_leibler_divergence(
         cov_posterior=cov_posterior, cov_prior=cov_prior
     )
     ptw, avg = knn.kullback_leibler_divergence(posterior_data, prior_data, k=1)
 
     assert avg == pytest.approx(dkl, 10e-2)
-    
+
     dkl = gaussian.kullback_leibler_divergence(
         cov_posterior=cov_prior, cov_prior=cov_posterior
     )
