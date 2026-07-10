@@ -354,17 +354,20 @@ def kullback_leibler_divergence(
     p: float = np.inf,
 ) -> tuple[NDArray[np.floating], float]:
     """
+    Computes the Kullback-Leibler divergence of two distributions based on point 
+    clouds sampled from those distributions. 
 
     Parameters
     ----------
     data_posterior : NDArray[np.floating]
-
+        Numpy array of shape (n_variables, n_samples)
     data_prior : NDArray[np.floating]
-
+        Numpy array of shape (n_variables, n_samples)
     k : int
-
+        Number of nearest neighbors
     p : float
-
+        Which Minkowski p-norm to use.
+        The default is np.inf (the Chebyshev distance)
 
     Returns
     -------
@@ -375,6 +378,9 @@ def kullback_leibler_divergence(
 
     References
     ----------
+    Q. Wang, S. R. Kulkarni and S. Verdu, "A Nearest-Neighbor Approach to Estimating Divergence between Continuous Random Vectors," 2006 IEEE International Symposium on Information Theory, Seattle, WA, USA, 2006
+    https://ieeexplore.ieee.org/document/4035959/authors#authors
+
     F. Perez-Cruz, "Kullback-Leibler divergence estimation of continuous distributions," 2008 IEEE International Symposium on Information Theory, Toronto, ON, Canada, 2008
     https://ieeexplore.ieee.org/document/4595271
     """
