@@ -158,7 +158,7 @@ ptw, mi = mutual_information(
 | Conditional Ent. | x | x | x | x | x |
 | Mutual Information | x | x | x | x | x |
 | Conditional MI | x | x | x | x |
-| KL Divergence | x | x | | |
+| KL Divergence | x | x | x | |
 | Total Correlation | x | x | x | x |
 | Dual Total Correlation | x | x | x | x |
 | O-Information | x | x | x | x |

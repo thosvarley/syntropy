@@ -56,7 +56,7 @@ estimator family. A checkmark (✓) indicates the measure is available.
    "Conditional entropy", "✓", "✓", "✓", "✓", "✓"
    "Mutual information", "✓", "✓", "✓", "✓", "✓"
    "Conditional mutual information", "✓", "✓", "✓", "✓", ""
-   "Kullback-Leibler divergence", "✓", "✓", "", "", ""
+   "Kullback-Leibler divergence", "✓", "✓", "✓", "", ""
    "Total correlation", "✓", "✓", "✓", "✓", ""
    "Dual total correlation", "✓", "✓", "✓", "✓", ""
    "O-information", "✓", "✓", "✓", "✓", ""
