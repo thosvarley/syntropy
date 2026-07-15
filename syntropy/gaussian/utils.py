@@ -31,7 +31,7 @@ def check_cov(
 
     """
     if cov is None:
-        cov_ = np.cov(data, ddof=0)
+        cov_ = np.atleast_2d(np.cov(data, ddof=0))
     else:
         assert cov.shape[0] == data.shape[0], (
             "The data and given covariance matrix must have the same dimensionality"

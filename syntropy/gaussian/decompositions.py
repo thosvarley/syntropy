@@ -675,7 +675,7 @@ def idep_partial_information_decomposition(
 
     if cov is None:
         assert data is not None, "You must provide something"
-        cov = np.cov(data, ddof=0)
+        cov = np.atleast_2d(np.cov(data, ddof=0))
 
     # Extract indices
     input_0 = inputs[0]

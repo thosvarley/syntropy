@@ -246,6 +246,7 @@ def dual_total_correlation(
 
 def o_information(
     joint_distribution: dict[tuple[int, ...], float],
+    idxs: tuple[int, ...] | None = None,
 ) -> tuple[dict, float]:
     """
     Computes the local and expected O-informations for the joint distribution.
@@ -253,7 +254,7 @@ def o_information(
 
     .. math::
 
-        \\Omega(X) &= (2-N)TC(X) + \\sum_{i=1}^{N}TC(X^{-i}) \\\\
+        \\\\Omega(X) &= (2-N)TC(X) + \\\\sum_{i=1}^{N}TC(X^{-i}) \\\\\\\\
                    &= TC(X) - DTC(X)
 
     Parameters
@@ -262,6 +263,9 @@ def o_information(
         The joint probability distribution.
         Keys are tuples corresponding to the state of each element.
         The valules are the probabilities.
+    idxs : tuple[int, ...], optional
+        Ignored (present only for API consistency with the Gaussian
+        ``o_information``).  All variables in the joint distribution are used.
 
     Returns
     -------
