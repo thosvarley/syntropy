@@ -61,7 +61,7 @@ ptw, mi = mutual_information(idxs_x=(0, 1), idxs_y=(2,), joint_distribution=xor)
 print(f"I(X0,X1 ; X2) = {mi:.3f} bits")  # 1.0 bit
 
 # O-information (negative = synergy-dominated)
-ptw, omega = o_information(idxs=(0, 1, 2), joint_distribution=xor)
+ptw, omega = o_information(joint_distribution=xor)
 print(f"Omega = {omega:.3f} bits")  # -1.0 bit
 ```
 
