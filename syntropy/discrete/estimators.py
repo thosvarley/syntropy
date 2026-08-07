@@ -501,3 +501,207 @@ def total_correlation(
     h_joint: float = estimator(data[idxs, :], **entropy_kwargs)
 
     return h_marginals - h_joint
+
+
+def delta_k(
+    k: int,
+    idxs: tuple[int, ...],
+    data: NDArray[Any],
+    estimator: Callable[..., float],
+    **entropy_kwargs,
+) -> float:
+    r"""
+    S-information, dual total correlation, and negative O-information can
+    all be written in the general form:
+
+        Delta^k(X) = (N-k) * TC(X) - sum_i TC(X^{-i})
+
+    using the specified entropy estimator. Unlike the joint-distribution
+    version in multivariate_mi.delta_k, this works directly on sample data,
+    so its cost scales with the number of samples rather than the size of
+    the (possibly astronomically large) joint state space -- which is what
+    makes it tractable for many-element, many-valued systems.
+
+    Parameters
+    ----------
+    k : int
+        The scale parameter.
+    idxs : tuple[int, ...]
+        Channel indices for all variables.
+    data : NDArray[Any]
+        2D array of shape (channels, samples) containing discrete observations.
+    estimator : Callable[..., float]
+        Entropy estimation function (e.g., grassberger_entropy, chao_shen_entropy).
+    **entropy_kwargs
+        Additional keyword arguments passed to the entropy estimator.
+
+    Returns
+    -------
+    float
+        The average Delta^k, in nats.
+
+    References
+    ----------
+    Varley, T. F., Pope, M., Faskowitz, J., & Sporns, O. (2023).
+    Multivariate information theory uncovers synergistic subsystems of the
+    human cerebral cortex. Communications Biology, 6(1), Article 1.
+    https://doi.org/10.1038/s42003-023-04843-w
+    """
+    N: int = len(idxs)
+
+    # Each variable's marginal entropy is shared by the whole system and by
+    # every leave-one-out subset that still contains it, so it is computed
+    # once here and reused below, rather than being rederived by N separate
+    # calls to total_correlation (which would cost O(N) estimator calls
+    # each, for O(N^2) total instead of O(N)).
+    h_marginals: dict[int, float] = {
+        i: estimator(data[i : i + 1, :], **entropy_kwargs) for i in idxs
+    }
+    h_marginals_total: float = sum(h_marginals.values())
+
+    h_joint_whole: float = estimator(data[idxs, :], **entropy_kwargs)
+    tc_whole: float = h_marginals_total - h_joint_whole
+
+    tc_parts: float = 0.0
+    for i in idxs:
+        residuals: tuple[int, ...] = tuple(j for j in idxs if j != i)
+        h_joint_reduced: float = estimator(data[residuals, :], **entropy_kwargs)
+        tc_reduced: float = (h_marginals_total - h_marginals[i]) - h_joint_reduced
+        tc_parts += tc_reduced
+
+    return (N - k) * tc_whole - tc_parts
+
+
+def s_information(
+    idxs: tuple[int, ...],
+    data: NDArray[Any],
+    estimator: Callable[..., float],
+    **entropy_kwargs,
+) -> float:
+    r"""
+    S-information using the specified entropy estimator.
+
+    .. math::
+
+        \Sigma(X) = \sum_{i=1}^{N}I(X_i;X^{-i}) = N \times TC(X) - \sum_{i=1}^{N}TC(X^{-i})
+
+    Parameters
+    ----------
+    idxs : tuple[int, ...]
+        Channel indices for all variables.
+    data : NDArray[Any]
+        2D array of shape (channels, samples) containing discrete observations.
+    estimator : Callable[..., float]
+        Entropy estimation function (e.g., grassberger_entropy, chao_shen_entropy).
+    **entropy_kwargs
+        Additional keyword arguments passed to the entropy estimator.
+
+    Returns
+    -------
+    float
+        The average S-information, in nats.
+
+    References
+    ----------
+    Rosas, F., Mediano, P. A. M., Gastpar, M., & Jensen, H. J. (2019).
+    Quantifying High-order Interdependencies via Multivariate Extensions of
+    the Mutual Information. Physical Review E, 100(3), Article 3.
+    https://doi.org/10.1103/PhysRevE.100.032305
+
+    Varley, T. F., Pope, M., Faskowitz, J., & Sporns, O. (2023).
+    Multivariate information theory uncovers synergistic subsystems of the
+    human cerebral cortex. Communications Biology, 6(1), Article 1.
+    https://doi.org/10.1038/s42003-023-04843-w
+    """
+    return delta_k(k=0, idxs=idxs, data=data, estimator=estimator, **entropy_kwargs)
+
+
+def dual_total_correlation(
+    idxs: tuple[int, ...],
+    data: NDArray[Any],
+    estimator: Callable[..., float],
+    **entropy_kwargs,
+) -> float:
+    r"""
+    Dual total correlation using the specified entropy estimator.
+
+    .. math::
+
+        DTC(X) = H(X) - \sum_{i=1}^{N}H(X_i|X^{-i}) = (N-1) \times TC(X) - \sum_{i=1}^{N}TC(X^{-i})
+
+    Parameters
+    ----------
+    idxs : tuple[int, ...]
+        Channel indices for all variables.
+    data : NDArray[Any]
+        2D array of shape (channels, samples) containing discrete observations.
+    estimator : Callable[..., float]
+        Entropy estimation function (e.g., grassberger_entropy, chao_shen_entropy).
+    **entropy_kwargs
+        Additional keyword arguments passed to the entropy estimator.
+
+    Returns
+    -------
+    float
+        The average dual total correlation, in nats.
+
+    References
+    ----------
+    Abdallah, S. A., & Plumbley, M. D. (2012).
+    A measure of statistical complexity based on predictive information with
+    application to finite spin systems. Physics Letters A, 376(4), 275-281.
+    https://doi.org/10.1016/j.physleta.2011.10.066
+
+    Rosas, F., Mediano, P. A. M., Gastpar, M., & Jensen, H. J. (2019).
+    Quantifying High-order Interdependencies via Multivariate Extensions of
+    the Mutual Information. Physical Review E, 100(3), Article 3.
+    https://doi.org/10.1103/PhysRevE.100.032305
+    """
+    return delta_k(k=1, idxs=idxs, data=data, estimator=estimator, **entropy_kwargs)
+
+
+def o_information(
+    idxs: tuple[int, ...],
+    data: NDArray[Any],
+    estimator: Callable[..., float],
+    **entropy_kwargs,
+) -> float:
+    r"""
+    O-information using the specified entropy estimator. O-information
+    quantifies the balance between redundancy (positive values) and synergy
+    (negative values) in multivariate information.
+
+    .. math::
+
+        \Omega(X) = (2-N)TC(X) + \sum_{i=1}^{N}TC(X^{-i}) = TC(X) - DTC(X)
+
+    Parameters
+    ----------
+    idxs : tuple[int, ...]
+        Channel indices for all variables.
+    data : NDArray[Any]
+        2D array of shape (channels, samples) containing discrete observations.
+    estimator : Callable[..., float]
+        Entropy estimation function (e.g., grassberger_entropy, chao_shen_entropy).
+    **entropy_kwargs
+        Additional keyword arguments passed to the entropy estimator.
+
+    Returns
+    -------
+    float
+        The average O-information, in nats.
+
+    References
+    ----------
+    Rosas, F., Mediano, P. A. M., Gastpar, M., & Jensen, H. J. (2019).
+    Quantifying High-order Interdependencies via Multivariate Extensions of
+    the Mutual Information. Physical Review E, 100(3), Article 3.
+    https://doi.org/10.1103/PhysRevE.100.032305
+
+    Varley, T. F., Pope, M., Faskowitz, J., & Sporns, O. (2023).
+    Multivariate information theory uncovers synergistic subsystems of the
+    human cerebral cortex. Communications Biology, 6(1), Article 1.
+    https://doi.org/10.1038/s42003-023-04843-w
+    """
+    # delta_k(k=2) computes -Omega(X); flip the sign to return Omega(X).
+    return -delta_k(k=2, idxs=idxs, data=data, estimator=estimator, **entropy_kwargs)

@@ -10,11 +10,17 @@ from syntropy.discrete.estimators import (
     chao_shen_entropy,
     dirichlet_entropy,
     panzeri_treves_mutual_information,
+    delta_k,
+    s_information,
+    dual_total_correlation,
+    o_information,
 )
 from syntropy.discrete.shannon import (
     shannon_entropy,
     mutual_information as shannon_mutual_information,
 )
+from syntropy.discrete import multivariate_mi as dict_mi
+from syntropy.discrete.utils import construct_joint_distribution
 
 pytest_abs = 1e-9
 
@@ -174,4 +180,71 @@ def test_panzeri_treves_mutual_information():
     assert panzeri_treves_mutual_information(
         (0,), (1,), independent
     ) == pytest.approx(0.0, abs=1e-2)
+
+
+def _plugin_entropy_nats_data(data) -> float:
+    """Plugin entropy in nats, taking raw sample data instead of a distribution."""
+    probs = plugin_probabilities(data)
+    _, ent_bits = shannon_entropy(probs)
+    return ent_bits * LN2
+
+
+# delta_k and its wrappers (s_information, dual_total_correlation,
+# o_information) are checked against the joint-distribution versions in
+# multivariate_mi.py, which are already tested for correctness against known
+# ground truth. Agreement here just confirms the sample-based
+# reimplementation computes the same quantity.
+def test_delta_k_matches_dict_based():
+    rng = np.random.default_rng(11)
+    data = rng.integers(0, 3, size=(6, 4000))
+    idxs = tuple(range(data.shape[0]))
+    joint = construct_joint_distribution(data)
+
+    for k in (0, 1, 2):
+        sample_avg = delta_k(k=k, idxs=idxs, data=data, estimator=_plugin_entropy_nats_data)
+        _, dict_avg_bits = dict_mi.delta_k(k=k, joint_distribution=joint)
+        assert sample_avg == pytest.approx(dict_avg_bits * LN2, abs=1e-9)
+
+
+def test_s_information_dtc_o_information_match_dict_based():
+    rng = np.random.default_rng(11)
+    data = rng.integers(0, 3, size=(6, 4000))
+    idxs = tuple(range(data.shape[0]))
+    joint = construct_joint_distribution(data)
+
+    assert s_information(idxs, data, _plugin_entropy_nats_data) == pytest.approx(
+        dict_mi.s_information(joint)[1] * LN2, abs=1e-9
+    )
+    assert dual_total_correlation(
+        idxs, data, _plugin_entropy_nats_data
+    ) == pytest.approx(dict_mi.dual_total_correlation(joint)[1] * LN2, abs=1e-9)
+    assert o_information(idxs, data, _plugin_entropy_nats_data) == pytest.approx(
+        dict_mi.o_information(joint)[1] * LN2, abs=1e-9
+    )
+
+
+def test_delta_k_caches_marginal_entropies():
+    """
+    Each variable's marginal entropy is shared by the whole-system TC and by
+    every N-1 leave-one-out TC that still contains it. A naive implementation
+    that just called total_correlation N+1 times would recompute it up to N
+    times per variable; delta_k should compute each marginal entropy exactly
+    once (N calls) plus one whole-system joint and N reduced joints, i.e.
+    2N + 1 estimator calls total, not O(N^2).
+    """
+    rng = np.random.default_rng(12)
+    N = 5
+    data = rng.integers(0, 2, size=(N, 500))
+    idxs = tuple(range(N))
+
+    calls = 0
+
+    def counting_estimator(sub_data):
+        nonlocal calls
+        calls += 1
+        return _plugin_entropy_nats_data(sub_data)
+
+    delta_k(k=2, idxs=idxs, data=data, estimator=counting_estimator)
+
+    assert calls == 2 * N + 1
 

@@ -5,7 +5,6 @@ from scipy.special import comb
 from .utils import (
     reduce_state,
     get_marginal_distribution,
-    marginalize_out,
     get_all_marginal_distributions,
 )
 from .shannon import kullback_leibler_divergence, shannon_entropy
@@ -122,12 +121,16 @@ def delta_k(
     for i in range(N):
         residuals: tuple = tuple(j for j in range(N) if j != i)
 
+        # Group states by their reduced (leave-i-out) form and accumulate the
+        # reduced distribution's probabilities in the same pass -- these used
+        # to be two separate O(|S|) passes over the same reduce_state mapping
+        # (the second one hidden inside marginalize_out).
         reduced_to_full: dict = {}
-        for s in states:
+        reduced_distribution: dict = {}
+        for s, prob in joint_distribution.items():
             r = reduce_state(s, residuals)
             reduced_to_full.setdefault(r, []).append(s)
-
-        reduced_distribution: dict = marginalize_out((i,), joint_distribution)
+            reduced_distribution[r] = reduced_distribution.get(r, 0.0) + prob
 
         ptw_r: dict = {}
         avg_r: float = 0.0
