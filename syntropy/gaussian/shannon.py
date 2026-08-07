@@ -413,10 +413,10 @@ def kullback_leibler_divergence(
     """
     k = cov_posterior.shape[0]
 
-    if mu_posterior == 0:
-        mu_posterior = np.zeros(cov_posterior.shape[0])
-    if mu_prior == 0:
-        mu_prior = np.zeros(cov_prior.shape[0])
+    if type(mu_posterior) is int:
+        mu_posterior = np.zeros(cov_posterior.shape[0]) + mu_posterior
+    if type(mu_prior) is int:
+        mu_prior = np.zeros(cov_prior.shape[0]) + mu_prior
 
     # Mean difference
     d = mu_prior - mu_posterior
