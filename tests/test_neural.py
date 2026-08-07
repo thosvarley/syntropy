@@ -8,8 +8,9 @@ import pytest
 torch = pytest.importorskip("torch")
 pytest.importorskip("nflows")
 
-from syntropy.neural import mutual_information, total_correlation
+from syntropy.neural import kullback_leibler_divergence, mutual_information, total_correlation
 from syntropy.neural.multivariate_mi import higher_order_information
+from syntropy.neural.utils import initialize_flow, train_flow
 
 # Fast configuration: a tiny flow trained for a couple of epochs. The default
 # tests below check structural properties (shapes, finiteness, the local/average
@@ -43,6 +44,21 @@ def test_mutual_information_runs():
     # (holds regardless of how well the flow trained).
     assert float(ptw.mean()) == pytest.approx(float(mi), abs=1e-5)
 
+def test_kullback_leibler_divergence_runs():
+    data_p = _toy_data(d=1, seed=0)
+    data_q = _toy_data(d=1, seed=1)
+
+    flow_p = train_flow(initialize_flow(dim=1, **FAST_FLOW), data_p, num_epochs=2)
+    flow_q = train_flow(initialize_flow(dim=1, **FAST_FLOW), data_q, num_epochs=2)
+
+    ptw, kl = kullback_leibler_divergence(flow_p, flow_q, n_samples=FAST_N)
+    assert np.isfinite(float(kl))
+    assert ptw.shape == (FAST_N,)
+    # Structural identity: pointwise values average to the expected value
+    # (holds regardless of how well the flows trained).
+    assert float(ptw.mean()) == pytest.approx(float(kl), abs=1e-5)
+
+
 # ---------------------------------------------------------------------------
 # Slow test (opt-in via `pytest --runslow`)
 # ---------------------------------------------------------------------------
@@ -65,3 +81,38 @@ def test_converges_to_gaussian_mi():
     analytic = -0.5 * np.log(1 - rho**2)
     assert float(mi) == pytest.approx(analytic, abs=3e-2)
     assert float(ptw.mean()) == pytest.approx(float(mi), abs=1e-5)
+
+
+@pytest.mark.slow
+def test_converges_to_gaussian_kl():
+    """
+    With proper training, the neural KL estimate recovers the analytic
+    Kullback-Leibler divergence between two univariate Gaussians:
+
+        D_KL(P||Q) = ln(sigma_q / sigma_p)
+                     + (sigma_p^2 + (mu_p - mu_q)^2) / (2 * sigma_q^2)
+                     - 1/2
+
+    Gated behind --runslow because training two flows takes ~1 minute.
+    """
+    torch.manual_seed(0)
+    np.random.seed(0)
+    n = 10_000
+    mu_p, sigma_p = 0.0, 1.0
+    mu_q, sigma_q = 1.0, 1.5
+
+    data_p = (mu_p + sigma_p * torch.randn(n)).unsqueeze(1)
+    data_q = (mu_q + sigma_q * torch.randn(n)).unsqueeze(1)
+
+    flow_p = train_flow(initialize_flow(dim=1), data_p, verbose=True)
+    flow_q = train_flow(initialize_flow(dim=1), data_q, verbose=True)
+
+    ptw, kl = kullback_leibler_divergence(flow_p, flow_q, n_samples=10_000)
+
+    analytic = (
+        np.log(sigma_q / sigma_p)
+        + (sigma_p**2 + (mu_p - mu_q) ** 2) / (2 * sigma_q**2)
+        - 0.5
+    )
+    assert float(kl) == pytest.approx(analytic, abs=5e-2)
+    assert float(ptw.mean()) == pytest.approx(float(kl), abs=1e-5)

@@ -256,3 +256,57 @@ def conditional_mutual_information(
     avg: float = avg_x_given_z - avg_x_given_yz
 
     return ptw, avg
+
+
+def kullback_leibler_divergence(
+    flow_posterior: nflows.flows.base.Flow,
+    flow_prior: nflows.flows.base.Flow,
+    n_samples: int = 10_000,
+) -> tuple[torch.Tensor, float]:
+    """
+    Computes the local and expected Kullback-Leibler divergence between two
+    trained normalizing flows via Monte Carlo integration: samples are drawn
+    from the posterior flow and their log-densities are evaluated under both
+    flows directly, without a separate entropy estimation step.
+
+    .. math::
+
+        D_{KL}(P||Q) = \\mathbb{E}_{x\\sim P}[\\log p(x) - \\log q(x)]
+
+    Parameters
+    ----------
+    flow_posterior : nflows.flows.base.Flow
+        A trained normalizing flow parameterizing the posterior distribution P.
+    flow_prior : nflows.flows.base.Flow
+        A trained normalizing flow parameterizing the prior distribution Q.
+        Must have the same dimensionality as flow_posterior.
+    n_samples : int
+        The number of samples drawn from flow_posterior to estimate the
+        divergence. The default is 10,000.
+
+    Returns
+    -------
+    torch.Tensor
+        The local Kullback-Leibler divergence for each sample.
+    float
+        The average Kullback-Leibler divergence.
+
+    """
+    flow_posterior.eval()
+
+    x: torch.Tensor
+    with torch.no_grad():
+        x = flow_posterior.sample(n_samples)
+
+    ptw_p: torch.Tensor
+    avg_p: float
+    ptw_p, avg_p = evaluate_flow(flow_posterior, x)
+
+    ptw_q: torch.Tensor
+    avg_q: float
+    ptw_q, avg_q = evaluate_flow(flow_prior, x)
+
+    ptw: torch.Tensor = ptw_q - ptw_p
+    avg: float = avg_q - avg_p
+
+    return ptw, avg
