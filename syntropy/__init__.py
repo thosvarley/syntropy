@@ -6,7 +6,7 @@ including entropy, mutual information, and various multivariate decompositions
 for discrete, Gaussian, and general continuous distributions.
 """
 
-__version__ = "0.0.1"
+__version__ = "0.0.2"
 __author__ = "Thomas F. Varley"
 __email__ = "tfvarley@uvm.edu"
 
