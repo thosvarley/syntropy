@@ -7,7 +7,7 @@ from .utils import (
     get_marginal_distribution,
     get_all_marginal_distributions,
 )
-from .shannon import kullback_leibler_divergence, shannon_entropy
+from .shannon import shannon_entropy
 from .optimization import constrained_maximum_entropy_distributions
 
 binom_lookup = {N: {k: comb(N, k, exact=True) for k in range(N)} for N in range(16)}
@@ -51,11 +51,25 @@ def total_correlation(
     
     """
 
-    maxent_distribution = constrained_maximum_entropy_distributions(
-        joint_distribution, order=1
-    )
+    # TC(X) = D_KL(P(X) || prod_i P(X_i)), computed directly at the states
+    # present in joint_distribution rather than by materializing the
+    # product-of-marginals distribution over its full (possibly
+    # astronomically large) Cartesian product -- the KL sum only ever
+    # touches P's own support, so that's all we need to evaluate here.
+    N: int = len(next(iter(joint_distribution)))
+    first_order_marginals: list[dict] = [
+        get_marginal_distribution((j,), joint_distribution) for j in range(N)
+    ]
 
-    ptw, avg = kullback_leibler_divergence(joint_distribution, maxent_distribution)
+    ptw: dict = {}
+    avg: float = 0.0
+    for state, prob in joint_distribution.items():
+        log_q: float = sum(
+            math.log2(first_order_marginals[j][(state[j],)]) for j in range(N)
+        )
+        val: float = math.log2(prob) - log_q
+        ptw[state] = val
+        avg += prob * val
 
     return ptw, avg
 
