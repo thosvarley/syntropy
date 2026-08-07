@@ -6,7 +6,9 @@ including entropy, mutual information, and various multivariate decompositions
 for discrete, Gaussian, and general continuous distributions.
 """
 
-__version__ = "0.0.2"
+from importlib.metadata import version as _version
+
+__version__ = _version("syntropyx")
 __author__ = "Thomas F. Varley"
 __email__ = "tfvarley@uvm.edu"
 
